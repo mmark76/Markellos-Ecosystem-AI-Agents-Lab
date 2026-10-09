@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>Markellos Ecosystem AI Agents Lab · Local</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script defer src="/static/app.js"></script>
+  <script defer src="/static/settings.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand"><span class="mark">M</span><span><strong>Markellos Ecosystem<br>AI Agents Lab</strong><small>Private Local Workspace</small></span></div>
+    <div class="label">WORKSPACE</div>
+    <button class="nav selected" data-room="university">▣ &nbsp; <span id="nav-training">Agent Training</span></button>
+    <button class="nav" data-room="conference">▤ &nbsp; <span id="nav-conference">Agent Collaboration</span></button>
+    <div class="label section-gap">PHASE 1 · SANDBOX</div>
+    <p class="tip" id="phase-tip"></p>
+    <div class="sidebar-footer" id="sidebar-note"></div>
+  </aside>
+  <main class="main">
+    <header class="top">
+      <div><div class="eyebrow">MARKELLOS ECOSYSTEM · LOCAL LAB</div><h1 id="room-title">Learning Lab</h1><p class="subtitle" id="room-description">Learn → Practice → Evaluate → Improve</p></div>
+      <div class="top-controls"><button type="button" id="settings-toggle" class="settings-toggle" aria-expanded="false" aria-controls="settings-panel" aria-label="Settings">⚙ <span id="settings-label">Settings</span></button><div class="language-controls"><label id="ui-language-label" for="ui-language">Interface</label><select id="ui-language" aria-label="Interface language"><option value="en">EN</option><option value="el">EL</option></select></div><span class="privacy"><span class="dot"></span> LOCAL ONLY</span></div>
+    </header>
+    <section class="settings-panel" id="settings-panel" aria-labelledby="settings-heading" hidden>
+      <div class="settings-heading"><h2 id="settings-heading">Appearance Settings</h2><button type="button" id="settings-close" aria-label="Close settings">×</button></div>
+      <fieldset class="settings-field"><legend id="settings-mode-label">Appearance</legend>
+        <div class="setting-options" id="theme-options">
+          <label><input type="radio" name="appearance" value="dark" checked><span id="theme-dark-label">Dark</span></label>
+          <label><input type="radio" name="appearance" value="light"><span id="theme-light-label">Light</span></label>
+        </div>
+      </fieldset>
+      <fieldset class="settings-field"><legend id="settings-accent-label">Accent Color</legend>
+        <div class="accent-options" id="accent-options" role="group" aria-label="Accent Color">
+          <button type="button" data-accent="mint" aria-label="Mint" aria-pressed="true"><span class="swatch-dot" aria-hidden="true"></span><span class="swatch-name">Mint</span></button>
+          <button type="button" data-accent="blue" aria-label="Blue" aria-pressed="false"><span class="swatch-dot" aria-hidden="true"></span><span class="swatch-name">Blue</span></button>
+          <button type="button" data-accent="purple" aria-label="Purple" aria-pressed="false"><span class="swatch-dot" aria-hidden="true"></span><span class="swatch-name">Purple</span></button>
+          <button type="button" data-accent="orange" aria-label="Orange" aria-pressed="false"><span class="swatch-dot" aria-hidden="true"></span><span class="swatch-name">Orange</span></button>
+          <button type="button" data-accent="rose" aria-label="Rose" aria-pressed="false"><span class="swatch-dot" aria-hidden="true"></span><span class="swatch-name">Rose</span></button>
+        </div>
+      </fieldset>
+      <button type="button" id="settings-reset" class="reset-theme">Reset to Defaults</button>
+    </section>
+    <section class="statusbar">
+      <div><span class="status-icon">◉</span> <span id="status">Checking local model...</span></div>
+      <div class="model-select"><label for="response-language" id="response-language-label">Agent responses</label><select id="response-language"><option value="en">EN</option><option value="el">EL</option></select><label for="model" id="model-label">Local AI Model</label><select id="model"><option>Έλεγχος...</option></select></div>
+    </section>
+    <section class="chat-panel" aria-live="polite">
+      <div id="messages" class="messages"><div class="empty">No training sessions yet. Enter a topic below.</div></div>
+    </section>
+    <form id="composer" class="composer">
+      <label for="prompt" id="prompt-label">Training Topic</label>
+      <textarea id="prompt" rows="3" maxlength="2500" required placeholder="e.g. Teach the agents how to review a pull request safely..."></textarea>
+      <div class="actions"><div id="hint">Agents have no access to files or commands.</div><button id="send" type="submit">Start Training ↗</button></div>
+    </form>
+    <footer>Private by design · 127.0.0.1 · No tracking, CDN or telemetry in this app</footer>
+  </main>
+</div>
+</body>
+</html>
