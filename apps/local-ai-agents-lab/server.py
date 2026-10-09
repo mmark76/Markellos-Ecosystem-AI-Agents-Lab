@@ -186,7 +186,9 @@ class Handler(BaseHTTPRequestHandler):
         pages = {"/": ("index.html", "text/html; charset=utf-8"),
                  "/static/style.css": ("style.css", "text/css; charset=utf-8"),
                  "/static/app.js": ("app.js", "text/javascript; charset=utf-8"),
-                 "/static/settings.js": ("settings.js", "text/javascript; charset=utf-8")}
+                 "/static/settings.js": ("settings.js", "text/javascript; charset=utf-8"),
+                 "/static/ecosystem-shell.js": ("ecosystem-shell.js", "text/javascript; charset=utf-8"),
+                 "/static/ecosystem-tokens.css": ("ecosystem-tokens.css", "text/css; charset=utf-8")}
         resource = pages.get(self.path)
         if not resource:
             self._json({"error": "Not found"}, 404)

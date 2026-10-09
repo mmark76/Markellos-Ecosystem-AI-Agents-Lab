@@ -37,6 +37,7 @@ jobs:
         run: |
           node --check static/app.js
           node --check static/settings.js
+          node --check static/ecosystem-shell.js
       - name: Validate local-only boundaries
         run: |
           python -c "from pathlib import Path; p=Path('.'); assert not (p/'data').exists(); assert not (p/'backups').exists(); assert not list(p.rglob('*.sqlite3'))"

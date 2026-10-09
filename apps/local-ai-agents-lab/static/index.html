@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark light">
   <title>Markellos Ecosystem AI Agents Lab · Local</title>
+  <link rel="stylesheet" href="/static/ecosystem-tokens.css">
   <link rel="stylesheet" href="/static/style.css">
   <script defer src="/static/app.js"></script>
   <script defer src="/static/settings.js"></script>
+  <script defer src="/static/ecosystem-shell.js"></script>
 </head>
 <body>
 <div class="shell">
@@ -23,7 +25,7 @@
   <main class="main">
     <header class="top">
       <div><div class="eyebrow">MARKELLOS ECOSYSTEM · LOCAL LAB</div><h1 id="room-title">Learning Lab</h1><p class="subtitle" id="room-description">Learn → Practice → Evaluate → Improve</p></div>
-      <div class="top-controls"><button type="button" id="settings-toggle" class="settings-toggle" aria-expanded="false" aria-controls="settings-panel" aria-label="Settings">⚙ <span id="settings-label">Settings</span></button><div class="language-controls"><label id="ui-language-label" for="ui-language">Interface</label><select id="ui-language" aria-label="Interface language"><option value="en">EN</option><option value="el">EL</option></select></div><span class="privacy"><span class="dot"></span> LOCAL ONLY</span></div>
+      <div class="top-controls"><a class="ecosystem-link" href="https://markellosecosystem.com/" target="_blank" rel="noopener noreferrer" id="ecosystem-link">Back to markellosecosystem</a><button type="button" id="quick-mode" class="settings-toggle" aria-label="Toggle light and dark mode">Light / Dark</button><button type="button" id="info-toggle" class="settings-toggle" aria-haspopup="dialog">Info</button><button type="button" id="settings-toggle" class="settings-toggle" aria-expanded="false" aria-controls="settings-panel" aria-label="Settings">⚙ <span id="settings-label">Settings</span></button><div class="language-controls"><label id="ui-language-label" for="ui-language">Interface</label><select id="ui-language" aria-label="Interface language"><option value="en">EN</option><option value="el">EL</option></select></div><span class="privacy"><span class="dot"></span> LOCAL ONLY</span></div>
     </header>
     <section class="settings-panel" id="settings-panel" aria-labelledby="settings-heading" hidden>
       <div class="settings-heading"><h2 id="settings-heading">Appearance Settings</h2><button type="button" id="settings-close" aria-label="Close settings">×</button></div>
@@ -44,6 +46,14 @@
       </fieldset>
       <button type="button" id="settings-reset" class="reset-theme">Reset to Defaults</button>
     </section>
+    <dialog id="lab-info" class="lab-info" aria-labelledby="lab-info-title">
+      <h2 id="lab-info-title">Important Info</h2>
+      <p id="lab-info-body">This laboratory runs locally with Ollama. Conversation history stays in local SQLite storage.</p>
+      <p id="lab-info-privacy">No analytics or external AI service is integrated into this app.</p>
+      <p id="lab-info-rights">© <span class="copyright-year"></span> Markellos Markides. All rights reserved.</p>
+      <p class="build-id">v0.1.1_YYYYMMDD_HHMM_SHA</p>
+      <button type="button" id="info-close" class="settings-toggle">Close</button>
+    </dialog>
     <section class="statusbar">
       <div><span class="status-icon">◉</span> <span id="status">Checking local model...</span></div>
       <div class="model-select"><label for="response-language" id="response-language-label">Agent responses</label><select id="response-language"><option value="en">EN</option><option value="el">EL</option></select><label for="model" id="model-label">Local AI Model</label><select id="model"><option>Έλεγχος...</option></select></div>
@@ -56,7 +66,7 @@
       <textarea id="prompt" rows="3" maxlength="2500" required placeholder="e.g. Teach the agents how to review a pull request safely..."></textarea>
       <div class="actions"><div id="hint">Agents have no access to files or commands.</div><button id="send" type="submit">Start Training ↗</button></div>
     </form>
-    <footer>Private by design · 127.0.0.1 · No tracking, CDN or telemetry in this app</footer>
+    <footer><span>© <span class="copyright-year"></span> Markellos Markides. All rights reserved.</span><span class="build-id">v0.1.1_YYYYMMDD_HHMM_SHA</span></footer>
   </main>
 </div>
 </body>
