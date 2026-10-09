@@ -38,6 +38,23 @@ jobs:
           node --check static/app.js
           node --check static/settings.js
           node --check static/ecosystem-shell.js
+      - name: Test release builder
+        run: |
+          node --check scripts/build-release.cjs
+          node --check scripts/verify-release.cjs
+          node --test tests/build-release.test.cjs
+      - name: Build release from tested Git commit
+        run: node scripts/build-release.cjs HEAD "$RUNNER_TEMP/local-lab-release"
+      - name: Verify stamped release
+        run: node scripts/verify-release.cjs "$RUNNER_TEMP/local-lab-release/local-ai-agents-lab" "$GITHUB_SHA"
+      - name: Publish local release artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: local-ai-agents-lab-${{ github.sha }}
+          path: ${{ runner.temp }}/local-lab-release/local-ai-agents-lab/
+          if-no-files-found: error
+          retention-days: 30
       - name: Validate local-only boundaries
         run: |
           python -c "from pathlib import Path; p=Path('.'); assert not (p/'data').exists(); assert not (p/'backups').exists(); assert not list(p.rglob('*.sqlite3'))"

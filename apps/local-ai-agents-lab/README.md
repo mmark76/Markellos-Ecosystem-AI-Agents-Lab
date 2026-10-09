@@ -65,3 +65,25 @@
 Το πακέτο **AI-Agents-University-Local-Starter.zip** αντικαθίσταται από αυτό το ZIP. Αν έχεις ήδη τρέξει την παλιά έκδοση, κλείσε πρώτα τον server. Η βάση `data/campus.sqlite3` **δεν** περιλαμβάνεται στο ZIP και δεν μεταφέρεται αυτόματα. Για να διατηρήσεις προηγούμενες συνομιλίες, πάρε αντίγραφο της υπάρχουσας βάσης και τοποθέτησέ το στον αντίστοιχο φάκελο `data/` της νέας εφαρμογής, μόνο με κλειστό server. Μην διαγράψεις τον παλιό φάκελο πριν ελέγξεις τη νέα εγκατάσταση.
 
 Για το laptop με ήδη εγκατεστημένο Ollama και τοπικά Qwen μοντέλα, δεν χρειάζεται νέο `ollama pull` εφόσον το επιθυμητό μοντέλο εμφανίζεται στο `ollama list`.
+
+## Αυτόματο Build ID και ελεγχόμενο deployment
+
+Η έκδοση ορίζεται στο αρχείο VERSION (π.χ. 0.1.1).
+Το Build ID παράγεται αυτόματα από την έκδοση, τον χρόνο commit στη
+ζώνη Europe/Nicosia και τα πρώτα επτά ψηφία του πραγματικού commit SHA.
+
+Από το checkout του repository, μέσα στο apps/local-ai-agents-lab:
+
+    node scripts/build-release.cjs HEAD C:\Temp\lab-release-new
+    node scripts/verify-release.cjs C:\Temp\lab-release-new\local-ai-agents-lab FULL_SHA
+
+Ο verifier ελέγχει το release.json και τις δύο ενδείξεις Build ID
+στο Info και Footer. Μετά από merge στο main, τα GitHub Actions
+δημιουργούν επαληθευμένο artifact εγκατάστασης για το commit.
+
+Για εγκατάσταση στο laptop: backup, τερματισμός της τοπικής
+εφαρμογής, αντιγραφή μόνο των αρχείων του πακέτου, επανεκκίνηση
+και verification. Διατηρούμε το data/ και τα τοπικά μοντέλα Ollama.
+Το Build ID δεν πληκτρολογείται ποτέ χειροκίνητα κατά το deployment.
+Η εγκατάσταση στο laptop απαιτεί ξεχωριστή έγκριση και δεν γίνεται
+αυτόματα από τα GitHub Actions.
