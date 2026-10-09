@@ -1,0 +1,42 @@
+name: Validate Local AI Agents Lab
+
+on:
+  pull_request:
+    paths:
+      - 'apps/local-ai-agents-lab/**'
+      - '.github/workflows/validate-local-ai-agents-lab.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'apps/local-ai-agents-lab/**'
+      - '.github/workflows/validate-local-ai-agents-lab.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  local-lab:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/local-ai-agents-lab
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Python tests
+        run: python -m unittest discover -s tests -v
+      - name: Python syntax
+        run: python -c "import ast,pathlib;ast.parse(pathlib.Path('server.py').read_text(encoding='utf-8'))"
+      - name: JavaScript syntax
+        run: |
+          node --check static/app.js
+          node --check static/settings.js
+      - name: Validate local-only boundaries
+        run: |
+          python -c "from pathlib import Path; p=Path('.'); assert not (p/'data').exists(); assert not (p/'backups').exists(); assert not list(p.rglob('*.sqlite3'))"
