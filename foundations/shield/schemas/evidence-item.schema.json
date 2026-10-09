@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://security.ecosystem.invalid/schemas/evidence-item.schema.json",
+  "title": "Shield security evidence item",
+  "description": "Provenance-bearing evidence. A DECLARED or OBSERVED claim is not silently promoted to VERIFIED.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["evidenceId", "claimType", "source", "generatedAt", "collectionMethod", "environment", "controlId", "result", "confidence", "provenance", "reviewStatus"],
+  "properties": {
+    "evidenceId": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]{2,63}$" },
+    "claimType": { "enum": ["DECLARED", "OBSERVED", "VERIFIED"] },
+    "source": { "type": "string", "minLength": 1 },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "collectionMethod": { "type": "string", "minLength": 1 },
+    "repository": { "type": ["string", "null"] },
+    "commitSha": { "type": ["string", "null"], "pattern": "^[a-f0-9]{40}$" },
+    "environment": { "type": "string", "minLength": 1 },
+    "artifact": { "type": ["string", "null"] },
+    "artifactVersion": { "type": ["string", "null"] },
+    "controlId": { "type": "string", "minLength": 1 },
+    "result": { "enum": ["PASS", "FAIL", "BLOCKED", "NOT_TESTED", "TECHNICALLY_UNAVAILABLE"] },
+    "confidence": { "enum": ["LOW", "MEDIUM", "HIGH"] },
+    "provenance": { "type": "string", "minLength": 1 },
+    "reviewer": { "type": ["string", "null"] },
+    "reviewStatus": { "enum": ["UNREVIEWED", "REVIEWED", "REJECTED"] },
+    "expiresAt": { "type": ["string", "null"], "format": "date-time" },
+    "stalenessStatus": { "enum": ["CURRENT", "STALE", "UNKNOWN"] },
+    "sanitizedReference": { "type": ["string", "null"] }
+  }
+}

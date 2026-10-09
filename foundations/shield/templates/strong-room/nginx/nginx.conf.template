@@ -1,0 +1,44 @@
+# Static-only profile. Requires application-specific rendering; preserve $uri.
+worker_processes auto;
+pid /tmp/nginx.pid;
+error_log /dev/stderr warn;
+events { worker_connections 256; }
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+    # No query strings, headers or cookies in routine access logs.
+    log_format safe '$request_method $status $body_bytes_sent';
+    access_log /dev/stdout safe;
+    sendfile on;
+    server_tokens off;
+    client_body_temp_path /tmp/client_temp;
+    proxy_temp_path /tmp/proxy_temp;
+    fastcgi_temp_path /tmp/fastcgi_temp;
+    uwsgi_temp_path /tmp/uwsgi_temp;
+    scgi_temp_path /tmp/scgi_temp;
+    server {
+        listen <CONTAINER_PORT> default_server;
+        server_name <APP_HOSTNAME>;
+        root /usr/share/nginx/html;
+        index index.html;
+        autoindex off;
+        add_header Content-Security-Policy "default-src 'self'; base-uri 'none'; connect-src 'self'; font-src 'self'; form-action 'none'; frame-ancestors 'none'; img-src 'self' data:; object-src 'none'; script-src 'self'; style-src 'self'; upgrade-insecure-requests" always;
+        add_header X-Frame-Options "DENY" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Referrer-Policy "no-referrer" always;
+        add_header Permissions-Policy "camera=(), geolocation=(), microphone=(), payment=(), usb=()" always;
+        add_header Strict-Transport-Security "max-age=31536000" always;
+        add_header X-Robots-Tag "noindex, nofollow, noarchive" always;
+        add_header Cache-Control "private, no-store" always;
+        location = <HEALTH_ENDPOINT> {
+            access_log off;
+            default_type text/plain;
+            if ($request_method !~ ^(GET|HEAD)$) { return 405; }
+            return 200 "ok\n";
+        }
+        location / {
+            limit_except GET HEAD { deny all; }
+            try_files $uri $uri/ =404;
+        }
+    }
+}

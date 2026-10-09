@@ -1,0 +1,10 @@
+# ONE ingress entry, not a complete tunnel configuration.
+# Merge at the intended position in the application-owned route set.
+- hostname: "<APP_HOSTNAME>"
+  service: "http://<LOCAL_BIND_ADDRESS>:<LOCAL_PORT>"
+  originRequest:
+    access:
+      required: true
+      teamName: "<ACCESS_TEAM_NAME>"
+      audTag:
+        - "<ACCESS_AUD>"

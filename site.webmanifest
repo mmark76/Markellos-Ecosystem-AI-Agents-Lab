@@ -1,0 +1,8 @@
+{
+  "name": "Project Dashboard Template",
+  "short_name": "Dashboard Template",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#153B6B"
+}

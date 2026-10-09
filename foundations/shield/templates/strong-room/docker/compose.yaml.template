@@ -1,0 +1,50 @@
+# Static profile; render/validate in the application repository before use.
+name: "<APP_NAME>"
+services:
+  <SERVICE_NAME>:
+    container_name: "<CONTAINER_NAME>"
+    image: "<IMAGE_REFERENCE>"
+    user: "<RUN_UID>:<RUN_GID>"
+    read_only: true
+    restart: unless-stopped
+    ports:
+      - "<LOCAL_BIND_ADDRESS>:<LOCAL_PORT>:<CONTAINER_PORT>"
+    volumes:
+      - type: bind
+        source: "<RELEASE_PATH>"
+        target: /usr/share/nginx/html
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ../nginx/nginx.conf
+        target: /etc/nginx/nginx.conf
+        read_only: true
+        bind:
+          create_host_path: false
+    tmpfs:
+      - /tmp:size=<TMPFS_SIZE>,mode=1777,noexec,nosuid,nodev
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: <PIDS_LIMIT>
+    mem_limit: "<MEMORY_LIMIT>"
+    cpus: <CPU_LIMIT>
+    labels:
+      traefik.enable: "false"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:<CONTAINER_PORT><HEALTH_ENDPOINT>"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - private_app
+networks:
+  private_app:
+    name: "<NETWORK_NAME>"
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: "false"
+      com.docker.network.bridge.host_binding_ipv4: "<LOCAL_BIND_ADDRESS>"

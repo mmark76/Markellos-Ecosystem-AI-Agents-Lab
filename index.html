@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en" data-theme="tech-toolbox" data-color-mode="light" data-font="system" data-text-size="100" data-spacing="comfortable">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Integrated Project Template: a safe adoption starter for DNA, Engineering Standards, Shield, and Infrastructure.">
+  <meta name="theme-color" content="#153b6b">
+  <meta name="build-version" content="0.2.0">
+  <meta name="build-date" content="20260902">
+  <meta name="build-time" content="2035">
+  <meta name="build-time-zone" content="Europe/Nicosia">
+  <meta name="build-commit" content="94d4cd7">
+  <title>Integrated Project Template</title>
+  <link rel="stylesheet" href="./design-system/tokens/tokens.css">
+  <link rel="stylesheet" href="./dashboard.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="identity-row">
+        <a class="brand-lockup" href="#home" data-i18n-aria-label="dashboardHome" aria-label="Dashboard home">
+          <span class="brand-mark" aria-hidden="true">IP</span>
+          <span class="brand-copy">
+            <span class="project-label">MARKELLOS ECOSYSTEM</span>
+            <span class="project-name">Integrated Project Template</span>
+          </span>
+        </a>
+
+        <div id="header-utilities" class="header-actions" role="group" data-i18n-aria-label="dashboardUtilities" aria-label="Dashboard utilities">
+          <button id="assistant-button" class="assistant-button" type="button" aria-haspopup="dialog" aria-controls="assistant-dialog">
+            <span class="assistant-avatar" aria-hidden="true">FA</span>
+            <span class="assistant-copy">
+              <span class="assistant-name" data-i18n="assistantName">Template Assistant</span>
+              <span class="assistant-presence">
+                <span class="assistant-status-dot" aria-hidden="true"></span>
+                <span data-i18n="assistantStatus">Ready</span>
+              </span>
+            </span>
+          </button>
+
+          <div class="language-selector" role="group" data-i18n-aria-label="language" aria-label="Language">
+            <button id="language-gr" class="language-button" type="button" data-language="el" data-i18n-aria-label="greekLanguage" aria-label="Greek" aria-pressed="false">GR</button>
+            <button id="language-en" class="language-button" type="button" data-language="en" data-i18n-aria-label="englishLanguage" aria-label="English" aria-pressed="true">EN</button>
+          </div>
+
+          <a id="ecosystem-link" class="ecosystem-link" href="https://markellosecosystem.com/">Back to markellosecosystem</a>
+
+          <button id="theme-toggle" class="header-control" type="button" aria-pressed="false">
+            <span aria-hidden="true">◐</span>
+            <span data-theme-toggle-label>Dark</span>
+          </button>
+
+          <button id="settings-button" class="header-control" type="button" aria-haspopup="dialog" aria-controls="settings-dialog">
+            <span aria-hidden="true">⚙</span>
+            <span data-i18n="settings">Settings</span>
+          </button>
+
+          <button id="info-button" class="header-control" type="button" aria-haspopup="dialog" aria-controls="info-dialog">
+            <span aria-hidden="true">ⓘ</span>
+            <span data-i18n="info">Info</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="navigation-row">
+        <button class="menu-button" type="button" aria-expanded="false" aria-controls="primary-navigation">
+          <span aria-hidden="true">☰</span>
+          <span data-i18n="navigation">Navigation</span>
+        </button>
+        <nav id="primary-navigation" class="primary-nav" data-i18n-aria-label="primaryNavigation" aria-label="Primary navigation">
+          <a class="nav-link is-active" href="#home" data-i18n="home">Home</a>
+          <a class="nav-link" href="#overview" data-i18n="overview">Overview</a>
+          <a class="nav-link" href="#documents" data-i18n="documents">Documents</a>
+          <a class="nav-link" href="#about" data-i18n="about">About</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main id="home" class="main-content">
+    <section class="hero" aria-labelledby="page-title">
+      <p class="eyebrow">INTEGRATED PROJECT TEMPLATE</p>
+      <h1 id="page-title">A project-safe starting point for Markellos Ecosystem delivery.</h1>
+      <p class="hero-copy">
+        Start a project with DNA lifecycle adoption, Engineering Standards traceability, Shield security adoption, and explicit Infrastructure readiness—without creating a competing source of authority.
+      </p>
+      <p id="language-status" class="shell-notice" role="status" aria-live="polite">
+        Shell controls support English and Greek. Template reference content remains English.
+      </p>
+    </section>
+
+    <section id="overview" class="card-grid" aria-label="Integrated template foundations and lifecycle">
+      <article class="dashboard-card">
+        <p class="card-label">ENGINEERING & SECURITY</p>
+        <h2>Authoritative adoption</h2>
+        <p>Trace applicable Engineering Standards and Shield controls without duplicating their normative catalogues.</p>
+        <a class="card-link" href="./engineering/requirements/ENG_ADOPTION_MATRIX.md">Engineering adoption</a>
+        <a class="card-link" href="./security/baseline/README.md">Shield adoption boundary</a>
+      </article>
+      <article class="dashboard-card">
+        <p class="card-label">DNA / LIFECYCLE</p>
+        <h2>From initialization to completion</h2>
+        <p>Establish scope, verify readiness and complete projects with evidence.</p>
+        <a class="card-link" href="./FRAMEWORK.md">Project lifecycle</a>
+        <a class="card-link" href="./checklists/INITIALIZATION_GATE.md">Initialization gate</a>
+        <a class="card-link" href="./checklists/DEVELOPMENT_READINESS.md">Development readiness</a>
+      </article>
+      <article class="dashboard-card">
+        <p class="card-label">CONTROLLED DELIVERY</p>
+        <h2>Change and completion gates</h2>
+        <p>Review changes against approved scope and verify the release before completion.</p>
+        <a class="card-link" href="./CHANGE_CONTROL.md">Change control</a>
+        <a class="card-link" href="./DEFINITION_OF_DONE.md">Definition of done</a>
+        <a class="card-link" href="./checklists/FINAL_COMPLETION_GATE.md">Final completion gate</a>
+      </article>
+    </section>
+
+    <section id="documents" class="status-panel" aria-labelledby="documents-title">
+      <div>
+        <p class="eyebrow">FOUNDATION REFERENCES</p>
+        <h2 id="documents-title">Template adoption records</h2>
+      </div>
+      <dl class="status-list">
+        <div>
+          <dt>Provenance</dt>
+          <dd><a href="./FOUNDATION_SOURCES.md">Foundation sources and boundaries</a></dd>
+        </div>
+        <div>
+          <dt>Engineering</dt>
+          <dd><a href="./engineering/requirements/ENG_ADOPTION_MATRIX.md">ENG-* adoption matrix</a></dd>
+        </div>
+        <div>
+          <dt>Infrastructure</dt>
+          <dd><a href="./docs/infrastructure/INFRASTRUCTURE_PROFILE.md">Infrastructure profile</a></dd>
+        </div>
+        <div>
+          <dt>Documentation</dt>
+          <dd><a href="./docs/INDEX.md">Documentation index</a></dd>
+        </div>
+      </dl>
+    </section>
+
+    <section id="status" class="status-panel" aria-labelledby="status-title">
+      <div>
+        <p class="eyebrow">CURRENT STATUS</p>
+        <h2 id="status-title">Template status</h2>
+      </div>
+      <dl class="status-list">
+        <div>
+          <dt>Template version</dt>
+          <dd>0.2.0</dd>
+        </div>
+        <div>
+          <dt>Status</dt>
+          <dd><span class="status-dot" aria-hidden="true"></span> Adoption starter</dd>
+        </div>
+        <div>
+          <dt>Foundations</dt>
+          <dd>DNA, Engineering, Shield, Infrastructure</dd>
+        </div>
+        <div>
+          <dt>Adoption</dt>
+          <dd>Controlled per project</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section id="about" class="simple-section" aria-labelledby="about-title">
+      <p class="eyebrow">PURPOSE</p>
+      <h2 id="about-title">One shared system, applied according to project risk and purpose.</h2>
+      <p>
+        This template packages the common lifecycle, design contracts, governance, and delivery starting point for Markellos Ecosystem projects. Individual repositories adopt applicable Foundation requirements through explicit, reviewed changes rather than automatic migration.
+      </p>
+      <p>The template is a downstream package of the canonical foundations, not a foundation itself.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-line" data-footer-line="copyright">© <span id="current-year">2026</span> Markellos Markides. All rights reserved.</p>
+      <p class="footer-line build-id" data-footer-line="build" data-build-id data-i18n-aria-label="versionInformation" aria-label="Version information">v0.2.0_20260902_2035_94d4cd7</p>
+    </div>
+  </footer>
+
+  <dialog id="assistant-dialog" class="shell-dialog" aria-labelledby="assistant-dialog-title">
+    <div class="dialog-header">
+      <div>
+        <p class="dialog-eyebrow" data-i18n="assistantLabel">PROJECT ASSISTANT</p>
+        <h2 id="assistant-dialog-title" data-i18n="assistantName">Template Assistant</h2>
+      </div>
+      <button class="dialog-close" type="button" data-close-dialog data-i18n-aria-label="closeAssistant" aria-label="Close Template Assistant">×</button>
+    </div>
+    <div class="assistant-panel">
+      <span class="assistant-avatar assistant-avatar-large" aria-hidden="true">FA</span>
+      <div>
+        <p class="assistant-dialog-status"><span class="assistant-status-dot" aria-hidden="true"></span><span data-i18n="assistantStatus">Ready</span></p>
+        <p data-i18n="assistantPlaceholder">Integrated template assistant. No external Assistant backend is connected.</p>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="settings-dialog" class="shell-dialog" aria-labelledby="settings-dialog-title">
+    <div class="dialog-header">
+      <div>
+        <p class="dialog-eyebrow" data-i18n="appearance">APPEARANCE</p>
+        <h2 id="settings-dialog-title" data-i18n="settings">Settings</h2>
+      </div>
+      <button class="dialog-close" type="button" data-close-dialog data-i18n-aria-label="closeSettings" aria-label="Close Settings">×</button>
+    </div>
+
+    <div class="settings-grid">
+      <label class="setting-field" for="accent-color">
+        <span data-i18n="accentColour">Accent colour</span>
+        <span class="color-control"><input id="accent-color" type="color" value="#6f8499"><output id="accent-value" for="accent-color">#6F8499</output></span>
+      </label>
+
+      <label class="setting-field" for="background-color">
+        <span data-i18n="backgroundColour">Background colour</span>
+        <span class="color-control"><input id="background-color" type="color" value="#f8fafc"><output id="background-value" for="background-color">#F8FAFC</output></span>
+      </label>
+
+      <label class="setting-field" for="font-choice">
+        <span data-i18n="font">Font</span>
+        <select id="font-choice">
+          <option value="system" data-i18n="fontSystem">System sans</option>
+          <option value="humanist" data-i18n="fontHumanist">Humanist sans</option>
+          <option value="serif" data-i18n="fontSerif">Readable serif</option>
+        </select>
+      </label>
+
+      <label class="setting-field" for="text-size">
+        <span data-i18n="textSize">Text size</span>
+        <select id="text-size">
+          <option value="100" data-i18n="textStandard">Standard</option>
+          <option value="112.5" data-i18n="textLarge">Large</option>
+          <option value="125" data-i18n="textLarger">Larger</option>
+        </select>
+      </label>
+
+      <label class="setting-field" for="spacing-choice">
+        <span data-i18n="spacing">Spacing</span>
+        <select id="spacing-choice">
+          <option value="compact" data-i18n="spacingCompact">Compact</option>
+          <option value="comfortable" data-i18n="spacingComfortable">Comfortable</option>
+          <option value="spacious" data-i18n="spacingSpacious">Spacious</option>
+        </select>
+      </label>
+    </div>
+
+    <p id="appearance-status" class="dialog-status" role="status" aria-live="polite"></p>
+    <div class="dialog-actions">
+      <button id="reset-appearance" class="secondary-button" type="button" data-i18n="resetAppearance">Reset appearance</button>
+      <button class="primary-button" type="button" data-close-dialog data-i18n="close">Close</button>
+    </div>
+  </dialog>
+
+  <dialog id="info-dialog" class="shell-dialog" aria-labelledby="info-dialog-title">
+    <div class="dialog-header">
+      <div>
+        <p class="dialog-eyebrow">MARKELLOS ECOSYSTEM</p>
+        <h2 id="info-dialog-title" data-i18n="info">Info</h2>
+      </div>
+      <button class="dialog-close" type="button" data-close-dialog data-i18n-aria-label="closeInfo" aria-label="Close Info">×</button>
+    </div>
+
+    <div class="info-list">
+      <details>
+        <summary data-i18n="importantInfo">Important Info</summary>
+        <p data-i18n="importantDescription">This site is a project-starter reference for the Markellos Ecosystem foundations.</p>
+      </details>
+      <details>
+        <summary data-i18n="feedback">Feedback</summary>
+        <p data-i18n="feedbackDescription">No public feedback channel is configured for this site.</p>
+      </details>
+      <hr>
+      <details>
+        <summary data-i18n="license">License</summary>
+        <p data-i18n="licenseDescription">Refer to the approved project licensing documentation.</p>
+      </details>
+      <details>
+        <summary data-i18n="privacy">Privacy</summary>
+        <p data-i18n="privacyDescription">Appearance preferences are stored locally on this device; no analytics service is configured.</p>
+      </details>
+      <details>
+        <summary data-i18n="analyticsChoices">Analytics choices</summary>
+        <p data-i18n="analyticsDescription">No analytics service is configured for this template site.</p>
+      </details>
+      <details>
+        <summary data-i18n="copyrightProtected">Copyright protected</summary>
+        <p data-i18n="copyrightDescription">Copyright applies to this template site and related project materials.</p>
+      </details>
+      <hr>
+      <p>© <span data-current-year>2026</span> Markellos Markides. All rights reserved.</p>
+      <p class="build-id" data-build-id>v0.2.0_20260902_2035_94d4cd7</p>
+    </div>
+    <div class="dialog-actions">
+      <button class="primary-button" type="button" data-close-dialog data-i18n="close">Close</button>
+    </div>
+  </dialog>
+
+  <script src="./dashboard.js"></script>
+</body>
+</html>

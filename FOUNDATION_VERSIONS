@@ -1,0 +1,9 @@
+INTEGRATED_TEMPLATE_VERSION=0.2.0
+DNA_SOURCE=https://github.com/mmark76/ecosystem-framework
+DNA_REVISION=c6f12b715f3fd8ed84446ded77144e1334ddb752
+ENGINEERING_STANDARDS_SOURCE=https://github.com/mmark76/Ecosystem-Engineering-Standards
+ENGINEERING_STANDARDS_REVISION=dde3096a8ac989419c218cf5429e2652eecb9dd8
+SHIELD_SOURCE=https://github.com/mmark76/Ecosystem-Security-The-Shield
+SHIELD_REVISION=d684570fb240fc5a84ff175fe6c16daabbbfdaa4
+INFRASTRUCTURE_SOURCE=https://github.com/mmark76/ecosystem-infrastructure
+INFRASTRUCTURE_REVISION=6f3fd5a9d3f1a1c0e754f26bb9dfe26009aa2ddb

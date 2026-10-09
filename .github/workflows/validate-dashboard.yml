@@ -1,0 +1,23 @@
+name: Validate Framework dashboard
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check JavaScript
+        run: node --check dashboard.js
+      - name: Test dashboard contracts
+        run: node --test tests/dashboard-shell.test.cjs
+      - name: Build commit artifact
+        run: node scripts/build-site.cjs HEAD "$RUNNER_TEMP/framework-site"

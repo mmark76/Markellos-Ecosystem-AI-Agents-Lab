@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://security.ecosystem.invalid/schemas/security-control.schema.json",
+  "title": "Shield security control",
+  "description": "Canonical control definition and current assessment pointer. An absent assessment or absent evidence is never PASS.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["controlId", "title", "description", "objective", "applicability", "requirementLevel", "owner", "implementationGuidance", "validationMethod", "evidenceRequirements", "complianceState", "linkedStandards", "linkedRisks", "linkedThreats", "linkedAssets", "linkedRepositoriesOrServices"],
+  "properties": {
+    "controlId": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]{2,63}$" },
+    "title": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "objective": { "type": "string", "minLength": 1 },
+    "applicability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope", "decision"],
+      "properties": {
+        "scope": { "type": "string", "minLength": 1 },
+        "decision": { "enum": ["APPLICABLE", "NOT_APPLICABLE", "UNASSESSED"] },
+        "rationale": { "type": "string" }
+      }
+    },
+    "requirementLevel": { "enum": ["MANDATORY", "RECOMMENDED"] },
+    "owner": { "type": "string", "minLength": 1 },
+    "implementationGuidance": { "type": "string", "minLength": 1 },
+    "validationMethod": { "type": "string", "minLength": 1 },
+    "evidenceRequirements": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "complianceState": { "enum": ["PASS", "FAIL", "BLOCKED", "NOT_TESTED", "TECHNICALLY_UNAVAILABLE"] },
+    "exceptionId": { "type": ["string", "null"], "pattern": "^[A-Z][A-Z0-9-]{2,63}$" },
+    "lastChecked": { "type": ["string", "null"], "format": "date-time" },
+    "nextReview": { "type": ["string", "null"], "format": "date" },
+    "linkedStandards": { "$ref": "#/$defs/links" },
+    "linkedRisks": { "$ref": "#/$defs/links" },
+    "linkedThreats": { "$ref": "#/$defs/links" },
+    "linkedAssets": { "$ref": "#/$defs/links" },
+    "linkedRepositoriesOrServices": { "$ref": "#/$defs/links" },
+    "evidenceItemIds": { "$ref": "#/$defs/links" }
+  },
+  "$defs": {
+    "links": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+  }
+}
