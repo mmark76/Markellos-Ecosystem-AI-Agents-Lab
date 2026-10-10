@@ -1,39 +1,21 @@
 # Architecture Decision Records
 
-Create one entry per significant decision.
+## AI-LAB-ADR-001 — Separate the public guide from the Local Lab
 
-> **Initialization instruction:** Copy the structure below, replace the
-> `EXAMPLE-*` identifier and every prompt, and then remove the example. The
-> example is not an accepted architecture decision.
+- Status: Accepted
+- Date: 2026-10-09
+- Owner: Markellos Ecosystem repository maintainer
+- Related requirements: AI-LAB-OBJ-001, AI-LAB-AC-001 through AI-LAB-AC-003
 
-## ADR Template
+The project needs a public installation guide without exposing the private local application. The selected design uses a static Cloudflare Pages artifact for the guide and retains the Lab as a Windows loopback application.
 
-### EXAMPLE-ADR-000 — Replace with a Real Decision Title
+Consequences: the public artifact has no application API, form, chat input, account, analytics, or user-data processing; the Lab, Ollama, local models, and SQLite database remain outside public routing. A future hosted Lab requires a new approved architecture, security, privacy, and deployment scope.
 
-- Status: Proposed / Accepted / Superseded / Rejected
-- Date:
-- Owners:
-- Related requirements:
+## AI-LAB-ADR-002 — Use only local Ollama access for the Local Lab
 
-#### Context
-What problem or constraint requires a decision?
+- Status: Accepted
+- Date: 2026-10-09
+- Owner: Markellos Ecosystem repository maintainer
+- Related requirements: AI-LAB-OBJ-001, AI-LAB-SEC-003
 
-#### Options
-1.
-2.
-3.
-
-#### Decision
-What was selected?
-
-#### Rationale
-Why?
-
-#### Consequences
-- Positive:
-- Negative:
-- Risks:
-- Follow-up:
-
-#### Review Trigger
-When should this decision be reconsidered?
+The Local Lab communicates only with Ollama on `127.0.0.1:11434`. It does not use cloud AI keys or a provider SDK. Review this decision before adding an external AI provider, public ingress, authentication, telemetry, or data synchronization.

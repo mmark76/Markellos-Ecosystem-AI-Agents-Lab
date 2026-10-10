@@ -1,11 +1,7 @@
 # Risk Register
 
-> **Initialization instruction:** Replace or remove every `EXAMPLE-*` row. An
-> example row is not an assessed or accepted project risk.
-
-| Risk ID | Description | Category | Likelihood | Impact | Rating | Treatment | Owner | Due | Residual risk | Status |
-|---|---|---|---|---|---|---|---|---|---|---|
-| EXAMPLE-RISK-001 | Replace with a real risk or remove this row. | Example only | Not assessed | Not assessed | Not assessed | Define treatment. | Unassigned | Not set | Not assessed | NOT PROJECT DATA |
-
-## Categories
-Product, technical, architecture, security, privacy, legal, supplier, financial, schedule, operational, safety.
+| Risk ID | Description | Category | Likelihood | Impact | Treatment | Owner | Residual risk | Status |
+|---|---|---|---|---|---|---|---|---|
+| AI-LAB-RISK-001 | A visitor may mistake the public guide for a hosted AI service and disclose information. | Privacy / product | Medium | Medium | Keep local-only wording prominent; provide no forms, chat, accounts, or API endpoint. | Repository maintainer | Low | ACTIVE |
+| AI-LAB-RISK-002 | Local SQLite conversation history may be readable by someone with device or Windows-account access. | Privacy / local security | Medium | Medium | Keep data local, exclude it from Git, and document device encryption and account protections. | Repository maintainer | Medium | ACTIVE |
+| AI-LAB-RISK-003 | A Pages configuration error could publish unrelated repository content or weaken the public/local boundary. | Deployment / security | Low | High | Publish only the reviewed landing artifact; verify preview, headers, routes, and rollback path. | Repository maintainer | Low | ACTIVE |

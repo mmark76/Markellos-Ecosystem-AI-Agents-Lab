@@ -1,54 +1,19 @@
 # Test Strategy
 
-This DNA template plans how a project demonstrates `ENG-TEST-001` and other applicable Engineering Standards and Shield requirements. It does not define an independent testing or security standard.
+## Required checks
 
-## Objectives
-Define what confidence each test level must provide.
+| Level | Scope | Command | Evidence |
+|---|---|---|---|
+| Landing build | Static public guide artifact and headers. | `node apps/ai-lab-landing/build.cjs` | Generated `apps/ai-lab-landing/dist/` artifact. |
+| Landing test | No-script static artifact contracts. | `node --test apps/ai-lab-landing/tests/build.test.cjs` | Node test output. |
+| Local package test | Windows package metadata and release verification. | `node --test apps/local-ai-agents-lab/tests/build-release.test.cjs` | Node test output. |
+| Local server tests | Loopback server and local data behavior. | `py -3 -m unittest discover -s apps/local-ai-agents-lab/tests` | Python test output. |
+| Foundation validation | Pinned adoption asset integrity and bounded secret scan. | `node scripts/validate-foundations.cjs` | Validator output. |
 
-## Test Levels
+## Manual checks
 
-| Level | Scope | Required for | Command | Evidence |
-|---|---|---|---|---|
-| Unit | Pure units and rules | All critical logic |  |  |
-| Component | UI or service components | Applicable projects |  |  |
-| Integration | Boundaries and dependencies | Critical integrations |  |  |
-| API | Contracts and authorization | API projects |  |  |
-| End-to-end | Critical user journeys | Release blockers |  |  |
-| Security | Threats and controls | Risk-based |  |  |
-| Accessibility | User-facing interfaces | Applicable projects |  |  |
-| Performance | Capacity and latency | NFR-driven |  |  |
-| Recovery | Backup and restore | Production systems |  |  |
+- Confirm the Local Lab starts only on `127.0.0.1:8765` and calls Ollama only on `127.0.0.1:11434`.
+- Before an approved Pages deployment, inspect the preview for responsive layout, keyboard navigation, HTTPS, headers, and absence of local-Lab routes.
+- Before releasing a Windows package, verify its generated build ID and preserve the existing local SQLite data during upgrade.
 
-## Quality Gates
-- Formatting:
-- Linting:
-- Type checking:
-- Build:
-- Static analysis:
-- Dependency scan:
-- Secret scan:
-
-## Framework Canonical Dashboard Shell
-
-This repository's static canonical shell has no dependency manifest or build
-step. Its required dependency-free source checks are:
-
-```powershell
-node --check dashboard.js
-node --test tests/dashboard-shell.test.cjs
-```
-
-The test suite covers build formatting, real-SHA population, `Europe/Nicosia`
-winter/summer DST behavior, appearance validation and storage scope, canonical
-header order, Settings and Info contents, exact footer structure, user-facing
-GitHub absence, unsafe DOM-injection primitives, local script provenance,
-responsive source contracts, and required accessibility semantics.
-
-Browser verification remains mandatory for interactions, persistence after
-reload, focus/Escape behavior, console errors, responsive overflow, text
-scaling, contrast, and visual QA.
-
-## Failure Rules
-- Never hide a failing test.
-- Never delete or weaken a valid test merely to obtain green status.
-- Flaky tests must be repaired, quarantined with approval, or treated as incomplete evidence.
+No production deployment, release publication, or external browser test is implied by these commands.

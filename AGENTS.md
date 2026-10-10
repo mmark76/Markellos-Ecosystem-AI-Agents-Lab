@@ -345,7 +345,7 @@ Optimize for verified requirements, architectural health, security, accessibilit
 
 ### Foundation Authority
 
-This repository is an Integrated Project Template, not a canonical foundation. Use [Ecosystem Framework — The DNA](https://github.com/mmark76/ecosystem-framework) for lifecycle adoption methods, [Ecosystem Engineering Standards](https://github.com/mmark76/Ecosystem-Engineering-Standards/blob/main/ENGINEERING-REQUIREMENTS.md) for cross-cutting `ENG-*` requirements, Ecosystem Security — The Shield for security requirements and controls, and [Ecosystem Infrastructure](https://github.com/mmark76/ecosystem-infrastructure) for shared infrastructure mechanisms. The instructions below operationalize adoption; they do not create competing engineering, security, or infrastructure standards.
+This repository is the Markellos Ecosystem AI Agents Lab project. Use [Ecosystem Framework — The DNA](https://github.com/mmark76/ecosystem-framework) for lifecycle adoption methods, [Ecosystem Engineering Standards](https://github.com/mmark76/Ecosystem-Engineering-Standards/blob/main/ENGINEERING-REQUIREMENTS.md) for cross-cutting `ENG-*` requirements, Ecosystem Security — The Shield for security requirements and controls, and [Ecosystem Infrastructure](https://github.com/mmark76/ecosystem-infrastructure) for shared infrastructure mechanisms. These sources remain authoritative; this repository records only its project-specific adoption and evidence.
 
 Before copying any Shield material, confirm the target repository visibility and the source material's distribution classification. Never copy credentials, populated configurations, host-specific sensitive information, or private operational evidence.
 
@@ -478,26 +478,22 @@ Accessibility failures and silent design-system or dashboard-guide deviations ar
 
 ## 9. Project Commands
 
-Replace all placeholders during project initialization:
-
 ```text
-FORMAT_COMMAND=<define>
-LINT_COMMAND=<define>
-TYPECHECK_COMMAND=<define>
-UNIT_TEST_COMMAND=<define>
-INTEGRATION_TEST_COMMAND=<define>
-E2E_TEST_COMMAND=<define>
-ACCESSIBILITY_TEST_COMMAND=<define-or-not-applicable>
-SECURITY_SCAN_COMMAND=<define>
-DEPENDENCY_SCAN_COMMAND=<define>
-BUILD_COMMAND=<define>
+FORMAT_COMMAND=Not applicable — no formatter is configured; preserve repository formatting and run git diff --check
+LINT_COMMAND=node --check dashboard.js && node --check apps/ai-lab-landing/build.cjs && node --check apps/local-ai-agents-lab/scripts/build-release.cjs
+TYPECHECK_COMMAND=Not applicable — JavaScript and Python have no configured static type-check layer
+UNIT_TEST_COMMAND=node --test apps/ai-lab-landing/tests/build.test.cjs apps/local-ai-agents-lab/tests/build-release.test.cjs && py -3 -m unittest discover -s apps/local-ai-agents-lab/tests
+INTEGRATION_TEST_COMMAND=Manual local loopback check documented in docs/testing/TEST_STRATEGY.md
+E2E_TEST_COMMAND=Manual browser and Cloudflare preview checks documented in docs/testing/TEST_STRATEGY.md
+ACCESSIBILITY_TEST_COMMAND=Manual keyboard, responsive, contrast, and text-scaling check for the public landing page
+SECURITY_SCAN_COMMAND=node scripts/validate-foundations.cjs
+DEPENDENCY_SCAN_COMMAND=Not applicable — no third-party runtime packages are installed by the Local Lab or landing page
+BUILD_COMMAND=node apps/ai-lab-landing/build.cjs && node apps/local-ai-agents-lab/scripts/build-release.cjs HEAD <output-directory>
 ```
 
 Never claim a command passed unless it was actually run successfully, or an approved exception explicitly records why it was not required.
 
-During project initialization, replace every command placeholder above with the
-actual project command or an explicit, owned non-applicability decision. The
-initialization gate blocks development readiness while placeholders remain.
+The public landing page and Local Lab have separate boundaries. Never expose the Local Lab, Ollama, or its SQLite data through the public landing deployment.
 
 ## 10. Repair Limits
 
