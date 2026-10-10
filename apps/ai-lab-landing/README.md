@@ -2,6 +2,8 @@
 
 This is a static Cloudflare Pages landing page for `ai-lab.markellosecosystem.com`. It describes how to run the local-only AI Agents Lab; it does not host the application, an LLM, chat input, analytics, accounts, or user data.
 
+Its HTML/CSS shell follows the static visual structure of the Ecosystem Framework dashboard: project identity, concise anchor navigation, ecosystem return path, responsive content cards, and a two-line footer with the generated build identity. It intentionally excludes JavaScript-driven utilities and local preference storage.
+
 The primary download link points to the latest public GitHub Release asset, `AI-Agents-Lab-Windows.zip`. A release publication builds the package from the immutable release tag, verifies its build identity, and uploads the ZIP automatically.
 
 ## Installation guidance

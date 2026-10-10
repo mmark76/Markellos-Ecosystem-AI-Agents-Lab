@@ -7,6 +7,6 @@ No deviation is valid unless recorded and approved.
 
 | Exception ID | Rule / Control | Reason | Risk | Compensating control | Owner | Approver | Expiry / Review | Status |
 |---|---|---|---|---|---|---|---|---|
-| EXAMPLE-EXC-001 | Replace with a real exception or remove this row. | Define reason. | Define risk. | Define compensating control. | Unassigned | Unapproved | Not set | NOT PROJECT DATA |
+| AI-LAB-EXC-001 | Project Dashboard Guide canonical utility controls (Assistant, language selector, Light/Dark, Settings, and Info) | The approved public guide remains static HTML/CSS only. | Users do not receive interactive preferences or utility panels. | Preserve the canonical static identity, concise navigation, ecosystem return link, footer/build ID, keyboard-visible links, and no-script security boundary. | Repository maintainer | Direct user approval 2026-10-10 | Review if JavaScript is approved | APPROVED |
 
 Expired or unapproved critical exceptions block completion.

@@ -12,6 +12,7 @@
 |---|---|---|---|---|
 | AI-LAB-SCOPE-001 | Publish a static, privacy-preserving guide at `ai-lab.markellosecosystem.com` through Cloudflare Pages. | High | Repository maintainer | Approved by direct user request on 2026-10-09 |
 | AI-LAB-SCOPE-002 | Provide a versioned public Windows ZIP and direct installation path for the local AI Agents Lab. | High | Repository maintainer | Approved by direct user request on 2026-10-10 |
+| AI-LAB-SCOPE-003 | Adopt the static visual and structural elements of the Ecosystem Framework canonical dashboard shell for the public guide, without JavaScript. | Medium | Repository maintainer | Approved by direct user request on 2026-10-10 |
 
 ## Out of scope
 

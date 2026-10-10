@@ -17,6 +17,11 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.match(html, /https:\/\/ollama\.com\/download\/windows/);
   assert.match(html, /https:\/\/lmstudio\.ai\/download/);
   assert.match(html, /It is not required and does not replace Ollama/);
+  assert.match(html, /class="site-header"/);
+  assert.match(html, /class="primary-nav"/);
+  assert.match(html, /href="#privacy"/);
+  assert.match(html, /class="footer-inner"/);
+  assert.doesNotMatch(html, /<script\b/i);
   for (const file of ['styles.css', 'tokens.css', '_headers']) assert.equal(existsSync(join(output, file)), true, `${file} is missing`);
   assert.match(readFileSync(join(output, '_headers'), 'utf8'), /connect-src 'none'/);
 });
