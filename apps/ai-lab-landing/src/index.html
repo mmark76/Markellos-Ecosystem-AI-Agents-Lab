@@ -11,51 +11,59 @@
 </head>
 <body>
   <header class="site-header">
-    <div class="shell header-content">
-      <a class="brand" href="#home" aria-label="AI Agents Lab home">
+    <div class="header-inner">
+      <div class="identity-row">
+        <a class="brand-lockup" href="#home" aria-label="AI Agents Lab home">
         <span class="brand-mark" aria-hidden="true">AI</span>
-        <span><span class="eyebrow">MARKELLOS ECOSYSTEM</span><strong>AI Agents Lab</strong></span>
-      </a>
-      <a class="ecosystem-link" href="https://markellosecosystem.com/">Back to markellosecosystem</a>
+          <span class="brand-copy"><span class="project-label">MARKELLOS ECOSYSTEM</span><span class="project-name">AI Agents Lab</span></span>
+        </a>
+        <div class="header-actions"><a class="ecosystem-link" href="https://markellosecosystem.com/">Back to markellosecosystem</a></div>
+      </div>
+      <div class="navigation-row">
+        <nav class="primary-nav" aria-label="Primary navigation">
+          <a class="nav-link is-active" href="#home">Home</a>
+          <a class="nav-link" href="#overview">Overview</a>
+          <a class="nav-link" href="#start">Install</a>
+          <a class="nav-link" href="#privacy">Privacy</a>
+        </nav>
+      </div>
     </div>
   </header>
 
-  <main id="home">
-    <section class="hero shell" aria-labelledby="page-title">
+  <main id="home" class="main-content">
+    <section class="hero" aria-labelledby="page-title">
       <p class="eyebrow">LOCAL AI LEARNING SPACE</p>
       <h1 id="page-title">Learn with AI agents, on your own device.</h1>
-      <p class="lead">AI Agents Lab is a local learning and discussion environment powered by Ollama. Conversations, models, and storage stay on the computer where you run it.</p>
-      <a class="primary-action" href="https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/latest/download/AI-Agents-Lab-Windows.zip">Download for Windows <span aria-hidden="true">↓</span></a>
+      <p class="hero-copy">AI Agents Lab is a local learning and discussion environment powered by Ollama. Conversations, models, and storage stay on the computer where you run it.</p>
+      <p class="shell-notice">This public page is a guide only. The Lab, its models, and its conversation history are never hosted here.</p>
+      <a class="primary-button" href="https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/latest/download/AI-Agents-Lab-Windows.zip">Download for Windows <span aria-hidden="true">↓</span></a>
     </section>
 
-    <section class="shell section" aria-labelledby="what-title">
-      <div class="section-heading"><p class="eyebrow">WHAT IT OFFERS</p><h2 id="what-title">Two focused ways to explore an idea.</h2></div>
-      <div class="card-grid">
-        <article class="card"><h3>University room</h3><p>A professor and student agents turn a topic into a practical lesson, exercise, alternative solution, and feedback.</p></article>
-        <article class="card"><h3>Conference room</h3><p>An architect, developer, and reviewer examine a technical request with scope, risks, implementation steps, and verification in mind.</p></article>
-        <article class="card"><h3>Local by design</h3><p>The Lab connects to a locally installed Ollama instance. It has no hosted AI API, analytics, or cloud chat backend.</p></article>
-      </div>
+    <section id="overview" class="card-grid" aria-labelledby="what-title">
+      <article class="dashboard-card"><p class="card-label">LEARNING SPACE</p><h2 id="what-title">University room</h2><p>A professor and student agents turn a topic into a practical lesson, exercise, alternative solution, and feedback.</p></article>
+      <article class="dashboard-card"><p class="card-label">DISCUSSION SPACE</p><h2>Conference room</h2><p>An architect, developer, and reviewer examine a technical request with scope, risks, implementation steps, and verification in mind.</p></article>
+      <article class="dashboard-card"><p class="card-label">SERVICE BOUNDARY</p><h2>Local by design</h2><p>The Lab connects to a locally installed Ollama instance. It has no hosted AI API, analytics, or cloud chat backend.</p></article>
     </section>
 
-    <section id="start" class="shell section steps" aria-labelledby="start-title">
-      <div class="section-heading"><p class="eyebrow">GET STARTED</p><h2 id="start-title">Run the Lab locally.</h2></div>
+    <section id="start" class="simple-section steps" aria-labelledby="start-title">
+      <p class="eyebrow">GET STARTED</p><h2 id="start-title">Run the Lab locally.</h2>
       <ol>
-        <li><strong>Download and extract the ZIP.</strong> No GitHub account is required. Extract it to a folder you control, such as Documents.</li>
-        <li><strong>Install Python 3.9+ and Ollama.</strong> Download at least one local model in Ollama.</li>
-        <li><strong>Disable Ollama cloud features.</strong> Add <code>"disable_ollama_cloud": true</code> to <code>%USERPROFILE%\.ollama\server.json</code>, preserving any existing settings, then restart Ollama.</li>
-        <li><strong>Start the application.</strong> In the local application folder, run <code>py -3 server.py</code> (or open <code>start-windows.bat</code>).</li>
+        <li><strong>Download and extract the ZIP.</strong> Extract it to a folder you control, such as Documents.</li>
+        <li><strong>Install the required local tools.</strong> Install <a class="inline-link" href="https://www.python.org/downloads/windows/">Python 3.9 or later for Windows</a> and <a class="inline-link" href="https://ollama.com/download/windows">Ollama for Windows</a>.</li>
+        <li><strong>Download one local Ollama model.</strong> For example, open PowerShell and run <code>ollama pull qwen3:4b</code>. Keep Ollama running; the Lab connects only to its local address, <code>127.0.0.1:11434</code>.</li>
+        <li><strong>Keep Ollama local-only.</strong> Add <code>"disable_ollama_cloud": true</code> to <code>%USERPROFILE%\.ollama\server.json</code>, preserving any existing settings, then restart Ollama. Use downloaded local models, not names ending in <code>:cloud</code>.</li>
+        <li><strong>Start the application.</strong> In the extracted folder, run <code>py -3 server.py</code> (or open <code>start-windows.bat</code>).</li>
         <li><strong>Open the local address.</strong> Visit <code>http://127.0.0.1:8765/</code> in your browser.</li>
       </ol>
-      <p class="notice"><strong>Privacy note:</strong> this public page is only a guide. The AI Agents Lab itself is intentionally not hosted here.</p>
+      <p class="shell-notice"><strong>About LM Studio:</strong> <a class="inline-link" href="https://lmstudio.ai/download">LM Studio for Windows</a> is optional for experimenting with local models. It is not required and does not replace Ollama for this version of the Lab, which connects specifically to Ollama's local API. Internet access is needed to install tools and download models; the Lab itself uses only the local Ollama service.</p>
     </section>
 
-    <section class="shell section boundary" aria-labelledby="boundary-title">
-      <p class="eyebrow">SERVICE BOUNDARY</p>
-      <h2 id="boundary-title">This site does not run the Lab.</h2>
+    <section id="privacy" class="simple-section" aria-labelledby="privacy-title">
+      <p class="eyebrow">PRIVACY</p><h2 id="privacy-title">This site does not run the Lab.</h2>
       <p>There is no sign-in, chat input, model endpoint, telemetry, or personal-data collection on this Pages site. The download is a versioned local package; to use the Lab, extract it and connect only to your local Ollama installation.</p>
     </section>
   </main>
 
-  <footer class="site-footer"><div class="shell"><p>© <span data-year>2026</span> Markellos Markides. All rights reserved.</p><p class="build-id">{{BUILD_ID}}</p></div></footer>
+  <footer class="site-footer"><div class="footer-inner"><p class="footer-line">© 2026 Markellos Markides. All rights reserved.</p><p class="footer-line build-id">{{BUILD_ID}}</p></div></footer>
 </body>
 </html>
