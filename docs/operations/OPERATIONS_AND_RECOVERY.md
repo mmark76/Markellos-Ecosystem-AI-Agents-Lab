@@ -1,55 +1,23 @@
 # Operations and Recovery
 
 ## Ownership
-- Service owner:
-- On-call or support owner:
-- Security incident owner:
-- Data recovery owner:
 
-## Environments
-- Local:
-- Development:
-- Testing:
-- Staging:
-- Production:
+The repository maintainer owns local installation guidance, public landing-page configuration, release verification, security review, and recovery decisions.
 
-## Observability
-- Logs:
-- Metrics:
-- Traces:
-- Alerts:
-- Audit events:
-- Sensitive-data logging restrictions:
+## Local Lab
 
-## Deployment
-- Release method:
-- Approval:
-- Rollout:
-- Health checks:
-- Rollback:
-- Feature flags:
+- Run only on an owner-controlled Windows device and loopback interface.
+- Stop the server before copying, restoring, or deleting the SQLite database.
+- Preserve `data/` during a package upgrade; it is excluded from Git and release artifacts.
+- Roll back by restoring the previous verified local package and local data backup.
 
-## Incidents
-- Severity levels:
-- Detection:
-- Triage:
-- Containment:
-- Communication:
-- Recovery:
-- Post-incident review:
+## Public landing page
 
-## Backup and Recovery
-- Backup schedule:
-- Retention:
-- Immutability:
-- Restore procedure:
-- Restore test frequency:
-- RPO:
-- RTO:
+- Build only `apps/ai-lab-landing/dist` for Cloudflare Pages.
+- Use preview deployment and static-artifact checks before an approved production deployment.
+- Roll back through Cloudflare Pages deployment history.
+- The public site has no application logs, database, account, analytics, or local-Lab route.
 
-## Maintenance
-- Dependency updates:
-- Security patches:
-- Certificate and secret rotation:
-- Database maintenance:
-- End-of-life process:
+## Incident response
+
+If a public artifact, hostname, or header configuration violates the local-only boundary, remove or roll back the affected Pages deployment, preserve sanitized evidence, and reassess the threat model before redeployment. If local Lab data is exposed on a device, stop the Lab, protect the device/account, and handle the SQLite file as private local data.

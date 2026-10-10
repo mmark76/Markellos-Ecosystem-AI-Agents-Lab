@@ -1,75 +1,42 @@
 # System Architecture
 
-## 1. Context
-- System purpose:
-- Users and actors:
-- External systems:
-- System boundary:
-- Trust boundaries:
+## Context and boundaries
 
-## 2. Architecture Drivers
-- Key functional drivers:
-- Security drivers:
-- Availability:
-- Performance:
-- Scalability:
-- Maintainability:
-- Accessibility:
-- Cost:
-- Compliance:
+AI Agents Lab has two deliberately separated components:
 
-## 3. Chosen Architecture
-- Style:
-- Rationale:
-- Alternatives rejected:
-- Known trade-offs:
+| Component | Purpose | Exposure | Data boundary |
+|---|---|---|---|
+| Local Lab | Local learning and role-based agent conversations using Ollama. | Windows loopback only (`127.0.0.1`). | Local SQLite session history and downloaded local models. |
+| Public landing page | Explain installation, local-only use, and release downloads. | Static HTTPS through Cloudflare Pages. | No application or visitor data. |
 
-## 4. Modules and Ownership
+The public site never proxies, embeds, or routes to the Local Lab, Ollama, or SQLite. The Local Lab never requires a cloud API key or public ingress.
 
-| Module | Responsibility | Public interface | Data owned | Dependencies | Owner |
-|---|---|---|---|---|---|
-|  |  |  |  |  |  |
+## Architecture drivers
 
-## 5. Dependency Direction
-Document allowed and forbidden dependencies.
+- Privacy: conversations and model access remain on the local device.
+- Safety: the public guide must not look or behave like a hosted AI service.
+- Maintainability: the Lab uses Python standard-library components and a narrow Ollama HTTP boundary; the public guide is static HTML/CSS.
+- Accessibility: the public guide provides semantic HTML, visible keyboard focus, responsive layout, and no script dependency.
 
-## 6. Data Flow
-Document sensitive and critical data flows.
+## Modules and ownership
 
-## 7. Deployment
-- Environments:
-- Network zones:
-- Compute:
-- Database:
-- Storage:
-- Edge / CDN / WAF:
-- Secrets:
-- Observability:
+| Module | Responsibility | Dependencies | Owner |
+|---|---|---|---|
+| `apps/local-ai-agents-lab/server.py` | Loopback HTTP server, local persistence, and Ollama requests. | Python standard library; local Ollama API. | Repository maintainer |
+| `apps/local-ai-agents-lab/static/` | Local Lab browser interface. | Local loopback server only. | Repository maintainer |
+| `apps/ai-lab-landing/` | Static public installation guide and Pages artifact. | Node build script; Cloudflare Pages at deployment. | Repository maintainer |
+| `docs/` | Project decisions, controls, evidence references, and operating records. | Versioned repository content. | Repository maintainer |
 
-## 8. Failure and Recovery
-- Failure modes:
-- Graceful degradation:
-- Retry rules:
-- Idempotency:
-- Rollback:
-- Backup and restore:
+## Data flow
 
-## 9. Architecture Health Checks
-List automated or manual checks enforcing invariants.
+1. A local browser communicates with the Local Lab at `127.0.0.1:8765`.
+2. The Lab communicates only with local Ollama at `127.0.0.1:11434`.
+3. Local conversation records are stored in the Lab SQLite database and are excluded from Git.
+4. Public visitors receive only static landing-page files through Cloudflare Pages.
 
-## Canonical Dashboard Reference Architecture
+## Deployment and recovery
 
-- Style: repository-root static HTML/CSS/vanilla JavaScript.
-- Presentation: `index.html` and `dashboard.css`.
-- Shell behavior and pure formatting/validation rules: `dashboard.js`.
-- Platform-neutral design source: `design-system/tokens/tokens.json` with the
-  maintained `tokens.css` adapter.
-- Persistence: one optional browser-local appearance record; no server data.
-- External boundary: the explicit ecosystem-return HTTPS link only.
-- Dependencies, backend, authentication, analytics, remote fonts, and
-  third-party scripts: none.
-
-Browser storage is untrusted infrastructure input. `dashboard.js` validates and
-normalizes it before the presentation layer applies bounded data attributes and
-CSS custom properties. All dynamic text uses `textContent`; no HTML string is
-inserted into the DOM.
+- Local Lab: an owner-controlled Windows installation; release packaging is verified before distribution.
+- Public landing page: `apps/ai-lab-landing/dist` is the only Cloudflare Pages artifact; rollback uses Pages deployment history.
+- Local data recovery: stop the local server before copying or restoring the SQLite database.
+- No production database, secrets manager, public API, or shared runtime is in the approved scope.

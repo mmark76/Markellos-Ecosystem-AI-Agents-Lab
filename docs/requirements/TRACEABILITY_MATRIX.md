@@ -4,12 +4,11 @@ This project-owned record connects approved scope to implementation, verificatio
 
 ## Product and project requirements
 
-> Replace or remove every `EXAMPLE-*` row before project approval. Template rows are not project data, evidence, or authorization.
-
 | Requirement ID | Scope ID | Design / ADR | Implementation | Test IDs | Evidence | Owner | Status |
 |---|---|---|---|---|---|---|---|
 | AI-LAB-OBJ-001 | AI-LAB-SCOPE-001 | Static-only public boundary | `apps/ai-lab-landing/` | `AI-LAB-TEST-001` | Build test and Cloudflare deployment record | Repository maintainer | LOCAL VERIFICATION COMPLETE; EXTERNAL DEPLOYMENT PENDING |
 | AI-LAB-OBJ-002 | AI-LAB-SCOPE-003 | Static canonical shell adaptation | `apps/ai-lab-landing/src/index.html`, `apps/ai-lab-landing/src/styles.css` | `AI-LAB-TEST-001` | Build test and local visual preview; deployment preview pending. | Repository maintainer | LOCAL VERIFICATION COMPLETE; DEPLOYMENT PENDING |
+| AI-LAB-OBJ-003 | AI-LAB-SCOPE-002 | Versioned local-only release package | `apps/local-ai-agents-lab/` and release workflow | `AI-LAB-TEST-002` | Package verifier and release workflow run. | Repository maintainer | PENDING RELEASE PUBLICATION |
 
 ## Engineering Standards adoption
 
