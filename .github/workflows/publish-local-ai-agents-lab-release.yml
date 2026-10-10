@@ -1,0 +1,33 @@
+name: Publish Local AI Agents Lab release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    if: startsWith(github.event.release.tag_name, 'v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.release.tag_name }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Build and verify release package
+        working-directory: apps/local-ai-agents-lab
+        run: |
+          node scripts/build-release.cjs HEAD "$RUNNER_TEMP/ai-lab-release"
+          node scripts/verify-release.cjs "$RUNNER_TEMP/ai-lab-release/local-ai-agents-lab" "$GITHUB_SHA"
+      - name: Create public Windows ZIP
+        run: |
+          cd "$RUNNER_TEMP/ai-lab-release"
+          zip -r "$RUNNER_TEMP/AI-Agents-Lab-Windows.zip" local-ai-agents-lab
+      - name: Upload release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name }}" "$RUNNER_TEMP/AI-Agents-Lab-Windows.zip" --clobber
