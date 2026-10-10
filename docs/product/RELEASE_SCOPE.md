@@ -11,6 +11,7 @@
 | Scope ID | Outcome | Priority | Owner | Approval status |
 |---|---|---|---|---|
 | AI-LAB-SCOPE-001 | Publish a static, privacy-preserving guide at `ai-lab.markellosecosystem.com` through Cloudflare Pages. | High | Repository maintainer | Approved by direct user request on 2026-10-09 |
+| AI-LAB-SCOPE-002 | Provide a versioned public Windows ZIP and direct installation path for the local AI Agents Lab. | High | Repository maintainer | Approved by direct user request on 2026-10-10 |
 
 ## Out of scope
 
