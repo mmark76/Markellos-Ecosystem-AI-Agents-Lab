@@ -4,6 +4,15 @@ This is a static Cloudflare Pages landing page for `ai-lab.markellosecosystem.co
 
 The primary download link points to the latest public GitHub Release asset, `AI-Agents-Lab-Windows.zip`. A release publication builds the package from the immutable release tag, verifies its build identity, and uploads the ZIP automatically.
 
+## Installation guidance
+
+The landing page links only to the official download pages for the required Windows prerequisites:
+
+- [Python 3.9+](https://www.python.org/downloads/windows/)
+- [Ollama](https://ollama.com/download/windows), which the Lab requires at `127.0.0.1:11434`
+
+It also links to [LM Studio](https://lmstudio.ai/download) as an optional local-model application. LM Studio is not a prerequisite or a drop-in replacement: this release communicates specifically with Ollama's local API. The guide states that Internet access is needed for tool/model downloads, while the Lab itself uses only its local Ollama connection.
+
 ## Build
 
 From the repository root:

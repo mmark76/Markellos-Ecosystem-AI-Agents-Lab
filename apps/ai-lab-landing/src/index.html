@@ -41,12 +41,13 @@
       <div class="section-heading"><p class="eyebrow">GET STARTED</p><h2 id="start-title">Run the Lab locally.</h2></div>
       <ol>
         <li><strong>Download and extract the ZIP.</strong> Extract it to a folder you control, such as Documents.</li>
-        <li><strong>Install Python 3.9+ and Ollama.</strong> Download at least one local model in Ollama.</li>
-        <li><strong>Disable Ollama cloud features.</strong> Add <code>"disable_ollama_cloud": true</code> to <code>%USERPROFILE%\.ollama\server.json</code>, preserving any existing settings, then restart Ollama.</li>
-        <li><strong>Start the application.</strong> In the local application folder, run <code>py -3 server.py</code> (or open <code>start-windows.bat</code>).</li>
+        <li><strong>Install the required local tools.</strong> Install <a class="inline-link" href="https://www.python.org/downloads/windows/">Python 3.9 or later for Windows</a> and <a class="inline-link" href="https://ollama.com/download/windows">Ollama for Windows</a>.</li>
+        <li><strong>Download one local Ollama model.</strong> For example, open PowerShell and run <code>ollama pull qwen3:4b</code>. Keep Ollama running; the Lab connects only to its local address, <code>127.0.0.1:11434</code>.</li>
+        <li><strong>Keep Ollama local-only.</strong> Add <code>"disable_ollama_cloud": true</code> to <code>%USERPROFILE%\.ollama\server.json</code>, preserving any existing settings, then restart Ollama. Use downloaded local models, not names ending in <code>:cloud</code>.</li>
+        <li><strong>Start the application.</strong> In the extracted folder, run <code>py -3 server.py</code> (or open <code>start-windows.bat</code>).</li>
         <li><strong>Open the local address.</strong> Visit <code>http://127.0.0.1:8765/</code> in your browser.</li>
       </ol>
-      <p class="notice"><strong>Privacy note:</strong> this public page is only a guide. The AI Agents Lab itself is intentionally not hosted here.</p>
+      <p class="notice"><strong>About LM Studio:</strong> <a class="inline-link" href="https://lmstudio.ai/download">LM Studio for Windows</a> is optional for experimenting with local models. It is not required and does not replace Ollama for this version of the Lab, which connects specifically to Ollama's local API. Internet access is needed to install tools and download models; the Lab itself uses only the local Ollama service.</p>
     </section>
 
     <section class="shell section boundary" aria-labelledby="boundary-title">
