@@ -1,6 +1,12 @@
 # Changelog
 
-All notable Integrated Project Template changes are recorded here. `TEMPLATE_VERSION` is the source of truth for the template release; `FOUNDATION_VERSIONS` records the upstream revisions assessed for that release. Project, foundation, and component versions remain independently owned.
+All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records the inherited baseline; `FOUNDATION_VERSIONS` records the upstream revisions assessed for this project. Project, foundation, landing-page, and Local Lab versions remain independently owned.
+
+## [Unreleased]
+
+### Changed
+
+- Replaced residual template documentation with AI Agents Lab project identity, architecture, data, operations, testing, security, risk, and engineering-adoption records.
 
 ## [0.2.0] - 2026-10-08
 
