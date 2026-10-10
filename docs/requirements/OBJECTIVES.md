@@ -6,6 +6,6 @@ Record approved project objectives here. Objectives must be finite, owned, and t
 
 | Objective ID | Objective | Scope | Priority | Mandatory | Owner | Acceptance criteria | Status |
 |---|---|---|---|---|---|---|---|
-| EXAMPLE-OBJ-001 | Replace with an approved project objective. | EXAMPLE-SCOPE-001 | — | Yes/No | Unassigned | EXAMPLE-AC-001 | NOT PROJECT DATA |
+| AI-LAB-OBJ-001 | Provide a public static guide for safely starting the local AI Agents Lab. | AI-LAB-SCOPE-001 | High | Yes | Repository maintainer | AI-LAB-AC-001, AI-LAB-AC-002, AI-LAB-AC-003 | APPROVED |
 
 Applicable `ENG-*`, Shield, and Infrastructure requirements are recorded through their dedicated adoption records rather than duplicated here.

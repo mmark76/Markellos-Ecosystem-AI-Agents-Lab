@@ -1,18 +1,15 @@
 # Security Plan
 
 ## System Risk Profile
-- Selected Shield revision / baseline:
-- Exposure:
-- Criticality:
-- Data sensitivity:
-- Main threat actors:
-- Regulatory context:
+- Selected Shield revision / baseline: `d684570fb240fc5a84ff175fe6c16daabbbfdaa4`; public static-site controls.
+- Exposure: public HTTPS information page.
+- Criticality: low; availability and accurate privacy boundary matter.
+- Data sensitivity: no user or Lab data is collected or processed.
+- Main threat actors: opportunistic web attackers, content tampering attempts, and users mistaking the page for a hosted Lab.
+- Regulatory context: no intended personal-data processing.
 
 ## Security Owners
-- Product risk owner:
-- Security owner:
-- Incident owner:
-- Data / privacy owner:
+- Product risk, security, incident, and data/privacy owner: Markellos Ecosystem repository maintainer.
 
 ## Required Controls
 
@@ -21,7 +18,9 @@
 
 | Control ID | Control | Requirement ID | Owner | Verification | Evidence | Status |
 |---|---|---|---|---|---|---|
-| EXAMPLE-SEC-001 | Replace with a real control or remove this row. | Replace with an approved requirement ID. | Unassigned | Define verification. | Define evidence. | NOT PROJECT DATA |
+| AI-LAB-SEC-001 | Static-only artifact: no script, forms, analytics, API, accounts, or user-data storage. | Shield public web controls | Repository maintainer | Inspect generated artifact. | `apps/ai-lab-landing/tests/build.test.cjs` | VERIFIED 2026-10-09 |
+| AI-LAB-SEC-002 | Browser security headers restrict sources, framing, referrers, permissions, and content types. | Shield public web controls | Repository maintainer | Inspect generated `_headers` and production headers. | Build test; Cloudflare post-deploy check. | LOCAL VERIFICATION COMPLETE; PRODUCTION PENDING |
+| AI-LAB-SEC-003 | The public hostname has no route to the local Lab, Ollama, or SQLite data. | Shield public web controls | Repository maintainer | Confirm Pages artifact and production routes. | Artifact review; Cloudflare post-deploy check. | PENDING |
 
 For each applicable Shield requirement, retain its authoritative requirement/control ID, source revision, project control mapping, verification, sanitized evidence location, and status. `NOT_APPLICABLE` and exceptions require rationale, owner, approval, and review/expiry details.
 
