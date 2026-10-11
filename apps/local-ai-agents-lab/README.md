@@ -77,6 +77,19 @@ output; reduce model size or sequence length before retrying.
 The following is an **optional local installation** for training only. Do not
 run it for the normal Ollama, LM Studio, or vLLM inference workflow.
 
+**Guided path / Απλός χρήστης:** double-click
+`setup-training-windows.bat`. The Windows Training Setup Wizard checks Python
+3.11/3.12 and disk space, asks for CPU or NVIDIA CUDA, displays the exact CPU
+libraries before download, asks for confirmation, creates `training\.venv`, and
+runs a health check. It never downloads models/datasets, modifies inference,
+installs drivers, or falls back from selected CUDA to CPU. CUDA setup opens the
+official PyTorch selector because the matching wheel depends on the local
+NVIDIA driver; the wizard verifies CUDA only after that explicit installation.
+
+**Expert path / Προχωρημένος χρήστης:** use the commands below directly to
+choose a specific supported Python, a corporate package mirror, or a PyTorch
+CUDA build. Both paths use the same `training\.venv` and output folders.
+
 1. Install a Python version supported by the pinned ML packages (use Python
    3.11 or 3.12 for this release). Python 3.14 is not compatible with the
    packaged `torch==2.7.1` requirement. Confirm the launcher can see it:
