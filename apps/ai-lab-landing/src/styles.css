@@ -1,6 +1,8 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body { min-height: 100vh; display: flex; flex-direction: column; margin: 0; background: var(--color-background); color: var(--color-text); font-family: var(--font-sans); line-height: var(--line-height-normal); }
+html[data-color-mode="dark"] { color-scheme: dark; --color-background:#111827; --color-surface:#172033; --color-surface-subtle:#202b40; --color-text:#f8fafc; --color-text-muted:#cbd5e1; --color-border:#475569; }
+html[data-font="serif"] body { font-family: Georgia,serif; } html[data-text-size] { font-size:var(--user-text-size,100%); } html[data-spacing="compact"] { --shell-density:.8; } html[data-spacing="spacious"] { --shell-density:1.25; } body { background:var(--user-background,var(--color-background)); }
 a { color: inherit; }
 a:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 4px; }
 .header-inner, .main-content, .footer-inner { width: min(calc(100% - 2rem), var(--content-wide)); margin-inline: auto; }
@@ -14,6 +16,7 @@ a:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 4px; }
 .project-label { color: rgb(255 255 255 / 72%); }
 .project-name { font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); line-height: var(--line-height-tight); }
 .header-actions { display: flex; align-items: center; justify-content: flex-end; }
+.header-actions{gap:var(--space-2);flex-wrap:wrap}.header-control,.language-button,.dialog-close,.dialog-actions button{min-height:var(--touch-target-min);border:1px solid rgb(255 255 255 / 26%);border-radius:var(--radius-md);background:transparent;color:inherit;padding-inline:var(--space-3);cursor:pointer}.assistant-button{display:inline-flex;align-items:center;gap:var(--space-2)}.language-selector{display:inline-flex;border:1px solid rgb(255 255 255 / 26%);border-radius:var(--radius-md)}.language-button{border:0;min-width:var(--touch-target-min)}.language-button[aria-pressed="true"]{background:var(--user-accent,var(--app-accent));color:#111827}.shell-dialog{width:min(calc(100% - 2rem),36rem);max-height:calc(100dvh - 2rem);margin:auto;padding:var(--space-6);border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);color:var(--color-text)}.shell-dialog::backdrop{background:rgb(17 24 39 / 70%)}.dialog-header{display:flex;justify-content:space-between;gap:var(--space-4);align-items:flex-start}.dialog-close,.dialog-actions button{background:var(--color-surface-subtle);color:var(--color-text);border-color:var(--color-border)}.settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-4)}.settings-grid label{display:grid;gap:var(--space-2);font-weight:var(--font-weight-semibold)}.settings-grid select,.settings-grid input{min-height:var(--touch-target-min);border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text)}.dialog-actions{display:flex;justify-content:flex-end;gap:var(--space-3);margin-top:var(--space-5)}
 .ecosystem-link { min-height: var(--touch-target-min); display: inline-flex; align-items: center; padding-inline: var(--space-3); border-radius: var(--radius-md); color: rgb(255 255 255 / 88%); font-size: var(--font-size-sm); text-decoration: none; white-space: nowrap; }
 .ecosystem-link:hover { background: rgb(255 255 255 / 10%); color: var(--color-neutral-0); }
 .navigation-row { display: flex; align-items: center; margin-top: var(--space-4); }
@@ -46,5 +49,6 @@ code { padding: .1em .3em; border-radius: var(--radius-sm); background: var(--co
 .footer-line { margin: 0; }
 .build-id { font-family: var(--font-mono); font-size: var(--font-size-xs); overflow-wrap: anywhere; }
 @media (max-width: 48rem) { .header-inner, .main-content, .footer-inner { width: min(calc(100% - 1.5rem), var(--content-wide)); } .identity-row { align-items: flex-start; flex-direction: column; gap: var(--space-3); } .card-grid { grid-template-columns: 1fr; } .dashboard-card { min-height: 0; } }
+@media (max-width:48rem){.header-actions{width:100%;justify-content:flex-start}.settings-grid{grid-template-columns:1fr}.shell-dialog{padding:var(--space-4)}}
 @media (max-width: 30rem) { .project-label { font-size: .68rem; } .project-name { font-size: var(--font-size-lg); } .brand-mark { width: 2.5rem; height: 2.5rem; flex-basis: 2.5rem; } .ecosystem-link { padding-inline: 0; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
