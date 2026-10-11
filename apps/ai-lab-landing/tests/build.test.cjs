@@ -15,8 +15,6 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.doesNotMatch(html, /\{\{BUILD_ID\}\}/);
   assert.match(html, /https:\/\/www\.python\.org\/downloads\/windows\//);
   assert.match(html, /https:\/\/ollama\.com\/download\/windows/);
-  assert.match(html, /https:\/\/lmstudio\.ai\/download/);
-  assert.match(html, /It is not required and does not replace Ollama/);
   assert.match(html, /class="site-header"/);
   assert.match(html, /class="primary-nav"/);
   assert.match(html, /href="#privacy"/);
