@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   [['accent-color','accent'],['background-color','background'],['font-choice','font'],['text-size','textSize'],['spacing-choice','spacing']].forEach(([id,key])=>document.getElementById(id)?.addEventListener('input',event=>update({[key]:event.currentTarget.value})));
   document.getElementById('reset-appearance')?.addEventListener('click',()=>{try{storage()?.removeItem(KEY);}catch{} prefs=applyAppearance(DEFAULT); if(status)status.textContent='Appearance preferences reset.';});
   document.querySelectorAll('[data-language]').forEach(button=>button.addEventListener('click',()=>{document.documentElement.lang=button.dataset.language; document.querySelectorAll('[data-language]').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));}));
-  [['assistant-button','assistant-dialog'],['settings-button','settings-dialog'],['info-button','info-dialog']].forEach(([button,dialog])=>document.getElementById(button)?.addEventListener('click',()=>document.getElementById(dialog)?.showModal()));
+  [['settings-button','settings-dialog'],['info-button','info-dialog']].forEach(([button,dialog])=>document.getElementById(button)?.addEventListener('click',()=>document.getElementById(dialog)?.showModal()));
   document.querySelectorAll('[data-close-dialog]').forEach(button=>button.addEventListener('click',()=>button.closest('dialog')?.close()));
 });
 module.exports={DEFAULT,normalizeAppearance};
