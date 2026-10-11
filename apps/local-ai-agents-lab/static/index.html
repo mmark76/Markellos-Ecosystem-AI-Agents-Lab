@@ -12,6 +12,7 @@
   <script defer src="/static/ecosystem-shell.js"></script>
   <script defer src="/static/training.js"></script>
   <script defer src="/static/model-install.js"></script>
+  <script defer src="/static/updates.js"></script>
 </head>
 <body>
 <div class="shell">
@@ -27,8 +28,9 @@
   <main class="main">
     <header class="top">
       <div><div class="eyebrow">MARKELLOS ECOSYSTEM · LOCAL LAB</div><h1 id="room-title">Learning Lab</h1><p class="subtitle" id="room-description">Learn → Practice → Evaluate → Improve</p></div>
-      <div class="top-controls"><a class="ecosystem-link" href="https://markellosecosystem.com/" target="_blank" rel="noopener noreferrer" id="ecosystem-link">Back to markellosecosystem</a><button type="button" id="quick-mode" class="settings-toggle" aria-label="Toggle light and dark mode">Light / Dark</button><button type="button" id="info-toggle" class="settings-toggle" aria-haspopup="dialog">Info</button><button type="button" id="settings-toggle" class="settings-toggle" aria-expanded="false" aria-controls="settings-panel" aria-label="Settings">⚙ <span id="settings-label">Settings</span></button><span class="privacy"><span class="dot"></span> LOCAL ONLY</span></div>
+      <div class="top-controls"><a class="ecosystem-link" href="https://markellosecosystem.com/" target="_blank" rel="noopener noreferrer" id="ecosystem-link">Back to markellosecosystem</a><button type="button" id="update-check" class="settings-toggle">Check for updates / Έλεγχος ενημερώσεων</button><button type="button" id="quick-mode" class="settings-toggle" aria-label="Toggle light and dark mode">Light / Dark</button><button type="button" id="info-toggle" class="settings-toggle" aria-haspopup="dialog">Info</button><button type="button" id="settings-toggle" class="settings-toggle" aria-expanded="false" aria-controls="settings-panel" aria-label="Settings">⚙ <span id="settings-label">Settings</span></button><span class="privacy"><span class="dot"></span> LOCAL ONLY</span></div>
     </header>
+    <p id="update-status" class="update-status" role="status" aria-live="polite"></p>
     <section class="settings-panel" id="settings-panel" aria-labelledby="settings-heading" hidden>
       <div class="settings-heading"><h2 id="settings-heading">Appearance Settings</h2><button type="button" id="settings-close" aria-label="Close settings">×</button></div>
       <fieldset class="settings-field"><legend id="settings-mode-label">Appearance</legend>

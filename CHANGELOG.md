@@ -7,6 +7,7 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 ### Changed
 
 - Replaced residual template documentation with AI Agents Lab project identity, architecture, data, operations, testing, security, risk, and engineering-adoption records.
+- Added Local Lab 0.1.2 safe manual update discovery: fixed official release metadata, validated links, and no automatic download or installation.
 
 ## [0.2.0] - 2026-10-08
 

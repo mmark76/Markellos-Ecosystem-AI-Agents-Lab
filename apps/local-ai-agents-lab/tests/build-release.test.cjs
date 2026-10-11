@@ -26,3 +26,12 @@ test('Windows training wizard is packaged and opt-in',()=>{
   assert.match(wizard,/Install these CPU training libraries now/);
   assert.match(wizard,/No CPU fallback/);
 });
+test('safe update-check inputs are packaged',()=>{
+  const root=path.resolve(__dirname,'..');
+  const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
+  const updates=fs.readFileSync(path.join(root,'updates.py'),'utf8');
+  assert.match(packager,/'updates\.py'/);
+  assert.match(packager,/'static\/updates\.js'/);
+  assert.match(updates,/releases\/latest/);
+  assert.match(updates,/never downloads, installs, or executes an/);
+});

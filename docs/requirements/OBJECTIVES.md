@@ -12,5 +12,6 @@ Objectives are finite, owned, and traceable to scope, acceptance criteria, imple
 | AI-LAB-OBJ-006 | Provide optional local LoRA/SFT training with validated JSONL data, an isolated dependency runtime, and explicit CPU/CUDA execution controls. | AI-LAB-SCOPE-006 | High | Yes | Repository maintainer | AI-LAB-AC-008 | APPROVED |
 | AI-LAB-OBJ-007 | Simplify the private Local Lab UI by removing interface-language and agent-response-language controls without breaking existing session or appearance behavior. | AI-LAB-SCOPE-007 | Medium | Yes | Repository maintainer | AI-LAB-AC-009 | APPROVED |
 | AI-LAB-OBJ-008 | Let the owner explicitly install additional local Ollama models from the Lab UI with safe progress/status handling and refreshed discovery. | AI-LAB-SCOPE-008 | Medium | Yes | Repository maintainer | AI-LAB-AC-010 | APPROVED |
+| AI-LAB-OBJ-009 | Let the user manually check the official release for a newer Windows package without automatically changing the device. | AI-LAB-SCOPE-009 | High | Yes | Repository maintainer | AI-LAB-AC-011 | APPROVED |
 
 Applicable `ENG-*`, Shield, and Infrastructure requirements are recorded through their dedicated adoption records rather than duplicated here.

@@ -53,6 +53,25 @@ Approved by: Direct user request
 Target release: Next Local Lab release
 ```
 
+## Approved change record — AI-LAB-CC-009
+
+```text
+Change ID: AI-LAB-CC-009
+Requested by: Repository maintainer
+Date: 2026-10-11
+Description: Publish a refreshed Windows release and add a manual safe update-check control.
+Reason: The available public ZIP predates the recent Local Lab fixes and users need a trustworthy way to discover a newer package.
+Affected objective IDs: AI-LAB-OBJ-009
+Architecture impact: One isolated release-metadata adapter; installation remains outside the application.
+Security and privacy impact: Explicit request only, fixed official endpoint, bounded response, validated links, no automatic download/install/launch.
+Data impact: None; existing SQLite history and local models are not touched.
+Testing impact: Add mocked endpoint/link validation plus UI and package regression checks.
+Cost and schedule impact: Optional small metadata request; manual upgrade remains user-controlled.
+Decision: APPROVED (SCOPE_INCREASE)
+Approved by: Direct user request
+Target release: Local Lab 0.1.2
+```
+
 ## Approved change record — AI-LAB-CC-007
 
 ```text

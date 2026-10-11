@@ -78,6 +78,17 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn("confirm(", js)
         self.assertIn("value !== 'ollama'", js)
 
+    def test_update_check_is_explicit_and_never_installs_automatically(self):
+        html = (STATIC / "index.html").read_text(encoding="utf-8")
+        script = (STATIC / "updates.js").read_text(encoding="utf-8")
+        self.assertIn('id="update-check"', html)
+        self.assertIn('id="update-status"', html)
+        self.assertIn('/static/updates.js', html)
+        self.assertIn('/api/updates', script)
+        self.assertIn('noopener noreferrer', script)
+        self.assertNotIn('window.location', script)
+        self.assertNotIn('download=', script)
+
     def test_training_workspace_is_local_and_bilingual(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         script = (STATIC / "training.js").read_text(encoding="utf-8")
