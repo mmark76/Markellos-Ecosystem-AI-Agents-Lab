@@ -56,7 +56,7 @@
     </dialog>
     <section class="statusbar">
       <div><span class="status-icon">◉</span> <span id="status">Checking local model...</span></div>
-      <div class="model-select"><label for="response-language" id="response-language-label">Agent responses</label><select id="response-language"><option value="en">EN</option><option value="el">EL</option></select><label for="model" id="model-label">Local AI Model</label><select id="model"><option>Έλεγχος...</option></select></div>
+      <div class="model-select"><label for="response-language" id="response-language-label">Agent responses</label><select id="response-language"><option value="en">EN</option><option value="el">EL</option></select><label for="provider" id="provider-label">Inference Engine</label><select id="provider"><option value="ollama">Ollama</option><option value="lm-studio">LM Studio</option><option value="vllm">vLLM</option></select><label for="model" id="model-label">Local AI Model</label><select id="model" disabled><option>Checking...</option></select></div>
     </section>
     <section class="chat-panel" aria-live="polite">
       <div id="messages" class="messages"><div class="empty">No training sessions yet. Enter a topic below.</div></div>
@@ -66,6 +66,10 @@
       <textarea id="prompt" rows="3" maxlength="2500" required placeholder="e.g. Teach the agents how to review a pull request safely..."></textarea>
       <div class="actions"><div id="hint">Agents have no access to files or commands.</div><button id="send" type="submit">Start Training ↗</button></div>
     </form>
+    <details class="provider-help" id="provider-help">
+      <summary id="provider-help-title">Which inference engine should I use?</summary>
+      <div id="provider-help-content"></div>
+    </details>
     <footer><span>© <span class="copyright-year"></span> Markellos Markides. All rights reserved.</span><span class="build-id">v0.1.1_YYYYMMDD_HHMM_SHA</span></footer>
   </main>
 </div>

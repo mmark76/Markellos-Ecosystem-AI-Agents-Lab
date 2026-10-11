@@ -17,6 +17,26 @@
 2. **Ollama για Windows** από <https://ollama.com/download/windows>.
 3. Ένα **local** model, ενδεικτικά με PowerShell: `ollama pull qwen3:4b`. Είναι περίπου 2.5 GB σε δίσκο· η καταλληλότητά του εξαρτάται από RAM/CPU/GPU.
 
+## Inference engines / Inference engines
+
+Η εφαρμογή προσφέρει μόνο τρεις σταθερές τοπικές επιλογές. Δεν δέχεται URL
+provider από το UI ή το API και δεν κάνει fallback σε cloud υπηρεσία.
+
+| Engine | Τοπικό API | Πότε να το χρησιμοποιήσεις / When to use it |
+|---|---|---|
+| **Ollama** (προεπιλογή) | `127.0.0.1:11434` | Για εύκολη εγκατάσταση, συχνή εναλλαγή μοντέλων και αυτόματη φόρτωση/αποφόρτωση. For simple local setup and model switching. |
+| **LM Studio** | `127.0.0.1:1234/v1` | Για γραφικό περιβάλλον και χειροκίνητη λήψη, ρύθμιση και σύγκριση μοντέλων. For GUI-based local experimentation. Start its local server first. |
+| **vLLM** | `127.0.0.1:8000/v1` | Για ταυτόχρονο GPU inference από πολλούς agents σε Linux, συμβατό WSL2 ή GPU server. For high-throughput concurrent inference. |
+
+Η επιλογή engine ελέγχει το αντίστοιχο loopback API και εμφανίζει μόνο τα
+μοντέλα που επιστρέφει εκείνο το API. Αν ο engine δεν εκτελείται, η εφαρμογή
+δείχνει μήνυμα και δεν επηρεάζει τις άλλες επιλογές.
+
+Το vLLM δεν υποστηρίζεται εγγενώς στα Windows. Η χρήση του μέσω RunPod ή
+οποιουδήποτε άλλου remote provider είναι ξεχωριστή ρύθμιση remote
+infrastructure και **δεν** υποστηρίζεται από αυτή την έκδοση: οι διευθύνσεις
+παραμένουν αποκλειστικά `127.0.0.1`.
+
 ## Εκτέλεση στο laptop
 
 1. Αποσυμπίεσε τον φάκελο π.χ. σε `C:\Markellos-Ecosystem-AI-Agents-Lab`.

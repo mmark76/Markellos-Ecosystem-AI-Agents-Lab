@@ -4,6 +4,8 @@ let room = 'university';
 let running = false;
 let uiLanguage = localStorage.getItem('agents-lab-ui-language') === 'el' ? 'el' : 'en';
 let responseLanguage = localStorage.getItem('agents-lab-response-language') === 'el' ? 'el' : 'en';
+const providerIds = ['ollama', 'lm-studio', 'vllm'];
+let provider = providerIds.includes(localStorage.getItem('agents-lab-provider')) ? localStorage.getItem('agents-lab-provider') : 'ollama';
 let statusData = null;
 let statusError = false;
 let hintError = '';
@@ -12,7 +14,7 @@ const words = {
     training:'Agent Training', collaboration:'Agent Collaboration',
     tip:'AI Agents Training Lab<br>1 AI Trainer · 2 AI Trainees<br>3 AI Experts · Conference Room',
     note:'Stored locally in SQLite.<br>No GitHub or cloud API access.',
-    uiLabel:'Interface', responseLabel:'Agent responses', modelLabel:'Local AI Model',
+    uiLabel:'Interface', responseLabel:'Agent responses', providerLabel:'Inference Engine', modelLabel:'Local AI Model',
     universityDescription:'Learn → Practice → Evaluate → Improve',
     conferenceDescription:'Architect → Developer → Reviewer · Shared history',
     universityLabel:'Training Topic', conferenceLabel:'Discussion Topic',
@@ -21,10 +23,12 @@ const words = {
     empty:'No sessions yet. Enter a topic below.', hint:'Agents have no access to files or commands.',
     working:'Agents are responding sequentially. This may take some time.',
     startUniversity:'Start Training ↗', startConference:'Start Discussion ↗', running:'Running...',
-    checking:'Checking local model...', databaseError:'Unable to read local database.',
-    serviceError:'Local service is not responding.', offline:'Ollama is not running. See README.',
-    noModels:'Ollama online · No installed local models found.',
-    modelCount:n=>'Ollama online · '+n+' local models',
+    checking:'Checking local inference engine...', databaseError:'Unable to read local database.',
+    serviceError:'Local service is not responding.', offline:name=>name+' is not running locally. See README.',
+    noModels:name=>name+' is online · No compatible local models found.',
+    modelCount:(name,n)=>name+' online · '+n+' local models',
+    providerHelpTitle:'Which inference engine should I use?',
+    providerHelp:'<h2>Ollama — Simple Local AI</h2><p>Use it for easy installation, switching models, and automatic model loading.</p><h2>LM Studio — Local AI Experimentation</h2><p>Use its graphical interface to download, configure, and compare models manually.</p><h2>vLLM — High-Performance GPU Inference</h2><p>Use it for shared, concurrent GPU inference on Linux, compatible WSL2, or a GPU server. vLLM is not natively supported on Windows; RunPod requires separate remote-infrastructure approval.</p>',
     failed:'Session failed', you:'You',
     agents:{'Εσύ':'You','Καθηγητής':'Trainer','Φοιτητής Α':'Agent A','Φοιτητής Β':'Agent B','Καθηγητής · Feedback':'Trainer · Feedback'}
   },
@@ -32,7 +36,7 @@ const words = {
     training:'Εκπαίδευση Agents', collaboration:'Συνεργασία Agents',
     tip:'Εργαστήριο Εκπαίδευσης AI Agents<br>1 AI Trainer · 2 AI Trainees<br>3 AI Experts · Conference Room',
     note:'Τοπική αποθήκευση σε SQLite.<br>Χωρίς πρόσβαση σε GitHub ή cloud APIs.',
-    uiLabel:'Περιβάλλον', responseLabel:'Απαντήσεις Agents', modelLabel:'Τοπικό AI Model',
+    uiLabel:'Περιβάλλον', responseLabel:'Απαντήσεις Agents', providerLabel:'Inference Engine', modelLabel:'Τοπικό AI Model',
     universityDescription:'Μάθηση → Εξάσκηση → Αξιολόγηση → Βελτίωση',
     conferenceDescription:'Architect → Developer → Reviewer · Κοινό ιστορικό',
     universityLabel:'Θέμα εκπαίδευσης', conferenceLabel:'Θέμα συζήτησης',
@@ -42,10 +46,12 @@ const words = {
     hint:'Οι Agents δεν έχουν πρόσβαση σε αρχεία ή εντολές.',
     working:'Οι Agents απαντούν διαδοχικά. Η διαδικασία μπορεί να διαρκέσει.',
     startUniversity:'Έναρξη εκπαίδευσης ↗', startConference:'Έναρξη συζήτησης ↗', running:'Εκτέλεση...',
-    checking:'Έλεγχος τοπικού μοντέλου...', databaseError:'Αδυναμία ανάγνωσης τοπικής βάσης.',
-    serviceError:'Η τοπική υπηρεσία δεν ανταποκρίνεται.', offline:'Το Ollama δεν λειτουργεί. Δες το README.',
-    noModels:'Ollama ενεργό · Δεν βρέθηκαν εγκατεστημένα τοπικά μοντέλα.',
-    modelCount:n=>'Ollama ενεργό · '+n+' τοπικά μοντέλα',
+    checking:'Έλεγχος τοπικού inference engine...', databaseError:'Αδυναμία ανάγνωσης τοπικής βάσης.',
+    serviceError:'Η τοπική υπηρεσία δεν ανταποκρίνεται.', offline:name=>name+' δεν λειτουργεί τοπικά. Δες το README.',
+    noModels:name=>name+' ενεργό · Δεν βρέθηκαν συμβατά τοπικά μοντέλα.',
+    modelCount:(name,n)=>name+' ενεργό · '+n+' τοπικά μοντέλα',
+    providerHelpTitle:'Ποιο inference engine να χρησιμοποιήσω;',
+    providerHelp:'<h2>Ollama — Απλό Local AI</h2><p>Χρησιμοποίησέ το για εύκολη εγκατάσταση, εναλλαγή μοντέλων και αυτόματη φόρτωση μοντέλων.</p><h2>LM Studio — Πειραματισμός με Local AI</h2><p>Χρησιμοποίησέ το με το γραφικό περιβάλλον του για χειροκίνητη λήψη, ρύθμιση και σύγκριση μοντέλων.</p><h2>vLLM — GPU Inference Υψηλής Απόδοσης</h2><p>Χρησιμοποίησέ το για κοινό, ταυτόχρονο GPU inference σε Linux, συμβατό WSL2 ή GPU server. Το vLLM δεν υποστηρίζεται εγγενώς στα Windows· το RunPod απαιτεί ξεχωριστή έγκριση remote infrastructure.</p>',
     failed:'Αποτυχία συνεδρίας', you:'Εσύ',
     agents:{'Εσύ':'Εσύ','Καθηγητής':'Εκπαιδευτής','Φοιτητής Α':'Agent A','Φοιτητής Β':'Agent B','Καθηγητής · Feedback':'Εκπαιδευτής · Ανατροφοδότηση'}
   }
@@ -55,14 +61,16 @@ function labelAgent(name) { return t().agents[name] || name; }
 function setStatus() {
   if (statusError) { $('status').textContent=t().serviceError; return; }
   if (!statusData) { $('status').textContent=t().checking; return; }
-  $('status').textContent= !statusData.ollama ? t().offline : !statusData.models.length ? t().noModels : t().modelCount(statusData.models.length);
+  $('status').textContent= !statusData.available ? t().offline(statusData.label) : !statusData.models.length ? t().noModels(statusData.label) : t().modelCount(statusData.label,statusData.models.length);
 }
 function updateUI() {
   document.documentElement.lang=uiLanguage;
   $('ui-language').value=uiLanguage;
   $('response-language').value=responseLanguage;
+  $('provider').value=provider;
   $('ui-language-label').textContent=t().uiLabel;
   $('response-language-label').textContent=t().responseLabel;
+  $('provider-label').textContent=t().providerLabel;
   $('model-label').textContent=t().modelLabel;
   $('nav-training').textContent=t().training;
   $('nav-conference').textContent=t().collaboration;
@@ -82,6 +90,8 @@ function updateUI() {
   });
   const empty=$('messages').querySelector('.empty');
   if(empty)empty.textContent=t().empty;
+  $('provider-help-title').textContent=t().providerHelpTitle;
+  $('provider-help-content').innerHTML=t().providerHelp;
 }
 function makeMessage(message) {
   const wrap=document.createElement('article');
@@ -111,18 +121,20 @@ async function refreshHistory() {
 }
 async function refreshStatus() {
   try {
-    const res=await fetch('/api/status');if(!res.ok)throw new Error('Status failed');
+    const res=await fetch('/api/providers/'+encodeURIComponent(provider)+'/status');if(!res.ok)throw new Error('Status failed');
     statusData=await res.json();statusError=false;
     const select=$('model'),old=select.value;select.replaceChildren();
     for(const model of statusData.models){const opt=document.createElement('option');opt.value=model;opt.textContent=model;select.append(opt);}
     if(statusData.models.includes(old))select.value=old;
+    select.disabled=!statusData.models.length;
     if(!running)$('send').disabled=!statusData.models.length;
-  } catch { statusError=true;$('send').disabled=true; }
+  } catch { statusError=true;statusData=null;$('model').disabled=true;$('send').disabled=true; }
   setStatus();
 }
 function switchRoom(next){if(running||!['university','conference'].includes(next))return;room=next;hintError='';updateUI();refreshHistory();}
 $('ui-language').addEventListener('change',e=>{uiLanguage=e.target.value;localStorage.setItem('agents-lab-ui-language',uiLanguage);updateUI();});
 $('response-language').addEventListener('change',e=>{responseLanguage=e.target.value;localStorage.setItem('agents-lab-response-language',responseLanguage);});
+$('provider').addEventListener('change',e=>{if(!providerIds.includes(e.target.value))return;provider=e.target.value;localStorage.setItem('agents-lab-provider',provider);hintError='';statusData=null;updateUI();refreshStatus();});
 document.querySelectorAll('[data-room]').forEach(b=>b.addEventListener('click',()=>switchRoom(b.dataset.room)));
 $('composer').addEventListener('submit',async ev=>{
   ev.preventDefault();if(running)return;
@@ -130,7 +142,7 @@ $('composer').addEventListener('submit',async ev=>{
   if(!prompt||!model)return;
   running=true;hintError='';$('send').disabled=true;updateUI();
   try {
-    const result=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({room,model,prompt,language:responseLanguage})});
+    const result=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({room,provider,model,prompt,language:responseLanguage})});
     const payload=await result.json();
     if(!result.ok)throw new Error(payload.error||t().failed);
     $('prompt').value='';

@@ -1,11 +1,8 @@
-"""Private local Markellos Ecosystem AI Agents Lab + Conference Room starter.
-
-Requires Python 3.9+ and (for LLM replies) a locally installed Ollama model.
-This application does not integrate with GitHub or cloud LLM APIs.
-"""
+"""Private local Markellos Ecosystem AI Agents Lab + Conference Room starter."""
 from __future__ import annotations
 
 import json
+import sys
 from contextlib import closing
 import sqlite3
 from datetime import datetime, timezone
@@ -13,17 +10,24 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Lock
 from urllib.error import HTTPError, URLError
-from urllib.request import ProxyHandler, Request, build_opener
+from urllib.request import ProxyHandler, build_opener
 
 HOST = "127.0.0.1"
 PORT = 8765
-OLLAMA = "http://127.0.0.1:11434"
 ROOT = Path(__file__).resolve().parent
 STATIC = ROOT / "static"
 DB_PATH = ROOT / "data" / "campus.sqlite3"
 OPENER = build_opener(ProxyHandler({}))  # No environment proxy; loopback only.
 RUN_LOCK = Lock()
 ROOMS = {"university", "conference"}
+
+# The adapter registry owns the fixed local provider URLs. User requests cannot
+# supply an endpoint, so the Lab cannot be redirected to a remote service.
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+from providers import InferenceProviders, ProviderError
+
+PROVIDERS = InferenceProviders()
 
 PROMPTS = {
     "Καθηγητής": (
@@ -111,36 +115,33 @@ def history(room: str, limit: int = 80) -> list[dict]:
     return [dict(row) for row in rows]
 
 
-def local_models() -> list[str]:
-    request = Request(OLLAMA + "/api/tags", headers={"Accept": "application/json"})
-    with OPENER.open(request, timeout=4) as response:
-        payload = json.loads(response.read(2_000_000))
-    names = [m.get("name", "") for m in payload.get("models", [])]
-    return [n for n in names if n and "cloud" not in n.lower()]
+def local_models(provider: str = "ollama") -> list[str]:
+    """Return models from one allow-listed local inference provider."""
+    return PROVIDERS.models(provider, OPENER)
 
 
-def ollama_chat(model: str, agent: str, transcript: list[dict], language: str = "en") -> str:
-    # The model is verified against currently registered non-cloud Ollama model tags.
-    if model not in local_models():
-        raise ValueError("Το μοντέλο δεν βρέθηκε στη λίστα τοπικών μοντέλων Ollama.")
+def provider_chat(provider: str, model: str, agent: str, transcript: list[dict], language: str = "en") -> str:
     system = PROMPTS[agent] + (" Do not execute commands. Reply exclusively in " + ("Greek" if language == "el" else "English") + ", maintaining standard technical terms. /no_think")
     dialog = [{"role": "system", "content": system}]
     for row in transcript[-12:]:
         who = row["agent"]
         dialog.append({"role": "user", "content": f"{who}: {row['content'][:1500]}"})
-    req = Request(
-        OLLAMA + "/api/chat",
-        data=json.dumps({"model": model, "messages": dialog, "stream": False,
-                         "think": False, "options": {"num_predict": 450}}).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-        method="POST",
-    )
-    with OPENER.open(req, timeout=150) as response:
-        data = json.loads(response.read(2_000_000))
-    answer = (data.get("message") or {}).get("content", "").strip()
-    if not answer:
-        raise ValueError("Το μοντέλο δεν επέστρεψε απάντηση.")
-    return answer
+    return PROVIDERS.chat(provider, model, dialog, OPENER)
+
+
+def ollama_chat(model: str, agent: str, transcript: list[dict], language: str = "en") -> str:
+    """Compatibility wrapper for existing callers and regression tests."""
+    return provider_chat("ollama", model, agent, transcript, language)
+
+
+def provider_status(provider: str) -> dict:
+    info = PROVIDERS.get(provider)
+    try:
+        return {"provider": info.identifier, "label": info.label, "available": True,
+                "models": local_models(provider), "error": ""}
+    except ProviderError:
+        return {"provider": info.identifier, "label": info.label, "available": False,
+                "models": [], "error": f"{info.label} is not running locally."}
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -170,11 +171,16 @@ class Handler(BaseHTTPRequestHandler):
             self._json({"error": "Invalid Host"}, 403)
             return
         if self.path == "/api/status":
+            status = provider_status("ollama")
+            self._json({"ollama": status["available"], "models": status["models"],
+                        "storage": "local SQLite", "cloud": False, "provider": status})
+            return
+        if self.path.startswith("/api/providers/") and self.path.endswith("/status"):
+            provider = self.path[len("/api/providers/"):-len("/status")].strip("/")
             try:
-                models = local_models()
-                self._json({"ollama": True, "models": models, "storage": "local SQLite", "cloud": False})
-            except (OSError, ValueError, KeyError, URLError):
-                self._json({"ollama": False, "models": [], "storage": "local SQLite", "cloud": False})
+                self._json(provider_status(provider))
+            except ProviderError:
+                self._json({"error": "Unknown inference provider"}, 404)
             return
         if self.path.startswith("/api/history/"):
             room = self.path[len("/api/history/"):]
@@ -219,6 +225,7 @@ class Handler(BaseHTTPRequestHandler):
             if not isinstance(body, dict):
                 raise ValueError("Invalid request")
             room = body.get("room", "")
+            provider = body.get("provider", "ollama")
             model = body.get("model", "")
             raw_prompt = body.get("prompt", "")
             language = body.get("language", "en")
@@ -227,8 +234,9 @@ class Handler(BaseHTTPRequestHandler):
             if not isinstance(raw_prompt, str):
                 raise ValueError("Invalid prompt")
             prompt = raw_prompt.strip()
-            if room not in ROOMS or not isinstance(model, str) or not 1 <= len(prompt) <= 2500:
+            if room not in ROOMS or not isinstance(provider, str) or not isinstance(model, str) or not 1 <= len(prompt) <= 2500:
                 raise ValueError("Επιλέξτε δωμάτιο, μοντέλο και θέμα έως 2.500 χαρακτήρες.")
+            PROVIDERS.get(provider)
         except (ValueError, TypeError, json.JSONDecodeError) as err:
             self._json({"error": str(err)}, 400)
             return
@@ -236,20 +244,20 @@ class Handler(BaseHTTPRequestHandler):
             self._json({"error": "Άλλη συνεδρία εκτελείται ήδη."}, 409)
             return
         try:
-            if model not in local_models():
-                self._json({"error": "Επιλέξτε εγκατεστημένο τοπικό μοντέλο (όχι cloud)."}, 400)
+            if model not in local_models(provider):
+                self._json({"error": "Select a model exposed by the chosen local provider."}, 400)
                 return
             add_message(room, "Εσύ", prompt)
             transcript = history(room, 14)
             completed = []
             for agent in FLOW[room]:
-                answer = ollama_chat(model, agent, transcript, language)
+                answer = provider_chat(provider, model, agent, transcript, language)
                 add_message(room, agent, answer)
                 item = {"agent": agent, "content": answer, "created_at": utc_now()}
                 completed.append(item)
                 transcript.append(item)
             self._json({"messages": completed, "room": room})
-        except (TimeoutError, HTTPError, URLError, OSError, ValueError, KeyError) as err:
+        except (TimeoutError, HTTPError, URLError, OSError, ValueError, KeyError, ProviderError) as err:
             self._json({"error": f"Η συνεδρία διακόπηκε. Οι ήδη παραχθείσες απαντήσεις αποθηκεύτηκαν. {err}"}, 502)
         finally:
             RUN_LOCK.release()
