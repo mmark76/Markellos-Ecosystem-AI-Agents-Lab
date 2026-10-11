@@ -18,6 +18,8 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.match(html, /https:\/\/lmstudio\.ai\/download/);
   assert.match(html, /https:\/\/docs\.vllm\.ai\/en\/latest\/getting_started\/quickstart\//);
   assert.match(html, /not a native Windows desktop download/);
+  assert.match(html, /href="http:\/\/127\.0\.0\.1:8765\/"/);
+  assert.match(html, /Open Local Lab/);
   assert.match(html, /class="site-header"/);
   assert.match(html, /class="primary-nav"/);
   assert.match(html, /href="#privacy"/);
