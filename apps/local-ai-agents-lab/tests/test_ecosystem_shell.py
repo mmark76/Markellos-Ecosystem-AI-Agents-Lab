@@ -15,12 +15,30 @@ class EcosystemShellTests(unittest.TestCase):
     def test_project_navigation_and_local_controls_preserved(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         for name in ('data-room="university"', 'data-room="conference"',
-                     'id="settings-toggle"', 'id="ui-language"',
-                     'id="response-language"', 'id="provider"', 'id="model"',
+                     'id="settings-toggle"', 'id="provider"', 'id="model"',
                      'id="provider-help"',
                      'id="composer"'):
             with self.subTest(name=name):
                 self.assertIn(name, html)
+
+    def test_language_selectors_hidden_without_breaking_language_defaults(self):
+        html = (STATIC / "index.html").read_text(encoding="utf-8")
+        app = (STATIC / "app.js").read_text(encoding="utf-8")
+        settings = (STATIC / "settings.js").read_text(encoding="utf-8")
+        shell = (STATIC / "ecosystem-shell.js").read_text(encoding="utf-8")
+        for selector in ('id="ui-language"', 'id="response-language"',
+                         'id="ui-language-label"', 'id="response-language-label"'):
+            with self.subTest(selector=selector):
+                self.assertNotIn(selector, html)
+        for script in (app, settings, shell):
+            with self.subTest(script=script[:24]):
+                self.assertNotIn("$('ui-language')", script)
+                self.assertNotIn("$('response-language')", script)
+        self.assertIn("'agents-lab-ui-language'", app)
+        self.assertIn("'agents-lab-response-language'", app)
+        self.assertIn('language:responseLanguage', app)
+        self.assertIn('document.documentElement.lang', settings)
+        self.assertIn('document.documentElement.lang', shell)
 
     def test_canonical_header_and_footer_elements(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")

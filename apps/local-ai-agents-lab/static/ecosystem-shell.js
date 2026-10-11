@@ -2,7 +2,6 @@
 (() => {
   const $ = id => document.getElementById(id);
   const info = $('lab-info');
-  const language = $('ui-language');
   const translations = {
     en: {
       back: 'Back to markellosecosystem', mode: 'Light / Dark', modeTitle: 'Toggle light and dark mode',
@@ -20,7 +19,7 @@
     }
   };
   function translate() {
-    const strings = translations[language.value === 'el' ? 'el' : 'en'];
+    const strings = translations[document.documentElement.lang === 'el' ? 'el' : 'en'];
     $('ecosystem-link').textContent = strings.back;
     $('quick-mode').textContent = strings.mode;
     $('quick-mode').setAttribute('aria-label',strings.modeTitle);
@@ -38,6 +37,5 @@
   });
   $('info-toggle').addEventListener('click',() => {if(!info.open)info.showModal();});
   $('info-close').addEventListener('click',()=>info.close());
-  language.addEventListener('change',translate);
   translate();
 })();
