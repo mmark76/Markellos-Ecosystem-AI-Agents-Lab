@@ -72,6 +72,82 @@ CUDA is optional and no GPU, CUDA Toolkit, or driver is needed for the basic
 Lab. A GPU out-of-memory failure leaves the job failed with retained partial
 output; reduce model size or sequence length before retrying.
 
+### Installation guide / Οδηγός εγκατάστασης
+
+The following is an **optional local installation** for training only. Do not
+run it for the normal Ollama, LM Studio, or vLLM inference workflow.
+
+1. Install a Python version supported by the pinned ML packages (use Python
+   3.11 or 3.12 for this release). Python 3.14 is not compatible with the
+   packaged `torch==2.7.1` requirement. Confirm the launcher can see it:
+
+   ```powershell
+   py -3.12 --version
+   ```
+
+2. Open PowerShell in the extracted `apps\local-ai-agents-lab` directory and
+   create the isolated environment. This does not change the system Python:
+
+   ```powershell
+   py -3.12 -m venv training\.venv
+   training\.venv\Scripts\python.exe -m pip install --upgrade pip
+   ```
+
+3. For **CPU training**, install the documented pinned packages:
+
+   ```powershell
+   training\.venv\Scripts\python.exe -m pip install -r training\requirements.txt
+   ```
+
+4. For **NVIDIA CUDA training**, first use the official [PyTorch installation
+   selector](https://pytorch.org/get-started/locally/) to choose a Windows,
+   Pip, Python, and CUDA build matching the installed NVIDIA driver. Install
+   that `torch` command in `training\.venv`, then install the remaining
+   packages from `requirements.txt`. Do not install drivers, a CUDA Toolkit,
+   or a CUDA-enabled PyTorch build automatically from the Lab.
+
+5. Verify the environment and hardware detection before starting the Lab:
+
+   ```powershell
+   training\.venv\Scripts\python.exe -c "import torch; print(torch.__version__); print('CUDA:', torch.cuda.is_available()); print('GPU:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'none')"
+   ```
+
+6. Create these local directories beside `server.py` if they do not exist:
+
+   ```text
+   models\<your-compatible-local-transformers-model>\
+   training-data\<dataset>.jsonl
+   ```
+
+   Model files must already be downloaded. The Lab intentionally uses
+   `local_files_only=True`; it will not download models. Every JSONL line must
+   be a small valid JSON object with one non-empty `text` field:
+
+   ```json
+   {"text":"User: Explain LoRA briefly.\nAssistant: LoRA fine-tunes small adapter matrices."}
+   ```
+
+7. Start the Lab, open `http://127.0.0.1:8765/`, then open **Model Training /
+   Εκπαίδευση Μοντέλων**. Select the model, JSONL dataset, LoRA or SFT, and
+   Auto, CPU, or CUDA GPU. Review the shown configuration and confirm the
+   explicit start prompt. Only one job can run at a time.
+
+8. Read the status and output location in the Training workspace. Finished
+   adapters and checkpoints remain under `training-output\<job-id>\`; keep
+   these files local and back them up separately if needed. A stopped or failed
+   job preserves partial output. An explicit CUDA selection never falls back to
+   CPU—correct the PyTorch/CUDA installation or choose CPU intentionally.
+
+### Τι εγκαθίσταται και τι δεν εγκαθίσταται
+
+- Εγκαθίστανται τοπικά, μόνο στο `training\.venv`: PyTorch, Transformers,
+  PEFT, TRL και οι εξαρτήσεις τους.
+- Δεν περιλαμβάνονται ούτε εγκαθίστανται αυτόματα: CUDA drivers/Toolkit,
+  μοντέλα, datasets, adapters, checkpoints ή cloud credentials.
+- Το ZIP περιέχει μόνο τον κώδικα και τις οδηγίες για τη λειτουργία Training.
+  Η κύρια εφαρμογή και τα Ollama / LM Studio / vLLM συνεχίζουν να λειτουργούν
+  χωρίς αυτές τις βιβλιοθήκες.
+
 ## Υποχρεωτική ρύθμιση για πλήρη τοπική λειτουργία Ollama
 
 Δημιούργησε ή επεξεργάσου το αρχείο `%USERPROFILE%\.ollama\server.json` με περιεχόμενο:
