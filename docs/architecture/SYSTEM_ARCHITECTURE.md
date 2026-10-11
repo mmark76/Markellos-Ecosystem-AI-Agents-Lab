@@ -25,6 +25,7 @@ The public site never proxies, embeds, or routes to the Local Lab, Ollama, or SQ
 | `apps/local-ai-agents-lab/server.py` | Loopback HTTP server, local persistence, and agent orchestration. | Python standard library; provider adapter. | Repository maintainer |
 | `apps/local-ai-agents-lab/providers.py` | Allow-listed provider discovery and chat adapters. | Fixed loopback Ollama, LM Studio, and vLLM APIs. | Repository maintainer |
 | `apps/local-ai-agents-lab/static/` | Local Lab browser interface. | Local loopback server only. | Repository maintainer |
+| `apps/local-ai-agents-lab/training.py` and `training/` | Validated local training orchestration and isolated PyTorch worker. | Fixed local folders and a separate Python virtual environment. | Repository maintainer |
 | `apps/ai-lab-landing/` | Static public installation guide and Pages artifact. | Node build script; Cloudflare Pages at deployment. | Repository maintainer |
 | `docs/` | Project decisions, controls, evidence references, and operating records. | Versioned repository content. | Repository maintainer |
 
@@ -34,6 +35,7 @@ The public site never proxies, embeds, or routes to the Local Lab, Ollama, or SQ
 2. The Lab validates a provider identifier and communicates only with the matching local API: Ollama at `127.0.0.1:11434`, LM Studio at `127.0.0.1:1234/v1`, or vLLM at `127.0.0.1:8000/v1`.
 3. Local conversation records are stored in the Lab SQLite database and are excluded from Git.
 4. Public visitors receive only static landing-page files through Cloudflare Pages.
+5. Training requests select only local `models/` and `training-data/` entries; the optional worker writes adapters/checkpoints to `training-output/` and never uses inference adapters or SQLite history.
 
 ## Deployment and recovery
 

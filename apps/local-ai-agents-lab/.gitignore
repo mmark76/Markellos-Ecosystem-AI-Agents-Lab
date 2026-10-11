@@ -9,3 +9,7 @@ __pycache__/
 *.db
 *.log
 .venv/
+models/
+training-data/
+training-output/
+training/.venv/

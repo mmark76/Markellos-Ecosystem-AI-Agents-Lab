@@ -2,6 +2,8 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {formatBuildId}=require('../scripts/build-release.cjs');
+const fs=require('node:fs');
+const path=require('node:path');
 const sha='abcdef0123456789abcdef0123456789abcdef01';
 
 test('EET winter uses Europe/Nicosia (+02:00)',()=>{
@@ -14,4 +16,13 @@ test('invalid version, SHA, and time are rejected',()=>{
   assert.throws(()=>formatBuildId('1.0.0-beta',sha,'2026-01-15T12:00:00Z'));
   assert.throws(()=>formatBuildId('1.0.0','not-a-git-sha','2026-01-15T12:00:00Z'));
   assert.throws(()=>formatBuildId('1.0.0',sha,'nonsense'));
+});
+test('Windows training wizard is packaged and opt-in',()=>{
+  const root=path.resolve(__dirname,'..');
+  const launcher=fs.readFileSync(path.join(root,'setup-training-windows.bat'),'utf8');
+  const wizard=fs.readFileSync(path.join(root,'scripts','setup-training.ps1'),'utf8');
+  assert.match(launcher,/setup-training\.ps1/);
+  assert.match(wizard,/CPU, \[2\] NVIDIA CUDA/);
+  assert.match(wizard,/Install these CPU training libraries now/);
+  assert.match(wizard,/No CPU fallback/);
 });

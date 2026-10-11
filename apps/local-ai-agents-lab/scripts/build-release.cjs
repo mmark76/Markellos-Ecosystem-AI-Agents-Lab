@@ -5,7 +5,7 @@ const path=require('node:path');
 const root=path.resolve(__dirname,'../../..');
 const prefix='apps/local-ai-agents-lab/';
 const git=(...args)=>execFileSync('git',args,{cwd:root,encoding:'utf8'}).trim();
-const files=['VERSION','README.md','.gitignore','server.py','start-windows.bat','static/app.js','static/index.html','static/settings.js','static/style.css','static/ecosystem-shell.js','static/ecosystem-tokens.css'];
+const files=['VERSION','README.md','.gitignore','server.py','providers.py','training.py','training/requirements.txt','training/training_worker.py','start-windows.bat','setup-training-windows.bat','scripts/setup-training.ps1','static/app.js','static/training.js','static/index.html','static/settings.js','static/style.css','static/ecosystem-shell.js','static/ecosystem-tokens.css'];
 const BUILD_ID=/^v\d+\.\d+\.\d+_\d{8}_\d{4}_[0-9a-f]{7}$/;
 
 function formatBuildId(version,sha,timestamp){

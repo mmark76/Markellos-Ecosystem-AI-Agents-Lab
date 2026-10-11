@@ -26,8 +26,10 @@ ROOMS = {"university", "conference"}
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from providers import InferenceProviders, ProviderError
+from training import TrainingError, TrainingService
 
 PROVIDERS = InferenceProviders()
+TRAINING = TrainingService(ROOT)
 
 PROMPTS = {
     "Καθηγητής": (
@@ -175,6 +177,17 @@ class Handler(BaseHTTPRequestHandler):
             self._json({"ollama": status["available"], "models": status["models"],
                         "storage": "local SQLite", "cloud": False, "provider": status})
             return
+        if self.path == "/api/training/status":
+            data = TRAINING.availability()
+            data.update({"datasets": TRAINING.datasets_list(), "models": TRAINING.models_list()})
+            self._json(data)
+            return
+        if self.path.startswith("/api/training/jobs/"):
+            try:
+                self._json(TRAINING.status(self.path.rsplit("/", 1)[-1]))
+            except TrainingError as err:
+                self._json({"error": str(err)}, 404)
+            return
         if self.path.startswith("/api/providers/") and self.path.endswith("/status"):
             provider = self.path[len("/api/providers/"):-len("/status")].strip("/")
             try:
@@ -194,7 +207,8 @@ class Handler(BaseHTTPRequestHandler):
                  "/static/app.js": ("app.js", "text/javascript; charset=utf-8"),
                  "/static/settings.js": ("settings.js", "text/javascript; charset=utf-8"),
                  "/static/ecosystem-shell.js": ("ecosystem-shell.js", "text/javascript; charset=utf-8"),
-                 "/static/ecosystem-tokens.css": ("ecosystem-tokens.css", "text/css; charset=utf-8")}
+                 "/static/ecosystem-tokens.css": ("ecosystem-tokens.css", "text/css; charset=utf-8"),
+                 "/static/training.js": ("training.js", "text/javascript; charset=utf-8")}
         resource = pages.get(self.path)
         if not resource:
             self._json({"error": "Not found"}, 404)
@@ -213,6 +227,21 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not self._host_valid() or not self._origin_valid():
             self._json({"error": "Cross-origin writes blocked"}, 403)
+            return
+        if self.path.startswith("/api/training/jobs/") and self.path.endswith("/stop"):
+            try:
+                self._json(TRAINING.stop(self.path.split("/")[-2]))
+            except TrainingError as err:
+                self._json({"error": str(err)}, 400)
+            return
+        if self.path == "/api/training/jobs":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if size < 2 or size > 4000:
+                    raise TrainingError("Invalid training request size.")
+                self._json(TRAINING.start(json.loads(self.rfile.read(size))), 202)
+            except (TrainingError, ValueError, TypeError, json.JSONDecodeError) as err:
+                self._json({"error": str(err)}, 400)
             return
         if self.path != "/api/run":
             self._json({"error": "Unknown endpoint"}, 404)

@@ -1,0 +1,7 @@
+# Install only inside training/.venv; the main Lab intentionally has no ML dependency.
+torch==2.7.1
+transformers==4.53.0
+peft==0.15.2
+trl==0.19.1
+accelerate==1.8.1
+datasets==3.6.0
