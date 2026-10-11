@@ -42,7 +42,7 @@
       <h1 id="page-title">Learn with AI agents, on your own device.</h1>
       <p class="hero-copy">AI Agents Lab is a local learning and discussion environment that can use Ollama, LM Studio, or vLLM on your own device. Conversations, models, and storage stay on the computer where you run it.</p>
       <p class="shell-notice">This public page is a guide only. The Lab, its models, and its conversation history are never hosted here.</p>
-      <a class="primary-button" href="https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/latest/download/AI-Agents-Lab-Windows.zip">Download for Windows <span aria-hidden="true">↓</span></a>
+      <div class="hero-actions"><a class="primary-button" href="https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/latest/download/AI-Agents-Lab-Windows.zip">Download for Windows <span aria-hidden="true">↓</span></a><a class="secondary-button" href="http://127.0.0.1:8765/">Open Local Lab <span aria-hidden="true">↗</span></a></div>
     </section>
 
     <section id="overview" class="card-grid" aria-labelledby="what-title">
@@ -68,7 +68,7 @@
         <li><strong>Run a local model or server.</strong> With Ollama, for example, run <code>ollama pull qwen3:4b</code>; the Lab uses its local address, <code>127.0.0.1:11434</code>. LM Studio and vLLM expose OpenAI-compatible local servers on their configured loopback addresses.</li>
         <li><strong>Keep Ollama local-only if you use it.</strong> Add <code>"disable_ollama_cloud": true</code> to <code>%USERPROFILE%\.ollama\server.json</code>, preserving any existing settings, then restart Ollama. Use downloaded local models, not names ending in <code>:cloud</code>.</li>
         <li><strong>Start the application.</strong> In the extracted folder, run <code>py -3 server.py</code> (or open <code>start-windows.bat</code>).</li>
-        <li><strong>Open the local address.</strong> Visit <code>http://127.0.0.1:8765/</code> in your browser.</li>
+        <li><strong>Open the local address.</strong> Select <a class="inline-link" href="http://127.0.0.1:8765/">Open Local Lab</a> after the local server has started.</li>
       </ol>
     </section>
 
