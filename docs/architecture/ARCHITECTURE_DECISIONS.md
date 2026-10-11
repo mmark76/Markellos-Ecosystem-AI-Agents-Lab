@@ -50,3 +50,19 @@ then starts at most one worker. CUDA is a PyTorch execution choice, not an
 inference provider; an explicit CUDA request fails when unsupported. This keeps
 the lightweight server, inference adapters, and SQLite conversation history free
 of ML dependencies and training side effects.
+
+## AI-LAB-ADR-005 — Keep update discovery separate from update installation
+
+- Status: Accepted
+- Date: 2026-10-11
+- Related requirements: AI-LAB-OBJ-009, AI-LAB-AC-011, AI-LAB-SEC-009
+
+The Local Lab has a small updates.py adapter that is called only when the user
+presses the update-check control. It requests metadata from one fixed official
+GitHub Releases API endpoint, bounds the response and timeout, and accepts only
+matching official repository links. The browser receives a status and an
+optional safe external link; it has no direct external connection.
+
+Consequences: release discovery does not weaken the local inference boundary or
+create an updater privilege. Download, extraction, replacement, and restart
+remain a manual, user-controlled upgrade procedure.

@@ -18,6 +18,7 @@
 | AI-LAB-SCOPE-006 | Add an optional, isolated local PyTorch LoRA/SFT training workspace with CPU/CUDA selection while preserving fixed-loopback inference. | High | Repository maintainer | Approved by direct user request on 2026-10-11 |
 | AI-LAB-SCOPE-007 | Remove the two Local Lab language selectors while retaining existing saved language defaults, model routing, and local-only operation. | Medium | Repository maintainer | Approved by direct user request on 2026-10-11 |
 | AI-LAB-SCOPE-008 | Add an explicitly confirmed, local-only Ollama model downloader in the private Lab with progress, safe model-name validation, and refreshed model discovery. | Medium | Repository maintainer | Approved by direct user request on 2026-10-11 |
+| AI-LAB-SCOPE-009 | Publish a refreshed Windows release and add an explicit, safe Local Lab update check that never automatically downloads or installs files. | High | Repository maintainer | Approved by direct user request on 2026-10-11 |
 
 ## Out of scope
 
@@ -26,6 +27,7 @@
 - Remote inference, arbitrary provider URLs, RunPod, Cloud Core, credentials, or payment functionality.
 - Remote training, cloud API keys, automatic training-model/dataset downloads, distributed training, DPO, and RLHF.
 - Cloud model pulls, unmanaged model URLs, arbitrary network endpoints, and in-app downloads for LM Studio or vLLM; AI-LAB-SCOPE-008 permits only explicit owner-confirmed Ollama pulls through fixed loopback.
+- Automatic update downloads, installation, executable launch, release-channel selection, and arbitrary update URLs; AI-LAB-SCOPE-009 permits a manual check of one fixed official GitHub Releases endpoint only.
 
 ## Foundation impact
 
