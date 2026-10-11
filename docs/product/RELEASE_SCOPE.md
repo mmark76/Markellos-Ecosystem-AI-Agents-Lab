@@ -17,13 +17,15 @@
 | AI-LAB-SCOPE-005 | Adopt the complete interactive canonical dashboard shell for the public AI Agents Lab guide, using only local browser appearance preferences. | High | Repository maintainer | Approved by direct user request on 2026-10-11 |
 | AI-LAB-SCOPE-006 | Add an optional, isolated local PyTorch LoRA/SFT training workspace with CPU/CUDA selection while preserving fixed-loopback inference. | High | Repository maintainer | Approved by direct user request on 2026-10-11 |
 | AI-LAB-SCOPE-007 | Remove the two Local Lab language selectors while retaining existing saved language defaults, model routing, and local-only operation. | Medium | Repository maintainer | Approved by direct user request on 2026-10-11 |
+| AI-LAB-SCOPE-008 | Add an explicitly confirmed, local-only Ollama model downloader in the private Lab with progress, safe model-name validation, and refreshed model discovery. | Medium | Repository maintainer | Approved by direct user request on 2026-10-11 |
 
 ## Out of scope
 
 - Hosting the local AI Agents Lab, Ollama, SQLite data, or a chat API.
 - Authentication, accounts, analytics, telemetry, or user-data collection. Local browser appearance preferences are permitted for AI-LAB-SCOPE-005 only.
 - Remote inference, arbitrary provider URLs, RunPod, Cloud Core, credentials, or payment functionality.
-- Remote training, cloud API keys, automatic model/dataset downloads, distributed training, DPO, and RLHF.
+- Remote training, cloud API keys, automatic training-model/dataset downloads, distributed training, DPO, and RLHF.
+- Cloud model pulls, unmanaged model URLs, arbitrary network endpoints, and in-app downloads for LM Studio or vLLM; AI-LAB-SCOPE-008 permits only explicit owner-confirmed Ollama pulls through fixed loopback.
 
 ## Foundation impact
 

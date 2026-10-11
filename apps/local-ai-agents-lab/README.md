@@ -37,6 +37,29 @@ provider από το UI ή το API και δεν κάνει fallback σε cloud
 infrastructure και **δεν** υποστηρίζεται από αυτή την έκδοση: οι διευθύνσεις
 παραμένουν αποκλειστικά `127.0.0.1`.
 
+## Add Model — Ollama (new local UI feature)
+
+When **Ollama** is the selected Inference Engine, expand **Add Model · Ollama**.
+Enter an exact model name from the [Ollama model library](https://ollama.com/library),
+for example `gemma3:4b`, then choose **Install model** and confirm the download.
+Progress and errors appear in the Lab. After successful installation, the local
+model selector refreshes and selects the downloaded model. Only one download can
+run at a time; it may continue when the tab closes as long as the Lab stays running.
+
+This is an explicit internet download by the local Ollama daemon to its own
+model storage. **The Lab itself remains bound to loopback** and never receives
+a remote provider URL, token, filesystem path, shell command, or cloud-inference
+configuration. No packages or models are downloaded automatically. Check the
+model's license, hardware requirements, network costs, and free disk space
+before confirming: weights can consume many GB. Do not install cloud-hosted
+models; the Lab filters them from local inference. If the model is unavailable
+or the download fails, the error appears in the installer. Installation does
+not train the model or install a compatible Transformers training directory.
+
+LM Studio model downloads remain managed in the LM Studio application; vLLM
+models are provisioned on the vLLM host. **Add Model** currently manages Ollama
+only. The installer is intentionally separate from the PyTorch training wizard.
+
 ## Εκτέλεση στο laptop
 
 1. Αποσυμπίεσε τον φάκελο π.χ. σε `C:\Markellos-Ecosystem-AI-Agents-Lab`.

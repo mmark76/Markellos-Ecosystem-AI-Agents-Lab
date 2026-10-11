@@ -27,9 +27,11 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from providers import InferenceProviders, ProviderError
 from training import TrainingError, TrainingService
+from model_install import ModelInstallError, ModelInstallBusy, OllamaModelInstaller
 
 PROVIDERS = InferenceProviders()
 TRAINING = TrainingService(ROOT)
+MODEL_INSTALLER = OllamaModelInstaller(OPENER)
 
 PROMPTS = {
     "Καθηγητής": (
@@ -177,6 +179,9 @@ class Handler(BaseHTTPRequestHandler):
             self._json({"ollama": status["available"], "models": status["models"],
                         "storage": "local SQLite", "cloud": False, "provider": status})
             return
+        if self.path == "/api/models/install/status":
+            self._json(MODEL_INSTALLER.status())
+            return
         if self.path == "/api/training/status":
             data = TRAINING.availability()
             data.update({"datasets": TRAINING.datasets_list(), "models": TRAINING.models_list()})
@@ -208,7 +213,8 @@ class Handler(BaseHTTPRequestHandler):
                  "/static/settings.js": ("settings.js", "text/javascript; charset=utf-8"),
                  "/static/ecosystem-shell.js": ("ecosystem-shell.js", "text/javascript; charset=utf-8"),
                  "/static/ecosystem-tokens.css": ("ecosystem-tokens.css", "text/css; charset=utf-8"),
-                 "/static/training.js": ("training.js", "text/javascript; charset=utf-8")}
+                 "/static/training.js": ("training.js", "text/javascript; charset=utf-8"),
+                 "/static/model-install.js": ("model-install.js", "text/javascript; charset=utf-8")}
         resource = pages.get(self.path)
         if not resource:
             self._json({"error": "Not found"}, 404)
@@ -227,6 +233,22 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not self._host_valid() or not self._origin_valid():
             self._json({"error": "Cross-origin writes blocked"}, 403)
+            return
+        if self.path == "/api/models/install":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if size < 2 or size > 256:
+                    raise ModelInstallError("Invalid model installation request.")
+                body = json.loads(self.rfile.read(size))
+                if not isinstance(body, dict) or set(body) != {"model"}:
+                    raise ModelInstallError("Provide exactly one Ollama model name.")
+                if RUN_LOCK.locked():
+                    raise ModelInstallBusy("Finish the current agent session before installing a model.")
+                self._json(MODEL_INSTALLER.start(body["model"]), 202)
+            except ModelInstallBusy as err:
+                self._json({"error": str(err)}, 409)
+            except (ModelInstallError, ValueError, TypeError, json.JSONDecodeError) as err:
+                self._json({"error": str(err)}, 400)
             return
         if self.path.startswith("/api/training/jobs/") and self.path.endswith("/stop"):
             try:
