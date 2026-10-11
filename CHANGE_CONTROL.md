@@ -52,3 +52,22 @@ Decision: APPROVED
 Approved by: Direct user request
 Target release: Next Local Lab release
 ```
+
+## Approved change record — AI-LAB-CC-007
+
+```text
+Change ID: AI-LAB-CC-007
+Requested by: Repository maintainer
+Date: 2026-10-11
+Description: Hide Interface and Agent responses language selectors in private Local Lab.
+Reason: Simplify the UI at the user's request.
+Affected objective IDs: AI-LAB-OBJ-007
+Architecture impact: Presentation and its JavaScript consumers only; no backend changes.
+Security and privacy impact: None; fixed local inference boundary preserved.
+Data impact: Existing locally stored language preferences retained; no data migration.
+Testing impact: Regression test prevents removed-element JavaScript errors.
+Cost and schedule impact: Small focused UI change.
+Decision: APPROVED (CLARIFICATION)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```

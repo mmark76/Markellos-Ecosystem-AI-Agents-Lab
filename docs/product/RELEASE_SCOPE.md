@@ -16,6 +16,7 @@
 | AI-LAB-SCOPE-004 | Add fixed-loopback Ollama, LM Studio, and vLLM provider selection to the private Local Lab. | High | Repository maintainer | Approved by direct user request on 2026-10-11 |
 | AI-LAB-SCOPE-005 | Adopt the complete interactive canonical dashboard shell for the public AI Agents Lab guide, using only local browser appearance preferences. | High | Repository maintainer | Approved by direct user request on 2026-10-11 |
 | AI-LAB-SCOPE-006 | Add an optional, isolated local PyTorch LoRA/SFT training workspace with CPU/CUDA selection while preserving fixed-loopback inference. | High | Repository maintainer | Approved by direct user request on 2026-10-11 |
+| AI-LAB-SCOPE-007 | Remove the two Local Lab language selectors while retaining existing saved language defaults, model routing, and local-only operation. | Medium | Repository maintainer | Approved by direct user request on 2026-10-11 |
 
 ## Out of scope
 

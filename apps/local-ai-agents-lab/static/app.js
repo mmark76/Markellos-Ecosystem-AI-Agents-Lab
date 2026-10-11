@@ -2,8 +2,8 @@
 const $ = id => document.getElementById(id);
 let room = 'university';
 let running = false;
-let uiLanguage = localStorage.getItem('agents-lab-ui-language') === 'el' ? 'el' : 'en';
-let responseLanguage = localStorage.getItem('agents-lab-response-language') === 'el' ? 'el' : 'en';
+const uiLanguage = localStorage.getItem('agents-lab-ui-language') === 'el' ? 'el' : 'en';
+const responseLanguage = localStorage.getItem('agents-lab-response-language') === 'el' ? 'el' : 'en';
 const providerIds = ['ollama', 'lm-studio', 'vllm'];
 let provider = providerIds.includes(localStorage.getItem('agents-lab-provider')) ? localStorage.getItem('agents-lab-provider') : 'ollama';
 let statusData = null;
@@ -14,7 +14,7 @@ const words = {
     training:'Agent Training', collaboration:'Agent Collaboration',
     tip:'AI Agents Training Lab<br>1 AI Trainer · 2 AI Trainees<br>3 AI Experts · Conference Room',
     note:'Stored locally in SQLite.<br>No GitHub or cloud API access.',
-    uiLabel:'Interface', responseLabel:'Agent responses', providerLabel:'Inference Engine', modelLabel:'Local AI Model',
+    providerLabel:'Inference Engine', modelLabel:'Local AI Model',
     universityDescription:'Learn → Practice → Evaluate → Improve',
     conferenceDescription:'Architect → Developer → Reviewer · Shared history',
     universityLabel:'Training Topic', conferenceLabel:'Discussion Topic',
@@ -36,7 +36,7 @@ const words = {
     training:'Εκπαίδευση Agents', collaboration:'Συνεργασία Agents',
     tip:'Εργαστήριο Εκπαίδευσης AI Agents<br>1 AI Trainer · 2 AI Trainees<br>3 AI Experts · Conference Room',
     note:'Τοπική αποθήκευση σε SQLite.<br>Χωρίς πρόσβαση σε GitHub ή cloud APIs.',
-    uiLabel:'Περιβάλλον', responseLabel:'Απαντήσεις Agents', providerLabel:'Inference Engine', modelLabel:'Τοπικό AI Model',
+    providerLabel:'Inference Engine', modelLabel:'Τοπικό AI Model',
     universityDescription:'Μάθηση → Εξάσκηση → Αξιολόγηση → Βελτίωση',
     conferenceDescription:'Architect → Developer → Reviewer · Κοινό ιστορικό',
     universityLabel:'Θέμα εκπαίδευσης', conferenceLabel:'Θέμα συζήτησης',
@@ -65,11 +65,7 @@ function setStatus() {
 }
 function updateUI() {
   document.documentElement.lang=uiLanguage;
-  $('ui-language').value=uiLanguage;
-  $('response-language').value=responseLanguage;
   $('provider').value=provider;
-  $('ui-language-label').textContent=t().uiLabel;
-  $('response-language-label').textContent=t().responseLabel;
   $('provider-label').textContent=t().providerLabel;
   $('model-label').textContent=t().modelLabel;
   $('nav-training').textContent=t().training;
@@ -132,8 +128,6 @@ async function refreshStatus() {
   setStatus();
 }
 function switchRoom(next){if(running||!['university','conference'].includes(next))return;room=next;hintError='';updateUI();refreshHistory();}
-$('ui-language').addEventListener('change',e=>{uiLanguage=e.target.value;localStorage.setItem('agents-lab-ui-language',uiLanguage);updateUI();});
-$('response-language').addEventListener('change',e=>{responseLanguage=e.target.value;localStorage.setItem('agents-lab-response-language',responseLanguage);});
 $('provider').addEventListener('change',e=>{if(!providerIds.includes(e.target.value))return;provider=e.target.value;localStorage.setItem('agents-lab-provider',provider);hintError='';statusData=null;updateUI();refreshStatus();});
 document.querySelectorAll('[data-room]').forEach(b=>b.addEventListener('click',()=>switchRoom(b.dataset.room)));
 $('composer').addEventListener('submit',async ev=>{

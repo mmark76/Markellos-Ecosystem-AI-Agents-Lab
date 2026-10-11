@@ -24,7 +24,7 @@
     root.dataset.accent = accent;
     document.querySelectorAll('input[name="appearance"]').forEach(el => {el.checked = el.value === mode;});
     document.querySelectorAll('[data-accent]').forEach(el => {el.setAttribute('aria-pressed', String(el.dataset.accent === accent));});
-    const label = ui[$('ui-language').value === 'el' ? 'el' : 'en'];
+    const label = ui[document.documentElement.lang === 'el' ? 'el' : 'en'];
     $('settings-label').textContent = label.settings;
     $('settings-heading').textContent = label.heading;
     $('settings-mode-label').textContent = label.appearance;
@@ -64,6 +64,5 @@
     storageWrite(accentKey, accent);
     apply();
   });
-  $('ui-language').addEventListener('change', apply);
   apply();
 })();
