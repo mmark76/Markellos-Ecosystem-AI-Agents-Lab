@@ -26,5 +26,5 @@ const version = '0.1.0';
 const commit = git(['rev-parse', '--short=7', 'HEAD']);
 const buildId = `v${version}_${cyprusTimestamp(new Date())}_${commit}`;
 const indexPath = join(output, 'index.html');
-writeFileSync(indexPath, readFileSync(indexPath, 'utf8').replace('{{BUILD_ID}}', buildId));
+writeFileSync(indexPath, readFileSync(indexPath, 'utf8').replaceAll('{{BUILD_ID}}', buildId));
 console.log(`Built ${output} (${buildId})`);
