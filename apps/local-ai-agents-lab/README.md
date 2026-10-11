@@ -47,6 +47,31 @@ infrastructure και **δεν** υποστηρίζεται από αυτή τη
 
 Η υπηρεσία τερματίζεται με `Ctrl+C` στο παράθυρο PowerShell. Αν η θύρα 8765 χρησιμοποιείται ήδη, η εφαρμογή θα δείξει σφάλμα και δεν θα αντικαταστήσει καμία άλλη υπηρεσία.
 
+## Model Training / Εκπαίδευση Μοντέλων
+
+The optional Training workspace performs real local parameter updates for a
+compatible model using PEFT LoRA or TRL supervised fine-tuning. It is not an
+agent exercise, inference request, or evaluation result. The standard Lab has
+no ML dependencies: create `training/.venv`, install the pinned
+`training/requirements.txt` there, and restart the Lab. No package, CUDA
+toolkit, NVIDIA driver, model, or dataset is installed automatically.
+
+Put an already downloaded compatible Transformers model directory below
+`models/` and a selected JSONL file below `training-data/`. Each non-empty line
+must be an object with a `text` string, for example `{"text":"User: Hello\nAssistant: Hello"}`.
+Adapters, checkpoints, and status records are written only under
+`training-output/`; these directories are excluded from Git. The server never
+accepts paths, commands, model URLs, or remote datasets from the browser.
+
+Compute choices are Auto (CUDA when PyTorch supports it, otherwise CPU), CPU,
+and CUDA GPU. Explicit CUDA selection fails rather than falling back to CPU.
+For a CUDA-capable build, install the PyTorch build appropriate to your Windows
+driver and supported CUDA runtime using the official PyTorch selector, then
+install the remaining pinned requirements in the same virtual environment.
+CUDA is optional and no GPU, CUDA Toolkit, or driver is needed for the basic
+Lab. A GPU out-of-memory failure leaves the job failed with retained partial
+output; reduce model size or sequence length before retrying.
+
 ## Υποχρεωτική ρύθμιση για πλήρη τοπική λειτουργία Ollama
 
 Δημιούργησε ή επεξεργάσου το αρχείο `%USERPROFILE%\.ollama\server.json` με περιεχόμενο:

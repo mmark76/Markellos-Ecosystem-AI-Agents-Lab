@@ -11,6 +11,7 @@ This project-owned record connects approved scope to implementation, verificatio
 | AI-LAB-OBJ-003 | AI-LAB-SCOPE-002 | Versioned local-only release package | `apps/local-ai-agents-lab/` and release workflow | `AI-LAB-TEST-002` | Package verifier and release workflow run. | Repository maintainer | PENDING RELEASE PUBLICATION |
 | AI-LAB-OBJ-004 | AI-LAB-SCOPE-004 | Fixed-loopback provider adapter registry | `apps/local-ai-agents-lab/providers.py`, `server.py`, and `static/` | `AI-LAB-TEST-003` | Provider discovery, routing, invalid-provider, and existing-flow regression tests. | Repository maintainer | LOCAL VERIFICATION COMPLETE 2026-10-11 |
 | AI-LAB-OBJ-005 | AI-LAB-SCOPE-005 | Interactive canonical dashboard-shell adaptation | `apps/ai-lab-landing/src/` | `AI-LAB-TEST-004` | Landing build/source shell and bounded-preference tests. | Repository maintainer | PENDING VERIFICATION |
+| AI-LAB-OBJ-006 | AI-LAB-SCOPE-006 | Isolated local-training service and worker | `apps/local-ai-agents-lab/training.py`, `training/`, and `static/training.js` | `AI-LAB-TEST-005` | Training validation, CUDA mocks, and package-input tests. | Repository maintainer | PENDING VERIFICATION |
 
 ## Engineering Standards adoption
 

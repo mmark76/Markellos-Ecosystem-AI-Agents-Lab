@@ -37,3 +37,16 @@ Consequences: an unavailable provider is isolated and reported without fallback;
 existing SQLite records and agent orchestration remain unchanged. RunPod, Cloud
 Core, arbitrary endpoints, credentials, and remote inference require a separate
 approved architecture and security scope.
+
+## AI-LAB-ADR-004 — Isolate optional parameter training from inference
+
+- Status: Accepted
+- Date: 2026-10-11
+- Related requirements: AI-LAB-OBJ-006, AI-LAB-AC-008
+
+Training uses a separate `training/.venv` and a fixed worker script. The server
+validates selected model and JSONL dataset names against owned local folders,
+then starts at most one worker. CUDA is a PyTorch execution choice, not an
+inference provider; an explicit CUDA request fails when unsupported. This keeps
+the lightweight server, inference adapters, and SQLite conversation history free
+of ML dependencies and training side effects.

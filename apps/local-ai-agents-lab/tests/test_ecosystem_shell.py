@@ -48,5 +48,13 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn('showModal()', js)
         self.assertIn("info.close()", js)
 
+    def test_training_workspace_is_local_and_bilingual(self):
+        html = (STATIC / "index.html").read_text(encoding="utf-8")
+        script = (STATIC / "training.js").read_text(encoding="utf-8")
+        for name in ('Model Training / Εκπαίδευση Μοντέλων', 'training-dataset',
+                     'training-model', 'training-device', 'Ποια τεχνολογία'):
+            with self.subTest(name=name): self.assertIn(name, html)
+        self.assertIn('/api/training/jobs', script)
+
 if __name__ == "__main__":
     unittest.main()

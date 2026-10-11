@@ -10,6 +10,7 @@
   <script defer src="/static/app.js"></script>
   <script defer src="/static/settings.js"></script>
   <script defer src="/static/ecosystem-shell.js"></script>
+  <script defer src="/static/training.js"></script>
 </head>
 <body>
 <div class="shell">
@@ -70,6 +71,12 @@
       <summary id="provider-help-title">Which inference engine should I use?</summary>
       <div id="provider-help-content"></div>
     </details>
+    <section class="training-workspace" aria-labelledby="training-title">
+      <h2 id="training-title">Model Training / Εκπαίδευση Μοντέλων</h2><p>Optional local LoRA and SFT training. Separate from agent exercises, inference providers, and SQLite conversation history.</p>
+      <form id="training-form"><label for="training-model">Local compatible model</label><select id="training-model" required></select><label for="training-dataset">Local JSONL dataset</label><select id="training-dataset" required></select><label for="training-method">Method</label><select id="training-method"><option value="lora">PEFT / LoRA</option><option value="sft">TRL supervised fine-tuning</option></select><label for="training-device">Compute</label><select id="training-device"><option value="auto">Auto</option><option value="cpu">CPU</option><option value="cuda">CUDA GPU</option></select><button type="submit">Review and start training</button><button id="training-stop" type="button">Stop training</button></form>
+      <p id="training-status" role="status">Checking optional training environment.</p><p id="training-output"></p>
+      <details><summary>Which technology should I use? / Ποια τεχνολογία να χρησιμοποιήσω;</summary><p><strong>Ollama, LM Studio, vLLM:</strong> local inference. <strong>PyTorch:</strong> numerical training. <strong>Transformers:</strong> compatible local pretrained models. <strong>PEFT / LoRA:</strong> efficient adapters. <strong>TRL:</strong> supervised fine-tuning. <strong>CUDA:</strong> supported NVIDIA GPU acceleration. Training changes model parameters; agent exercises and evaluation do not.</p><p><strong>Ollama, LM Studio, vLLM:</strong> τοπικό inference. <strong>PyTorch:</strong> εκπαίδευση. <strong>Transformers:</strong> τοπικά pretrained models. <strong>PEFT / LoRA:</strong> αποδοτικά adapters. <strong>TRL:</strong> supervised fine-tuning. <strong>CUDA:</strong> επιτάχυνση με συμβατή NVIDIA GPU. Η εκπαίδευση αλλάζει παραμέτρους μοντέλου· οι ασκήσεις Agents και η αξιολόγηση όχι.</p></details>
+    </section>
     <footer><span>© <span class="copyright-year"></span> Markellos Markides. All rights reserved.</span><span class="build-id">v0.1.1_YYYYMMDD_HHMM_SHA</span></footer>
   </main>
 </div>
