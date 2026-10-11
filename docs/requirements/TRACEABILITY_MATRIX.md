@@ -9,6 +9,7 @@ This project-owned record connects approved scope to implementation, verificatio
 | AI-LAB-OBJ-001 | AI-LAB-SCOPE-001 | Static-only public boundary | `apps/ai-lab-landing/` | `AI-LAB-TEST-001` | Build test and Cloudflare deployment record | Repository maintainer | LOCAL VERIFICATION COMPLETE; EXTERNAL DEPLOYMENT PENDING |
 | AI-LAB-OBJ-002 | AI-LAB-SCOPE-003 | Static canonical shell adaptation | `apps/ai-lab-landing/src/index.html`, `apps/ai-lab-landing/src/styles.css` | `AI-LAB-TEST-001` | Build test and local visual preview; deployment preview pending. | Repository maintainer | LOCAL VERIFICATION COMPLETE; DEPLOYMENT PENDING |
 | AI-LAB-OBJ-003 | AI-LAB-SCOPE-002 | Versioned local-only release package | `apps/local-ai-agents-lab/` and release workflow | `AI-LAB-TEST-002` | Package verifier and release workflow run. | Repository maintainer | PENDING RELEASE PUBLICATION |
+| AI-LAB-OBJ-004 | AI-LAB-SCOPE-004 | Fixed-loopback provider adapter registry | `apps/local-ai-agents-lab/providers.py`, `server.py`, and `static/` | `AI-LAB-TEST-003` | Provider discovery, routing, invalid-provider, and existing-flow regression tests. | Repository maintainer | LOCAL VERIFICATION COMPLETE 2026-10-11 |
 
 ## Engineering Standards adoption
 

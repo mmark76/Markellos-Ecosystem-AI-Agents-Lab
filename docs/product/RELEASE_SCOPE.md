@@ -13,12 +13,13 @@
 | AI-LAB-SCOPE-001 | Publish a static, privacy-preserving guide at `ai-lab.markellosecosystem.com` through Cloudflare Pages. | High | Repository maintainer | Approved by direct user request on 2026-10-09 |
 | AI-LAB-SCOPE-002 | Provide a versioned public Windows ZIP and direct installation path for the local AI Agents Lab. | High | Repository maintainer | Approved by direct user request on 2026-10-10 |
 | AI-LAB-SCOPE-003 | Adopt the static visual and structural elements of the Ecosystem Framework canonical dashboard shell for the public guide, without JavaScript. | Medium | Repository maintainer | Approved by direct user request on 2026-10-10 |
+| AI-LAB-SCOPE-004 | Add fixed-loopback Ollama, LM Studio, and vLLM provider selection to the private Local Lab. | High | Repository maintainer | Approved by direct user request on 2026-10-11 |
 
 ## Out of scope
 
 - Hosting the local AI Agents Lab, Ollama, SQLite data, or a chat API.
 - Authentication, accounts, analytics, telemetry, or user-data collection.
-- Changes to the existing `apps/local-ai-agents-lab` runtime.
+- Remote inference, arbitrary provider URLs, RunPod, Cloud Core, credentials, or payment functionality.
 
 ## Foundation impact
 

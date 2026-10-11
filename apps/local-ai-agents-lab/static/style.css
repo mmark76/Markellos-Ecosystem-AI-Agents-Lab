@@ -77,3 +77,5 @@ button,textarea,select{font-family:inherit}
 .build-id{font-family:var(--font-mono,monospace)}
 :where(button,a,select,textarea):focus-visible{outline:2px solid var(--color-focus,#0b6ebd);outline-offset:2px}
 @media(max-width:720px){.main footer{display:flex;font-size:9px}.ecosystem-link{font-size:10px}}
+
+.provider-help{background:var(--surface);border:1px solid var(--border);border-radius:13px;margin-top:14px;padding:12px 17px;color:var(--subtle);font-size:12px;line-height:1.55}.provider-help summary{color:var(--fg);cursor:pointer;font-weight:650}.provider-help h2{font-size:13px;margin:14px 0 3px}.provider-help p{margin:0}.provider-help :focus-visible{outline:2px solid var(--color-focus,#0b6ebd);outline-offset:3px}

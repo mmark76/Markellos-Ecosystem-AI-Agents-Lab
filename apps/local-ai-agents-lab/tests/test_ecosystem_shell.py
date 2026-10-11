@@ -16,7 +16,8 @@ class EcosystemShellTests(unittest.TestCase):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         for name in ('data-room="university"', 'data-room="conference"',
                      'id="settings-toggle"', 'id="ui-language"',
-                     'id="response-language"', 'id="model"',
+                     'id="response-language"', 'id="provider"', 'id="model"',
+                     'id="provider-help"',
                      'id="composer"'):
             with self.subTest(name=name):
                 self.assertIn(name, html)
