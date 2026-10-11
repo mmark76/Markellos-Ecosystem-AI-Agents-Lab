@@ -71,3 +71,22 @@ Decision: APPROVED (CLARIFICATION)
 Approved by: Direct user request
 Target release: Next Local Lab release
 ```
+
+## Approved change record — AI-LAB-CC-008
+
+```text
+Change ID: AI-LAB-CC-008
+Requested by: Repository maintainer
+Date: 2026-10-11
+Description: Add user-confirmed in-app installation of additional Ollama models.
+Reason: Local Lab exposes installed models but has no direct installation UI.
+Affected objective IDs: AI-LAB-OBJ-008
+Architecture impact: New isolated local Ollama model-downloader adapter and small UI control.
+Security and privacy impact: Ollama performs an external model-registry download only after owner confirmation; Lab remains loopback-only, no cloud inference or remote provider endpoints.
+Data impact: Model files reside in Ollama-managed local storage, outside Git and SQLite.
+Testing impact: Mocked pull/progress/errors/concurrency; routing, UI and release regression tests.
+Cost and schedule impact: Model downloads may consume substantial local disk space and network bandwidth; no cloud GPU service provisioning.
+Decision: APPROVED (SCOPE_INCREASE)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```

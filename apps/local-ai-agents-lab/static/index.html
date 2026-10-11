@@ -11,6 +11,7 @@
   <script defer src="/static/settings.js"></script>
   <script defer src="/static/ecosystem-shell.js"></script>
   <script defer src="/static/training.js"></script>
+  <script defer src="/static/model-install.js"></script>
 </head>
 <body>
 <div class="shell">
@@ -59,6 +60,17 @@
       <div><span class="status-icon">◉</span> <span id="status">Checking local model...</span></div>
       <div class="model-select"><label for="provider" id="provider-label">Inference Engine</label><select id="provider"><option value="ollama">Ollama</option><option value="lm-studio">LM Studio</option><option value="vllm">vLLM</option></select><label for="model" id="model-label">Local AI Model</label><select id="model" disabled><option>Checking...</option></select></div>
     </section>
+    <details class="model-installer" id="model-installer" hidden>
+      <summary>Add Model · Ollama</summary>
+      <form id="model-install-form">
+        <label for="model-install-name">Ollama model name</label>
+        <input id="model-install-name" type="text" maxlength="96" required autocomplete="off" spellcheck="false" placeholder="e.g. gemma3:4b">
+        <button type="submit" id="model-install-submit">Install model</button>
+      </form>
+      <p>Downloads from the internet into Ollama's local model store. Check available disk space and model licensing before installing. Model files may be several GB. LM Studio manages downloads in its own application; vLLM is configured on its server.</p>
+      <progress id="model-install-progress" max="100" value="0" hidden></progress>
+      <p id="model-install-status" role="status" aria-live="polite">Model installation is optional.</p>
+    </details>
     <section class="chat-panel" aria-live="polite">
       <div id="messages" class="messages"><div class="empty">No training sessions yet. Enter a topic below.</div></div>
     </section>

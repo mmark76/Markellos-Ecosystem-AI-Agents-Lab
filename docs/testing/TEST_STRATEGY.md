@@ -9,6 +9,7 @@
 | Local package test | Windows package metadata and release verification. | `node --test apps/local-ai-agents-lab/tests/build-release.test.cjs` | Node test output. |
 | Local server tests | Loopback server, SQLite behavior, fixed-provider discovery/routing, and local data behavior. | `py -3 -m unittest discover -s apps/local-ai-agents-lab/tests` | Python test output. |
 | Local training tests | JSONL validation, local path restrictions, CPU selection, and unsupported CUDA handling. | `py -3 -m unittest discover -s apps/local-ai-agents-lab/tests` | Python test output. |
+| Local model downloader | Validate only local Ollama downloads and explicit model IDs; assert deterministic mocked progress, failure and concurrent-job handling. | `py -3 -m unittest discover -s apps/local-ai-agents-lab/tests` | `tests/test_model_install.py` output; real pull remains manual. |
 | Foundation validation | Pinned adoption asset integrity and bounded secret scan. | `node scripts/validate-foundations.cjs` | Validator output. |
 
 ## Manual checks

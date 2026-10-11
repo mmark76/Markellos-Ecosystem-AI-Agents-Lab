@@ -66,6 +66,18 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn('showModal()', js)
         self.assertIn("info.close()", js)
 
+    def test_ollama_model_installer_is_opt_in_and_local(self):
+        html = (STATIC / "index.html").read_text(encoding="utf-8")
+        js = (STATIC / "model-install.js").read_text(encoding="utf-8")
+        for name in ('id="model-installer"', 'id="model-install-form"',
+                     'id="model-install-name"', 'id="model-install-status"',
+                     '/static/model-install.js'):
+            with self.subTest(name=name):
+                self.assertIn(name, html)
+        self.assertIn('/api/models/install', js)
+        self.assertIn("confirm(", js)
+        self.assertIn("value !== 'ollama'", js)
+
     def test_training_workspace_is_local_and_bilingual(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         script = (STATIC / "training.js").read_text(encoding="utf-8")
