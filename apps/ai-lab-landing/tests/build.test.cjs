@@ -14,7 +14,10 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.match(html, /v0\.1\.0_\d{8}_\d{4}_[0-9a-f]{7}/);
   assert.doesNotMatch(html, /\{\{BUILD_ID\}\}/);
   assert.match(html, /https:\/\/www\.python\.org\/downloads\/windows\//);
-  assert.match(html, /https:\/\/ollama\.com\/download\/windows/);
+  assert.match(html, /https:\/\/ollama\.com\/download/);
+  assert.match(html, /https:\/\/lmstudio\.ai\/download/);
+  assert.match(html, /https:\/\/docs\.vllm\.ai\/en\/latest\/getting_started\/quickstart\//);
+  assert.match(html, /not a native Windows desktop download/);
   assert.match(html, /class="site-header"/);
   assert.match(html, /class="primary-nav"/);
   assert.match(html, /href="#privacy"/);

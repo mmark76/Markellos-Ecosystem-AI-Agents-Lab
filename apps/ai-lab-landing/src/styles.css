@@ -36,6 +36,9 @@ a:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 4px; }
 .dashboard-card p:not(.card-label), .simple-section p:last-child { margin-top: 0; margin-bottom: 0; color: var(--color-text-muted); }
 .simple-section { max-width: var(--content-narrow); margin-top: var(--space-12); }
 .simple-section h2 { margin-bottom: var(--space-4); font-size: var(--font-size-2xl); }
+.engine-downloads { max-width: var(--content-wide); }
+.engine-card { min-height: 17rem; }
+.engine-card .primary-button { margin-top: auto; width: fit-content; }
 .steps ol { display: grid; gap: var(--space-4); padding-left: var(--space-5); }
 .steps li { padding-left: var(--space-2); }
 .inline-link { color: var(--app-accent-strong); font-weight: var(--font-weight-bold); text-underline-offset: .16em; }
