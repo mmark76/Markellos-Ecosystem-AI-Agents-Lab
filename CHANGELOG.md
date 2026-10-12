@@ -6,6 +6,7 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 
 ### Changed
 
+- Removed the Local Lab update-check control; the public dashboard is the single place to download a newer ZIP.
 - Made White the default Local Lab accent and kept all six desktop accent choices on one row.
 - Added a confirmed **Clear conversation / Start new session** control that removes only the selected room's local SQLite history after the active agent session finishes.
 - Replaced residual template documentation with AI Agents Lab project identity, architecture, data, operations, testing, security, risk, and engineering-adoption records.

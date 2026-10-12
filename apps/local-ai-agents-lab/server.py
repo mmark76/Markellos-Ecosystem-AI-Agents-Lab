@@ -28,12 +28,10 @@ if str(ROOT) not in sys.path:
 from providers import InferenceProviders, ProviderError
 from training import TrainingError, TrainingService
 from model_install import ModelInstallError, ModelInstallBusy, OllamaModelInstaller
-from updates import UpdateCheckError, check_for_update
 
 PROVIDERS = InferenceProviders()
 TRAINING = TrainingService(ROOT)
 MODEL_INSTALLER = OllamaModelInstaller(OPENER)
-APP_VERSION = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
 
 PROMPTS = {
     "Trainer": (
@@ -177,12 +175,6 @@ class Handler(BaseHTTPRequestHandler):
             self._json({"ollama": status["available"], "models": status["models"],
                         "storage": "local SQLite", "cloud": False, "provider": status})
             return
-        if self.path == "/api/updates":
-            try:
-                self._json(check_for_update(APP_VERSION, OPENER))
-            except UpdateCheckError as err:
-                self._json({"error": str(err)}, 502)
-            return
         if self.path == "/api/models/install/status":
             self._json(MODEL_INSTALLER.status())
             return
@@ -218,8 +210,7 @@ class Handler(BaseHTTPRequestHandler):
                  "/static/ecosystem-shell.js": ("ecosystem-shell.js", "text/javascript; charset=utf-8"),
                  "/static/ecosystem-tokens.css": ("ecosystem-tokens.css", "text/css; charset=utf-8"),
                  "/static/training.js": ("training.js", "text/javascript; charset=utf-8"),
-                 "/static/model-install.js": ("model-install.js", "text/javascript; charset=utf-8"),
-                 "/static/updates.js": ("updates.js", "text/javascript; charset=utf-8")}
+                 "/static/model-install.js": ("model-install.js", "text/javascript; charset=utf-8")}
         resource = pages.get(self.path)
         if not resource:
             self._json({"error": "Not found"}, 404)
