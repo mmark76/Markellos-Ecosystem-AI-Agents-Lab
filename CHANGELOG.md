@@ -11,6 +11,7 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 - Clarified that the public `Open Local Lab` link works only after the user starts `start-windows.bat` from the extracted Windows ZIP.
 - Added an explicit public notice that ZIP upgrades are manual and local models plus SQLite history must be preserved.
 - Changed the public landing page default to the Local Lab's black appearance while retaining user-selectable accent and background colours.
+- Standardized the public landing page and Local Lab runtime UI, prompts, and new agent responses on English after removal of language controls.
 
 ## [0.2.0] - 2026-10-08
 

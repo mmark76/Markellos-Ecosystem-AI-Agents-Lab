@@ -166,3 +166,22 @@ Decision: APPROVED (SCOPE_INCREASE)
 Approved by: Direct user request
 Target release: Next Local Lab release
 ```
+
+## Approved change record — AI-LAB-CC-013
+
+```text
+Change ID: AI-LAB-CC-013
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Standardize the public landing page and Local Lab runtime UI, prompts, and new agent responses on English after removal of language controls.
+Reason: The user requested an English-only experience now that language selection is no longer offered.
+Affected objective IDs: AI-LAB-OBJ-007
+Architecture impact: Presentation, prompt-template, and new-message defaults only; fixed-loopback providers and settings controls remain unchanged.
+Security and privacy impact: None; no endpoint, storage boundary, or external-service behavior changes.
+Data impact: Existing SQLite records are preserved and are not machine-translated.
+Testing impact: English-only source regression plus Local Lab, package, landing, and foundation checks.
+Cost and schedule impact: None.
+Decision: APPROVED (CLARIFICATION)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```

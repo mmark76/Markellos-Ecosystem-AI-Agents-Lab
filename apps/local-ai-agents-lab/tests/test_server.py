@@ -21,7 +21,7 @@ class CampusTests(unittest.TestCase):
         self.tmp.cleanup()
 
     def test_rooms_separate_and_persist(self):
-        campus.add_message('university', 'Καθηγητής', 'Άσκηση 1')
+        campus.add_message('university', 'Trainer', 'Exercise 1')
         campus.add_message('conference', 'Architect', 'Design review')
         self.assertEqual(len(campus.history('university')), 1)
         self.assertEqual(campus.history('conference')[0]['agent'], 'Architect')
@@ -124,7 +124,7 @@ class HttpIntegrationTests(unittest.TestCase):
             opener = build_opener(ProxyHandler({}))
             try:
                 with patch.object(campus, 'local_models', return_value=['qwen3:4b']), \
-                     patch.object(campus, 'provider_chat', side_effect=lambda provider, model, role, previous, language='en': 'Απάντηση ' + role):
+                     patch.object(campus, 'provider_chat', side_effect=lambda provider, model, role, previous, language='en': 'Response ' + role):
                     with opener.open(origin + '/api/status') as response:
                         status = json.load(response)
                     self.assertEqual(status['models'], ['qwen3:4b'])

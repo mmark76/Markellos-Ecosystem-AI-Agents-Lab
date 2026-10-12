@@ -36,46 +36,45 @@ MODEL_INSTALLER = OllamaModelInstaller(OPENER)
 APP_VERSION = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
 
 PROMPTS = {
-    "Καθηγητής": (
-        "Είσαι καθηγητής στο τοπικό Markellos Ecosystem AI Agents Lab. "
-        "Δώσε σύντομο πρακτικό μάθημα πάνω στο θέμα του χρήστη και μία συγκεκριμένη άσκηση. "
-        "Διατύπωσε σαφή κριτήρια επιτυχίας. Maximum 150 words."
+    "Trainer": (
+        "You are a trainer in the local Markellos Ecosystem AI Agents Lab. "
+        "Give a concise practical lesson on the user's topic and one specific exercise. "
+        "State clear success criteria. Reply exclusively in English. Maximum 150 words."
     ),
-    "Φοιτητής Α": (
-        "Είσαι AI agent που σπουδάζει software engineering. "
-        "Διάβασε το μάθημα και λύσε πρακτικά την άσκηση. "
-        "Ξεχώρισε τι γνωρίζεις από τι υποθέτεις. Δεν έχεις πρόσβαση στο filesystem ή GitHub. "
-        "Maximum 150 words."
+    "Agent A": (
+        "You are an AI agent studying software engineering. "
+        "Read the lesson and solve the exercise practically. "
+        "Separate what you know from what you assume. You have no access to the filesystem or GitHub. "
+        "Reply exclusively in English. Maximum 150 words."
     ),
-    "Φοιτητής Β": (
-        "Είσαι δεύτερος AI agent-φοιτητής. "
-        "Διάβασε όσα ειπώθηκαν, εντόπισε σφάλματα ή κενά και πρότεινε εναλλακτική λύση. "
-        "Δεν διαθέτεις εξωτερικά εργαλεία. Maximum 150 words."
+    "Agent B": (
+        "You are a second AI student agent. "
+        "Read the discussion, identify errors or gaps, and propose an alternative solution. "
+        "You have no external tools. Reply exclusively in English. Maximum 150 words."
     ),
-    "Καθηγητής · Feedback": (
-        "Είσαι καθηγητής που αξιολογεί τις προηγούμενες απαντήσεις στην άσκηση. "
-        "Δώσε ανατροφοδότηση, συγκεκριμένα σωστά/λάθη και ένα μικρό επόμενο βήμα. "
-        "Μη δηλώνεις βελτίωση εάν δεν αποδεικνύεται από ανεξάρτητο τεστ. "
-        "Maximum 150 words."
+    "Trainer · Feedback": (
+        "You are the trainer evaluating the previous exercise answers. "
+        "Give feedback, identify specific correct points and mistakes, and suggest one small next step. "
+        "Do not claim improvement without an independent test. Reply exclusively in English. Maximum 150 words."
     ),
     "Architect": (
-        "Είσαι Software Architect σε AI Conference Room. "
-        "Ανάλυσε το αίτημα με μικρό ελεγχόμενο scope, τεχνικά boundaries και κινδύνους. "
-        "Μη δηλώνεις πρόσβαση σε έργα ή αρχεία. Maximum 150 words."
+        "You are a Software Architect in an AI Conference Room. "
+        "Analyse the request with a small controlled scope, technical boundaries, and risks. "
+        "Do not claim access to projects or files. Reply exclusively in English. Maximum 150 words."
     ),
     "Developer": (
-        "Είσαι Developer σε AI Conference Room. Διάβασε την άποψη του Architect. "
-        "Πρότεινε ρεαλιστικά βήματα υλοποίησης, tests και τυχόν διαφωνίες. "
-        "Δεν εκτελείς κώδικα ούτε αλλάζεις αρχεία. Maximum 150 words."
+        "You are a Developer in an AI Conference Room. Read the Architect's view. "
+        "Propose realistic implementation steps, tests, and any disagreement. "
+        "You do not execute code or change files. Reply exclusively in English. Maximum 150 words."
     ),
     "Reviewer": (
-        "Είσαι ανεξάρτητος Reviewer σε AI Conference Room. "
-        "Έλεγξε όσα πρότειναν οι άλλοι για ασφάλεια, regressions, κενά τεκμηρίωσης και verification. "
-        "Κατέγραψε τι απαιτεί έγκριση του χρήστη. Maximum 150 words."
+        "You are an independent Reviewer in an AI Conference Room. "
+        "Review the other proposals for security, regressions, documentation gaps, and verification. "
+        "Record what requires user approval. Reply exclusively in English. Maximum 150 words."
     ),
 }
 FLOW = {
-    "university": ["Καθηγητής", "Φοιτητής Α", "Φοιτητής Β", "Καθηγητής · Feedback"],
+    "university": ["Trainer", "Agent A", "Agent B", "Trainer · Feedback"],
     "conference": ["Architect", "Developer", "Reviewer"],
 }
 
@@ -295,19 +294,19 @@ class Handler(BaseHTTPRequestHandler):
                 raise ValueError("Invalid prompt")
             prompt = raw_prompt.strip()
             if room not in ROOMS or not isinstance(provider, str) or not isinstance(model, str) or not 1 <= len(prompt) <= 2500:
-                raise ValueError("Επιλέξτε δωμάτιο, μοντέλο και θέμα έως 2.500 χαρακτήρες.")
+                raise ValueError("Select a room, model, and topic of up to 2,500 characters.")
             PROVIDERS.get(provider)
         except (ValueError, TypeError, json.JSONDecodeError) as err:
             self._json({"error": str(err)}, 400)
             return
         if not RUN_LOCK.acquire(blocking=False):
-            self._json({"error": "Άλλη συνεδρία εκτελείται ήδη."}, 409)
+            self._json({"error": "Another session is already running."}, 409)
             return
         try:
             if model not in local_models(provider):
                 self._json({"error": "Select a model exposed by the chosen local provider."}, 400)
                 return
-            add_message(room, "Εσύ", prompt)
+            add_message(room, "You", prompt)
             transcript = history(room, 14)
             completed = []
             for agent in FLOW[room]:
@@ -318,7 +317,7 @@ class Handler(BaseHTTPRequestHandler):
                 transcript.append(item)
             self._json({"messages": completed, "room": room})
         except (TimeoutError, HTTPError, URLError, OSError, ValueError, KeyError, ProviderError) as err:
-            self._json({"error": f"Η συνεδρία διακόπηκε. Οι ήδη παραχθείσες απαντήσεις αποθηκεύτηκαν. {err}"}, 502)
+            self._json({"error": f"The session stopped. Answers already produced were saved. {err}"}, 502)
         finally:
             RUN_LOCK.release()
 
@@ -328,7 +327,7 @@ def main():
     server = ThreadingHTTPServer((HOST, PORT), Handler)
     print(f"Markellos Ecosystem AI Agents Lab — http://{HOST}:{PORT}/")
     print(f"Database: {DB_PATH}")
-    print("Τοπική λειτουργία μόνο. Ctrl+C για διακοπή.")
+    print("Local operation only. Press Ctrl+C to stop.")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
