@@ -115,6 +115,9 @@ class HttpIntegrationTests(unittest.TestCase):
                         lm_studio_status = json.load(response)
                     self.assertEqual(lm_studio_status['provider'], 'lm-studio')
                     self.assertTrue(lm_studio_status['available'])
+                    with opener.open(origin + '/static/panel-layout.js') as response:
+                        panel_layout = response.read().decode('utf-8')
+                    self.assertIn("setupResizer('resize-left','left')", panel_layout)
                     post = json.dumps({'room':'university', 'provider':'ollama', 'model':'qwen3:4b', 'prompt':'Safe code review'}).encode()
                     req = Request(origin + '/api/run', data=post, headers={'Origin':origin, 'Content-Type':'application/json'}, method='POST')
                     with opener.open(req) as response:

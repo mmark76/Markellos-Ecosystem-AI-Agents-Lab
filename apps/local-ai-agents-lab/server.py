@@ -210,7 +210,8 @@ class Handler(BaseHTTPRequestHandler):
                  "/static/ecosystem-shell.js": ("ecosystem-shell.js", "text/javascript; charset=utf-8"),
                  "/static/ecosystem-tokens.css": ("ecosystem-tokens.css", "text/css; charset=utf-8"),
                  "/static/training.js": ("training.js", "text/javascript; charset=utf-8"),
-                 "/static/model-install.js": ("model-install.js", "text/javascript; charset=utf-8")}
+                 "/static/model-install.js": ("model-install.js", "text/javascript; charset=utf-8"),
+                 "/static/panel-layout.js": ("panel-layout.js", "text/javascript; charset=utf-8")}
         resource = pages.get(self.path)
         if not resource:
             self._json({"error": "Not found"}, 404)
