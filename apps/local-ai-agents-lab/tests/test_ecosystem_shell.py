@@ -54,7 +54,7 @@ class EcosystemShellTests(unittest.TestCase):
     def test_swatches_are_csp_compatible(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         css = (STATIC / "style.css").read_text(encoding="utf-8")
-        for name in ('mint', 'blue', 'purple', 'orange', 'rose'):
+        for name in ('mint', 'blue', 'purple', 'orange', 'rose', 'white'):
             with self.subTest(name=name):
                 self.assertIn(f'data-accent="{name}"', html)
                 self.assertIn(f'button[data-accent="{name}"] .swatch-dot', css)
