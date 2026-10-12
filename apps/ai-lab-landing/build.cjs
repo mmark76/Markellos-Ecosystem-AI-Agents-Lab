@@ -19,6 +19,7 @@ function cyprusTimestamp(date) {
 rmSync(output, { recursive: true, force: true });
 mkdirSync(output, { recursive: true });
 cpSync(source, output, { recursive: true });
+cpSync(join(root, 'apps', 'local-ai-agents-lab', 'README.md'), join(output, 'README.md'));
 cpSync(join(root, 'design-system', 'tokens', 'tokens.css'), join(output, 'tokens.css'));
 cpSync(join(__dirname, '_headers'), join(output, '_headers'));
 

@@ -318,3 +318,22 @@ Decision: APPROVED (CLARIFICATION)
 Approved by: Direct user request
 Target release: Next public landing deployment
 ```
+
+## Approved change record — AI-LAB-CC-021
+
+```text
+Change ID: AI-LAB-CC-021
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Serve the full Local Lab README from the public dashboard and open it in a new browser tab instead of GitHub.
+Reason: The user requested documentation without leaving the dashboard for GitHub.
+Affected objective IDs: AI-LAB-OBJ-003
+Architecture impact: Landing build copies the canonical Local Lab README into its static artifact.
+Security and privacy impact: Same-origin static documentation only; the link retains noopener protection.
+Data impact: None.
+Testing impact: Landing build test verifies the local README link and packaged README file.
+Cost and schedule impact: None.
+Decision: APPROVED (CLARIFICATION)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```

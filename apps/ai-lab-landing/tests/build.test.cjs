@@ -26,7 +26,7 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.match(html, /value="#000000"/);
   assert.match(html, /Download AI-Agents-Lab-Windows\.zip/);
   assert.match(html, /Read the README/);
-  assert.match(html, /Markellos-Ecosystem-AI-Agents-Lab\/blob\/main\/apps\/local-ai-agents-lab\/README\.md/);
+  assert.match(html, /href="\.\/README\.md" target="_blank" rel="noopener noreferrer"/);
   assert.doesNotMatch(html, /data-language|language-selector|language-button/);
   assert.match(html, /Only after the local server has started/);
   assert.match(html, /start-windows.bat/);
@@ -45,7 +45,8 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.doesNotMatch(html, /Lab Assistant|assistant-button|assistant-dialog/);
   assert.match(html, /id="settings-dialog"/);
   assert.match(html, /id="info-dialog"/);
-  for (const file of ['styles.css', 'tokens.css', 'dashboard.js', '_headers']) assert.equal(existsSync(join(output, file)), true, `${file} is missing`);
+  for (const file of ['styles.css', 'tokens.css', 'dashboard.js', '_headers', 'README.md']) assert.equal(existsSync(join(output, file)), true, `${file} is missing`);
+  assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /# Markellos Ecosystem AI Agents Lab/);
   assert.match(readFileSync(join(output, '_headers'), 'utf8'), /connect-src 'none'/);
   assert.match(readFileSync(join(output, '_headers'), 'utf8'), /script-src 'self'/);
   assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /colorMode:'dark'/);
