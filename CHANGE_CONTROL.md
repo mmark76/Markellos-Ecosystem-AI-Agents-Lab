@@ -376,6 +376,25 @@ Approved by: Direct user request
 Target release: Next public landing deployment
 ```
 
+## Approved change record — AI-LAB-CC-030
+
+```text
+Change ID: AI-LAB-CC-030
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Add independent installed local-model selection for the Learning Lab Trainer and Student agents.
+Reason: The user needs the two agents to execute their role-specific turns with different assigned local models when desired.
+Affected objective IDs: AI-LAB-OBJ-010
+Architecture impact: The existing fixed-loopback provider remains global; Training Lab requests snapshot separate role model IDs and store session metadata in SQLite without changing existing history.
+Security and privacy impact: No provider URL, cloud API, credential, or external endpoint is added. Each configured model is validated against the selected local provider before inference.
+Data impact: Adds backward-compatible SQLite session metadata and a nullable message session reference; existing messages remain readable.
+Testing impact: Add UI persistence, independent routing, unavailable-model, and migration regression coverage.
+Cost and schedule impact: None.
+Decision: APPROVED
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
 ## Approved change record — AI-LAB-CC-029
 
 ```text

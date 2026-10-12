@@ -6,6 +6,7 @@ const uiLanguage = 'en';
 const responseLanguage = 'en';
 const providerIds = ['ollama', 'lm-studio', 'vllm'];
 let provider = providerIds.includes(localStorage.getItem('agents-lab-provider')) ? localStorage.getItem('agents-lab-provider') : 'ollama';
+const modelPreference = {Trainer:'agents-lab-trainer-model',Student:'agents-lab-student-model',Collaboration:'agents-lab-model'};
 let statusData = null;
 let statusError = false;
 let hintError = '';
@@ -45,7 +46,9 @@ function updateUI() {
   document.documentElement.lang=uiLanguage;
   $('provider').value=provider;
   $('provider-label').textContent=t().providerLabel;
-  $('model-label').textContent=t().modelLabel;
+  $('model-label').textContent='Collaboration Model';
+  $('training-model-selects').hidden=room!=='university';
+  $('collaboration-model-select').hidden=room==='university';
   $('nav-training').textContent=t().training;
   $('nav-conference').textContent=t().collaboration;
   $('phase-tip').innerHTML=t().tip;
@@ -99,24 +102,30 @@ async function refreshStatus() {
   try {
     const res=await fetch('/api/providers/'+encodeURIComponent(provider)+'/status');if(!res.ok)throw new Error('Status failed');
     statusData=await res.json();statusError=false;
-    const select=$('model'),old=select.value;select.replaceChildren();
-    for(const model of statusData.models){const opt=document.createElement('option');opt.value=model;opt.textContent=model;select.append(opt);}
-    if(statusData.models.includes(old))select.value=old;
-    select.disabled=!statusData.models.length;
+    const legacy=localStorage.getItem(modelPreference.Collaboration);
+    for(const [agent,id] of [['Trainer','trainer-model'],['Student','student-model'],['Collaboration','model']]){
+      const select=$(id),old=select.value,stored=localStorage.getItem(modelPreference[agent]);select.replaceChildren();
+      for(const model of statusData.models){const opt=document.createElement('option');opt.value=model;opt.textContent=model;select.append(opt);}
+      const selected=[stored,legacy,old,statusData.models[0]].find(value=>statusData.models.includes(value));
+      if(selected)select.value=selected;
+      select.disabled=!statusData.models.length;
+    }
     if(!running)$('send').disabled=!statusData.models.length;
-  } catch { statusError=true;statusData=null;$('model').disabled=true;$('send').disabled=true; }
+  } catch { statusError=true;statusData=null;['model','trainer-model','student-model'].forEach(id=>$(id).disabled=true);$('send').disabled=true; }
   setStatus();
 }
 function switchRoom(next){if(running||!['university','conference'].includes(next))return;room=next;hintError='';updateUI();refreshHistory();}
 $('provider').addEventListener('change',e=>{if(!providerIds.includes(e.target.value))return;provider=e.target.value;localStorage.setItem('agents-lab-provider',provider);hintError='';statusData=null;updateUI();refreshStatus();});
+[['Trainer','trainer-model'],['Student','student-model'],['Collaboration','model']].forEach(([agent,id])=>$(id).addEventListener('change',event=>localStorage.setItem(modelPreference[agent],event.target.value)));
 document.querySelectorAll('[data-room]').forEach(b=>b.addEventListener('click',()=>switchRoom(b.dataset.room)));
 $('composer').addEventListener('submit',async ev=>{
   ev.preventDefault();if(running)return;
-  const prompt=$('prompt').value.trim(),model=$('model').value;
-  if(!prompt||!model)return;
+  const prompt=$('prompt').value.trim(),model=$('model').value,trainerModel=$('trainer-model').value,studentModel=$('student-model').value;
+  if(!prompt||(room==='university'&&(!trainerModel||!studentModel))||(room==='conference'&&!model))return;
   running=true;hintError='';$('send').disabled=true;updateUI();
   try {
-    const result=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({room,provider,model,prompt,language:responseLanguage})});
+    const request=room==='university'?{room,provider,trainer_model:trainerModel,student_model:studentModel,prompt,language:responseLanguage}:{room,provider,model,prompt,language:responseLanguage};
+    const result=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(request)});
     const payload=await result.json();
     if(!result.ok)throw new Error(payload.error||t().failed);
     $('prompt').value='';
