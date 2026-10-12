@@ -5,11 +5,13 @@ on:
     paths:
       - 'apps/local-ai-agents-lab/**'
       - '.github/workflows/validate-local-ai-agents-lab.yml'
+      - '.github/workflows/publish-local-ai-agents-lab-release.yml'
   push:
     branches: [main]
     paths:
       - 'apps/local-ai-agents-lab/**'
       - '.github/workflows/validate-local-ai-agents-lab.yml'
+      - '.github/workflows/publish-local-ai-agents-lab-release.yml'
   workflow_dispatch:
 
 permissions:

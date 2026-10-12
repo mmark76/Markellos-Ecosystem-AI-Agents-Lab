@@ -55,3 +55,13 @@ test('safe update-check inputs are packaged',()=>{
   assert.match(updates,/releases\/latest/);
   assert.match(updates,/never downloads, installs, or executes an/);
 });
+
+test('a VERSION bump on main automatically creates the matching release ZIP',()=>{
+  const root=path.resolve(__dirname,'..','..','..');
+  const workflow=fs.readFileSync(path.join(root,'.github','workflows','publish-local-ai-agents-lab-release.yml'),'utf8');
+  assert.match(workflow,/push:\s+branches: \[main\]/);
+  assert.match(workflow,/'apps\/local-ai-agents-lab\/VERSION'/);
+  assert.match(workflow,/gh release create/);
+  assert.match(workflow,/--target "\$GITHUB_SHA"/);
+  assert.match(workflow,/AI-Agents-Lab-Windows\.zip/);
+});

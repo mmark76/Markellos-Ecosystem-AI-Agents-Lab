@@ -1,6 +1,10 @@
 name: Publish Local AI Agents Lab release
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/local-ai-agents-lab/VERSION'
   release:
     types: [published]
 
@@ -8,8 +12,8 @@ permissions:
   contents: write
 
 jobs:
-  package:
-    if: startsWith(github.event.release.tag_name, 'v')
+  package-manual-release:
+    if: github.event_name == 'release' && startsWith(github.event.release.tag_name, 'v')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -31,3 +35,45 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release upload "${{ github.event.release.tag_name }}" "$RUNNER_TEMP/AI-Agents-Lab-Windows.zip" --clobber
+
+  publish-version-bump:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Read and validate release version
+        id: version
+        shell: bash
+        run: |
+          version="$(tr -d '\r\n' < apps/local-ai-agents-lab/VERSION)"
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Invalid VERSION: $version" >&2; exit 1; }
+          tag="v$version"
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag"; then
+            echo "Tag $tag already exists; VERSION must be bumped before release." >&2
+            exit 1
+          fi
+          echo "value=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+      - name: Build and verify release package
+        working-directory: apps/local-ai-agents-lab
+        run: |
+          node scripts/build-release.cjs HEAD "$RUNNER_TEMP/ai-lab-release"
+          node scripts/verify-release.cjs "$RUNNER_TEMP/ai-lab-release/local-ai-agents-lab" "$GITHUB_SHA"
+      - name: Create public Windows ZIP
+        run: |
+          cd "$RUNNER_TEMP/ai-lab-release"
+          zip -r "$RUNNER_TEMP/AI-Agents-Lab-Windows.zip" local-ai-agents-lab
+      - name: Create release and upload ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.version.outputs.tag }}" "$RUNNER_TEMP/AI-Agents-Lab-Windows.zip" \
+            --repo "${{ github.repository }}" \
+            --target "$GITHUB_SHA" \
+            --title "AI Agents Lab ${{ steps.version.outputs.tag }}" \
+            --generate-notes
