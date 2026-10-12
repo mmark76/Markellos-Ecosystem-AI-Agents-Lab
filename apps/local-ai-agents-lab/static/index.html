@@ -12,19 +12,24 @@
   <script defer src="/static/ecosystem-shell.js"></script>
   <script defer src="/static/training.js"></script>
   <script defer src="/static/model-install.js"></script>
+  <script defer src="/static/panel-layout.js"></script>
 </head>
 <body>
-<div class="shell">
-  <aside class="sidebar">
-    <div class="brand"><span class="mark">M</span><span><strong>Markellos Ecosystem<br>AI Agents Lab</strong><small>Private Local Workspace</small></span></div>
-    <div class="label">WORKSPACE</div>
-    <button class="nav selected" data-room="university">▣ &nbsp; <span id="nav-training">Agent Training</span></button>
-    <button class="nav" data-room="conference">▤ &nbsp; <span id="nav-conference">Agent Collaboration</span></button>
-    <div class="label section-gap">PHASE 1 · SANDBOX</div>
-    <p class="tip" id="phase-tip"></p>
-    <div class="sidebar-footer" id="sidebar-note"></div>
+<div class="shell" id="panel-layout">
+  <aside class="sidebar" id="left-panel" aria-label="Workspace navigation">
+    <button type="button" class="panel-toggle" id="toggle-left" aria-controls="left-panel" aria-expanded="true" title="Collapse workspace panel">◧</button>
+    <div class="panel-content">
+      <div class="brand"><span class="mark">M</span><span><strong>Markellos Ecosystem<br>AI Agents Lab</strong><small>Private Local Workspace</small></span></div>
+      <div class="label">WORKSPACE</div>
+      <button class="nav selected" data-room="university">▣ &nbsp; <span id="nav-training">Agent Training</span></button>
+      <button class="nav" data-room="conference">▤ &nbsp; <span id="nav-conference">Agent Collaboration</span></button>
+      <div class="label section-gap">PHASE 1 · SANDBOX</div>
+      <p class="tip" id="phase-tip"></p>
+      <div class="sidebar-footer" id="sidebar-note"></div>
+    </div>
   </aside>
-  <main class="main">
+  <div class="panel-resizer panel-resizer-left" id="resize-left" role="separator" aria-label="Resize workspace navigation" aria-orientation="vertical" tabindex="0"></div>
+  <main class="main workspace-main">
     <header class="top">
       <div><div class="eyebrow">MARKELLOS ECOSYSTEM · LOCAL LAB</div><h1 id="room-title">Learning Lab</h1><p class="subtitle" id="room-description">Learn → Practice → Evaluate → Improve</p></div>
       <div class="top-controls"><a class="ecosystem-link" href="https://markellosecosystem.com/" target="_blank" rel="noopener noreferrer" id="ecosystem-link">Back to markellosecosystem</a><button type="button" id="quick-mode" class="settings-toggle" aria-label="Toggle light and dark mode">Light / Dark</button><button type="button" id="info-toggle" class="settings-toggle" aria-haspopup="dialog">Info</button><button type="button" id="settings-toggle" class="settings-toggle" aria-expanded="false" aria-controls="settings-panel" aria-label="Settings">⚙ <span id="settings-label">Settings</span></button><span class="privacy"><span class="dot"></span> LOCAL ONLY</span></div>
@@ -57,21 +62,6 @@
       <p class="build-id">v0.1.1_YYYYMMDD_HHMM_SHA</p>
       <button type="button" id="info-close" class="settings-toggle">Close</button>
     </dialog>
-    <section class="statusbar">
-      <div><span class="status-icon">◉</span> <span id="status">Checking local model...</span></div>
-      <div class="model-select"><label for="provider" id="provider-label">Inference Engine</label><select id="provider"><option value="ollama">Ollama</option><option value="lm-studio">LM Studio</option><option value="vllm">vLLM</option></select><label for="model" id="model-label">Local AI Model</label><select id="model" disabled><option>Checking...</option></select></div>
-    </section>
-    <details class="model-installer" id="model-installer" hidden>
-      <summary>Add Model · Ollama</summary>
-      <form id="model-install-form">
-        <label for="model-install-name">Ollama model name</label>
-        <input id="model-install-name" type="text" maxlength="96" required autocomplete="off" spellcheck="false" placeholder="e.g. gemma3:4b">
-        <button type="submit" id="model-install-submit">Install model</button>
-      </form>
-      <p>Downloads from the internet into Ollama's local model store. Check available disk space and model licensing before installing. Model files may be several GB. LM Studio manages downloads in its own application; vLLM is configured on its server.</p>
-      <progress id="model-install-progress" max="100" value="0" hidden></progress>
-      <p id="model-install-status" role="status" aria-live="polite">Model installation is optional.</p>
-    </details>
     <section class="chat-panel" aria-live="polite">
       <div id="messages" class="messages"><div class="empty">No training sessions yet. Enter a topic below.</div></div>
     </section>
@@ -80,11 +70,33 @@
       <textarea id="prompt" rows="3" maxlength="2500" required placeholder="e.g. Teach your AI agent how to..."></textarea>
       <div class="actions"><div><span id="hint">Agents have no access to files or commands.</span><button id="clear-conversation" class="clear-conversation" type="button">Clear conversation / Start new session</button></div><button id="send" type="submit">Start Training ↗</button></div>
     </form>
-    <details class="provider-help" id="provider-help">
-      <summary id="provider-help-title">Which inference engine should I use?</summary>
-      <div id="provider-help-content"></div>
-    </details>
-    <details class="training-workspace" aria-labelledby="training-title">
+    <footer><span>© <span class="copyright-year"></span> Markellos Markides. All rights reserved.</span><span class="build-id">v0.1.1_YYYYMMDD_HHMM_SHA</span></footer>
+  </main>
+  <div class="panel-resizer panel-resizer-right" id="resize-right" role="separator" aria-label="Resize tools panel" aria-orientation="vertical" tabindex="0"></div>
+  <aside class="inspector" id="right-panel" aria-label="Lab tools">
+    <button type="button" class="panel-toggle" id="toggle-right" aria-controls="right-panel" aria-expanded="true" title="Collapse tools panel">◨</button>
+    <div class="panel-content">
+      <section class="inspector-heading"><p class="eyebrow">LOCAL TOOLS</p><h2>Lab controls</h2></section>
+      <section class="statusbar">
+        <div><span class="status-icon">◉</span> <span id="status">Checking local model...</span></div>
+        <div class="model-select"><label for="provider" id="provider-label">Inference Engine</label><select id="provider"><option value="ollama">Ollama</option><option value="lm-studio">LM Studio</option><option value="vllm">vLLM</option></select><label for="model" id="model-label">Local AI Model</label><select id="model" disabled><option>Checking...</option></select></div>
+      </section>
+      <details class="model-installer" id="model-installer" hidden>
+        <summary>Add Model · Ollama</summary>
+        <form id="model-install-form">
+          <label for="model-install-name">Ollama model name</label>
+          <input id="model-install-name" type="text" maxlength="96" required autocomplete="off" spellcheck="false" placeholder="e.g. gemma3:4b">
+          <button type="submit" id="model-install-submit">Install model</button>
+        </form>
+        <p>Downloads from the internet into Ollama's local model store. Check available disk space and model licensing before installing. Model files may be several GB. LM Studio manages downloads in its own application; vLLM is configured on its server.</p>
+        <progress id="model-install-progress" max="100" value="0" hidden></progress>
+        <p id="model-install-status" role="status" aria-live="polite">Model installation is optional.</p>
+      </details>
+      <details class="provider-help" id="provider-help">
+        <summary id="provider-help-title">Which inference engine should I use?</summary>
+        <div id="provider-help-content"></div>
+      </details>
+      <details class="training-workspace" aria-labelledby="training-title">
       <summary id="training-title">Advanced: Train a model (optional)</summary>
       <p class="training-intro">For advanced users only. This requires a separate local training setup, a compatible model, and a JSONL dataset. It is not needed to use the agents.</p>
       <form id="training-form"><label for="training-model">Local compatible model</label><select id="training-model" required></select><label for="training-dataset">Local JSONL dataset</label><select id="training-dataset" required></select><label for="training-method">Method</label><select id="training-method"><option value="lora">PEFT / LoRA</option><option value="sft">TRL supervised fine-tuning</option></select><label for="training-device">Compute</label><select id="training-device"><option value="auto">Auto</option><option value="cpu">CPU</option><option value="cuda">CUDA GPU</option></select><button type="submit">Review and start training</button><button id="training-stop" type="button">Stop training</button></form>
@@ -92,9 +104,9 @@
       <p id="training-setup" class="training-setup" hidden>To install the optional training environment, open your extracted Lab folder and run <code>setup-training-windows.bat</code> once. When it finishes, close and restart the Lab.</p>
       <p id="training-output"></p>
       <details><summary>Which technology should I use?</summary><p><strong>Ollama, LM Studio, vLLM:</strong> local inference. <strong>PyTorch:</strong> numerical training. <strong>Transformers:</strong> compatible local pretrained models. <strong>PEFT / LoRA:</strong> efficient adapters. <strong>TRL:</strong> supervised fine-tuning. <strong>CUDA:</strong> supported NVIDIA GPU acceleration. Training changes model parameters; agent exercises and evaluation do not.</p></details>
-    </details>
-    <footer><span>© <span class="copyright-year"></span> Markellos Markides. All rights reserved.</span><span class="build-id">v0.1.1_YYYYMMDD_HHMM_SHA</span></footer>
-  </main>
+      </details>
+    </div>
+  </aside>
 </div>
 </body>
 </html>
