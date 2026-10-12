@@ -28,6 +28,10 @@ a:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 4px; }
 .hero { max-width: var(--content-narrow); margin-bottom: var(--space-12); }
 .eyebrow, .card-label { margin: 0 0 var(--space-2); color: var(--color-text-muted); }
 .hero h1, .simple-section h2, .dashboard-card h2 { margin-top: 0; color: var(--color-text); line-height: var(--line-height-tight); }
+.guide h1 { margin-top: 0; color: var(--color-text); line-height: var(--line-height-tight); }
+.guide { max-width: 52rem; }
+.guide h2 { margin-top: var(--space-6); }
+.guide li { margin-block: var(--space-2); line-height: var(--line-height-relaxed); }
 .hero h1 { margin-bottom: var(--space-4); font-size: clamp(2rem, 5vw, 3.4rem); letter-spacing: -.025em; }
 .hero-copy { margin: 0; color: var(--color-text-muted); font-size: var(--font-size-lg); line-height: var(--line-height-relaxed); }
 .shell-notice { margin: var(--space-5) 0 0; padding: var(--space-3) var(--space-4); border-inline-start: 3px solid var(--app-accent); background: var(--color-surface); color: var(--color-text-muted); font-size: var(--font-size-sm); }
