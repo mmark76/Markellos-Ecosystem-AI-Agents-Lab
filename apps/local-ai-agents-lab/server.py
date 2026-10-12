@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Lock
+from typing import Optional
 from urllib.error import HTTPError, URLError
 from urllib.request import ProxyHandler, build_opener
 
@@ -87,22 +88,43 @@ def initialize():
             content TEXT NOT NULL,
             created_at TEXT NOT NULL
         )""")
+        columns = {row[1] for row in db.execute("PRAGMA table_info(messages)")}
+        if "session_id" not in columns:
+            db.execute("ALTER TABLE messages ADD COLUMN session_id INTEGER")
+        db.execute("""CREATE TABLE IF NOT EXISTS training_sessions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            provider TEXT NOT NULL,
+            trainer_model TEXT NOT NULL,
+            student_model TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        )""")
         db.execute("CREATE INDEX IF NOT EXISTS idx_room_id ON messages(room,id)")
+        db.execute("CREATE INDEX IF NOT EXISTS idx_messages_session_id ON messages(session_id)")
 
 
-def add_message(room: str, agent: str, content: str):
+def add_message(room: str, agent: str, content: str, session_id: Optional[int] = None):
     with closing(connect()) as db, db:
         db.execute(
-            "INSERT INTO messages(room,agent,content,created_at) VALUES(?,?,?,?)",
-            (room, agent, content[:12000], utc_now()),
+            "INSERT INTO messages(room,agent,content,created_at,session_id) VALUES(?,?,?,?,?)",
+            (room, agent, content[:12000], utc_now(), session_id),
         )
+
+
+def create_training_session(provider: str, trainer_model: str, student_model: str) -> int:
+    """Persist a model snapshot for one Training Lab run without changing old history."""
+    with closing(connect()) as db, db:
+        result = db.execute(
+            "INSERT INTO training_sessions(provider,trainer_model,student_model,created_at) VALUES(?,?,?,?)",
+            (provider, trainer_model, student_model, utc_now()),
+        )
+    return result.lastrowid
 
 
 def history(room: str, limit: int = 80) -> list[dict]:
     with closing(connect()) as db, db:
         rows = db.execute(
-            "SELECT id,agent,content,created_at FROM ("
-            " SELECT id,agent,content,created_at FROM messages WHERE room=?"
+            "SELECT id,agent,content,created_at,session_id FROM ("
+            " SELECT id,agent,content,created_at,session_id FROM messages WHERE room=?"
             " ORDER BY id DESC LIMIT ?) ORDER BY id ASC", (room, limit)
         ).fetchall()
     return [dict(row) for row in rows]
@@ -294,6 +316,8 @@ class Handler(BaseHTTPRequestHandler):
             room = body.get("room", "")
             provider = body.get("provider", "ollama")
             model = body.get("model", "")
+            trainer_model = body.get("trainer_model", model)
+            student_model = body.get("student_model", model)
             raw_prompt = body.get("prompt", "")
             language = body.get("language", "en")
             if language not in ("en", "el"):
@@ -303,6 +327,8 @@ class Handler(BaseHTTPRequestHandler):
             prompt = raw_prompt.strip()
             if room not in ROOMS or not isinstance(provider, str) or not isinstance(model, str) or not 1 <= len(prompt) <= 2500:
                 raise ValueError("Select a room, model, and topic of up to 2,500 characters.")
+            if room == "university" and (not isinstance(trainer_model, str) or not isinstance(student_model, str)):
+                raise ValueError("Select both a Trainer model and a Student model.")
             PROVIDERS.get(provider)
         except (ValueError, TypeError, json.JSONDecodeError) as err:
             self._json({"error": str(err)}, 400)
@@ -311,19 +337,27 @@ class Handler(BaseHTTPRequestHandler):
             self._json({"error": "Another session is already running."}, 409)
             return
         try:
-            if model not in local_models(provider):
-                self._json({"error": "Select a model exposed by the chosen local provider."}, 400)
+            available_models = local_models(provider)
+            assigned_models = ({"Trainer": trainer_model, "Student": student_model}
+                               if room == "university" else {agent: model for agent in FLOW[room]})
+            missing = [f"{agent} model ({assigned_models[agent]})" for agent in FLOW[room]
+                       if assigned_models[agent] not in available_models]
+            if missing:
+                self._json({"error": "Unavailable local " + ", ".join(missing) + ". Refresh the model list and choose an available model."}, 400)
                 return
-            add_message(room, "You", prompt)
+            session_id = (create_training_session(provider, trainer_model, student_model)
+                          if room == "university" else None)
+            add_message(room, "You", prompt, session_id)
             transcript = history(room, 14)
             completed = []
             for agent in FLOW[room]:
-                answer = provider_chat(provider, model, agent, transcript, language)
-                add_message(room, agent, answer)
-                item = {"agent": agent, "content": answer, "created_at": utc_now()}
+                answer = provider_chat(provider, assigned_models[agent], agent, transcript, language)
+                add_message(room, agent, answer, session_id)
+                item = {"agent": agent, "content": answer, "created_at": utc_now(),
+                        "model": assigned_models[agent], "session_id": session_id}
                 completed.append(item)
                 transcript.append(item)
-            self._json({"messages": completed, "room": room})
+            self._json({"messages": completed, "room": room, "session_id": session_id})
         except (TimeoutError, HTTPError, URLError, OSError, ValueError, KeyError, ProviderError) as err:
             self._json({"error": f"The session stopped. Answers already produced were saved. {err}"}, 502)
         finally:

@@ -17,12 +17,23 @@ class EcosystemShellTests(unittest.TestCase):
         app = (STATIC / "app.js").read_text(encoding="utf-8")
         for name in ('data-room="university"', 'data-room="conference"',
                      'id="settings-toggle"', 'id="provider"', 'id="model"',
+                     'id="trainer-model"', 'id="student-model"',
                      'id="provider-help"',
                      'id="composer"'):
             with self.subTest(name=name):
                 self.assertIn(name, html)
         self.assertIn('Planner · Researcher · Reviewer', app)
         self.assertNotIn('Architect → Developer → Reviewer', app)
+
+    def test_training_models_are_independent_and_persisted_locally(self):
+        html = (STATIC / "index.html").read_text(encoding="utf-8")
+        app = (STATIC / "app.js").read_text(encoding="utf-8")
+        for selector in ('Trainer Model', 'Student Model', 'id="training-model-selects"'):
+            with self.subTest(selector=selector): self.assertIn(selector, html)
+        for key in ('agents-lab-trainer-model', 'agents-lab-student-model', 'agents-lab-model'):
+            with self.subTest(key=key): self.assertIn(key, app)
+        self.assertIn('trainer_model:trainerModel', app)
+        self.assertIn('student_model:studentModel', app)
 
     def test_language_selectors_are_removed_and_runtime_is_english_only(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")

@@ -85,6 +85,14 @@ class CampusTests(unittest.TestCase):
     def test_training_flow_defaults_to_one_trainer_and_one_student(self):
         self.assertEqual(campus.FLOW['university'], ['Trainer', 'Student'])
 
+    def test_initialize_migrates_existing_messages_without_losing_history(self):
+        campus.add_message('university', 'Trainer', 'Existing lesson')
+        campus.initialize()
+        self.assertEqual(campus.history('university')[0]['content'], 'Existing lesson')
+        with campus.closing(campus.connect()) as db:
+            columns = {row[1] for row in db.execute('PRAGMA table_info(messages)')}
+        self.assertIn('session_id', columns)
+
 if __name__ == '__main__':
     unittest.main()
 
@@ -106,11 +114,11 @@ class HttpIntegrationTests(unittest.TestCase):
             thread.start()
             opener = build_opener(ProxyHandler({}))
             try:
-                with patch.object(campus, 'local_models', return_value=['qwen3:4b']), \
-                     patch.object(campus, 'provider_chat', side_effect=lambda provider, model, role, previous, language='en': 'Response ' + role):
+                with patch.object(campus, 'local_models', return_value=['qwen3:8b', 'gemma3:4b']), \
+                     patch.object(campus, 'provider_chat', side_effect=lambda provider, model, role, previous, language='en': 'Response ' + role) as chat:
                     with opener.open(origin + '/api/status') as response:
                         status = json.load(response)
-                    self.assertEqual(status['models'], ['qwen3:4b'])
+                    self.assertEqual(status['models'], ['qwen3:8b', 'gemma3:4b'])
                     with opener.open(origin + '/api/providers/lm-studio/status') as response:
                         lm_studio_status = json.load(response)
                     self.assertEqual(lm_studio_status['provider'], 'lm-studio')
@@ -118,26 +126,39 @@ class HttpIntegrationTests(unittest.TestCase):
                     with opener.open(origin + '/static/panel-layout.js') as response:
                         panel_layout = response.read().decode('utf-8')
                     self.assertIn("setupResizer('resize-left','left')", panel_layout)
-                    post = json.dumps({'room':'university', 'provider':'ollama', 'model':'qwen3:4b', 'prompt':'Safe code review'}).encode()
+                    post = json.dumps({'room':'university', 'provider':'ollama', 'trainer_model':'qwen3:8b', 'student_model':'gemma3:4b', 'prompt':'Safe code review'}).encode()
                     req = Request(origin + '/api/run', data=post, headers={'Origin':origin, 'Content-Type':'application/json'}, method='POST')
                     with opener.open(req) as response:
                         result = json.load(response)
                     self.assertEqual(len(result['messages']), 2)
+                    self.assertEqual([call.args[1] for call in chat.call_args_list], ['qwen3:8b', 'gemma3:4b'])
+                    self.assertEqual([message['model'] for message in result['messages']], ['qwen3:8b', 'gemma3:4b'])
+                    self.assertIsInstance(result['session_id'], int)
                     self.assertEqual(len(campus.history('university')), 3)
                     self.assertEqual(len(campus.history('conference')), 0)
+                    legacy_post = json.dumps({'room':'university', 'provider':'ollama', 'model':'qwen3:8b', 'prompt':'Shared model session'}).encode()
+                    legacy_request = Request(origin + '/api/run', data=legacy_post, headers={'Origin':origin, 'Content-Type':'application/json'}, method='POST')
+                    with opener.open(legacy_request) as response:
+                        legacy_result = json.load(response)
+                    self.assertEqual([message['model'] for message in legacy_result['messages']], ['qwen3:8b', 'qwen3:8b'])
+                    unavailable = Request(origin + '/api/run', data=json.dumps({'room':'university', 'provider':'ollama', 'trainer_model':'missing:1b', 'student_model':'gemma3:4b', 'prompt':'Safe code review'}).encode(), headers={'Origin':origin, 'Content-Type':'application/json'}, method='POST')
+                    with self.assertRaises(HTTPError) as error:
+                        opener.open(unavailable)
+                    self.assertEqual(error.exception.code, 400)
+                    self.assertIn('Trainer model (missing:1b)', error.exception.read().decode())
                     clear = Request(origin + '/api/history/clear', data=json.dumps({'room':'university'}).encode(), headers={'Origin':origin, 'Content-Type':'application/json'}, method='POST')
                     with opener.open(clear) as response:
-                        self.assertEqual(json.load(response), {'room':'university', 'deleted':3})
+                        self.assertEqual(json.load(response), {'room':'university', 'deleted':6})
                     self.assertEqual(campus.history('university'), [])
                     no_origin = Request(origin + '/api/run', data=post, headers={'Content-Type':'application/json'}, method='POST')
                     with self.assertRaises(HTTPError) as error:
                         opener.open(no_origin)
                     self.assertEqual(error.exception.code, 403)
-                    wrong = Request(origin + '/api/run', data=json.dumps({'room':'conference','model':'qwen3:4b','prompt':123}).encode(), headers={'Origin':origin, 'Content-Type':'application/json'}, method='POST')
+                    wrong = Request(origin + '/api/run', data=json.dumps({'room':'conference','model':'qwen3:8b','prompt':123}).encode(), headers={'Origin':origin, 'Content-Type':'application/json'}, method='POST')
                     with self.assertRaises(HTTPError) as error:
                         opener.open(wrong)
                     self.assertEqual(error.exception.code, 400)
-                    invalid_provider = Request(origin + '/api/run', data=json.dumps({'room':'conference','provider':'remote','model':'qwen3:4b','prompt':'test'}).encode(), headers={'Origin':origin, 'Content-Type':'application/json'}, method='POST')
+                    invalid_provider = Request(origin + '/api/run', data=json.dumps({'room':'conference','provider':'remote','model':'qwen3:8b','prompt':'test'}).encode(), headers={'Origin':origin, 'Content-Type':'application/json'}, method='POST')
                     with self.assertRaises(HTTPError) as error:
                         opener.open(invalid_provider)
                     self.assertEqual(error.exception.code, 400)
