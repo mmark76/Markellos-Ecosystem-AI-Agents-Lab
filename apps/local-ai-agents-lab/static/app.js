@@ -2,8 +2,8 @@
 const $ = id => document.getElementById(id);
 let room = 'university';
 let running = false;
-const uiLanguage = localStorage.getItem('agents-lab-ui-language') === 'el' ? 'el' : 'en';
-const responseLanguage = localStorage.getItem('agents-lab-response-language') === 'el' ? 'el' : 'en';
+const uiLanguage = 'en';
+const responseLanguage = 'en';
 const providerIds = ['ollama', 'lm-studio', 'vllm'];
 let provider = providerIds.includes(localStorage.getItem('agents-lab-provider')) ? localStorage.getItem('agents-lab-provider') : 'ollama';
 let statusData = null;
@@ -12,7 +12,7 @@ let hintError = '';
 const words = {
   en: {
     training:'Agent Training', collaboration:'Agent Collaboration',
-    tip:'AI Agents Training Lab<br>1 AI Trainer · 2 AI Trainees<br>3 AI Experts · Conference Room',
+    tip:'AI Agents Training Lab<br>1 AI Trainer · 1 AI Student<br>3 AI Experts · Conference Room',
     note:'Stored locally in SQLite.<br>No GitHub or cloud API access.',
     providerLabel:'Inference Engine', modelLabel:'Local AI Model',
     universityDescription:'Learn → Practice → Evaluate → Improve',
@@ -30,30 +30,7 @@ const words = {
     providerHelpTitle:'Which inference engine should I use?',
     providerHelp:'<h2>Ollama — Simple Local AI</h2><p>Use it for easy installation, switching models, and automatic model loading.</p><h2>LM Studio — Local AI Experimentation</h2><p>Use its graphical interface to download, configure, and compare models manually.</p><h2>vLLM — High-Performance GPU Inference</h2><p>Use it for shared, concurrent GPU inference on Linux, compatible WSL2, or a GPU server. vLLM is not natively supported on Windows; RunPod requires separate remote-infrastructure approval.</p>',
     failed:'Session failed', you:'You',
-    agents:{'Εσύ':'You','Καθηγητής':'Trainer','Φοιτητής Α':'Agent A','Φοιτητής Β':'Agent B','Καθηγητής · Feedback':'Trainer · Feedback'}
-  },
-  el: {
-    training:'Εκπαίδευση Agents', collaboration:'Συνεργασία Agents',
-    tip:'Εργαστήριο Εκπαίδευσης AI Agents<br>1 AI Trainer · 2 AI Trainees<br>3 AI Experts · Conference Room',
-    note:'Τοπική αποθήκευση σε SQLite.<br>Χωρίς πρόσβαση σε GitHub ή cloud APIs.',
-    providerLabel:'Inference Engine', modelLabel:'Τοπικό AI Model',
-    universityDescription:'Μάθηση → Εξάσκηση → Αξιολόγηση → Βελτίωση',
-    conferenceDescription:'Architect → Developer → Reviewer · Κοινό ιστορικό',
-    universityLabel:'Θέμα εκπαίδευσης', conferenceLabel:'Θέμα συζήτησης',
-    universityPlaceholder:'π.χ. Εκπαίδευση Agents σε ασφαλές Code Review...',
-    conferencePlaceholder:'π.χ. Συζητήστε ένα Reporting Module χωρίς regressions...',
-    empty:'Δεν υπάρχουν συνεδρίες ακόμη. Καταχώρισε ένα θέμα παρακάτω.',
-    hint:'Οι Agents δεν έχουν πρόσβαση σε αρχεία ή εντολές.',
-    working:'Οι Agents απαντούν διαδοχικά. Η διαδικασία μπορεί να διαρκέσει.',
-    startUniversity:'Έναρξη εκπαίδευσης ↗', startConference:'Έναρξη συζήτησης ↗', running:'Εκτέλεση...',
-    checking:'Έλεγχος τοπικού inference engine...', databaseError:'Αδυναμία ανάγνωσης τοπικής βάσης.',
-    serviceError:'Η τοπική υπηρεσία δεν ανταποκρίνεται.', offline:name=>name+' δεν λειτουργεί τοπικά. Δες το README.',
-    noModels:name=>name+' ενεργό · Δεν βρέθηκαν συμβατά τοπικά μοντέλα.',
-    modelCount:(name,n)=>name+' ενεργό · '+n+' τοπικά μοντέλα',
-    providerHelpTitle:'Ποιο inference engine να χρησιμοποιήσω;',
-    providerHelp:'<h2>Ollama — Απλό Local AI</h2><p>Χρησιμοποίησέ το για εύκολη εγκατάσταση, εναλλαγή μοντέλων και αυτόματη φόρτωση μοντέλων.</p><h2>LM Studio — Πειραματισμός με Local AI</h2><p>Χρησιμοποίησέ το με το γραφικό περιβάλλον του για χειροκίνητη λήψη, ρύθμιση και σύγκριση μοντέλων.</p><h2>vLLM — GPU Inference Υψηλής Απόδοσης</h2><p>Χρησιμοποίησέ το για κοινό, ταυτόχρονο GPU inference σε Linux, συμβατό WSL2 ή GPU server. Το vLLM δεν υποστηρίζεται εγγενώς στα Windows· το RunPod απαιτεί ξεχωριστή έγκριση remote infrastructure.</p>',
-    failed:'Αποτυχία συνεδρίας', you:'Εσύ',
-    agents:{'Εσύ':'Εσύ','Καθηγητής':'Εκπαιδευτής','Φοιτητής Α':'Agent A','Φοιτητής Β':'Agent B','Καθηγητής · Feedback':'Εκπαιδευτής · Ανατροφοδότηση'}
+    agents:{'You':'You','Trainer':'Trainer','Student':'Student','Agent A':'Student','Agent B':'Student','Trainer · Feedback':'Trainer · Feedback','\u0395\u03c3\u03cd':'You','\u039a\u03b1\u03b8\u03b7\u03b3\u03b7\u03c4\u03ae\u03c2':'Trainer','\u03a6\u03bf\u03b9\u03c4\u03b7\u03c4\u03ae\u03c2 \u0391':'Student','\u03a6\u03bf\u03b9\u03c4\u03b7\u03c4\u03ae\u03c2 \u0392':'Student','\u039a\u03b1\u03b8\u03b7\u03b3\u03b7\u03c4\u03ae\u03c2 · Feedback':'Trainer · Feedback'}
   }
 };
 const t = () => words[uiLanguage];
@@ -91,7 +68,7 @@ function updateUI() {
 }
 function makeMessage(message) {
   const wrap=document.createElement('article');
-  wrap.className='message'+(message.agent==='Εσύ'||message.agent==='You'?' mine':'');
+  wrap.className='message'+(message.agent==='\u0395\u03c3\u03cd'||message.agent==='You'?' mine':'');
   wrap.dataset.agent=message.agent;
   const avatar=document.createElement('div');avatar.className='avatar';avatar.textContent=wrap.classList.contains('mine')?'M':labelAgent(message.agent)[0].toUpperCase();
   const body=document.createElement('div');body.className='message-body';

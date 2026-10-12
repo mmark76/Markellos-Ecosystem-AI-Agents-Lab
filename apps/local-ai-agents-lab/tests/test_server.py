@@ -21,7 +21,7 @@ class CampusTests(unittest.TestCase):
         self.tmp.cleanup()
 
     def test_rooms_separate_and_persist(self):
-        campus.add_message('university', 'Καθηγητής', 'Άσκηση 1')
+        campus.add_message('university', 'Trainer', 'Exercise 1')
         campus.add_message('conference', 'Architect', 'Design review')
         self.assertEqual(len(campus.history('university')), 1)
         self.assertEqual(campus.history('conference')[0]['agent'], 'Architect')
@@ -75,6 +75,9 @@ class CampusTests(unittest.TestCase):
             for agent in flow:
                 self.assertIn(agent, campus.PROMPTS)
 
+    def test_training_flow_defaults_to_one_trainer_and_one_student(self):
+        self.assertEqual(campus.FLOW['university'], ['Trainer', 'Student'])
+
 if __name__ == '__main__':
     unittest.main()
 
@@ -124,7 +127,7 @@ class HttpIntegrationTests(unittest.TestCase):
             opener = build_opener(ProxyHandler({}))
             try:
                 with patch.object(campus, 'local_models', return_value=['qwen3:4b']), \
-                     patch.object(campus, 'provider_chat', side_effect=lambda provider, model, role, previous, language='en': 'Απάντηση ' + role):
+                     patch.object(campus, 'provider_chat', side_effect=lambda provider, model, role, previous, language='en': 'Response ' + role):
                     with opener.open(origin + '/api/status') as response:
                         status = json.load(response)
                     self.assertEqual(status['models'], ['qwen3:4b'])
@@ -136,8 +139,8 @@ class HttpIntegrationTests(unittest.TestCase):
                     req = Request(origin + '/api/run', data=post, headers={'Origin':origin, 'Content-Type':'application/json'}, method='POST')
                     with opener.open(req) as response:
                         result = json.load(response)
-                    self.assertEqual(len(result['messages']), 4)
-                    self.assertEqual(len(campus.history('university')), 5)
+                    self.assertEqual(len(result['messages']), 2)
+                    self.assertEqual(len(campus.history('university')), 3)
                     self.assertEqual(len(campus.history('conference')), 0)
                     no_origin = Request(origin + '/api/run', data=post, headers={'Content-Type':'application/json'}, method='POST')
                     with self.assertRaises(HTTPError) as error:

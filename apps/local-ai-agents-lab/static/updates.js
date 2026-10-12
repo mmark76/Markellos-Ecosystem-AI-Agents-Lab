@@ -17,7 +17,7 @@
 
   button.addEventListener("click", async () => {
     button.disabled = true;
-    setStatus("Checking the official release… / Έλεγχος της επίσημης έκδοσης…");
+    setStatus("Checking the official release…");
     try {
       const response = await fetch("/api/updates", {cache: "no-store"});
       const data = await response.json();
@@ -26,15 +26,15 @@
         const url = data.downloadUrl || data.releaseUrl;
         const label = data.downloadUrl ? "Download the ZIP" : "Open the release";
         setStatus(
-          `Version ${data.latestVersion} is available. Download and install it manually. / Η έκδοση ${data.latestVersion} είναι διαθέσιμη. Κατέβασέ την και εγκατέστησέ την χειροκίνητα.`,
+          `Version ${data.latestVersion} is available. Download and install it manually.`,
           url,
           label,
         );
       } else {
-        setStatus(`You already have the latest version (${data.currentVersion}). / Έχεις ήδη την τελευταία έκδοση (${data.currentVersion}).`);
+        setStatus(`You already have the latest version (${data.currentVersion}).`);
       }
     } catch (error) {
-      setStatus(`Update check failed. No files were changed. / Ο έλεγχος απέτυχε. Δεν άλλαξε κανένα αρχείο. ${error.message || ""}`.trim());
+      setStatus(`Update check failed. No files were changed. ${error.message || ""}`.trim());
     } finally {
       button.disabled = false;
     }

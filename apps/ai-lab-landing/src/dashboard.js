@@ -1,6 +1,6 @@
 'use strict';
 const KEY = 'markellos.ai-lab.appearance.v1';
-const DEFAULT = Object.freeze({colorMode:'light',accent:'#f2c230',background:'#f8fafc',font:'system',textSize:'100',spacing:'comfortable'});
+const DEFAULT = Object.freeze({colorMode:'dark',accent:'#f2c230',background:'#000000',font:'system',textSize:'100',spacing:'comfortable'});
 const validHex = value => typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value) ? value.toLowerCase() : null;
 function normalizeAppearance(value={}) {
   return {colorMode:value.colorMode === 'dark' ? 'dark' : 'light',accent:validHex(value.accent) || DEFAULT.accent,background:validHex(value.background) || DEFAULT.background,font:['system','serif'].includes(value.font) ? value.font : DEFAULT.font,textSize:['100','112.5','125'].includes(String(value.textSize)) ? String(value.textSize) : DEFAULT.textSize,spacing:['compact','comfortable','spacious'].includes(value.spacing) ? value.spacing : DEFAULT.spacing};

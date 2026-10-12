@@ -9,6 +9,16 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 - Replaced residual template documentation with AI Agents Lab project identity, architecture, data, operations, testing, security, risk, and engineering-adoption records.
 - Added Local Lab 0.1.2 safe manual update discovery: fixed official release metadata, validated links, and no automatic download or installation.
 - Clarified that the public `Open Local Lab` link works only after the user starts `start-windows.bat` from the extracted Windows ZIP.
+- Added an explicit public notice that ZIP upgrades are manual and local models plus SQLite history must be preserved.
+- Changed the public landing page default to the Local Lab's black appearance while retaining user-selectable accent and background colours.
+- Standardized the public landing page and Local Lab runtime UI, prompts, and new agent responses on English after removal of language controls.
+- Added a University Lab desktop shortcut with a packaged local icon, created when the Windows launcher first runs.
+- Clarified that the extracted ZIP folder is the Lab location and that an update refreshes the Desktop shortcut only after the new launcher runs.
+- Replaced the University Lab shortcut icon with a dark-azure design featuring two arches and a white graduation cap.
+- Simplified the default Training Lab flow to one Trainer and one Student.
+- Removed the hero-area Open Local Lab button while retaining the contextual local link in the startup instructions.
+- Translated the packaged Local Lab README into English only.
+- Added a direct README link beside the Windows ZIP download on the public dashboard.
 
 ## [0.2.0] - 2026-10-08
 

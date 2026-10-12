@@ -12,19 +12,15 @@
   let mode = storageRead(themeKey) === 'light' ? 'light' : 'dark';
   let accent = accentNames.includes(storageRead(accentKey)) ? storageRead(accentKey) : 'mint';
   const $ = id => document.getElementById(id);
-  const ui = {
-    en: {settings:'Settings', heading:'Appearance Settings', appearance:'Appearance', dark:'Dark', light:'Light', accent:'Accent Color', reset:'Reset to Defaults', close:'Close settings',
-      colors:{mint:'Mint',blue:'Blue',purple:'Purple',orange:'Orange',rose:'Rose'}},
-    el: {settings:'Ρυθμίσεις', heading:'Ρυθμίσεις Εμφάνισης', appearance:'Εμφάνιση', dark:'Σκούρο', light:'Φωτεινό', accent:'Χρώμα Έμφασης', reset:'Επαναφορά Προεπιλογών', close:'Κλείσιμο ρυθμίσεων',
-      colors:{mint:'Μέντα',blue:'Μπλε',purple:'Μωβ',orange:'Πορτοκαλί',rose:'Ροζ'}}
-  };
+  const ui = {settings:'Settings', heading:'Appearance Settings', appearance:'Appearance', dark:'Dark', light:'Light', accent:'Accent Color', reset:'Reset to Defaults', close:'Close settings',
+    colors:{mint:'Mint',blue:'Blue',purple:'Purple',orange:'Orange',rose:'Rose'}};
   function apply() {
     const root = document.documentElement;
     root.dataset.theme = mode;
     root.dataset.accent = accent;
     document.querySelectorAll('input[name="appearance"]').forEach(el => {el.checked = el.value === mode;});
     document.querySelectorAll('[data-accent]').forEach(el => {el.setAttribute('aria-pressed', String(el.dataset.accent === accent));});
-    const label = ui[document.documentElement.lang === 'el' ? 'el' : 'en'];
+    const label = ui;
     $('settings-label').textContent = label.settings;
     $('settings-heading').textContent = label.heading;
     $('settings-mode-label').textContent = label.appearance;

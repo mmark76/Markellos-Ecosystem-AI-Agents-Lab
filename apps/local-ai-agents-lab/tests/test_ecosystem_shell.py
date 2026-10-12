@@ -21,7 +21,7 @@ class EcosystemShellTests(unittest.TestCase):
             with self.subTest(name=name):
                 self.assertIn(name, html)
 
-    def test_language_selectors_hidden_without_breaking_language_defaults(self):
+    def test_language_selectors_are_removed_and_runtime_is_english_only(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         app = (STATIC / "app.js").read_text(encoding="utf-8")
         settings = (STATIC / "settings.js").read_text(encoding="utf-8")
@@ -34,11 +34,13 @@ class EcosystemShellTests(unittest.TestCase):
             with self.subTest(script=script[:24]):
                 self.assertNotIn("$('ui-language')", script)
                 self.assertNotIn("$('response-language')", script)
-        self.assertIn("'agents-lab-ui-language'", app)
-        self.assertIn("'agents-lab-response-language'", app)
+        self.assertNotIn("agents-lab-ui-language", app)
+        self.assertNotIn("agents-lab-response-language", app)
         self.assertIn('language:responseLanguage', app)
-        self.assertIn('document.documentElement.lang', settings)
-        self.assertIn('document.documentElement.lang', shell)
+        self.assertNotIn('document.documentElement.lang', settings)
+        self.assertNotIn('document.documentElement.lang', shell)
+        for source in (html, app, settings, shell, (STATIC / "updates.js").read_text(encoding="utf-8")):
+            self.assertNotRegex(source, r'[\u0370-\u03ff]')
 
     def test_canonical_header_and_footer_elements(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
@@ -89,11 +91,11 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertNotIn('window.location', script)
         self.assertNotIn('download=', script)
 
-    def test_training_workspace_is_local_and_bilingual(self):
+    def test_training_workspace_is_local_and_english_only(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         script = (STATIC / "training.js").read_text(encoding="utf-8")
-        for name in ('Model Training / Εκπαίδευση Μοντέλων', 'training-dataset',
-                     'training-model', 'training-device', 'Ποια τεχνολογία'):
+        for name in ('Model Training', 'training-dataset',
+                     'training-model', 'training-device', 'Which technology should I use?'):
             with self.subTest(name=name): self.assertIn(name, html)
         self.assertIn('/api/training/jobs', script)
 

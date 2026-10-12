@@ -1,41 +1,40 @@
 # Markellos Ecosystem AI Agents Lab — Private Local Starter (v0.1.2)
 
-Αρχική εφαρμογή για το **Windows laptop**, με δύο χώρους εργασίας:
+Local Windows application with two workspaces:
 
-- **Learning Lab:** καθηγητής, δύο φοιτητές-agents και ανατροφοδότηση.
-- **AI Conference Room:** Architect, Developer, Reviewer συζητούν διαδοχικά στο ίδιο ιστορικό.
+- **Learning Lab:** one Trainer and one Student agent.
+- **AI Conference Room:** Architect, Developer, and Reviewer discuss a topic in sequence using the same history.
 
-Και οι δύο χώροι χρησιμοποιούν το επιλεγμένο **τοπικό** μοντέλο Ollama με διαφορετικές οδηγίες ρόλων. Δεν αποτελούν ανεξάρτητα εκπαιδευμένα μοντέλα. Δεν εκτελούν εντολές, δεν έχουν πρόσβαση σε GitHub, repositories ή αρχεία. Η ανατροφοδότηση δεν είναι αντικειμενική απόδειξη βελτίωσης.
+Both workspaces use the selected **local** Ollama, LM Studio, or vLLM model with different role instructions. They are not independently trained models. They do not execute commands or access GitHub, repositories, or files. Feedback is not objective proof of improvement.
 
-Το **Learning Lab** είναι η εκπαιδευτική αίθουσα (εσωτερικό API id: `university` για συμβατότητα με την αρχική έκδοση). Το **AI Conference Room** διατηρείται αμετάβλητο στη λειτουργία του.
+The **Learning Lab** is the teaching room (internal API id: `university` for compatibility with the original version). The **AI Conference Room** keeps its existing behavior.
 
-**Σημείωση:** Πρόκειται για πειραματικό τοπικό εργαστήριο, όχι αναγνωρισμένο εκπαιδευτικό ίδρυμα.
+> This is an experimental local lab, not an accredited educational institution.
 
-## Προαπαιτούμενα
+## Prerequisites
 
-1. **Python 3.9+** σε Windows, εγκατεστημένο από python.org, με ενεργή την επιλογή PATH.
-2. **Ollama για Windows** από <https://ollama.com/download/windows>.
-3. Ένα **local** model, ενδεικτικά με PowerShell: `ollama pull qwen3:4b`. Είναι περίπου 2.5 GB σε δίσκο· η καταλληλότητά του εξαρτάται από RAM/CPU/GPU.
+1. **Python 3.9 or later** for Windows, installed from python.org with the PATH option enabled.
+2. **Ollama for Windows** from <https://ollama.com/download/windows>, or a locally running LM Studio or vLLM server.
+3. A **local** model, for example with PowerShell: `ollama pull qwen3:4b`. It requires about 2.5 GB of disk space; suitability depends on available RAM, CPU, and GPU.
 
-## Inference engines / Inference engines
+## Inference engines
 
-Η εφαρμογή προσφέρει μόνο τρεις σταθερές τοπικές επιλογές. Δεν δέχεται URL
-provider από το UI ή το API και δεν κάνει fallback σε cloud υπηρεσία.
+The application exposes only three fixed local choices. It never accepts a
+provider URL from the UI or API and never falls back to a cloud service.
 
-| Engine | Τοπικό API | Πότε να το χρησιμοποιήσεις / When to use it |
+| Engine | Local API | When to use it |
 |---|---|---|
-| **Ollama** (προεπιλογή) | `127.0.0.1:11434` | Για εύκολη εγκατάσταση, συχνή εναλλαγή μοντέλων και αυτόματη φόρτωση/αποφόρτωση. For simple local setup and model switching. |
-| **LM Studio** | `127.0.0.1:1234/v1` | Για γραφικό περιβάλλον και χειροκίνητη λήψη, ρύθμιση και σύγκριση μοντέλων. For GUI-based local experimentation. Start its local server first. |
-| **vLLM** | `127.0.0.1:8000/v1` | Για ταυτόχρονο GPU inference από πολλούς agents σε Linux, συμβατό WSL2 ή GPU server. For high-throughput concurrent inference. |
+| **Ollama** (default) | `127.0.0.1:11434` | Simple local setup, model switching, and automatic model loading/unloading. |
+| **LM Studio** | `127.0.0.1:1234/v1` | GUI-based local experimentation; start its local server first. |
+| **vLLM** | `127.0.0.1:8000/v1` | High-throughput concurrent GPU inference on Linux, compatible WSL2, or a GPU server. |
 
-Η επιλογή engine ελέγχει το αντίστοιχο loopback API και εμφανίζει μόνο τα
-μοντέλα που επιστρέφει εκείνο το API. Αν ο engine δεν εκτελείται, η εφαρμογή
-δείχνει μήνυμα και δεν επηρεάζει τις άλλες επιλογές.
+The selected engine is checked only on its fixed loopback API and the Lab shows
+only models returned by that API. If an engine is not running, the Lab displays
+an error without affecting the other choices.
 
-Το vLLM δεν υποστηρίζεται εγγενώς στα Windows. Η χρήση του μέσω RunPod ή
-οποιουδήποτε άλλου remote provider είναι ξεχωριστή ρύθμιση remote
-infrastructure και **δεν** υποστηρίζεται από αυτή την έκδοση: οι διευθύνσεις
-παραμένουν αποκλειστικά `127.0.0.1`.
+vLLM is not natively supported on Windows. RunPod or any other remote provider
+requires separate remote-infrastructure approval and is not supported by this
+release: all configured addresses remain `127.0.0.1`.
 
 ## Add Model — Ollama (new local UI feature)
 
@@ -60,33 +59,48 @@ LM Studio model downloads remain managed in the LM Studio application; vLLM
 models are provisioned on the vLLM host. **Add Model** currently manages Ollama
 only. The installer is intentionally separate from the PyTorch training wizard.
 
-## Εκτέλεση στο laptop
+## Run the Lab on a laptop
 
-1. Αποσυμπίεσε τον φάκελο π.χ. σε `C:\Markellos-Ecosystem-AI-Agents-Lab`.
-2. Απενεργοποίησε τις cloud λειτουργίες του Ollama (οδηγίες αμέσως παρακάτω) και επανεκκίνησε το Ollama. Έπειτα εκτέλεσε `ollama list` ώστε να δεις το εγκατεστημένο μοντέλο (δεν απαιτείται login).
-3. Κάνε διπλό κλικ στο `start-windows.bat` ή από PowerShell μέσα στον φάκελο: `py -3 server.py`.
-4. Άνοιξε **http://127.0.0.1:8765/** στον browser.
-5. Διάλεξε το τοπικό μοντέλο από τη λίστα και ξεκίνα συνεδρία.
+1. Extract `AI-Agents-Lab-Windows.zip` into a folder you control, for example `C:\Markellos-Ecosystem-AI-Agents-Lab`.
+2. Disable Ollama cloud capabilities as described below, restart Ollama, then run `ollama list` to confirm the installed local model. No sign-in is required.
+3. Double-click `start-windows.bat`, or run `py -3 server.py` from PowerShell in the extracted folder.
+4. Open **http://127.0.0.1:8765/** in a browser.
+5. Choose a local model from the list and start a session.
 
-Η υπηρεσία τερματίζεται με `Ctrl+C` στο παράθυρο PowerShell. Αν η θύρα 8765 χρησιμοποιείται ήδη, η εφαρμογή θα δείξει σφάλμα και δεν θα αντικαταστήσει καμία άλλη υπηρεσία.
+Stop the service with `Ctrl+C` in its PowerShell window. If port 8765 is
+already in use, the application reports an error and does not replace another
+service.
 
-## Ενημερώσεις / Updates
+### Desktop shortcut
 
-Πάτησε **Check for updates / Έλεγχος ενημερώσεων** μέσα στο Local Lab μόνο όταν
-θέλεις να ελέγξεις αν υπάρχει νεότερη έκδοση. Το κουμπί ζητά metadata από το
-ένα επίσημο GitHub Releases endpoint του έργου, με χρονικό όριο και έλεγχο των
-links. Δεν γίνεται αυτόματη λήψη, αποσυμπίεση, εγκατάσταση, εκκίνηση αρχείου ή
-αλλαγή στις συνομιλίες, στα μοντέλα ή στις ρυθμίσεις σου.
+The first run of `start-windows.bat` creates or refreshes a **Markellos AI
+Agents University Lab** shortcut on the current user's Desktop. It uses the
+included University Lab icon and opens the extracted copy of the Lab. This
+shortcut creation is local only: it does not install Python, Ollama, PyTorch,
+CUDA, models, drivers, or packages, and it makes no network request.
 
-Αν βρεθεί νεότερη έκδοση, άνοιξε τον προτεινόμενο επίσημο σύνδεσμο, κατέβασε το
-ZIP χειροκίνητα και ακολούθησε τη διαδικασία αναβάθμισης: κλείσε πρώτα τον Lab,
-κράτησε αντίγραφο του `data/campus.sqlite3`, αποσυμπίεσε σε νέο φάκελο,
-μετέφερε τη βάση μόνο με κλειστό server αν θέλεις το ιστορικό σου, και ξεκίνα
-τη νέα έκδοση. Κράτησε τον παλιό φάκελο έως ότου επιβεβαιώσεις ότι η νέα
-εγκατάσταση λειτουργεί. Αν ο έλεγχος αποτύχει (π.χ. χωρίς Internet), δεν έχει
-αλλάξει κανένα τοπικό αρχείο.
+The Lab folder is the folder where the user extracted
+`AI-Agents-Lab-Windows.zip`; no separate or hidden installation folder is
+created. After manually updating to a new extracted folder, run that folder's
+`start-windows.bat` once so the shortcut points to the new copy.
 
-## Model Training / Εκπαίδευση Μοντέλων
+## Updates
+
+Use **Check for updates** in the Local Lab only when you want to check for a
+newer version. The button requests metadata from the project's single official
+GitHub Releases endpoint with a timeout and link validation. It never
+automatically downloads, extracts, installs, launches a file, or changes your
+conversations, models, or settings.
+
+If a newer version is available, open the suggested official link, download the
+ZIP manually, and follow the update procedure: first stop the Lab, back up
+`data/campus.sqlite3`, extract the new ZIP into a new folder, move the database
+only while both servers are stopped if you want to keep the history, and start
+the new version. Keep the old folder until the new installation works. If the
+check fails, for example because there is no internet connection, no local file
+is changed.
+
+## Model Training
 
 The optional Training workspace performs real local parameter updates for a
 compatible model using PEFT LoRA or TRL supervised fine-tuning. It is not an
@@ -111,12 +125,12 @@ CUDA is optional and no GPU, CUDA Toolkit, or driver is needed for the basic
 Lab. A GPU out-of-memory failure leaves the job failed with retained partial
 output; reduce model size or sequence length before retrying.
 
-### Installation guide / Οδηγός εγκατάστασης
+### Installation guide
 
 The following is an **optional local installation** for training only. Do not
 run it for the normal Ollama, LM Studio, or vLLM inference workflow.
 
-**Guided path / Απλός χρήστης:** double-click
+**Guided path:** double-click
 `setup-training-windows.bat`. The Windows Training Setup Wizard checks Python
 3.11/3.12 and disk space, asks for CPU or NVIDIA CUDA, displays the exact CPU
 libraries before download, asks for confirmation, creates `training\.venv`, and
@@ -125,7 +139,7 @@ installs drivers, or falls back from selected CUDA to CPU. CUDA setup opens the
 official PyTorch selector because the matching wheel depends on the local
 NVIDIA driver; the wizard verifies CUDA only after that explicit installation.
 
-**Expert path / Προχωρημένος χρήστης:** use the commands below directly to
+**Expert path:** use the commands below directly to
 choose a specific supported Python, a corporate package mirror, or a PyTorch
 CUDA build. Both paths use the same `training\.venv` and output folders.
 
@@ -179,8 +193,8 @@ CUDA build. Both paths use the same `training\.venv` and output folders.
    {"text":"User: Explain LoRA briefly.\nAssistant: LoRA fine-tunes small adapter matrices."}
    ```
 
-7. Start the Lab, open `http://127.0.0.1:8765/`, then open **Model Training /
-   Εκπαίδευση Μοντέλων**. Select the model, JSONL dataset, LoRA or SFT, and
+7. Start the Lab, open `http://127.0.0.1:8765/`, then open **Model Training**.
+   Select the model, JSONL dataset, LoRA or SFT, and
    Auto, CPU, or CUDA GPU. Review the shown configuration and confirm the
    explicit start prompt. Only one job can run at a time.
 
@@ -190,19 +204,19 @@ CUDA build. Both paths use the same `training\.venv` and output folders.
    job preserves partial output. An explicit CUDA selection never falls back to
    CPU—correct the PyTorch/CUDA installation or choose CPU intentionally.
 
-### Τι εγκαθίσταται και τι δεν εγκαθίσταται
+### What is and is not installed
 
-- Εγκαθίστανται τοπικά, μόνο στο `training\.venv`: PyTorch, Transformers,
-  PEFT, TRL και οι εξαρτήσεις τους.
-- Δεν περιλαμβάνονται ούτε εγκαθίστανται αυτόματα: CUDA drivers/Toolkit,
-  μοντέλα, datasets, adapters, checkpoints ή cloud credentials.
-- Το ZIP περιέχει μόνο τον κώδικα και τις οδηγίες για τη λειτουργία Training.
-  Η κύρια εφαρμογή και τα Ollama / LM Studio / vLLM συνεχίζουν να λειτουργούν
-  χωρίς αυτές τις βιβλιοθήκες.
+- Installed locally only in `training\.venv`: PyTorch, Transformers, PEFT,
+  TRL, and their dependencies.
+- Not included or automatically installed: CUDA drivers/Toolkit, models,
+  datasets, adapters, checkpoints, or cloud credentials.
+- The ZIP contains only the code and instructions for Training. The main
+  application and Ollama, LM Studio, and vLLM continue to work without these
+  libraries.
 
-## Υποχρεωτική ρύθμιση για πλήρη τοπική λειτουργία Ollama
+## Required Ollama configuration for fully local operation
 
-Δημιούργησε ή επεξεργάσου το αρχείο `%USERPROFILE%\.ollama\server.json` με περιεχόμενο:
+Create or edit `%USERPROFILE%\.ollama\server.json` with:
 
 ```json
 {
@@ -210,53 +224,76 @@ CUDA build. Both paths use the same `training\.venv` and output folders.
 }
 ```
 
-**Πριν το αντικαταστήσεις**, αν υπάρχει ήδη αρχείο, κράτησε τις άλλες υπάρχουσες ρυθμίσεις και πρόσθεσε μόνο το πεδίο `disable_ollama_cloud`. Επανεκκίνησε **το Ollama**, όχι μόνο την εφαρμογή μας. Σύμφωνα με την τεκμηρίωση του Ollama, αυτό απενεργοποιεί τόσο τα cloud models όσο και το web search. Εναλλακτικά, υπάρχει η μεταβλητή περιβάλλοντος `OLLAMA_NO_CLOUD=1` που πρέπει να οριστεί **στο process του Ollama**.
+Before replacing an existing file, preserve its other settings and add only the
+`disable_ollama_cloud` field. Restart **Ollama**, not only this application.
+According to Ollama documentation, this disables both cloud models and web
+search. Alternatively, set `OLLAMA_NO_CLOUD=1` in the **Ollama process**
+environment.
 
-## Ιδιωτικότητα και όρια
+## Privacy and boundaries
 
-- Ο web server δεσμεύεται **μόνο** στο `127.0.0.1:8765`.
-- Η εφαρμογή συνδέεται **μόνο** με `127.0.0.1:11434` (Ollama). Δεν έχει cloud API keys, tracking, CDN, εξωτερική βιβλιοθήκη ή online λειτουργία.
-- Οι επιλογές με `cloud` στο όνομα φιλτράρονται, αλλά αυτό **δεν είναι αρκετή εγγύηση**. Για πραγματικά τοπική εκτέλεση, ενεργοποίησε το `disable_ollama_cloud` του Ollama όπως περιγράφεται παραπάνω και χρησιμοποίησε μόνο downloaded local models.
-- Το αρχείο `data/campus.sqlite3` δημιουργείται αυτόματα και αποθηκεύει τις συζητήσεις χωρίς κρυπτογράφηση. Χρησιμοποίησε BitLocker/Windows device encryption εάν απαιτείται προστασία at rest.
-- Οποιοσδήποτε έχει πρόσβαση στον **ίδιο Windows λογαριασμό/συσκευή** μπορεί ενδεχομένως να διαβάσει το αρχείο.
-- Κατά τη **λήψη/εγκατάσταση** Python, Ollama και μοντέλου απαιτείται σύνδεση στο Internet. Μετέπειτα η βασική εφαρμογή δεν χρειάζεται Internet.
-- Το chat ChatGPT στο οποίο συζητάς τώρα **δεν είναι** τοπική υπηρεσία. Μην επικολλάς εδώ ιδιωτικά δεδομένα της εφαρμογής αν δεν θέλεις να σταλούν σε τρίτη υπηρεσία.
-- Μη δημοσιεύσεις το `data/` σε GitHub. Το αρχείο `.gitignore` αποκλείει τη βάση.
+- The web server binds **only** to `127.0.0.1:8765`.
+- The application connects only to fixed loopback addresses for Ollama, LM
+  Studio, and vLLM. It has no cloud API keys, tracking, CDN, external library,
+  or online inference feature.
+- Names containing `cloud` are filtered, but this is **not sufficient on its
+  own**. For genuinely local Ollama operation, enable `disable_ollama_cloud`
+  as described above and use downloaded local models only.
+- `data/campus.sqlite3` is created automatically and stores conversations
+  without encryption. Use BitLocker or Windows device encryption when
+  protection at rest is required.
+- Anyone who can access the **same Windows account or device** may be able to
+  read that file.
+- Internet access is required while downloading or installing Python, Ollama,
+  and a model. The basic application does not require internet access after
+  setup.
+- The ChatGPT conversation you are using now is **not** a local service. Do
+  not paste private application data into it unless you want it sent to a
+  third-party service.
+- Do not publish `data/` to GitHub. The `.gitignore` excludes the database.
 
-## Αντίγραφο ασφαλείας
+## Backup
 
-Κλείσε πρώτα τον server και αντέγραψε το `data/campus.sqlite3` σε ασφαλή τοποθεσία. Η SQLite διατηρεί τις δύο αίθουσες με ξεχωριστό ιστορικό.
+Stop the server first, then copy `data/campus.sqlite3` to a safe location.
+SQLite keeps the two workspaces with separate histories.
 
-## Τεχνικά
+## Technical notes
 
-- Python standard library μόνο: HTTP server + SQLite + local Ollama HTTP API.
-- Δεν εγκαθιστά πακέτα Python, services, scheduled tasks, Git hooks ή αρχεία εκτός του φακέλου της εφαρμογής.
-- Πειραματικό MVP, όχι πιστοποιημένο σύστημα ασφάλειας ή αξιολόγησης agents.
+- Python standard library only: HTTP server, SQLite, and local provider HTTP APIs.
+- The Lab does not install Python packages, services, scheduled tasks, Git
+  hooks, or files outside the application folder.
+- Experimental MVP; not a certified security or agent-evaluation system.
 
-## Μετονομασία από το αρχικό ZIP
+## Migration from the original ZIP
 
-Το πακέτο **AI-Agents-University-Local-Starter.zip** αντικαθίσταται από αυτό το ZIP. Αν έχεις ήδη τρέξει την παλιά έκδοση, κλείσε πρώτα τον server. Η βάση `data/campus.sqlite3` **δεν** περιλαμβάνεται στο ZIP και δεν μεταφέρεται αυτόματα. Για να διατηρήσεις προηγούμενες συνομιλίες, πάρε αντίγραφο της υπάρχουσας βάσης και τοποθέτησέ το στον αντίστοιχο φάκελο `data/` της νέας εφαρμογής, μόνο με κλειστό server. Μην διαγράψεις τον παλιό φάκελο πριν ελέγξεις τη νέα εγκατάσταση.
+This ZIP replaces **AI-Agents-University-Local-Starter.zip**. If you already
+ran the older version, stop its server first. `data/campus.sqlite3` is **not**
+included in the ZIP and is not moved automatically. To keep previous
+conversations, back up the existing database and put it in the corresponding
+`data/` folder of the new application only while the server is stopped. Do not
+delete the old folder until the new installation is verified.
 
-Για το laptop με ήδη εγκατεστημένο Ollama και τοπικά Qwen μοντέλα, δεν χρειάζεται νέο `ollama pull` εφόσον το επιθυμητό μοντέλο εμφανίζεται στο `ollama list`.
+On a laptop that already has Ollama and local Qwen models installed, another
+`ollama pull` is not required if the desired model appears in `ollama list`.
 
-## Αυτόματο Build ID και ελεγχόμενο deployment
+## Automatic Build ID and controlled deployment
 
-Η έκδοση ορίζεται στο αρχείο VERSION (π.χ. 0.1.1).
-Το Build ID παράγεται αυτόματα από την έκδοση, τον χρόνο commit στη
-ζώνη Europe/Nicosia και τα πρώτα επτά ψηφία του πραγματικού commit SHA.
+The version is defined in the `VERSION` file, for example `0.1.1`. The Build
+ID is generated automatically from the version, the commit time in the
+Europe/Nicosia time zone, and the first seven characters of the actual commit
+SHA.
 
-Από το checkout του repository, μέσα στο apps/local-ai-agents-lab:
+From the repository checkout, within `apps/local-ai-agents-lab`:
 
     node scripts/build-release.cjs HEAD C:\Temp\lab-release-new
     node scripts/verify-release.cjs C:\Temp\lab-release-new\local-ai-agents-lab FULL_SHA
 
-Ο verifier ελέγχει το release.json και τις δύο ενδείξεις Build ID
-στο Info και Footer. Μετά από merge στο main, τα GitHub Actions
-δημιουργούν επαληθευμένο artifact εγκατάστασης για το commit.
+The verifier checks `release.json` and the two Build ID markers in Info and
+Footer. After a merge to `main`, GitHub Actions produces a verified
+installation artifact for the commit.
 
-Για εγκατάσταση στο laptop: backup, τερματισμός της τοπικής
-εφαρμογής, αντιγραφή μόνο των αρχείων του πακέτου, επανεκκίνηση
-και verification. Διατηρούμε το data/ και τα τοπικά μοντέλα Ollama.
-Το Build ID δεν πληκτρολογείται ποτέ χειροκίνητα κατά το deployment.
-Η εγκατάσταση στο laptop απαιτεί ξεχωριστή έγκριση και δεν γίνεται
-αυτόματα από τα GitHub Actions.
+For laptop installation: make a backup, stop the local application, copy only
+the package files, restart, and verify. Preserve `data/` and local Ollama
+models. Never type the Build ID manually during deployment. Laptop installation
+requires separate approval and is never performed automatically by GitHub
+Actions.
