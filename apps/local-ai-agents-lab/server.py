@@ -123,9 +123,13 @@ def create_training_session(provider: str, trainer_model: str, student_model: st
 def history(room: str, limit: int = 80) -> list[dict]:
     with closing(connect()) as db, db:
         rows = db.execute(
-            "SELECT id,agent,content,created_at,session_id FROM ("
-            " SELECT id,agent,content,created_at,session_id FROM messages WHERE room=?"
-            " ORDER BY id DESC LIMIT ?) ORDER BY id ASC", (room, limit)
+            "SELECT messages.id,messages.agent,messages.content,messages.created_at,messages.session_id,"
+            " CASE messages.agent WHEN 'Trainer' THEN training_sessions.trainer_model"
+            " WHEN 'Student' THEN training_sessions.student_model END AS model"
+            " FROM (SELECT id,agent,content,created_at,session_id FROM messages WHERE room=?"
+            " ORDER BY id DESC LIMIT ?) AS messages"
+            " LEFT JOIN training_sessions ON training_sessions.id=messages.session_id"
+            " ORDER BY messages.id ASC", (room, limit)
         ).fetchall()
     return [dict(row) for row in rows]
 

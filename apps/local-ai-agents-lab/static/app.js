@@ -80,9 +80,10 @@ function makeMessage(message) {
   const body=document.createElement('div');body.className='message-body';
   const header=document.createElement('div');header.className='message-head';
   const name=document.createElement('span');name.className='agent-name';name.textContent=labelAgent(message.agent);
+  const model=document.createElement('span');model.className='model-name';model.textContent=message.model?' · '+message.model:'';
   const time=document.createElement('small');time.textContent=message.created_at||'';
   const content=document.createElement('div');content.className='message-text';content.textContent=message.content;
-  header.append(name,time);body.append(header,content);wrap.append(avatar,body);
+  header.append(name,model,time);body.append(header,content);wrap.append(avatar,body);
   return wrap;
 }
 async function refreshHistory() {

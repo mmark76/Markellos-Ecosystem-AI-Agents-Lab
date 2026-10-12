@@ -34,6 +34,7 @@ class EcosystemShellTests(unittest.TestCase):
             with self.subTest(key=key): self.assertIn(key, app)
         self.assertIn('trainer_model:trainerModel', app)
         self.assertIn('student_model:studentModel', app)
+        self.assertIn("model.className='model-name'", app)
 
     def test_language_selectors_are_removed_and_runtime_is_english_only(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
