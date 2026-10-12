@@ -1,6 +1,7 @@
 'use strict';
 const KEY = 'markellos.ai-lab.appearance.v1';
 const DEFAULT = Object.freeze({colorMode:'dark',accent:'#f2c230',font:'system',textSize:'100',spacing:'comfortable'});
+const LATEST_ZIP_URL = 'https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/latest/download/AI-Agents-Lab-Windows.zip';
 const validHex = value => typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value) ? value.toLowerCase() : null;
 function normalizeAppearance(value={}) {
   return {colorMode:value.colorMode === 'dark' ? 'dark' : 'light',accent:validHex(value.accent) || DEFAULT.accent,font:['system','serif'].includes(value.font) ? value.font : DEFAULT.font,textSize:['100','112.5','125'].includes(String(value.textSize)) ? String(value.textSize) : DEFAULT.textSize,spacing:['compact','comfortable','spacious'].includes(value.spacing) ? value.spacing : DEFAULT.spacing};
@@ -23,18 +24,33 @@ function applyAppearance(value) {
   return p;
 }
 function saveAppearance(p) { try { storage()?.setItem(KEY,JSON.stringify(normalizeAppearance(p))); return true; } catch { return false; } }
-async function checkForDashboardUpdate(button) {
+function releaseVersion(build) {
+  const match = /^v(\d+)\.(\d+)\.(\d+)_/.exec(build || '');
+  return match ? match.slice(1).map(Number) : null;
+}
+function isNewerRelease(available, current) {
+  for (let index = 0; index < available.length; index += 1) {
+    if (available[index] !== current[index]) return available[index] > current[index];
+  }
+  return false;
+}
+async function checkForZipUpdate(button) {
   const currentBuild = document.querySelector('.build-id')?.textContent?.trim();
-  if (!currentBuild || typeof window.fetch !== 'function' || typeof DOMParser !== 'function') return;
+  const currentVersion = releaseVersion(currentBuild);
+  if (!currentVersion || typeof window.fetch !== 'function' || typeof DOMParser !== 'function') return;
   try {
     const response = await window.fetch(window.location.href, {cache:'no-store'});
     if (!response.ok) return;
     const availableBuild = new DOMParser().parseFromString(await response.text(), 'text/html').querySelector('.build-id')?.textContent?.trim();
-    if (availableBuild && availableBuild !== currentBuild) button.hidden = false;
+    const availableVersion = releaseVersion(availableBuild);
+    if (availableVersion && isNewerRelease(availableVersion, currentVersion)) {
+      button.hidden = false;
+      button.textContent = `New Lab ZIP available (v${availableVersion.join('.')}) ↓`;
+    }
   } catch {}
 }
-function scheduleDashboardUpdateChecks(button) {
-  const check = () => void checkForDashboardUpdate(button);
+function scheduleZipUpdateChecks(button) {
+  const check = () => void checkForZipUpdate(button);
   check();
   window.setInterval(check, 60_000);
   document.addEventListener('visibilitychange', () => {
@@ -48,12 +64,12 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('theme-toggle')?.addEventListener('click',()=>update({colorMode:prefs.colorMode==='dark'?'light':'dark'}));
   [['accent-color','accent'],['font-choice','font'],['text-size','textSize'],['spacing-choice','spacing']].forEach(([id,key])=>document.getElementById(id)?.addEventListener('input',event=>update({[key]:event.currentTarget.value})));
   document.getElementById('reset-appearance')?.addEventListener('click',()=>{try{storage()?.removeItem(KEY);}catch{} prefs=applyAppearance(DEFAULT); if(status)status.textContent='Appearance preferences reset.';});
-  const dashboardUpdate=document.getElementById('dashboard-update');
-  if (dashboardUpdate) {
-    dashboardUpdate.addEventListener('click',()=>window.location.reload());
-    scheduleDashboardUpdateChecks(dashboardUpdate);
+  const zipUpdate=document.getElementById('zip-update');
+  if (zipUpdate) {
+    zipUpdate.addEventListener('click',()=>window.location.assign(LATEST_ZIP_URL));
+    scheduleZipUpdateChecks(zipUpdate);
   }
   [['settings-button','settings-dialog'],['info-button','info-dialog']].forEach(([button,dialog])=>document.getElementById(button)?.addEventListener('click',()=>document.getElementById(dialog)?.showModal()));
   document.querySelectorAll('[data-close-dialog]').forEach(button=>button.addEventListener('click',()=>button.closest('dialog')?.close()));
 });
-module.exports={DEFAULT,normalizeAppearance,syncThemeToggle,checkForDashboardUpdate,scheduleDashboardUpdateChecks};
+module.exports={DEFAULT,normalizeAppearance,syncThemeToggle,releaseVersion,isNewerRelease,checkForZipUpdate,scheduleZipUpdateChecks};
