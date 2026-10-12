@@ -34,8 +34,8 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.doesNotMatch(html, /Free local use\. No subscription or API fees for the local Lab\./);
   assert.doesNotMatch(html, /Learn with AI agents, on your own device\./);
   assert.match(html, /id="zip-update" class="zip-update" type="button" hidden>New version available — Download ZIP/);
-  assert.match(html, /Read the README/);
-  assert.match(html, /href="\.\/README\.md" target="_blank" rel="noopener noreferrer"/);
+  assert.match(html, /Simple Guide/);
+  assert.match(html, /href="\.\/simple-guide\.html" target="_blank" rel="noopener noreferrer"/);
   assert.doesNotMatch(html, /data-language|language-selector|language-button/);
   assert.match(html, /Only after the local server has started/);
   assert.match(html, /start-windows.bat/);
@@ -54,8 +54,10 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.doesNotMatch(html, /Lab Assistant|assistant-button|assistant-dialog/);
   assert.match(html, /id="settings-dialog"/);
   assert.match(html, /id="info-dialog"/);
-  for (const file of ['styles.css', 'tokens.css', 'dashboard.js', '_headers', 'README.md']) assert.equal(existsSync(join(output, file)), true, `${file} is missing`);
+  for (const file of ['styles.css', 'tokens.css', 'dashboard.js', '_headers', 'README.md', 'simple-guide.html']) assert.equal(existsSync(join(output, file)), true, `${file} is missing`);
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /# Markellos Ecosystem AI Agents Lab/);
+  assert.match(readFileSync(join(output, 'simple-guide.html'), 'utf8'), /Start using AI Agents Lab/);
+  assert.match(readFileSync(join(output, 'simple-guide.html'), 'utf8'), /Get started in six steps/);
   assert.match(readFileSync(join(output, '_headers'), 'utf8'), /connect-src 'self'/);
   assert.match(readFileSync(join(output, '_headers'), 'utf8'), /script-src 'self'/);
   assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /colorMode:'dark'/);
