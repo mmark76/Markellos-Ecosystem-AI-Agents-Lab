@@ -223,3 +223,22 @@ Decision: APPROVED (CLARIFICATION)
 Approved by: Direct user request
 Target release: Next public landing deployment and Local Lab release
 ```
+
+## Approved change record — AI-LAB-CC-016
+
+```text
+Change ID: AI-LAB-CC-016
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Replace the University Lab shortcut icon with a dark-azure icon featuring two arches and a white graduation cap.
+Reason: The user specified the University Lab visual identity for the Windows shortcut.
+Affected objective IDs: AI-LAB-OBJ-003
+Architecture impact: Packaged icon asset only; no launch, server, or shortcut behavior change.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Existing package test verifies the icon remains packaged.
+Cost and schedule impact: None.
+Decision: APPROVED (CLARIFICATION)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
