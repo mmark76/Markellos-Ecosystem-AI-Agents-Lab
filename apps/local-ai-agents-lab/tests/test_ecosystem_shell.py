@@ -101,6 +101,21 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn("accent = 'white';", settings)
         self.assertIn('grid-template-columns:repeat(6,minmax(110px,1fr))', css)
 
+    def test_background_and_font_preferences_are_local_and_have_defaults(self):
+        html = (STATIC / "index.html").read_text(encoding="utf-8")
+        css = (STATIC / "style.css").read_text(encoding="utf-8")
+        settings = (STATIC / "settings.js").read_text(encoding="utf-8")
+        for selector in ('id="background-options"', 'data-background="midnight"', 'data-background="navy"',
+                         'data-background="forest"', 'data-background="plum"', 'id="font-options"',
+                         'data-font="modern"', 'data-font="serif"', 'data-font="mono"'):
+            with self.subTest(selector=selector): self.assertIn(selector, html)
+        for key in ('agents-lab-background', 'agents-lab-font'):
+            with self.subTest(key=key): self.assertIn(key, settings)
+        self.assertIn("background = 'default';", settings)
+        self.assertIn("font = 'system';", settings)
+        self.assertIn(':root[data-background="midnight"]', css)
+        self.assertIn(':root[data-font="serif"]', css)
+
     def test_script_is_local_and_has_accessible_info_dialog(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         js = (STATIC / "ecosystem-shell.js").read_text(encoding="utf-8")

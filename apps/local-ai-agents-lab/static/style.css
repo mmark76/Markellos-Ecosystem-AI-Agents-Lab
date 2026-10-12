@@ -30,6 +30,9 @@
 :root[data-theme="light"][data-accent="orange"]{--accent:#a64f05;--accent-fg:#fff}
 :root[data-theme="light"][data-accent="rose"]{--accent:#ad315f;--accent-fg:#fff}
 :root[data-theme="light"][data-accent="white"]{--accent:#334155;--accent-fg:#fff;--accent-border:#334155}
+:root[data-background="midnight"]{--bg:#060b1a}:root[data-background="navy"]{--bg:#0a2038}:root[data-background="forest"]{--bg:#0b251e}:root[data-background="plum"]{--bg:#26142f}
+:root[data-theme="light"][data-background="midnight"]{--bg:#e8edf8}:root[data-theme="light"][data-background="navy"]{--bg:#e5f0fa}:root[data-theme="light"][data-background="forest"]{--bg:#e8f4ee}:root[data-theme="light"][data-background="plum"]{--bg:#f4eaf8}
+:root[data-font="modern"]{--font-sans:Inter,"Segoe UI",Roboto,Arial,sans-serif}:root[data-font="serif"]{--font-sans:Georgia,"Times New Roman",serif}:root[data-font="mono"]{--font-sans:"JetBrains Mono",Consolas,"Courier New",monospace}
 body{background:var(--bg);color:var(--fg)}
 button,textarea,select{font-family:inherit}
 .settings-toggle,.settings-heading button,.reset-theme{border:1px solid var(--border);background:var(--field);color:var(--fg);border-radius:8px;padding:8px 11px;cursor:pointer}
@@ -67,6 +70,7 @@ button,textarea,select{font-family:inherit}
 .accent-options button[data-accent="orange"] .swatch-dot{background-color:#f4a261;}
 .accent-options button[data-accent="rose"] .swatch-dot{background-color:#ed8ca9;}
 .accent-options button[data-accent="white"] .swatch-dot{background-color:#f8fafc;}
+.background-options{display:grid;grid-template-columns:repeat(5,minmax(110px,1fr));gap:10px;max-width:700px}.background-options button,.font-options button{height:44px;border:1px solid var(--border);border-radius:9px;background:var(--field);color:var(--fg);cursor:pointer;font:inherit;font-size:12px}.background-options button{display:flex;align-items:center;gap:9px;padding:7px 10px}.background-options .swatch-dot{display:block;width:23px;height:23px;border-radius:50%;border:1px solid rgba(127,127,127,.3)}.background-options button[aria-pressed="true"],.font-options button[aria-pressed="true"]{border:2px solid var(--accent);background:var(--selected-bg)}.background-options button[data-background="default"] .swatch-dot{background:#0c1217}.background-options button[data-background="midnight"] .swatch-dot{background:#060b1a}.background-options button[data-background="navy"] .swatch-dot{background:#0a2038}.background-options button[data-background="forest"] .swatch-dot{background:#0b251e}.background-options button[data-background="plum"] .swatch-dot{background:#26142f}.font-options{display:grid;grid-template-columns:repeat(4,minmax(110px,1fr));gap:10px;max-width:560px}.font-options button[data-font="modern"]{font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif}.font-options button[data-font="serif"]{font-family:Georgia,"Times New Roman",serif}.font-options button[data-font="mono"]{font-family:"JetBrains Mono",Consolas,"Courier New",monospace}@media(max-width:48rem){.background-options,.font-options{grid-template-columns:repeat(auto-fit,minmax(110px,1fr))}}
 @media(max-width:48rem){.accent-options{grid-template-columns:repeat(auto-fit,minmax(110px,1fr))}}
 
 /* Ecosystem shell adaptation: retain lab navigation and content layout. */
