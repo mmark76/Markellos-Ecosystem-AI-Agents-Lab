@@ -18,6 +18,7 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 - Simplified the default Training Lab flow to one Trainer and one Student.
 - Removed the hero-area Open Local Lab button while retaining the contextual local link in the startup instructions.
 - Translated the packaged Local Lab README into English only.
+- Added a direct README link beside the Windows ZIP download on the public dashboard.
 
 ## [0.2.0] - 2026-10-08
 

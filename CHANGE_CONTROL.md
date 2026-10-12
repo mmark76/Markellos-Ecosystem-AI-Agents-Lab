@@ -299,3 +299,22 @@ Decision: APPROVED (CLARIFICATION)
 Approved by: Direct user request
 Target release: Next Local Lab release
 ```
+
+## Approved change record — AI-LAB-CC-020
+
+```text
+Change ID: AI-LAB-CC-020
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Add a direct Local Lab README link beside the Windows ZIP download on the public dashboard.
+Reason: The user requested immediate access to the complete English setup documentation from the initial dashboard.
+Affected objective IDs: AI-LAB-OBJ-003
+Architecture impact: Public landing-page navigation only.
+Security and privacy impact: Opens the official repository README in a new tab with noopener protection; no data collection or API is added.
+Data impact: None.
+Testing impact: Landing build test verifies the README link.
+Cost and schedule impact: None.
+Decision: APPROVED (CLARIFICATION)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```

@@ -25,6 +25,8 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.match(html, /data-color-mode="dark"/);
   assert.match(html, /value="#000000"/);
   assert.match(html, /Download AI-Agents-Lab-Windows\.zip/);
+  assert.match(html, /Read the README/);
+  assert.match(html, /Markellos-Ecosystem-AI-Agents-Lab\/blob\/main\/apps\/local-ai-agents-lab\/README\.md/);
   assert.doesNotMatch(html, /data-language|language-selector|language-button/);
   assert.match(html, /Only after the local server has started/);
   assert.match(html, /start-windows.bat/);
