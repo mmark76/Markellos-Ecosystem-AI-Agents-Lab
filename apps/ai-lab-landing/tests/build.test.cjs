@@ -26,6 +26,9 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.doesNotMatch(html, /data-language|language-selector|language-button/);
   assert.match(html, /Only after the local server has started/);
   assert.match(html, /start-windows.bat/);
+  assert.match(html, /There is no hidden installation folder/);
+  assert.match(html, /this extracted folder is the Lab/);
+  assert.match(html, /Desktop shortcut/);
   assert.match(html, /cannot start the Lab by itself/);
   assert.match(html, /Manual updates — important/);
   assert.match(html, /You do not download the ZIP each time you start the Lab/);

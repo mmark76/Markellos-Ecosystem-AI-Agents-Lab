@@ -78,6 +78,11 @@ included University Lab icon and opens the extracted copy of the Lab. This
 shortcut creation is local only: it does not install Python, Ollama, PyTorch,
 CUDA, models, drivers, or packages, and it makes no network request.
 
+The Lab folder is the folder where the user extracted
+`AI-Agents-Lab-Windows.zip`; no separate or hidden installation folder is
+created. After manually updating to a new extracted folder, run that folder's
+`start-windows.bat` once so the shortcut points to the new copy.
+
 ## Ενημερώσεις / Updates
 
 Πάτησε **Check for updates / Έλεγχος ενημερώσεων** μέσα στο Local Lab μόνο όταν

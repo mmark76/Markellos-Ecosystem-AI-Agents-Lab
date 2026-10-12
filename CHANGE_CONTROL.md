@@ -204,3 +204,22 @@ Decision: APPROVED (CLARIFICATION)
 Approved by: Direct user request
 Target release: Next Local Lab release
 ```
+
+## Approved change record — AI-LAB-CC-015
+
+```text
+Change ID: AI-LAB-CC-015
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: State clearly that the extracted ZIP folder is the Local Lab location and explain when the Desktop shortcut is refreshed after an update.
+Reason: The user requested clear guidance on where the Lab lives on the PC.
+Affected objective IDs: AI-LAB-OBJ-003
+Architecture impact: Public and packaged installation instructions only.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Landing-page regression asserts the explicit folder and shortcut guidance.
+Cost and schedule impact: None.
+Decision: APPROVED (CLARIFICATION)
+Approved by: Direct user request
+Target release: Next public landing deployment and Local Lab release
+```
