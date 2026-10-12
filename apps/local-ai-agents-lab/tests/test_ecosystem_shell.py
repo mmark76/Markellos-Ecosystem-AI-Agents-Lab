@@ -115,6 +115,8 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn("font = 'system';", settings)
         self.assertIn(':root[data-background="midnight"]', css)
         self.assertIn(':root[data-font="serif"]', css)
+        self.assertIn('--bg:#000000', css)
+        self.assertIn('data-background="default"] .swatch-dot{background:#000}', css)
 
     def test_script_is_local_and_has_accessible_info_dialog(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
