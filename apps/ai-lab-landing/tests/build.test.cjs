@@ -27,6 +27,10 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.match(html, /data-color-mode="dark"/);
   assert.doesNotMatch(html, /background-color|Background colour/);
   assert.match(html, /Download AI-Agents-Lab-Windows\.zip/);
+  assert.match(html, /FREE VERSION · SAFE · PRIVATE/);
+  assert.match(html, /Train your AI agents on your own device\./);
+  assert.match(html, /Free local use\. No subscription or API fees for the local Lab\./);
+  assert.doesNotMatch(html, /Learn with AI agents, on your own device\./);
   assert.match(html, /id="dashboard-update" class="dashboard-update"/);
   assert.match(html, /Read the README/);
   assert.match(html, /href="\.\/README\.md" target="_blank" rel="noopener noreferrer"/);
