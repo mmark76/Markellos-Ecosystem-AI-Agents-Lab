@@ -57,7 +57,9 @@ class InferenceProviders:
                                      "think": False, "options": {"num_predict": 450}}).encode("utf-8"),
                     headers={"Content-Type": "application/json"}, method="POST",
                 )
-                payload = self._json(opener, request, 150)
+                # Local model loading and CPU inference can legitimately take longer
+                # than a fixed HTTP read deadline. Do not impose one here.
+                payload = self._json(opener, request)
                 answer = (payload.get("message") or {}).get("content", "")
         except (HTTPError, URLError, OSError, json.JSONDecodeError, UnicodeDecodeError, KeyError, TypeError) as err:
             raise ProviderUnavailable(f"{provider.label} did not complete the local request.") from err
@@ -66,8 +68,8 @@ class InferenceProviders:
         return answer.strip()
 
     @staticmethod
-    def _json(opener, request: Request, timeout: int) -> dict:
-        with opener.open(request, timeout=timeout) as response:
+    def _json(opener, request: Request, timeout: int | None = None) -> dict:
+        with (opener.open(request) if timeout is None else opener.open(request, timeout=timeout)) as response:
             payload = json.loads(response.read(2_000_000))
         if not isinstance(payload, dict):
             raise ProviderError("Invalid provider response.")

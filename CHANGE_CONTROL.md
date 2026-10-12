@@ -34,6 +34,25 @@ Target release:
 
 AI agents must not approve their own material scope increases.
 
+## Approved change record — AI-LAB-CC-033
+
+```text
+Change ID: AI-LAB-CC-033
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Remove the Local Lab's fixed inference read deadline and make Learning Lab sessions persisted, pollable, and stage-visible.
+Reason: A slow local Trainer could exceed the 150-second application deadline and return the UI to idle without a visible diagnosis or a saved response.
+Affected objective IDs: AI-LAB-OBJ-004, AI-LAB-OBJ-010
+Architecture impact: The fixed-loopback Ollama adapter keeps bounded discovery checks but waits indefinitely for inference; Learning Lab uses a local worker plus SQLite session state and a loopback polling endpoint.
+Security and privacy impact: No remote endpoint, credential, or prompt logging is added. Diagnostics contain only session, role, model, stage, duration, and error type.
+Data impact: A backward-compatible training_sessions migration records status, stage, concise error text, per-agent duration, and completion time. Existing messages and sessions remain intact.
+Testing impact: Add regression coverage for no inference read deadline, independent model routing, completed stages, and saved partial results after a Student failure.
+Cost and schedule impact: None.
+Decision: APPROVED (DEFECT)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
 ## Approved change record — AI-LAB-CC-006
 
 ```text
