@@ -280,3 +280,22 @@ Decision: APPROVED (CLARIFICATION)
 Approved by: Direct user request
 Target release: Next public landing deployment
 ```
+
+## Approved change record — AI-LAB-CC-019
+
+```text
+Change ID: AI-LAB-CC-019
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Translate the complete packaged Local Lab README into English only.
+Reason: The user requested English-only user documentation.
+Affected objective IDs: AI-LAB-OBJ-003
+Architecture impact: Documentation only; commands, local endpoints, and application behavior remain unchanged.
+Security and privacy impact: Preserves and clarifies the existing local-only boundaries.
+Data impact: None.
+Testing impact: Package regression checks that the README has no Greek Unicode text and retains essential installation and privacy sections.
+Cost and schedule impact: None.
+Decision: APPROVED (CLARIFICATION)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```

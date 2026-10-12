@@ -26,6 +26,13 @@ test('Windows training wizard is packaged and opt-in',()=>{
   assert.match(wizard,/Install these CPU training libraries now/);
   assert.match(wizard,/No CPU fallback/);
 });
+test('packaged README is English only',()=>{
+  const root=path.resolve(__dirname,'..');
+  const readme=fs.readFileSync(path.join(root,'README.md'),'utf8');
+  assert.doesNotMatch(readme,/[\u0370-\u03ff]/);
+  assert.match(readme,/## Run the Lab on a laptop/);
+  assert.match(readme,/## Privacy and boundaries/);
+});
 test('Windows launcher packages the University Lab desktop shortcut and icon',()=>{
   const root=path.resolve(__dirname,'..');
   const launcher=fs.readFileSync(path.join(root,'start-windows.bat'),'utf8');
