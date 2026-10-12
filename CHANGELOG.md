@@ -16,6 +16,7 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 - Clarified that the extracted ZIP folder is the Lab location and that an update refreshes the Desktop shortcut only after the new launcher runs.
 - Replaced the University Lab shortcut icon with a dark-azure design featuring two arches and a white graduation cap.
 - Simplified the default Training Lab flow to one Trainer and one Student.
+- Removed the hero-area Open Local Lab button while retaining the contextual local link in the startup instructions.
 
 ## [0.2.0] - 2026-10-08
 

@@ -261,3 +261,22 @@ Decision: APPROVED (CLARIFICATION)
 Approved by: Direct user request
 Target release: Next Local Lab release
 ```
+
+## Approved change record — AI-LAB-CC-018
+
+```text
+Change ID: AI-LAB-CC-018
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Remove the hero-area Open Local Lab button while retaining the contextual Open Local Lab link after the local-server startup instruction.
+Reason: The user requested a single, correctly placed local link to avoid implying that the browser can launch the Lab.
+Affected objective IDs: AI-LAB-OBJ-003
+Architecture impact: Public landing-page presentation and regression assertion only.
+Security and privacy impact: Reinforces the public-guide/local-runtime boundary.
+Data impact: None.
+Testing impact: Landing build test verifies one remaining contextual local link and no hero link.
+Cost and schedule impact: None.
+Decision: APPROVED (CLARIFICATION)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```

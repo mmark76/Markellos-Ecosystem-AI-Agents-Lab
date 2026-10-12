@@ -20,6 +20,8 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.match(html, /not a native Windows desktop download/);
   assert.match(html, /href="http:\/\/127\.0\.0\.1:8765\/"/);
   assert.match(html, /Open Local Lab/);
+  assert.equal((html.match(/Open Local Lab/g) || []).length, 1);
+  assert.doesNotMatch(html, /secondary-button" href="http:\/\/127\.0\.0\.1:8765\//);
   assert.match(html, /data-color-mode="dark"/);
   assert.match(html, /value="#000000"/);
   assert.match(html, /Download AI-Agents-Lab-Windows\.zip/);
