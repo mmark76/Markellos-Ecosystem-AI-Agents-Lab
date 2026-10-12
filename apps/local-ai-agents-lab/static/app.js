@@ -12,7 +12,7 @@ let hintError = '';
 const words = {
   en: {
     training:'Agent Training', collaboration:'Agent Collaboration',
-    tip:'AI Agents Training Lab<br>1 AI Trainer · 2 AI Trainees<br>3 AI Experts · Conference Room',
+    tip:'AI Agents Training Lab<br>1 AI Trainer · 1 AI Student<br>3 AI Experts · Conference Room',
     note:'Stored locally in SQLite.<br>No GitHub or cloud API access.',
     providerLabel:'Inference Engine', modelLabel:'Local AI Model',
     universityDescription:'Learn → Practice → Evaluate → Improve',
@@ -30,7 +30,7 @@ const words = {
     providerHelpTitle:'Which inference engine should I use?',
     providerHelp:'<h2>Ollama — Simple Local AI</h2><p>Use it for easy installation, switching models, and automatic model loading.</p><h2>LM Studio — Local AI Experimentation</h2><p>Use its graphical interface to download, configure, and compare models manually.</p><h2>vLLM — High-Performance GPU Inference</h2><p>Use it for shared, concurrent GPU inference on Linux, compatible WSL2, or a GPU server. vLLM is not natively supported on Windows; RunPod requires separate remote-infrastructure approval.</p>',
     failed:'Session failed', you:'You',
-    agents:{'You':'You','Trainer':'Trainer','Agent A':'Agent A','Agent B':'Agent B','Trainer · Feedback':'Trainer · Feedback','\u0395\u03c3\u03cd':'You','\u039a\u03b1\u03b8\u03b7\u03b3\u03b7\u03c4\u03ae\u03c2':'Trainer','\u03a6\u03bf\u03b9\u03c4\u03b7\u03c4\u03ae\u03c2 \u0391':'Agent A','\u03a6\u03bf\u03b9\u03c4\u03b7\u03c4\u03ae\u03c2 \u0392':'Agent B','\u039a\u03b1\u03b8\u03b7\u03b3\u03b7\u03c4\u03ae\u03c2 · Feedback':'Trainer · Feedback'}
+    agents:{'You':'You','Trainer':'Trainer','Student':'Student','Agent A':'Student','Agent B':'Student','Trainer · Feedback':'Trainer · Feedback','\u0395\u03c3\u03cd':'You','\u039a\u03b1\u03b8\u03b7\u03b3\u03b7\u03c4\u03ae\u03c2':'Trainer','\u03a6\u03bf\u03b9\u03c4\u03b7\u03c4\u03ae\u03c2 \u0391':'Student','\u03a6\u03bf\u03b9\u03c4\u03b7\u03c4\u03ae\u03c2 \u0392':'Student','\u039a\u03b1\u03b8\u03b7\u03b3\u03b7\u03c4\u03ae\u03c2 · Feedback':'Trainer · Feedback'}
   }
 };
 const t = () => words[uiLanguage];

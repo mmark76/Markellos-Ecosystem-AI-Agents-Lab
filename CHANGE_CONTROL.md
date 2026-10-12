@@ -242,3 +242,22 @@ Decision: APPROVED (CLARIFICATION)
 Approved by: Direct user request
 Target release: Next Local Lab release
 ```
+
+## Approved change record — AI-LAB-CC-017
+
+```text
+Change ID: AI-LAB-CC-017
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Set the default Training Lab flow to one Trainer and one Student.
+Reason: The user requested a simpler default collaboration pair for now.
+Affected objective IDs: AI-LAB-OBJ-007
+Architecture impact: The university flow and visible participant summary are reduced from four automated turns to two; Conference Room remains unchanged.
+Security and privacy impact: None.
+Data impact: Existing SQLite records are preserved; new training sessions write two generated agent messages.
+Testing impact: Server integration and flow regression expectations are updated.
+Cost and schedule impact: Fewer inference turns reduce local runtime and model usage.
+Decision: APPROVED (CLARIFICATION)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```

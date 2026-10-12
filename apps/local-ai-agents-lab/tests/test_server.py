@@ -75,6 +75,9 @@ class CampusTests(unittest.TestCase):
             for agent in flow:
                 self.assertIn(agent, campus.PROMPTS)
 
+    def test_training_flow_defaults_to_one_trainer_and_one_student(self):
+        self.assertEqual(campus.FLOW['university'], ['Trainer', 'Student'])
+
 if __name__ == '__main__':
     unittest.main()
 
@@ -136,8 +139,8 @@ class HttpIntegrationTests(unittest.TestCase):
                     req = Request(origin + '/api/run', data=post, headers={'Origin':origin, 'Content-Type':'application/json'}, method='POST')
                     with opener.open(req) as response:
                         result = json.load(response)
-                    self.assertEqual(len(result['messages']), 4)
-                    self.assertEqual(len(campus.history('university')), 5)
+                    self.assertEqual(len(result['messages']), 2)
+                    self.assertEqual(len(campus.history('university')), 3)
                     self.assertEqual(len(campus.history('conference')), 0)
                     no_origin = Request(origin + '/api/run', data=post, headers={'Content-Type':'application/json'}, method='POST')
                     with self.assertRaises(HTTPError) as error:

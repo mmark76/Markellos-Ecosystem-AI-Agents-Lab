@@ -41,21 +41,11 @@ PROMPTS = {
         "Give a concise practical lesson on the user's topic and one specific exercise. "
         "State clear success criteria. Reply exclusively in English. Maximum 150 words."
     ),
-    "Agent A": (
-        "You are an AI agent studying software engineering. "
+    "Student": (
+        "You are an AI student agent studying software engineering. "
         "Read the lesson and solve the exercise practically. "
         "Separate what you know from what you assume. You have no access to the filesystem or GitHub. "
         "Reply exclusively in English. Maximum 150 words."
-    ),
-    "Agent B": (
-        "You are a second AI student agent. "
-        "Read the discussion, identify errors or gaps, and propose an alternative solution. "
-        "You have no external tools. Reply exclusively in English. Maximum 150 words."
-    ),
-    "Trainer · Feedback": (
-        "You are the trainer evaluating the previous exercise answers. "
-        "Give feedback, identify specific correct points and mistakes, and suggest one small next step. "
-        "Do not claim improvement without an independent test. Reply exclusively in English. Maximum 150 words."
     ),
     "Architect": (
         "You are a Software Architect in an AI Conference Room. "
@@ -74,7 +64,7 @@ PROMPTS = {
     ),
 }
 FLOW = {
-    "university": ["Trainer", "Agent A", "Agent B", "Trainer · Feedback"],
+    "university": ["Trainer", "Student"],
     "conference": ["Architect", "Developer", "Reviewer"],
 }
 

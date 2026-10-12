@@ -15,6 +15,7 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 - Added a University Lab desktop shortcut with a packaged local icon, created when the Windows launcher first runs.
 - Clarified that the extracted ZIP folder is the Lab location and that an update refreshes the Desktop shortcut only after the new launcher runs.
 - Replaced the University Lab shortcut icon with a dark-azure design featuring two arches and a white graduation cap.
+- Simplified the default Training Lab flow to one Trainer and one Student.
 
 ## [0.2.0] - 2026-10-08
 
