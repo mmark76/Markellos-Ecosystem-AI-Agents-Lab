@@ -18,7 +18,7 @@ const words = {
     universityDescription:'Learn → Practice → Evaluate → Improve',
     conferenceDescription:'Architect → Developer → Reviewer · Shared history',
     universityLabel:'Training Topic', conferenceLabel:'Discussion Topic',
-    universityPlaceholder:'e.g. Teach the agents how to review a pull request safely...',
+    universityPlaceholder:'e.g. Teach your AI agent how to...',
     conferencePlaceholder:'e.g. Discuss adding a reporting module without regressions...',
     empty:'No sessions yet. Enter a topic below.', hint:'Agents have no access to files or commands.',
     working:'Agents are responding sequentially. This may take some time.',

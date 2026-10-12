@@ -77,19 +77,20 @@
     </section>
     <form id="composer" class="composer">
       <label for="prompt" id="prompt-label">Training Topic</label>
-      <textarea id="prompt" rows="3" maxlength="2500" required placeholder="e.g. Teach the agents how to review a pull request safely..."></textarea>
+      <textarea id="prompt" rows="3" maxlength="2500" required placeholder="e.g. Teach your AI agent how to..."></textarea>
       <div class="actions"><div><span id="hint">Agents have no access to files or commands.</span><button id="clear-conversation" class="clear-conversation" type="button">Clear conversation / Start new session</button></div><button id="send" type="submit">Start Training ↗</button></div>
     </form>
     <details class="provider-help" id="provider-help">
       <summary id="provider-help-title">Which inference engine should I use?</summary>
       <div id="provider-help-content"></div>
     </details>
-    <section class="training-workspace" aria-labelledby="training-title">
-      <h2 id="training-title">Model Training</h2><p>Optional local LoRA and SFT training. Separate from agent exercises, inference providers, and SQLite conversation history.</p>
+    <details class="training-workspace" aria-labelledby="training-title">
+      <summary id="training-title">Advanced: Train a model (optional)</summary>
+      <p class="training-intro">For advanced users only. This requires a separate local training setup, a compatible model, and a JSONL dataset. It is not needed to use the agents.</p>
       <form id="training-form"><label for="training-model">Local compatible model</label><select id="training-model" required></select><label for="training-dataset">Local JSONL dataset</label><select id="training-dataset" required></select><label for="training-method">Method</label><select id="training-method"><option value="lora">PEFT / LoRA</option><option value="sft">TRL supervised fine-tuning</option></select><label for="training-device">Compute</label><select id="training-device"><option value="auto">Auto</option><option value="cpu">CPU</option><option value="cuda">CUDA GPU</option></select><button type="submit">Review and start training</button><button id="training-stop" type="button">Stop training</button></form>
       <p id="training-status" role="status">Checking optional training environment.</p><p id="training-output"></p>
       <details><summary>Which technology should I use?</summary><p><strong>Ollama, LM Studio, vLLM:</strong> local inference. <strong>PyTorch:</strong> numerical training. <strong>Transformers:</strong> compatible local pretrained models. <strong>PEFT / LoRA:</strong> efficient adapters. <strong>TRL:</strong> supervised fine-tuning. <strong>CUDA:</strong> supported NVIDIA GPU acceleration. Training changes model parameters; agent exercises and evaluation do not.</p></details>
-    </section>
+    </details>
     <footer><span>© <span class="copyright-year"></span> Markellos Markides. All rights reserved.</span><span class="build-id">v0.1.1_YYYYMMDD_HHMM_SHA</span></footer>
   </main>
 </div>
