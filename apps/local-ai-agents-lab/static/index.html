@@ -19,10 +19,10 @@
   <aside class="sidebar" id="left-panel" aria-label="Workspace navigation">
     <button type="button" class="panel-toggle" id="toggle-left" aria-controls="left-panel" aria-expanded="true" title="Hide workspace panel"><span aria-hidden="true">◀</span><span class="panel-toggle-label">Hide</span></button>
     <div class="panel-content">
-      <div class="brand"><span class="mark">M</span><span><strong>Markellos Ecosystem<br>AI Agents Lab</strong><small>Private Local Workspace</small></span></div>
+      <div class="brand-stack"><span class="beta-badge">BETA</span><div class="brand"><span class="mark">M</span><span><strong>Markellos Ecosystem<br>AI Agents Lab</strong><small>Private Local Workspace</small></span></div></div>
       <div class="label">WORKSPACE</div>
       <button class="nav selected" data-room="university">▣ &nbsp; <span id="nav-training">Agent Training</span></button>
-      <button class="nav" data-room="conference">▤ &nbsp; <span id="nav-conference">Agent Collaboration</span></button>
+      <button class="nav nav-unavailable" data-room="conference" type="button" disabled aria-describedby="nav-collaboration-status">▤ &nbsp; <span id="nav-conference">Agent Collaboration</span><span id="nav-collaboration-status" class="nav-status">Under Construction</span></button>
       <div class="label section-gap">PHASE 1 · SANDBOX</div>
       <p class="tip" id="phase-tip"></p>
       <div class="sidebar-footer" id="sidebar-note"></div>
@@ -79,16 +79,16 @@
       <p class="build-id">v0.1.1_YYYYMMDD_HHMM_SHA</p>
       <button type="button" id="info-close" class="settings-toggle">Close</button>
     </dialog>
-    <section class="chat-panel" aria-live="polite">
-      <section id="training-stages" class="training-stages" aria-live="polite" hidden></section>
-      <div id="messages" class="messages"><div class="empty">No training sessions yet. Enter a topic below.</div></div>
-      <p id="execution-status" class="execution-status" role="status" aria-live="polite" hidden></p>
-    </section>
     <form id="composer" class="composer">
       <label for="prompt" id="prompt-label">Training Topic</label>
       <textarea id="prompt" rows="3" maxlength="2500" required placeholder="e.g. Teach your AI agent how to..."></textarea>
       <div class="actions"><div><span id="hint">Agents have no access to files or commands.</span><button id="clear-conversation" class="clear-conversation" type="button">Clear conversation / Start new session</button></div><div class="run-actions"><button id="cancel-training" class="cancel-training" type="button" hidden>Cancel after current stage</button><button id="send" type="submit">Start Training ↗</button></div></div>
     </form>
+    <section class="chat-panel" aria-live="polite">
+      <section id="training-stages" class="training-stages" aria-live="polite" hidden></section>
+      <div id="messages" class="messages"><div class="empty">No training sessions yet. Enter a topic above.</div></div>
+      <p id="execution-status" class="execution-status" role="status" aria-live="polite" hidden></p>
+    </section>
     <footer><span>© <span class="copyright-year"></span> Markellos Markides. All rights reserved.</span><span class="build-id">v0.1.1_YYYYMMDD_HHMM_SHA</span></footer>
   </main>
   <div class="panel-resizer panel-resizer-right" id="resize-right" role="separator" aria-label="Resize tools panel" aria-orientation="vertical" tabindex="0"></div>
@@ -114,7 +114,11 @@
       <details class="training-workspace" aria-labelledby="training-title">
       <summary id="training-title">Advanced: Train a model (optional)</summary>
       <p class="training-intro">For advanced users only. This requires a separate local training setup, a compatible model, and a JSONL dataset. It is not needed to use the agents.</p>
-      <form id="training-form"><label for="training-model">Local compatible model <span class="training-empty-hint" id="training-model-hint">Add a compatible model to <code>models\</code></span></label><select id="training-model" required></select><label for="training-dataset">Local JSONL dataset <span class="training-empty-hint" id="training-dataset-hint">Add a <code>.jsonl</code> file to <code>training-data\</code></span></label><select id="training-dataset" required></select><label for="training-method">Method</label><select id="training-method"><option value="lora">PEFT / LoRA</option><option value="sft">TRL supervised fine-tuning</option></select><label for="training-device">Compute</label><select id="training-device"><option value="auto">Auto</option><option value="cpu">CPU</option><option value="cuda">CUDA GPU</option></select><button type="submit">Review and start training</button><button id="training-stop" type="button">Stop training</button></form>
+      <div class="training-paths" aria-label="Local training directories">
+        <section class="training-path"><h3>Compatible model directory</h3><p>Place each compatible local model folder here.</p><code id="training-model-path" class="training-path-value" aria-live="polite">Loading local path…</code><div class="training-path-actions"><button type="button" data-copy-training-path="model" disabled>Copy path</button><button type="button" data-open-training-directory="models" disabled>Open Folder</button></div></section>
+        <section class="training-path"><h3>Training dataset directory</h3><p>Place each validated <code>.jsonl</code> training dataset here.</p><code id="training-dataset-path" class="training-path-value" aria-live="polite">Loading local path…</code><div class="training-path-actions"><button type="button" data-copy-training-path="dataset" disabled>Copy path</button><button type="button" data-open-training-directory="datasets" disabled>Open Folder</button></div></section>
+      </div>
+      <form id="training-form"><label for="training-model">Local compatible model <span class="training-empty-hint" id="training-model-hint">No compatible local model folders found in the directory shown above.</span></label><select id="training-model" required></select><label for="training-dataset">Local JSONL dataset <span class="training-empty-hint" id="training-dataset-hint">No <code>.jsonl</code> datasets found in the directory shown above.</span></label><select id="training-dataset" required></select><label for="training-method">Method</label><select id="training-method"><option value="lora">PEFT / LoRA</option><option value="sft">TRL supervised fine-tuning</option></select><label for="training-device">Compute</label><select id="training-device"><option value="auto">Auto</option><option value="cpu">CPU</option><option value="cuda">CUDA GPU</option></select><button type="submit">Review and start training</button><button id="training-stop" type="button">Stop training</button></form>
       <p id="training-status" role="status">Checking optional training environment.</p>
       <p id="training-setup" class="training-setup" hidden>To install the optional training environment, open your extracted Lab folder and run <code>setup-training-windows.bat</code> once. When it finishes, close and restart the Lab.</p>
       <p id="training-output"></p>

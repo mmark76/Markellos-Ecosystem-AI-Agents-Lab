@@ -34,6 +34,25 @@ Target release:
 
 AI agents must not approve their own material scope increases.
 
+## Approved change record — AI-LAB-CC-034
+
+```text
+Change ID: AI-LAB-CC-034
+Requested by: Repository maintainer
+Date: 2026-10-13
+Description: Put the Training Topic form ahead of the scrollable training history, display a BETA badge above the Local Lab lockup, temporarily disable Agent Collaboration navigation while retaining its implementation, and show resolved local model and JSONL dataset directories with copy and Windows folder-opening actions.
+Reason: Clarify the primary Agent Training workflow, prevent entry into incomplete collaboration work, and make optional local-training inputs discoverable after installation.
+Affected objective IDs: AI-LAB-OBJ-006, AI-LAB-OBJ-007
+Architecture impact: Presentation layout and training-directory adapter only; the existing collaboration flow remains implemented and inference, training execution, provider routing, and SQLite history are unchanged.
+Security and privacy impact: Directory paths are resolved only from the application root. The folder action accepts one fixed allowlisted directory name over the existing loopback, same-origin write boundary; no arbitrary filesystem path, network endpoint, credential, or telemetry is added.
+Data impact: None. Existing conversation history, model compatibility rules, and JSONL validation remain unchanged.
+Testing impact: Add source layout/navigation regression checks and service checks for resolved directory paths and allowlisted Windows folder opening.
+Cost and schedule impact: None.
+Decision: APPROVED (CLARIFICATION)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
 ## Approved change record — AI-LAB-CC-033
 
 ```text

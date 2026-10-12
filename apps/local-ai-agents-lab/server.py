@@ -364,7 +364,7 @@ class Handler(BaseHTTPRequestHandler):
             return
         if self.path == "/api/training/status":
             data = TRAINING.availability()
-            data.update({"datasets": TRAINING.datasets_list(), "models": TRAINING.models_list()})
+            data.update({"datasets": TRAINING.datasets_list(), "models": TRAINING.models_list(), "paths": TRAINING.directories()})
             self._json(data)
             return
         if self.path.startswith("/api/training/jobs/"):
@@ -457,6 +457,18 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 self._json(TRAINING.stop(self.path.split("/")[-2]))
             except TrainingError as err:
+                self._json({"error": str(err)}, 400)
+            return
+        if self.path == "/api/training/open-directory":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if size < 2 or size > 128:
+                    raise TrainingError("Invalid folder request.")
+                body = json.loads(self.rfile.read(size))
+                if not isinstance(body, dict) or set(body) != {"directory"} or not isinstance(body["directory"], str):
+                    raise TrainingError("Select one supported local training directory.")
+                self._json(TRAINING.open_directory(body["directory"]))
+            except (TrainingError, ValueError, TypeError, json.JSONDecodeError) as err:
                 self._json({"error": str(err)}, 400)
             return
         if self.path.startswith("/api/training-sessions/") and self.path.endswith("/cancel"):

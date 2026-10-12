@@ -10,6 +10,17 @@ class TrainingService:
     def __init__(self, root: Path):
         self.root=root; self.datasets=root/'training-data'; self.models=root/'models'; self.outputs=root/'training-output'; self.runtime=root/'training'/'.venv'; self.jobs={}; self.process=None; self.lock=Lock()
     def python(self): return self.runtime / ('Scripts/python.exe' if os.name=='nt' else 'bin/python')
+    def directories(self):
+        self.models.mkdir(parents=True, exist_ok=True); self.datasets.mkdir(parents=True, exist_ok=True)
+        return {'models':str(self.models.resolve()),'datasets':str(self.datasets.resolve()),'openFolder':os.name=='nt'}
+    def open_directory(self, name):
+        directories={'models':self.models,'datasets':self.datasets}; directory=directories.get(name)
+        if directory is None: raise TrainingError('Select a supported local training directory.')
+        directory.mkdir(parents=True, exist_ok=True)
+        if os.name!='nt': raise TrainingError('Opening folders from the Lab is available on Windows only.')
+        try: os.startfile(str(directory.resolve()))
+        except OSError as err: raise TrainingError(f'Could not open the local folder: {err}') from err
+        return {'directory':name,'path':str(directory.resolve())}
     def availability(self):
         result={'available':False,'python':str(self.python()),'error':'Training environment is not installed.','torch':None,'cuda':{'available':False,'devices':[]}}
         if not self.python().is_file(): return result

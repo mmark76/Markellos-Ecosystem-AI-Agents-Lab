@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -28,5 +29,17 @@ class TrainingServiceTests(unittest.TestCase):
         with patch.object(self.service, 'availability', return_value={'available': True, 'cuda': {'available': False}}):
             config = self.service.config({'dataset':'valid.jsonl','model':'tiny-local','method':'sft','device':'cpu'})
         self.assertEqual(config['device'], 'cpu'); self.assertEqual(config['rows'], 1)
+    def test_reports_resolved_local_input_directories(self):
+        directories = self.service.directories()
+        self.assertEqual(Path(directories['models']), (self.root / 'models').resolve())
+        self.assertEqual(Path(directories['datasets']), (self.root / 'training-data').resolve())
+        self.assertEqual(directories['openFolder'], os.name == 'nt')
+    @unittest.skipUnless(os.name == 'nt', 'Windows-only folder opening')
+    def test_opens_only_known_local_input_directories(self):
+        with patch.object(training.os, 'startfile') as startfile:
+            opened = self.service.open_directory('models')
+        startfile.assert_called_once_with(str((self.root / 'models').resolve()))
+        self.assertEqual(opened['path'], str((self.root / 'models').resolve()))
+        with self.assertRaises(training.TrainingError): self.service.open_directory('../models')
 
 if __name__ == '__main__': unittest.main()
