@@ -23,6 +23,16 @@ function applyAppearance(value) {
   return p;
 }
 function saveAppearance(p) { try { storage()?.setItem(KEY,JSON.stringify(normalizeAppearance(p))); return true; } catch { return false; } }
+async function checkForDashboardUpdate(button) {
+  const currentBuild = document.querySelector('.build-id')?.textContent?.trim();
+  if (!currentBuild || typeof window.fetch !== 'function' || typeof DOMParser !== 'function') return;
+  try {
+    const response = await window.fetch(window.location.href, {cache:'no-store'});
+    if (!response.ok) return;
+    const availableBuild = new DOMParser().parseFromString(await response.text(), 'text/html').querySelector('.build-id')?.textContent?.trim();
+    if (availableBuild && availableBuild !== currentBuild) button.hidden = false;
+  } catch {}
+}
 document.addEventListener('DOMContentLoaded',()=>{
   let prefs=applyAppearance(loadAppearance());
   const status=document.getElementById('appearance-status');
@@ -30,8 +40,12 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('theme-toggle')?.addEventListener('click',()=>update({colorMode:prefs.colorMode==='dark'?'light':'dark'}));
   [['accent-color','accent'],['font-choice','font'],['text-size','textSize'],['spacing-choice','spacing']].forEach(([id,key])=>document.getElementById(id)?.addEventListener('input',event=>update({[key]:event.currentTarget.value})));
   document.getElementById('reset-appearance')?.addEventListener('click',()=>{try{storage()?.removeItem(KEY);}catch{} prefs=applyAppearance(DEFAULT); if(status)status.textContent='Appearance preferences reset.';});
-  document.getElementById('dashboard-update')?.addEventListener('click',()=>window.location.reload());
+  const dashboardUpdate=document.getElementById('dashboard-update');
+  if (dashboardUpdate) {
+    dashboardUpdate.addEventListener('click',()=>window.location.reload());
+    void checkForDashboardUpdate(dashboardUpdate);
+  }
   [['settings-button','settings-dialog'],['info-button','info-dialog']].forEach(([button,dialog])=>document.getElementById(button)?.addEventListener('click',()=>document.getElementById(dialog)?.showModal()));
   document.querySelectorAll('[data-close-dialog]').forEach(button=>button.addEventListener('click',()=>button.closest('dialog')?.close()));
 });
-module.exports={DEFAULT,normalizeAppearance,syncThemeToggle};
+module.exports={DEFAULT,normalizeAppearance,syncThemeToggle,checkForDashboardUpdate};
