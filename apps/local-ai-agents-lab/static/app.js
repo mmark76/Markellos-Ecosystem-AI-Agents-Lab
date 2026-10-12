@@ -9,6 +9,7 @@ const modelPreference = {Trainer:'agents-lab-trainer-model',Student:'agents-lab-
 let statusData = null;
 let statusError = false;
 let hintError = '';
+let activeTrainingSession = null;
 const words = {
   en: {
     training:'Agent Training', collaboration:'Agent Collaboration',
@@ -79,6 +80,15 @@ function makeMessage(message) {
   header.append(name,model,time);body.append(header,content);wrap.append(avatar,body);
   return wrap;
 }
+function showExecution(session) {
+  const status=$('execution-status');
+  if(!session){status.hidden=true;status.textContent='';return;}
+  const durations=[];
+  if(Number.isInteger(session.trainer_duration_ms))durations.push('Trainer: '+(session.trainer_duration_ms/1000).toFixed(1)+'s');
+  if(Number.isInteger(session.student_duration_ms))durations.push('Student: '+(session.student_duration_ms/1000).toFixed(1)+'s');
+  status.hidden=false;
+  status.textContent=session.stage+' · Trainer: '+session.trainer_model+' · Student: '+session.student_model+(durations.length?' · '+durations.join(', '):'')+(session.error?' · '+session.error:'');
+}
 async function refreshHistory() {
   const requestedRoom=room;
   try {
@@ -108,6 +118,18 @@ async function refreshStatus() {
   } catch { statusError=true;statusData=null;['model','trainer-model','student-model'].forEach(id=>$(id).disabled=true);$('send').disabled=true; }
   setStatus();
 }
+async function pollTrainingSession(sessionId) {
+  while(running&&activeTrainingSession===sessionId){
+    const response=await fetch('/api/runs/'+sessionId);
+    const data=await response.json();
+    if(!response.ok)throw new Error(data.error||t().failed);
+    showExecution(data.session);
+    await refreshHistory();
+    if(data.session.status==='completed')return;
+    if(data.session.status==='failed')throw new Error(data.session.error||t().failed);
+    await new Promise(resolve=>setTimeout(resolve,750));
+  }
+}
 function switchRoom(next){if(running||!['university','conference'].includes(next))return;room=next;hintError='';updateUI();refreshHistory();}
 [['Trainer','trainer-model'],['Student','student-model'],['Collaboration','model']].forEach(([agent,id])=>$(id).addEventListener('change',event=>localStorage.setItem(modelPreference[agent],event.target.value)));
 document.querySelectorAll('[data-room]').forEach(b=>b.addEventListener('click',()=>switchRoom(b.dataset.room)));
@@ -121,10 +143,14 @@ $('composer').addEventListener('submit',async ev=>{
     const result=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(request)});
     const payload=await result.json();
     if(!result.ok)throw new Error(payload.error||t().failed);
+    if(room==='university'){
+      activeTrainingSession=payload.session_id;
+      await pollTrainingSession(activeTrainingSession);
+    }
     $('prompt').value='';
   } catch(err){hintError=err.message;}
   finally {
-    running=false;await refreshHistory();await refreshStatus();updateUI();
+    running=false;activeTrainingSession=null;await refreshHistory();await refreshStatus();updateUI();
   }
 });
 $('clear-conversation').addEventListener('click',async()=>{

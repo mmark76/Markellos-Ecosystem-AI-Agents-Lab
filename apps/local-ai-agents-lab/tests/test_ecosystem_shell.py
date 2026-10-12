@@ -42,6 +42,15 @@ class EcosystemShellTests(unittest.TestCase):
             with self.subTest(key=key): self.assertIn(key, app)
         self.assertIn('trainer_model:trainerModel', app)
         self.assertIn('student_model:studentModel', app)
+
+    def test_training_execution_status_is_announced_and_polled(self):
+        html = (STATIC / 'index.html').read_text(encoding='utf-8')
+        app = (STATIC / 'app.js').read_text(encoding='utf-8')
+        self.assertIn('id="execution-status"', html)
+        self.assertIn('aria-live="polite"', html)
+        self.assertIn('/api/runs/', app)
+        self.assertIn('Trainer: ', app)
+        self.assertIn('Student: ', app)
         self.assertIn("model.className='model-name'", app)
 
     def test_language_selectors_are_removed_and_runtime_is_english_only(self):
