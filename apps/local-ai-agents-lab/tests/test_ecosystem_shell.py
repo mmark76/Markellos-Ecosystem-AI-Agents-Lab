@@ -53,6 +53,15 @@ class EcosystemShellTests(unittest.TestCase):
                      'Markellos Markides. All rights reserved.'):
             with self.subTest(name=name):
                 self.assertIn(name, html)
+
+    def test_three_panel_workspace_controls_are_packaged(self):
+        html = (STATIC / "index.html").read_text(encoding="utf-8")
+        script = (STATIC / "panel-layout.js").read_text(encoding="utf-8")
+        for name in ('id="left-panel"', 'id="right-panel"', 'id="resize-left"', 'id="resize-right"',
+                     'id="toggle-left"', 'id="toggle-right"', '/static/panel-layout.js'):
+            with self.subTest(name=name): self.assertIn(name, html)
+        self.assertIn("setPointerCapture", script)
+        self.assertIn("localStorage", script)
         for removed in ('id="update-check"', 'id="update-status"', '/static/updates.js'):
             with self.subTest(removed=removed):
                 self.assertNotIn(removed, html)
