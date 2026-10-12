@@ -35,9 +35,9 @@ function build(ref,destination){
   for(const file of files){
     let bytes=execFileSync('git',['show',sha+':'+prefix+file],{cwd:root});
     if(file==='static/index.html'){
-      const html=bytes.toString('utf8'), placeholder='v0.1.1_YYYYMMDD_HHMM_SHA';
+      const html=bytes.toString('utf8'), placeholder='ZIP_VERSION';
       if(html.split(placeholder).length!==3)throw Error('Expected two build-ID placeholders');
-      bytes=Buffer.from(html.replaceAll(placeholder,buildId));
+      bytes=Buffer.from(html.replaceAll(placeholder,'v'+version));
     }
     content.set(file,bytes);
   }

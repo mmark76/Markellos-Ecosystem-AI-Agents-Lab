@@ -34,6 +34,25 @@ Target release:
 
 AI agents must not approve their own material scope increases.
 
+## Approved change record — AI-LAB-CC-035
+
+```text
+Change ID: AI-LAB-CC-035
+Requested by: Repository maintainer
+Date: 2026-10-13
+Description: Replace the Local Lab UI build identifier with an explicit ZIP version label generated from the packaged VERSION file.
+Reason: Let users directly confirm which Windows ZIP release they installed without interpreting an internal timestamp and commit identifier.
+Affected objective IDs: AI-LAB-OBJ-003
+Architecture impact: Release-presentation stamping and package verification only; runtime behavior is unchanged.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Add a source and package-verifier regression test for the ZIP version label.
+Cost and schedule impact: None.
+Decision: APPROVED (CLARIFICATION)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
 ## Approved change record — AI-LAB-CC-034
 
 ```text

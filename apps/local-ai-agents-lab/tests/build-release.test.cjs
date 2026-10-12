@@ -54,6 +54,15 @@ test('three-panel interaction script is included in the Windows release',()=>{
   assert.match(packager,/'static\/panel-layout\.js'/);
   assert.match(server,/"\/static\/panel-layout\.js"/);
 });
+test('packaged UI identifies the ZIP version rather than a build identifier',()=>{
+  const root=path.resolve(__dirname,'..');
+  const html=fs.readFileSync(path.join(root,'static','index.html'),'utf8');
+  const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
+  const verifier=fs.readFileSync(path.join(root,'scripts','verify-release.cjs'),'utf8');
+  assert.equal(html.split('ZIP version: ZIP_VERSION').length,3);
+  assert.match(packager,/replaceAll\(placeholder,'v'\+version\)/);
+  assert.match(verifier,/ZIP version: '\+zipVersion/);
+});
 test('a VERSION bump on main automatically creates the matching release ZIP',()=>{
   const root=path.resolve(__dirname,'..','..','..');
   const workflow=fs.readFileSync(path.join(root,'.github','workflows','publish-local-ai-agents-lab-release.yml'),'utf8');

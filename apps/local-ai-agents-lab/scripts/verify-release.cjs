@@ -10,8 +10,9 @@ function verify(dir,expectedSha){
   if(manifest.timeZone!=='Europe/Nicosia'||manifest.buildId!==expectedId)
     throw Error('Release metadata mismatch');
   const html=fs.readFileSync(path.join(dir,'static','index.html'),'utf8');
-  if(html.split(expectedId).length!==3||html.includes('YYYYMMDD'))
-    throw Error('Version not stamped in both UI locations');
+  const zipVersion='v'+manifest.version;
+  if(html.split('ZIP version: '+zipVersion).length!==3||html.includes('ZIP_VERSION'))
+    throw Error('ZIP version not stamped in both UI locations');
   const version=fs.readFileSync(path.join(dir,'VERSION'),'utf8').trim();
   if(version!==manifest.version)throw Error('Package VERSION mismatch');
   if(fs.existsSync(path.join(dir,'data')))throw Error('Runtime data bundled');
