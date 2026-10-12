@@ -19,6 +19,7 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 - Removed the hero-area Open Local Lab button while retaining the contextual local link in the startup instructions.
 - Translated the packaged Local Lab README into English only.
 - Added a direct README link beside the Windows ZIP download on the public dashboard; it opens the packaged README in a new browser tab rather than GitHub.
+- Repaired the landing dashboard light mode with a complete high-contrast palette and a synchronized theme-toggle label.
 
 ## [0.2.0] - 2026-10-08
 

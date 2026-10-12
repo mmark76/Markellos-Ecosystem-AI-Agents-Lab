@@ -337,3 +337,22 @@ Decision: APPROVED (CLARIFICATION)
 Approved by: Direct user request
 Target release: Next public landing deployment
 ```
+
+## Approved change record — AI-LAB-CC-022
+
+```text
+Change ID: AI-LAB-CC-022
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Repair the public dashboard light mode with an explicit readable colour palette and synchronized theme-toggle label.
+Reason: The existing light presentation had inadequate contrast and could show an incorrect mode label.
+Affected objective IDs: AI-LAB-OBJ-003
+Architecture impact: Client-side appearance styling and toggle state only.
+Security and privacy impact: No new collection, storage, or network access; existing browser-local preferences remain unchanged.
+Data impact: None.
+Testing impact: Landing build regression asserts the light palette and mode-label synchronization code.
+Cost and schedule impact: None.
+Decision: APPROVED (DEFECT)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```

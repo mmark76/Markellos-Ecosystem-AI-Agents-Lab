@@ -51,4 +51,6 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.match(readFileSync(join(output, '_headers'), 'utf8'), /script-src 'self'/);
   assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /colorMode:'dark'/);
   assert.match(readFileSync(join(output, 'styles.css'), 'utf8'), /--color-background:#000000/);
+  assert.match(readFileSync(join(output, 'styles.css'), 'utf8'), /html\[data-color-mode="light"\].*--color-text:#172033/s);
+  assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /colorMode === 'dark' \? 'Light' : 'Dark'/);
 });
