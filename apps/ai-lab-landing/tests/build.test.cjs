@@ -33,7 +33,7 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.doesNotMatch(html, /The Lab, its models, and its conversation history are never hosted here\./);
   assert.doesNotMatch(html, /Free local use\. No subscription or API fees for the local Lab\./);
   assert.doesNotMatch(html, /Learn with AI agents, on your own device\./);
-  assert.match(html, /id="dashboard-update" class="dashboard-update" type="button" hidden/);
+  assert.match(html, /id="zip-update" class="zip-update" type="button" hidden>New Lab ZIP available/);
   assert.match(html, /Read the README/);
   assert.match(html, /href="\.\/README\.md" target="_blank" rel="noopener noreferrer"/);
   assert.doesNotMatch(html, /data-language|language-selector|language-button/);
@@ -63,12 +63,13 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.doesNotMatch(readFileSync(join(output, 'styles.css'), 'utf8'), /--user-background/);
   assert.match(readFileSync(join(output, 'styles.css'), 'utf8'), /html\[data-color-mode="light"\].*--color-text:#172033/s);
   assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /colorMode === 'dark' \? 'Light' : 'Dark'/);
-  assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /checkForDashboardUpdate/);
-  assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /scheduleDashboardUpdateChecks/);
+  assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /checkForZipUpdate/);
+  assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /scheduleZipUpdateChecks/);
   assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /window\.setInterval\(check, 60_000\)/);
   assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /document\.visibilityState === 'visible'/);
   assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /window\.fetch\(window\.location\.href, \{cache:'no-store'\}\)/);
-  assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /availableBuild !== currentBuild\) button\.hidden = false/);
-  assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /dashboardUpdate\.addEventListener\('click',\(\)=>window\.location\.reload\(\)\)/);
-  assert.match(readFileSync(join(output, 'styles.css'), 'utf8'), /\.dashboard-update \{ position: fixed;/);
+  assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /isNewerRelease\(availableVersion, currentVersion\)/);
+  assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /return available\[index\] > current\[index\];/);
+  assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /zipUpdate\.addEventListener\('click',\(\)=>window\.location\.assign\(LATEST_ZIP_URL\)\)/);
+  assert.match(readFileSync(join(output, 'styles.css'), 'utf8'), /\.zip-update \{ position: fixed;/);
 });
