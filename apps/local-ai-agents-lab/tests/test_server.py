@@ -134,13 +134,14 @@ class HttpIntegrationTests(unittest.TestCase):
                     self.assertEqual([call.args[1] for call in chat.call_args_list], ['qwen3:8b', 'gemma3:4b'])
                     self.assertEqual([message['model'] for message in result['messages']], ['qwen3:8b', 'gemma3:4b'])
                     self.assertIsInstance(result['session_id'], int)
-                    self.assertEqual(len(campus.history('university')), 3)
+                    self.assertEqual([message['model'] for message in campus.history('university')], [None, 'qwen3:8b', 'gemma3:4b'])
                     self.assertEqual(len(campus.history('conference')), 0)
                     legacy_post = json.dumps({'room':'university', 'provider':'ollama', 'model':'qwen3:8b', 'prompt':'Shared model session'}).encode()
                     legacy_request = Request(origin + '/api/run', data=legacy_post, headers={'Origin':origin, 'Content-Type':'application/json'}, method='POST')
                     with opener.open(legacy_request) as response:
                         legacy_result = json.load(response)
                     self.assertEqual([message['model'] for message in legacy_result['messages']], ['qwen3:8b', 'qwen3:8b'])
+                    self.assertEqual([message['model'] for message in campus.history('university')][-2:], ['qwen3:8b', 'qwen3:8b'])
                     unavailable = Request(origin + '/api/run', data=json.dumps({'room':'university', 'provider':'ollama', 'trainer_model':'missing:1b', 'student_model':'gemma3:4b', 'prompt':'Safe code review'}).encode(), headers={'Origin':origin, 'Content-Type':'application/json'}, method='POST')
                     with self.assertRaises(HTTPError) as error:
                         opener.open(unavailable)

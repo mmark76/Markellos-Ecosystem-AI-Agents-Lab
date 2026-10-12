@@ -376,6 +376,25 @@ Approved by: Direct user request
 Target release: Next public landing deployment
 ```
 
+## Approved change record — AI-LAB-CC-031
+
+```text
+Change ID: AI-LAB-CC-031
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Display the configured model identifier beside each new Trainer and Student response in Learning Lab history.
+Reason: Independent model selection must be visible in the conversation output, not only in the Lab controls.
+Affected objective IDs: AI-LAB-OBJ-010
+Architecture impact: The existing session metadata is returned with history rows and rendered by the presentation layer; inference routing is unchanged.
+Security and privacy impact: None; model identifiers are local configuration metadata.
+Data impact: Existing messages with no recorded assignment display no model label.
+Testing impact: Extend routing regression to assert persisted history labels and add UI source coverage.
+Cost and schedule impact: None.
+Decision: APPROVED (DEFECT)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
 ## Approved change record — AI-LAB-CC-030
 
 ```text
