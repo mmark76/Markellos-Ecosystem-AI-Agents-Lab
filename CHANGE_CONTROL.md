@@ -376,6 +376,25 @@ Approved by: Direct user request
 Target release: Next public landing deployment
 ```
 
+## Approved change record — AI-LAB-CC-029
+
+```text
+Change ID: AI-LAB-CC-029
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Add Settings controls for background color and text font.
+Reason: Let each local user personalise the Lab presentation without changing application data or behavior.
+Affected objective IDs: AI-LAB-OBJ-007
+Architecture impact: Local presentation preferences only.
+Security and privacy impact: Preferences remain browser-local; no external service or telemetry is used.
+Data impact: Stores selected background and font names in browser-local storage.
+Testing impact: Verify controls, storage keys, default values, and CSS variants.
+Cost and schedule impact: None.
+Decision: APPROVED
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
 ## Approved change record — AI-LAB-CC-028
 
 ```text
