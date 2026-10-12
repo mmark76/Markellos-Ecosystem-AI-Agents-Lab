@@ -110,6 +110,13 @@ def history(room: str, limit: int = 80) -> list[dict]:
     return [dict(row) for row in rows]
 
 
+def clear_history(room: str) -> int:
+    """Delete only the saved conversation for one known local room."""
+    with closing(connect()) as db, db:
+        result = db.execute("DELETE FROM messages WHERE room=?", (room,))
+    return result.rowcount
+
+
 def local_models(provider: str = "ollama") -> list[str]:
     """Return models from one allow-listed local inference provider."""
     return PROVIDERS.models(provider, OPENER)
@@ -231,6 +238,25 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not self._host_valid() or not self._origin_valid():
             self._json({"error": "Cross-origin writes blocked"}, 403)
+            return
+        if self.path == "/api/history/clear":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if size < 2 or size > 128:
+                    raise ValueError("Invalid clear request.")
+                body = json.loads(self.rfile.read(size))
+                if not isinstance(body, dict) or set(body) != {"room"} or body["room"] not in ROOMS:
+                    raise ValueError("Select a valid room to clear.")
+            except (ValueError, TypeError, json.JSONDecodeError) as err:
+                self._json({"error": str(err)}, 400)
+                return
+            if not RUN_LOCK.acquire(blocking=False):
+                self._json({"error": "Wait for the active agent session to finish before clearing this conversation."}, 409)
+                return
+            try:
+                self._json({"room": body["room"], "deleted": clear_history(body["room"])})
+            finally:
+                RUN_LOCK.release()
             return
         if self.path == "/api/models/install":
             try:

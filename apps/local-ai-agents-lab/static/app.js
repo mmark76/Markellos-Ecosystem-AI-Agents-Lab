@@ -23,6 +23,7 @@ const words = {
     empty:'No sessions yet. Enter a topic below.', hint:'Agents have no access to files or commands.',
     working:'Agents are responding sequentially. This may take some time.',
     startUniversity:'Start Training ↗', startConference:'Start Discussion ↗', running:'Running...',
+    clearConversation:'Clear conversation / Start new session', cleared:'Conversation cleared. A new session is ready.',
     checking:'Checking local inference engine...', databaseError:'Unable to read local database.',
     serviceError:'Local service is not responding.', offline:name=>name+' is not running locally. See README.',
     noModels:name=>name+' is online · No compatible local models found.',
@@ -54,6 +55,8 @@ function updateUI() {
   $('prompt-label').textContent=room==='university'?t().universityLabel:t().conferenceLabel;
   $('prompt').placeholder=room==='university'?t().universityPlaceholder:t().conferencePlaceholder;
   $('send').textContent=running?t().running:room==='university'?t().startUniversity:t().startConference;
+  $('clear-conversation').textContent=t().clearConversation;
+  $('clear-conversation').disabled=running;
   $('hint').textContent=hintError|| (running?t().working:t().hint);
   document.querySelectorAll('[data-room]').forEach(b=>b.classList.toggle('selected',b.dataset.room===room));
   setStatus();
@@ -121,5 +124,16 @@ $('composer').addEventListener('submit',async ev=>{
   finally {
     running=false;await refreshHistory();await refreshStatus();updateUI();
   }
+});
+$('clear-conversation').addEventListener('click',async()=>{
+  if(running||!confirm('Clear this room\'s conversation? This cannot be undone.'))return;
+  $('clear-conversation').disabled=true;
+  try {
+    const result=await fetch('/api/history/clear',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({room})});
+    const payload=await result.json();
+    if(!result.ok)throw new Error(payload.error||'Unable to clear this conversation.');
+    $('prompt').value='';hintError=t().cleared;await refreshHistory();
+  } catch(err) { hintError=err.message; }
+  finally { updateUI(); }
 });
 updateUI();refreshHistory();refreshStatus();
