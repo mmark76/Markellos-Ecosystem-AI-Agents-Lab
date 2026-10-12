@@ -23,7 +23,7 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.equal((html.match(/Open Local Lab/g) || []).length, 1);
   assert.doesNotMatch(html, /secondary-button" href="http:\/\/127\.0\.0\.1:8765\//);
   assert.match(html, /data-color-mode="dark"/);
-  assert.match(html, /value="#000000"/);
+  assert.doesNotMatch(html, /background-color|Background colour/);
   assert.match(html, /Download AI-Agents-Lab-Windows\.zip/);
   assert.match(html, /Read the README/);
   assert.match(html, /href="\.\/README\.md" target="_blank" rel="noopener noreferrer"/);
@@ -51,4 +51,7 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.match(readFileSync(join(output, '_headers'), 'utf8'), /script-src 'self'/);
   assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /colorMode:'dark'/);
   assert.match(readFileSync(join(output, 'styles.css'), 'utf8'), /--color-background:#000000/);
+  assert.doesNotMatch(readFileSync(join(output, 'styles.css'), 'utf8'), /--user-background/);
+  assert.match(readFileSync(join(output, 'styles.css'), 'utf8'), /html\[data-color-mode="light"\].*--color-text:#172033/s);
+  assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /colorMode === 'dark' \? 'Light' : 'Dark'/);
 });
