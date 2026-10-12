@@ -6,6 +6,7 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 
 ### Changed
 
+- Explained how to install the optional local model-training environment when it is missing.
 - Made Conference Room roles general-purpose: Planner, Researcher, and Reviewer.
 - Collapsed optional model training behind an Advanced control with a plain-language setup notice.
 - Removed the Local Lab update-check control; the public dashboard is the single place to download a newer ZIP.
