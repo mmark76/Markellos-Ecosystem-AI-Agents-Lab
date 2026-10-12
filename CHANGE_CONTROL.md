@@ -376,6 +376,63 @@ Approved by: Direct user request
 Target release: Next public landing deployment
 ```
 
+## Approved change record — AI-LAB-CC-027
+
+```text
+Change ID: AI-LAB-CC-027
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Change desktop Local Lab Hide controls from compact side rails to full side-column collapse with floating Show controls.
+Reason: The user expects Hide to remove the entire column, not merely its text content.
+Affected objective IDs: AI-LAB-OBJ-007
+Architecture impact: Local presentation layout only; no data, provider, training, or network changes.
+Security and privacy impact: None.
+Data impact: Browser-local width preferences remain unchanged.
+Testing impact: Add CSS regression assertions for zero-width collapsed columns and accessible floating Show controls.
+Cost and schedule impact: None.
+Decision: APPROVED (DEFECT)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
+## Approved change record — AI-LAB-CC-026
+
+```text
+Change ID: AI-LAB-CC-026
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Restore independent vertical scrolling for every desktop column in the Local Lab three-panel workspace.
+Reason: The side navigation, conversation, and tools content could exceed the viewport without a usable internal scroll area.
+Affected objective IDs: AI-LAB-OBJ-007
+Architecture impact: Local presentation layout only; no provider, training, SQLite, or external service boundary changes.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Add regression assertions for explicit overflow and minimum-size constraints.
+Cost and schedule impact: None.
+Decision: APPROVED (DEFECT)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
+## Approved change record — AI-LAB-CC-025
+
+```text
+Change ID: AI-LAB-CC-025
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Explain empty advanced-training model and dataset dropdowns beside the affected fields, with disabled empty controls.
+Reason: Prevent users from assuming that these dropdowns should contain preset choices before they add local compatible inputs.
+Affected objective IDs: AI-LAB-OBJ-006
+Architecture impact: Local training presentation only; model discovery, validation, and the isolated training boundary are unchanged.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Add regression assertions for guidance text and disabled empty selections.
+Cost and schedule impact: None.
+Decision: APPROVED (CLARIFICATION)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
 ## Approved change record — AI-LAB-CC-024
 
 ```text
