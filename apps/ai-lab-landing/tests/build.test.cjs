@@ -27,6 +27,8 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.match(html, /data-color-mode="dark"/);
   assert.doesNotMatch(html, /background-color|Background colour/);
   assert.match(html, /Download AI-Agents-Lab-Windows\.zip/);
+  assert.match(html, new RegExp(`id="zip-download" class="primary-button" data-zip-version="v${escapedReleaseVersion}"`));
+  assert.match(html, new RegExp(`Download AI-Agents-Lab-Windows\\.zip \\(v${escapedReleaseVersion}\\)`));
   assert.match(html, /FREE VERSION · SAFE · PRIVATE/);
   assert.match(html, /Train your AI agents on your own device\./);
   assert.match(html, /This public page is a guide only\. Download the ZIP to enter the Lab\./);
@@ -70,9 +72,12 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /window\.setInterval\(check, 60_000\)/);
   assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /document\.visibilityState === 'visible'/);
   assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /window\.fetch\(window\.location\.href, \{cache:'no-store'\}\)/);
-  assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /isNewerRelease\(availableVersion, currentVersion\)/);
+  assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /markellos\.ai-lab\.downloaded-zip-version\.v1/);
+  assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /getElementById\('zip-download'\)/);
+  assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /isNewerRelease\(availableVersion, knownVersion\)/);
   assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /New version available: v\$\{availableVersion\.join\('\.'\)\} — Download ZIP/);
   assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /return available\[index\] > current\[index\];/);
-  assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /zipUpdate\.addEventListener\('click',\(\)=>window\.location\.assign\(LATEST_ZIP_URL\)\)/);
+  assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /zipDownload\?\.addEventListener\('click'/);
+  assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /zipUpdate\.addEventListener\('click',\(\)=>\{const version=releaseVersion/);
   assert.match(readFileSync(join(output, 'styles.css'), 'utf8'), /\.zip-update \{ position: fixed;/);
 });
