@@ -1,11 +1,11 @@
-# Markellos Ecosystem AI Agents Lab — Private Local Starter (v0.1.19)
+# Markellos Ecosystem AI Agents Lab — Private Local Starter (v0.1.20)
 
 Local Windows application with two workspaces:
 
 - **Learning Lab:** one Trainer and one Student agent.
 - **AI Conference Room:** Planner, Researcher, and Reviewer discuss any topic in sequence using the same history.
 
-The Learning Lab can assign independent installed models to its Trainer and Student controls, while the Conference Room keeps one selected **local** Ollama, LM Studio, or vLLM model. The selected role models are snapshotted when a Training session starts, so changing a control affects the next session only. They are not independently trained models. They do not execute commands or access GitHub, repositories, or files. Feedback is not objective proof of improvement.
+The Learning Lab can assign independent installed **local Ollama** models to its Trainer and Student controls, while the Conference Room keeps one selected Ollama model. The selected role models are snapshotted when a Training session starts, so changing a control affects the next session only. They are not independently trained models. They do not execute commands or access GitHub, repositories, or files. Feedback is not objective proof of improvement.
 
 The **Learning Lab** is the teaching room (internal API id: `university` for compatibility with the original version). The **AI Conference Room** keeps its existing behavior.
 
@@ -14,31 +14,19 @@ The **Learning Lab** is the teaching room (internal API id: `university` for com
 ## Prerequisites
 
 1. **Python 3.9 or later** for Windows, installed from python.org with the PATH option enabled.
-2. **Ollama for Windows** from <https://ollama.com/download/windows>, or a locally running LM Studio or vLLM server.
+2. **Ollama for Windows** from <https://ollama.com/download/windows>.
 3. A **local** model, for example with PowerShell: `ollama pull qwen3:4b`. It requires about 2.5 GB of disk space; suitability depends on available RAM, CPU, and GPU.
 
-## Inference engines
+## Inference engine
 
-The application exposes only three fixed local choices. It never accepts a
-provider URL from the UI or API and never falls back to a cloud service.
-
-| Engine | Local API | When to use it |
-|---|---|---|
-| **Ollama** (default) | `127.0.0.1:11434` | Simple local setup, model switching, and automatic model loading/unloading. |
-| **LM Studio** | `127.0.0.1:1234/v1` | GUI-based local experimentation; start its local server first. |
-| **vLLM** | `127.0.0.1:8000/v1` | High-throughput concurrent GPU inference on Linux, compatible WSL2, or a GPU server. |
-
-The selected engine is checked only on its fixed loopback API and the Lab shows
-only models returned by that API. If an engine is not running, the Lab displays
-an error without affecting the other choices.
-
-vLLM is not natively supported on Windows. RunPod or any other remote provider
-requires separate remote-infrastructure approval and is not supported by this
-release: all configured addresses remain `127.0.0.1`.
+The Lab uses **only Ollama** at the fixed loopback address
+`127.0.0.1:11434`. It never accepts an engine or provider URL from the UI or
+API, and never falls back to a cloud service. The Lab shows only installed local
+models returned by Ollama; if Ollama is not running, it displays a clear error.
 
 ## Add Model — Ollama (new local UI feature)
 
-When **Ollama** is the selected Inference Engine, expand **Add Model · Ollama**.
+Expand **Add Model · Ollama**.
 Enter an exact model name from the [Ollama model library](https://ollama.com/library),
 for example `gemma3:4b`, then choose **Install model** and confirm the download.
 Progress and errors appear in the Lab. After successful installation, the local
@@ -55,9 +43,8 @@ models; the Lab filters them from local inference. If the model is unavailable
 or the download fails, the error appears in the installer. Installation does
 not train the model or install a compatible Transformers training directory.
 
-LM Studio model downloads remain managed in the LM Studio application; vLLM
-models are provisioned on the vLLM host. **Add Model** currently manages Ollama
-only. The installer is intentionally separate from the PyTorch training wizard.
+**Add Model** manages Ollama only. The installer is intentionally separate from
+the PyTorch training wizard.
 
 ## Run the Lab on a laptop
 
@@ -121,7 +108,7 @@ output; reduce model size or sequence length before retrying.
 ### Installation guide
 
 The following is an **optional local installation** for training only. Do not
-run it for the normal Ollama, LM Studio, or vLLM inference workflow.
+run it for the normal Ollama inference workflow.
 
 **Guided path:** double-click
 `setup-training-windows.bat`. The Windows Training Setup Wizard checks Python
@@ -204,7 +191,7 @@ CUDA build. Both paths use the same `training\.venv` and output folders.
 - Not included or automatically installed: CUDA drivers/Toolkit, models,
   datasets, adapters, checkpoints, or cloud credentials.
 - The ZIP contains only the code and instructions for Training. The main
-  application and Ollama, LM Studio, and vLLM continue to work without these
+  application and Ollama continue to work without these
   libraries.
 
 ## Required Ollama configuration for fully local operation
@@ -226,9 +213,8 @@ environment.
 ## Privacy and boundaries
 
 - The web server binds **only** to `127.0.0.1:8765`.
-- The application connects only to fixed loopback addresses for Ollama, LM
-  Studio, and vLLM. It has no cloud API keys, tracking, CDN, external library,
-  or online inference feature.
+- The application connects only to Ollama at its fixed loopback address. It has
+  no cloud API keys, tracking, CDN, external library, or online inference feature.
 - Names containing `cloud` are filtered, but this is **not sufficient on its
   own**. For genuinely local Ollama operation, enable `disable_ollama_cloud`
   as described above and use downloaded local models only.

@@ -1,4 +1,4 @@
-"""Fixed loopback inference-provider adapters for the Local AI Agents Lab."""
+"""Fixed loopback Ollama adapter for the Local AI Agents Lab."""
 from __future__ import annotations
 
 import json
@@ -24,12 +24,10 @@ class ProviderInfo:
 
 
 class InferenceProviders:
-    """Routes only to this application's fixed loopback provider endpoints."""
+    """Routes only to the application's fixed local Ollama endpoint."""
 
     _providers = {
         "ollama": ProviderInfo("ollama", "Ollama", "http://127.0.0.1:11434", "ollama"),
-        "lm-studio": ProviderInfo("lm-studio", "LM Studio", "http://127.0.0.1:1234/v1", "openai"),
-        "vllm": ProviderInfo("vllm", "vLLM", "http://127.0.0.1:8000/v1", "openai"),
     }
 
     def get(self, identifier: str) -> ProviderInfo:
@@ -44,9 +42,6 @@ class InferenceProviders:
                 payload = self._json(opener, Request(provider.base_url + "/api/tags", headers={"Accept": "application/json"}), 4)
                 names = [model.get("name", "") for model in payload.get("models", []) if isinstance(model, dict)]
                 return [name for name in names if isinstance(name, str) and name and "cloud" not in name.lower()]
-            payload = self._json(opener, Request(provider.base_url + "/models", headers={"Accept": "application/json"}), 4)
-            names = [model.get("id", "") for model in payload.get("data", []) if isinstance(model, dict)]
-            return [name for name in names if isinstance(name, str) and name]
         except (HTTPError, URLError, OSError, json.JSONDecodeError, UnicodeDecodeError, KeyError, TypeError) as err:
             raise ProviderUnavailable(f"{provider.label} is unavailable on its local endpoint.") from err
 
@@ -64,15 +59,6 @@ class InferenceProviders:
                 )
                 payload = self._json(opener, request, 150)
                 answer = (payload.get("message") or {}).get("content", "")
-            else:
-                request = Request(
-                    provider.base_url + "/chat/completions",
-                    data=json.dumps({"model": model, "messages": messages, "max_tokens": 450}).encode("utf-8"),
-                    headers={"Content-Type": "application/json"}, method="POST",
-                )
-                payload = self._json(opener, request, 150)
-                choices = payload.get("choices") or []
-                answer = (choices[0].get("message") or {}).get("content", "") if choices and isinstance(choices[0], dict) else ""
         except (HTTPError, URLError, OSError, json.JSONDecodeError, UnicodeDecodeError, KeyError, TypeError) as err:
             raise ProviderUnavailable(f"{provider.label} did not complete the local request.") from err
         if not isinstance(answer, str) or not answer.strip():

@@ -8,7 +8,7 @@ Complete this project-owned record before development readiness and reassess it 
 - Assets and data classification: public instructional content and deployment integrity; no user data, credentials, application database, or models.
 - Actors and trust boundaries: anonymous readers access Cloudflare Pages over HTTPS; maintainers control the Git repository and Cloudflare project. The local Lab is outside this boundary.
 - Entry points and dependencies: HTTPS GET requests to Cloudflare Pages; Cloudflare Pages and the repository build process.
-- Assumptions and out-of-scope items: the local Lab may call only the fixed loopback APIs for Ollama, LM Studio, and vLLM. Hosting the Lab, arbitrary endpoints, RunPod, Cloud Core, and its SQLite database are out of scope.
+- Assumptions and out-of-scope items: the local Lab may call only the fixed loopback Ollama API. Hosting the Lab, LM Studio, vLLM, arbitrary endpoints, RunPod, Cloud Core, and its SQLite database are out of scope.
 
 ## Threats and treatments
 

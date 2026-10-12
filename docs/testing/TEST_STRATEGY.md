@@ -15,7 +15,7 @@
 
 ## Manual checks
 
-- Confirm the Local Lab starts only on `127.0.0.1:8765` and calls only its fixed loopback provider endpoints: Ollama `11434`, LM Studio `1234`, or vLLM `8000`.
+- Confirm the Local Lab starts only on `127.0.0.1:8765` and calls only Ollama at fixed loopback port `11434`.
 - Before an approved Pages deployment, inspect the preview for responsive layout, keyboard navigation, HTTPS, headers, and absence of local-Lab routes.
 - Before releasing a Windows package, verify its generated build ID and preserve the existing local SQLite data during upgrade.
 - Press **Check for updates** once with network access and confirm it reports the release or a non-destructive error; it must not download or alter files.
