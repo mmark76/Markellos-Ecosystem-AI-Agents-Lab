@@ -1,9 +1,9 @@
-# Markellos Ecosystem AI Agents Lab — Private Local Starter (v0.1.7)
+# Markellos Ecosystem AI Agents Lab — Private Local Starter (v0.1.17)
 
 Local Windows application with two workspaces:
 
 - **Learning Lab:** one Trainer and one Student agent.
-- **AI Conference Room:** Architect, Developer, and Reviewer discuss a topic in sequence using the same history.
+- **AI Conference Room:** Planner, Researcher, and Reviewer discuss any topic in sequence using the same history.
 
 Both workspaces use the selected **local** Ollama, LM Studio, or vLLM model with different role instructions. They are not independently trained models. They do not execute commands or access GitHub, repositories, or files. Feedback is not objective proof of improvement.
 

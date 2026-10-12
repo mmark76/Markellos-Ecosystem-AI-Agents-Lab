@@ -6,6 +6,17 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 
 ### Changed
 
+- Added locally stored settings for background color and text font.
+- Fixed full desktop side-panel collapse when saved custom widths are present.
+- Made Hide fully collapse each Local Lab side column; its Show control remains accessible at the corresponding central-workspace edge.
+- Restored independent vertical scrolling for the left navigation, central conversation, and right tools panels in the desktop three-panel workspace.
+- Explained empty advanced-training model and dataset controls directly beside the fields, and disabled them until local compatible inputs are present.
+- Reserved a permanent header area for each Local Lab side panel, preventing the Hide control from covering scrolled tool content.
+- Fixed the three-panel Local Lab workspace: the interaction script is now served by the local server and included in the Windows ZIP; resize handles and hide/show controls are more reliable and clearly labelled.
+- Reorganized the Local Lab into a resizable three-panel workspace with collapsible navigation and tools panels.
+- Fixed Windows training setup Python detection so the wizard executes the Python launcher rather than its displayed version.
+- Explained how to install the optional local model-training environment when it is missing.
+- Made Conference Room roles general-purpose: Planner, Researcher, and Reviewer.
 - Collapsed optional model training behind an Advanced control with a plain-language setup notice.
 - Removed the Local Lab update-check control; the public dashboard is the single place to download a newer ZIP.
 - Made White the default Local Lab accent and kept all six desktop accent choices on one row.

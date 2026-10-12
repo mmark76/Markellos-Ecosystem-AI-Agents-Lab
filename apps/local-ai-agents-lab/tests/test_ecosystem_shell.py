@@ -14,12 +14,15 @@ class EcosystemShellTests(unittest.TestCase):
 
     def test_project_navigation_and_local_controls_preserved(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
+        app = (STATIC / "app.js").read_text(encoding="utf-8")
         for name in ('data-room="university"', 'data-room="conference"',
                      'id="settings-toggle"', 'id="provider"', 'id="model"',
                      'id="provider-help"',
                      'id="composer"'):
             with self.subTest(name=name):
                 self.assertIn(name, html)
+        self.assertIn('Planner · Researcher · Reviewer', app)
+        self.assertNotIn('Architect → Developer → Reviewer', app)
 
     def test_language_selectors_are_removed_and_runtime_is_english_only(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
@@ -50,6 +53,31 @@ class EcosystemShellTests(unittest.TestCase):
                      'Markellos Markides. All rights reserved.'):
             with self.subTest(name=name):
                 self.assertIn(name, html)
+
+    def test_three_panel_workspace_controls_are_packaged(self):
+        html = (STATIC / "index.html").read_text(encoding="utf-8")
+        script = (STATIC / "panel-layout.js").read_text(encoding="utf-8")
+        css = (STATIC / "style.css").read_text(encoding="utf-8")
+        for name in ('id="left-panel"', 'id="right-panel"', 'id="resize-left"', 'id="resize-right"',
+                     'id="toggle-left"', 'id="toggle-right"', '/static/panel-layout.js'):
+            with self.subTest(name=name): self.assertIn(name, html)
+        self.assertIn("localStorage", script)
+        self.assertIn("window.addEventListener('pointermove'", script)
+        self.assertIn("setWidth(widthProperty,expanded?stored(storageKey,fallback):0)", script)
+        self.assertIn("setWidth(resizerProperty,expanded?14:0)", script)
+        self.assertIn("window.addEventListener('pointerup'", script)
+        self.assertIn("event.preventDefault();activeResize={resize}", script)
+        self.assertIn('class="panel-toggle-label">Hide</span>', html)
+        self.assertIn('height:calc(100% - 48px)', css)
+        self.assertIn('margin-top:48px', css)
+        self.assertIn('.workspace-main.main{overflow:hidden}', css)
+        self.assertIn('.panel-content{min-height:0;overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}', css)
+        self.assertIn('.workspace-main .chat-panel{min-height:0;overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}', css)
+        self.assertIn('.shell.left-collapsed{--left-panel:0px;--left-resizer:0px}', css)
+        self.assertIn('.shell.right-collapsed{--right-panel:0px;--right-resizer:0px}', css)
+        self.assertIn('.shell.left-collapsed .sidebar,.shell.right-collapsed .inspector{z-index:5;overflow:visible}', css)
+        self.assertIn('.shell.left-collapsed .sidebar .panel-toggle{position:fixed;top:18px;right:auto;left:8px;z-index:30}', css)
+        self.assertIn('.shell.right-collapsed .inspector .panel-toggle{position:fixed;top:18px;right:8px;left:auto;z-index:30}', css)
         for removed in ('id="update-check"', 'id="update-status"', '/static/updates.js'):
             with self.subTest(removed=removed):
                 self.assertNotIn(removed, html)
@@ -72,6 +100,23 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn(" : 'white';", settings)
         self.assertIn("accent = 'white';", settings)
         self.assertIn('grid-template-columns:repeat(6,minmax(110px,1fr))', css)
+
+    def test_background_and_font_preferences_are_local_and_have_defaults(self):
+        html = (STATIC / "index.html").read_text(encoding="utf-8")
+        css = (STATIC / "style.css").read_text(encoding="utf-8")
+        settings = (STATIC / "settings.js").read_text(encoding="utf-8")
+        for selector in ('id="background-options"', 'data-background="midnight"', 'data-background="navy"',
+                         'data-background="forest"', 'data-background="plum"', 'id="font-options"',
+                         'data-font="modern"', 'data-font="serif"', 'data-font="mono"'):
+            with self.subTest(selector=selector): self.assertIn(selector, html)
+        for key in ('agents-lab-background', 'agents-lab-font'):
+            with self.subTest(key=key): self.assertIn(key, settings)
+        self.assertIn("background = 'default';", settings)
+        self.assertIn("font = 'system';", settings)
+        self.assertIn(':root[data-background="midnight"]', css)
+        self.assertIn(':root[data-font="serif"]', css)
+        self.assertIn('--bg:#000000', css)
+        self.assertIn('data-background="default"] .swatch-dot{background:#000}', css)
 
     def test_script_is_local_and_has_accessible_info_dialog(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
@@ -100,11 +145,17 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn('placeholder="e.g. Teach your AI agent how to..."', html)
         self.assertIn("universityPlaceholder:'e.g. Teach your AI agent how to...'", app)
         for name in ('Advanced: Train a model (optional)', 'For advanced users only.', 'training-dataset',
-                     'training-model', 'training-device', 'Which technology should I use?'):
+                     'training-model', 'training-device', 'setup-training-windows.bat', 'Which technology should I use?'):
             with self.subTest(name=name): self.assertIn(name, html)
         self.assertIn('<details class="training-workspace"', html)
         self.assertNotIn('<details class="training-workspace" open', html)
+        self.assertIn('id="training-model-hint"', html)
+        self.assertIn('id="training-dataset-hint"', html)
+        self.assertIn("select.disabled=items.length===0", script)
+        self.assertIn("No models found in models\\\\", script)
+        self.assertIn("No .jsonl files found in training-data\\\\", script)
         self.assertIn('/api/training/jobs', script)
+        self.assertIn("data.error!=='Training environment is not installed.'", script)
 
 if __name__ == "__main__":
     unittest.main()

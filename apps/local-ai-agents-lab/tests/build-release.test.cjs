@@ -22,6 +22,7 @@ test('Windows training wizard is packaged and opt-in',()=>{
   const launcher=fs.readFileSync(path.join(root,'setup-training-windows.bat'),'utf8');
   const wizard=fs.readFileSync(path.join(root,'scripts','setup-training.ps1'),'utf8');
   assert.match(launcher,/setup-training\.ps1/);
+  assert.match(wizard,/\$null = & py "-\$version" --version/);
   assert.match(wizard,/CPU, \[2\] NVIDIA CUDA/);
   assert.match(wizard,/Install these CPU training libraries now/);
   assert.match(wizard,/No CPU fallback/);
@@ -45,6 +46,13 @@ test('Windows launcher packages the University Lab desktop shortcut and icon',()
   assert.match(shortcut,/assets\\university-lab\.ico/);
   assert.match(packager,/'assets\/university-lab\.ico'/);
   assert.ok(fs.statSync(path.join(root,'assets','university-lab.ico')).size > 0);
+});
+test('three-panel interaction script is included in the Windows release',()=>{
+  const root=path.resolve(__dirname,'..');
+  const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
+  const server=fs.readFileSync(path.join(root,'server.py'),'utf8');
+  assert.match(packager,/'static\/panel-layout\.js'/);
+  assert.match(server,/"\/static\/panel-layout\.js"/);
 });
 test('a VERSION bump on main automatically creates the matching release ZIP',()=>{
   const root=path.resolve(__dirname,'..','..','..');

@@ -12,14 +12,14 @@ let hintError = '';
 const words = {
   en: {
     training:'Agent Training', collaboration:'Agent Collaboration',
-    tip:'AI Agents Training Lab<br>1 AI Trainer · 1 AI Student<br>3 AI Experts · Conference Room',
+    tip:'AI Agents Training Lab<br>1 AI Trainer · 1 AI Student<br>3 specialists: Planner · Researcher · Reviewer',
     note:'Stored locally in SQLite.<br>No GitHub or cloud API access.',
     providerLabel:'Inference Engine', modelLabel:'Local AI Model',
     universityDescription:'Learn → Practice → Evaluate → Improve',
-    conferenceDescription:'Architect → Developer → Reviewer · Shared history',
+    conferenceDescription:'Planner → Researcher → Reviewer · Shared history',
     universityLabel:'Training Topic', conferenceLabel:'Discussion Topic',
     universityPlaceholder:'e.g. Teach your AI agent how to...',
-    conferencePlaceholder:'e.g. Discuss adding a reporting module without regressions...',
+    conferencePlaceholder:'e.g. Explore the causes and effects of climate change...',
     empty:'No sessions yet. Enter a topic below.', hint:'Agents have no access to files or commands.',
     working:'Agents are responding sequentially. This may take some time.',
     startUniversity:'Start Training ↗', startConference:'Start Discussion ↗', running:'Running...',

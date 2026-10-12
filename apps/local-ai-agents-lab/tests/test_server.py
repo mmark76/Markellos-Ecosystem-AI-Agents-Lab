@@ -22,13 +22,13 @@ class CampusTests(unittest.TestCase):
 
     def test_rooms_separate_and_persist(self):
         campus.add_message('university', 'Trainer', 'Exercise 1')
-        campus.add_message('conference', 'Architect', 'Design review')
+        campus.add_message('conference', 'Planner', 'Discussion plan')
         self.assertEqual(len(campus.history('university')), 1)
-        self.assertEqual(campus.history('conference')[0]['agent'], 'Architect')
+        self.assertEqual(campus.history('conference')[0]['agent'], 'Planner')
 
     def test_clear_history_only_removes_the_selected_room(self):
         campus.add_message('university', 'Trainer', 'Exercise 1')
-        campus.add_message('conference', 'Architect', 'Design review')
+        campus.add_message('conference', 'Planner', 'Discussion plan')
         self.assertEqual(campus.clear_history('university'), 1)
         self.assertEqual(campus.history('university'), [])
         self.assertEqual(len(campus.history('conference')), 1)
@@ -115,6 +115,9 @@ class HttpIntegrationTests(unittest.TestCase):
                         lm_studio_status = json.load(response)
                     self.assertEqual(lm_studio_status['provider'], 'lm-studio')
                     self.assertTrue(lm_studio_status['available'])
+                    with opener.open(origin + '/static/panel-layout.js') as response:
+                        panel_layout = response.read().decode('utf-8')
+                    self.assertIn("setupResizer('resize-left','left')", panel_layout)
                     post = json.dumps({'room':'university', 'provider':'ollama', 'model':'qwen3:4b', 'prompt':'Safe code review'}).encode()
                     req = Request(origin + '/api/run', data=post, headers={'Origin':origin, 'Content-Type':'application/json'}, method='POST')
                     with opener.open(req) as response:

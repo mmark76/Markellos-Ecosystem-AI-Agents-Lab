@@ -72,6 +72,25 @@ Approved by: Direct user request
 Target release: Next public landing deployment
 ```
 
+## Approved change record — AI-LAB-CC-023
+
+```text
+Change ID: AI-LAB-CC-023
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Repair the Local Lab three-panel resize and hide/show controls with wider handles, window-level pointer tracking, and clear toggle labels.
+Reason: The initial three-panel implementation was not operable for the user in the released Local Lab.
+Affected objective IDs: AI-LAB-OBJ-007
+Architecture impact: Local presentation interaction only; model routing, SQLite history, training, and provider boundaries are unchanged.
+Security and privacy impact: None; no endpoint, storage, or external connection is added.
+Data impact: Stored panel width preferences remain browser-local.
+Testing impact: Add regression assertions for global pointer completion and labelled panel controls.
+Cost and schedule impact: None.
+Decision: APPROVED (DEFECT)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
 ## Approved change record — AI-LAB-CC-011
 
 ```text
@@ -355,4 +374,118 @@ Cost and schedule impact: None.
 Decision: APPROVED (DEFECT)
 Approved by: Direct user request
 Target release: Next public landing deployment
+```
+
+## Approved change record — AI-LAB-CC-029
+
+```text
+Change ID: AI-LAB-CC-029
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Add Settings controls for background color and text font.
+Reason: Let each local user personalise the Lab presentation without changing application data or behavior.
+Affected objective IDs: AI-LAB-OBJ-007
+Architecture impact: Local presentation preferences only.
+Security and privacy impact: Preferences remain browser-local; no external service or telemetry is used.
+Data impact: Stores selected background and font names in browser-local storage.
+Testing impact: Verify controls, storage keys, default values, and CSS variants.
+Cost and schedule impact: None.
+Decision: APPROVED
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
+## Approved change record — AI-LAB-CC-028
+
+```text
+Change ID: AI-LAB-CC-028
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Apply zero-width values directly to the saved desktop panel-width properties when Hide is selected.
+Reason: Inline saved widths overrode the CSS collapse rule, leaving empty side areas visible.
+Affected objective IDs: AI-LAB-OBJ-007
+Architecture impact: Local presentation interaction only; no data, provider, training, or network changes.
+Security and privacy impact: None.
+Data impact: Existing browser-local panel-width preferences are preserved and restored when Show is selected.
+Testing impact: Add a regression assertion for explicit zero-width toggle behavior.
+Cost and schedule impact: None.
+Decision: APPROVED (DEFECT)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
+## Approved change record — AI-LAB-CC-027
+
+```text
+Change ID: AI-LAB-CC-027
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Change desktop Local Lab Hide controls from compact side rails to full side-column collapse with floating Show controls.
+Reason: The user expects Hide to remove the entire column, not merely its text content.
+Affected objective IDs: AI-LAB-OBJ-007
+Architecture impact: Local presentation layout only; no data, provider, training, or network changes.
+Security and privacy impact: None.
+Data impact: Browser-local width preferences remain unchanged.
+Testing impact: Add CSS regression assertions for zero-width collapsed columns and accessible floating Show controls.
+Cost and schedule impact: None.
+Decision: APPROVED (DEFECT)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
+## Approved change record — AI-LAB-CC-026
+
+```text
+Change ID: AI-LAB-CC-026
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Restore independent vertical scrolling for every desktop column in the Local Lab three-panel workspace.
+Reason: The side navigation, conversation, and tools content could exceed the viewport without a usable internal scroll area.
+Affected objective IDs: AI-LAB-OBJ-007
+Architecture impact: Local presentation layout only; no provider, training, SQLite, or external service boundary changes.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Add regression assertions for explicit overflow and minimum-size constraints.
+Cost and schedule impact: None.
+Decision: APPROVED (DEFECT)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
+## Approved change record — AI-LAB-CC-025
+
+```text
+Change ID: AI-LAB-CC-025
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Explain empty advanced-training model and dataset dropdowns beside the affected fields, with disabled empty controls.
+Reason: Prevent users from assuming that these dropdowns should contain preset choices before they add local compatible inputs.
+Affected objective IDs: AI-LAB-OBJ-006
+Architecture impact: Local training presentation only; model discovery, validation, and the isolated training boundary are unchanged.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Add regression assertions for guidance text and disabled empty selections.
+Cost and schedule impact: None.
+Decision: APPROVED (CLARIFICATION)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
+## Approved change record — AI-LAB-CC-024
+
+```text
+Change ID: AI-LAB-CC-024
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Reserve a fixed header area above the scrollable content of both Local Lab side panels.
+Reason: The persistent Hide control overlapped the first visible tool when the panel content was scrolled.
+Affected objective IDs: AI-LAB-OBJ-007
+Architecture impact: Local presentation layout only; no model, provider, SQLite, or network boundary changes.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Add CSS regression assertions for the reserved panel header area.
+Cost and schedule impact: None.
+Decision: APPROVED (DEFECT)
+Approved by: Direct user request
+Target release: Next Local Lab release
 ```

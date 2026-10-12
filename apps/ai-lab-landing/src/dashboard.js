@@ -1,5 +1,6 @@
 'use strict';
 const KEY = 'markellos.ai-lab.appearance.v1';
+const ZIP_VERSION_KEY = 'markellos.ai-lab.downloaded-zip-version.v1';
 const DEFAULT = Object.freeze({colorMode:'dark',accent:'#f2c230',font:'system',textSize:'100',spacing:'comfortable'});
 const LATEST_ZIP_URL = 'https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/latest/download/AI-Agents-Lab-Windows.zip';
 const validHex = value => typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value) ? value.toLowerCase() : null;
@@ -25,9 +26,14 @@ function applyAppearance(value) {
 }
 function saveAppearance(p) { try { storage()?.setItem(KEY,JSON.stringify(normalizeAppearance(p))); return true; } catch { return false; } }
 function releaseVersion(build) {
-  const match = /^v(\d+)\.(\d+)\.(\d+)_/.exec(build || '');
+  const match = /^v(\d+)\.(\d+)\.(\d+)(?:_|$)/.exec(build || '');
   return match ? match.slice(1).map(Number) : null;
 }
+function displayedZipVersion(documentRef=document) {
+  return releaseVersion(documentRef.getElementById('zip-download')?.dataset.zipVersion);
+}
+function downloadedZipVersion() { return releaseVersion(storage()?.getItem(ZIP_VERSION_KEY)); }
+function rememberDownloadedZipVersion(version) { try { storage()?.setItem(ZIP_VERSION_KEY, `v${version.join('.')}`); } catch {} }
 function isNewerRelease(available, current) {
   for (let index = 0; index < available.length; index += 1) {
     if (available[index] !== current[index]) return available[index] > current[index];
@@ -35,16 +41,16 @@ function isNewerRelease(available, current) {
   return false;
 }
 async function checkForZipUpdate(button) {
-  const currentBuild = document.querySelector('.build-id')?.textContent?.trim();
-  const currentVersion = releaseVersion(currentBuild);
+  const currentVersion = displayedZipVersion();
   if (!currentVersion || typeof window.fetch !== 'function' || typeof DOMParser !== 'function') return;
   try {
     const response = await window.fetch(window.location.href, {cache:'no-store'});
     if (!response.ok) return;
-    const availableBuild = new DOMParser().parseFromString(await response.text(), 'text/html').querySelector('.build-id')?.textContent?.trim();
-    const availableVersion = releaseVersion(availableBuild);
-    if (availableVersion && isNewerRelease(availableVersion, currentVersion)) {
+    const availableVersion = displayedZipVersion(new DOMParser().parseFromString(await response.text(), 'text/html'));
+    const knownVersion = downloadedZipVersion() || currentVersion;
+    if (availableVersion && isNewerRelease(availableVersion, knownVersion)) {
       button.hidden = false;
+      button.dataset.zipVersion = `v${availableVersion.join('.')}`;
       button.textContent = `New version available: v${availableVersion.join('.')} — Download ZIP ↓`;
     }
   } catch {}
@@ -65,11 +71,13 @@ document.addEventListener('DOMContentLoaded',()=>{
   [['accent-color','accent'],['font-choice','font'],['text-size','textSize'],['spacing-choice','spacing']].forEach(([id,key])=>document.getElementById(id)?.addEventListener('input',event=>update({[key]:event.currentTarget.value})));
   document.getElementById('reset-appearance')?.addEventListener('click',()=>{try{storage()?.removeItem(KEY);}catch{} prefs=applyAppearance(DEFAULT); if(status)status.textContent='Appearance preferences reset.';});
   const zipUpdate=document.getElementById('zip-update');
+  const zipDownload=document.getElementById('zip-download');
+  zipDownload?.addEventListener('click',()=>{const version=displayedZipVersion();if(version)rememberDownloadedZipVersion(version);});
   if (zipUpdate) {
-    zipUpdate.addEventListener('click',()=>window.location.assign(LATEST_ZIP_URL));
+    zipUpdate.addEventListener('click',()=>{const version=releaseVersion(zipUpdate.dataset.zipVersion);if(version)rememberDownloadedZipVersion(version);window.location.assign(LATEST_ZIP_URL);});
     scheduleZipUpdateChecks(zipUpdate);
   }
   [['settings-button','settings-dialog'],['info-button','info-dialog']].forEach(([button,dialog])=>document.getElementById(button)?.addEventListener('click',()=>document.getElementById(dialog)?.showModal()));
   document.querySelectorAll('[data-close-dialog]').forEach(button=>button.addEventListener('click',()=>button.closest('dialog')?.close()));
 });
-module.exports={DEFAULT,normalizeAppearance,syncThemeToggle,releaseVersion,isNewerRelease,checkForZipUpdate,scheduleZipUpdateChecks};
+module.exports={DEFAULT,normalizeAppearance,syncThemeToggle,releaseVersion,displayedZipVersion,downloadedZipVersion,rememberDownloadedZipVersion,isNewerRelease,checkForZipUpdate,scheduleZipUpdateChecks};
