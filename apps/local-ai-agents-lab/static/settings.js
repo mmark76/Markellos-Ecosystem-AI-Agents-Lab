@@ -10,7 +10,7 @@
     try { localStorage.setItem(key, value); } catch { /* Browser storage unavailable. */ }
   };
   let mode = storageRead(themeKey) === 'light' ? 'light' : 'dark';
-  let accent = accentNames.includes(storageRead(accentKey)) ? storageRead(accentKey) : 'mint';
+  let accent = accentNames.includes(storageRead(accentKey)) ? storageRead(accentKey) : 'white';
   const $ = id => document.getElementById(id);
   const ui = {settings:'Settings', heading:'Appearance Settings', appearance:'Appearance', dark:'Dark', light:'Light', accent:'Accent Color', reset:'Reset to Defaults', close:'Close settings',
     colors:{mint:'Mint',blue:'Blue',purple:'Purple',orange:'Orange',rose:'Rose',white:'White'}};
@@ -55,7 +55,7 @@
   }));
   $('settings-reset').addEventListener('click', () => {
     mode = 'dark';
-    accent = 'mint';
+    accent = 'white';
     storageWrite(themeKey, mode);
     storageWrite(accentKey, accent);
     apply();

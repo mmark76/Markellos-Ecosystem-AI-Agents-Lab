@@ -55,7 +55,7 @@ button,textarea,select{font-family:inherit}
 @media(max-width:720px){.top-controls{gap:8px}.settings-panel{margin:0 0 14px}.settings-toggle{padding:7px}}
 
 /* Explicit visible palette choices, including text, for browser compatibility. */
-.accent-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px;max-width:640px}
+.accent-options{display:grid;grid-template-columns:repeat(6,minmax(110px,1fr));gap:10px;max-width:840px}
 .accent-options button{width:auto;height:48px;min-width:110px;flex:initial;border:1px solid var(--border);border-radius:9px;background:var(--field);color:var(--fg);display:flex;align-items:center;justify-content:flex-start;gap:9px;padding:7px 10px;appearance:none;-webkit-appearance:none;font:inherit;font-size:12px;box-sizing:border-box;white-space:nowrap}
 .accent-options button .swatch-dot{display:block;flex:none;width:23px;height:23px;min-width:23px;min-height:23px;border-radius:50%;background-color:var(--swatch);border:1px solid rgba(127,127,127,.3)}
 .accent-options button .swatch-name{display:inline;overflow:visible;width:auto;height:auto;background:transparent}
@@ -67,6 +67,7 @@ button,textarea,select{font-family:inherit}
 .accent-options button[data-accent="orange"] .swatch-dot{background-color:#f4a261;}
 .accent-options button[data-accent="rose"] .swatch-dot{background-color:#ed8ca9;}
 .accent-options button[data-accent="white"] .swatch-dot{background-color:#f8fafc;}
+@media(max-width:48rem){.accent-options{grid-template-columns:repeat(auto-fit,minmax(110px,1fr))}}
 
 /* Ecosystem shell adaptation: retain lab navigation and content layout. */
 .top-controls{flex-wrap:wrap;justify-content:flex-end}
