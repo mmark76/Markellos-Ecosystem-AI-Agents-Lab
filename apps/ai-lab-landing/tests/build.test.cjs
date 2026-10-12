@@ -11,7 +11,7 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   rmSync(output, { recursive: true, force: true });
   execFileSync(process.execPath, ['build.cjs'], { cwd: app, stdio: 'pipe' });
   const html = readFileSync(join(output, 'index.html'), 'utf8');
-  assert.match(html, /v0\.1\.0_\d{8}_\d{4}_[0-9a-f]{7}/);
+  assert.match(html, /v0\.1\.2_\d{8}_\d{4}_[0-9a-f]{7}/);
   assert.doesNotMatch(html, /\{\{BUILD_ID\}\}/);
   assert.match(html, /https:\/\/www\.python\.org\/downloads\/windows\//);
   assert.match(html, /https:\/\/ollama\.com\/download/);
@@ -24,7 +24,7 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.doesNotMatch(html, /secondary-button" href="http:\/\/127\.0\.0\.1:8765\//);
   assert.match(html, /data-color-mode="dark"/);
   assert.doesNotMatch(html, /background-color|Background colour/);
-  assert.match(html, /Download AI-Agents-Lab-Windows\.zip/);
+  assert.match(html, /Download AI-Agents-Lab-Windows\.zip · v0\.1\.2/);
   assert.match(html, /Read the README/);
   assert.match(html, /href="\.\/README\.md" target="_blank" rel="noopener noreferrer"/);
   assert.doesNotMatch(html, /data-language|language-selector|language-button/);

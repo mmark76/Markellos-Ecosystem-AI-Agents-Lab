@@ -23,9 +23,9 @@ cpSync(join(root, 'apps', 'local-ai-agents-lab', 'README.md'), join(output, 'REA
 cpSync(join(root, 'design-system', 'tokens', 'tokens.css'), join(output, 'tokens.css'));
 cpSync(join(__dirname, '_headers'), join(output, '_headers'));
 
-const version = '0.1.0';
+const releaseVersion = '0.1.2';
 const commit = git(['rev-parse', '--short=7', 'HEAD']);
-const buildId = `v${version}_${cyprusTimestamp(new Date())}_${commit}`;
+const buildId = `v${releaseVersion}_${cyprusTimestamp(new Date())}_${commit}`;
 const indexPath = join(output, 'index.html');
-writeFileSync(indexPath, readFileSync(indexPath, 'utf8').replaceAll('{{BUILD_ID}}', buildId));
+writeFileSync(indexPath, readFileSync(indexPath, 'utf8').replaceAll('{{BUILD_ID}}', buildId).replaceAll('{{RELEASE_VERSION}}', `v${releaseVersion}`));
 console.log(`Built ${output} (${buildId})`);
