@@ -53,6 +53,25 @@ Approved by: Direct user request
 Target release: Next Local Lab release
 ```
 
+## Approved change record — AI-LAB-CC-011
+
+```text
+Change ID: AI-LAB-CC-011
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Add an explicit landing-page notice that ZIP upgrades are manual, not required at every startup, and require preserving local models and SQLite history.
+Reason: Ensure users understand the safe update procedure.
+Affected objective IDs: AI-LAB-OBJ-003
+Architecture impact: Public instructional copy and regression assertion only.
+Security and privacy impact: Reinforces user-controlled upgrades and local data preservation.
+Data impact: Documents backup of local SQLite history; no data migration.
+Testing impact: Landing build regression asserts the notice.
+Cost and schedule impact: None.
+Decision: APPROVED (CLARIFICATION)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```
+
 ## Approved change record — AI-LAB-CC-009
 
 ```text

@@ -25,6 +25,9 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.match(html, /Only after the local server has started/);
   assert.match(html, /start-windows.bat/);
   assert.match(html, /cannot start the Lab by itself/);
+  assert.match(html, /Manual updates — important/);
+  assert.match(html, /You do not download the ZIP each time you start the Lab/);
+  assert.match(html, /data\/campus\.sqlite3/);
   assert.match(html, /class="site-header"/);
   assert.match(html, /class="primary-nav"/);
   assert.match(html, /href="#privacy"/);
