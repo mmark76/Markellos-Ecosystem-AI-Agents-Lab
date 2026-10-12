@@ -46,6 +46,7 @@
           <button type="button" data-accent="purple" aria-label="Purple" aria-pressed="false"><span class="swatch-dot" aria-hidden="true"></span><span class="swatch-name">Purple</span></button>
           <button type="button" data-accent="orange" aria-label="Orange" aria-pressed="false"><span class="swatch-dot" aria-hidden="true"></span><span class="swatch-name">Orange</span></button>
           <button type="button" data-accent="rose" aria-label="Rose" aria-pressed="false"><span class="swatch-dot" aria-hidden="true"></span><span class="swatch-name">Rose</span></button>
+          <button type="button" data-accent="white" aria-label="White" aria-pressed="false"><span class="swatch-dot" aria-hidden="true"></span><span class="swatch-name">White</span></button>
         </div>
       </fieldset>
       <button type="button" id="settings-reset" class="reset-theme">Reset to Defaults</button>
@@ -79,7 +80,7 @@
     <form id="composer" class="composer">
       <label for="prompt" id="prompt-label">Training Topic</label>
       <textarea id="prompt" rows="3" maxlength="2500" required placeholder="e.g. Teach the agents how to review a pull request safely..."></textarea>
-      <div class="actions"><div id="hint">Agents have no access to files or commands.</div><button id="send" type="submit">Start Training ↗</button></div>
+      <div class="actions"><div><span id="hint">Agents have no access to files or commands.</span><button id="clear-conversation" class="clear-conversation" type="button">Clear conversation / Start new session</button></div><button id="send" type="submit">Start Training ↗</button></div>
     </form>
     <details class="provider-help" id="provider-help">
       <summary id="provider-help-title">Which inference engine should I use?</summary>

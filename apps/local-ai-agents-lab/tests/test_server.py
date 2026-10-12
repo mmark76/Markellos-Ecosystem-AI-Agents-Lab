@@ -26,6 +26,13 @@ class CampusTests(unittest.TestCase):
         self.assertEqual(len(campus.history('university')), 1)
         self.assertEqual(campus.history('conference')[0]['agent'], 'Architect')
 
+    def test_clear_history_only_removes_the_selected_room(self):
+        campus.add_message('university', 'Trainer', 'Exercise 1')
+        campus.add_message('conference', 'Architect', 'Design review')
+        self.assertEqual(campus.clear_history('university'), 1)
+        self.assertEqual(campus.history('university'), [])
+        self.assertEqual(len(campus.history('conference')), 1)
+
     def test_cloud_models_filtered(self):
         class Reply:
             def __enter__(self): return self
@@ -142,6 +149,10 @@ class HttpIntegrationTests(unittest.TestCase):
                     self.assertEqual(len(result['messages']), 2)
                     self.assertEqual(len(campus.history('university')), 3)
                     self.assertEqual(len(campus.history('conference')), 0)
+                    clear = Request(origin + '/api/history/clear', data=json.dumps({'room':'university'}).encode(), headers={'Origin':origin, 'Content-Type':'application/json'}, method='POST')
+                    with opener.open(clear) as response:
+                        self.assertEqual(json.load(response), {'room':'university', 'deleted':3})
+                    self.assertEqual(campus.history('university'), [])
                     no_origin = Request(origin + '/api/run', data=post, headers={'Content-Type':'application/json'}, method='POST')
                     with self.assertRaises(HTTPError) as error:
                         opener.open(no_origin)

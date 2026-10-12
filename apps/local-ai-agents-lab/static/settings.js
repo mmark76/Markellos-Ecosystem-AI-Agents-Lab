@@ -2,7 +2,7 @@
 (() => {
   const themeKey = 'agents-lab-theme';
   const accentKey = 'agents-lab-accent';
-  const accentNames = ['mint', 'blue', 'purple', 'orange', 'rose'];
+  const accentNames = ['mint', 'blue', 'purple', 'orange', 'rose', 'white'];
   const storageRead = (key) => {
     try { return localStorage.getItem(key); } catch { return null; }
   };
@@ -13,7 +13,7 @@
   let accent = accentNames.includes(storageRead(accentKey)) ? storageRead(accentKey) : 'mint';
   const $ = id => document.getElementById(id);
   const ui = {settings:'Settings', heading:'Appearance Settings', appearance:'Appearance', dark:'Dark', light:'Light', accent:'Accent Color', reset:'Reset to Defaults', close:'Close settings',
-    colors:{mint:'Mint',blue:'Blue',purple:'Purple',orange:'Orange',rose:'Rose'}};
+    colors:{mint:'Mint',blue:'Blue',purple:'Purple',orange:'Orange',rose:'Rose',white:'White'}};
   function apply() {
     const root = document.documentElement;
     root.dataset.theme = mode;
