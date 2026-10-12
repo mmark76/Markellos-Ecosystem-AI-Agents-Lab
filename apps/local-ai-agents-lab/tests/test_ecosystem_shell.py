@@ -14,12 +14,15 @@ class EcosystemShellTests(unittest.TestCase):
 
     def test_project_navigation_and_local_controls_preserved(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
+        app = (STATIC / "app.js").read_text(encoding="utf-8")
         for name in ('data-room="university"', 'data-room="conference"',
                      'id="settings-toggle"', 'id="provider"', 'id="model"',
                      'id="provider-help"',
                      'id="composer"'):
             with self.subTest(name=name):
                 self.assertIn(name, html)
+        self.assertIn('Planner · Researcher · Reviewer', app)
+        self.assertNotIn('Architect → Developer → Reviewer', app)
 
     def test_language_selectors_are_removed_and_runtime_is_english_only(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
@@ -100,11 +103,12 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn('placeholder="e.g. Teach your AI agent how to..."', html)
         self.assertIn("universityPlaceholder:'e.g. Teach your AI agent how to...'", app)
         for name in ('Advanced: Train a model (optional)', 'For advanced users only.', 'training-dataset',
-                     'training-model', 'training-device', 'Which technology should I use?'):
+                     'training-model', 'training-device', 'setup-training-windows.bat', 'Which technology should I use?'):
             with self.subTest(name=name): self.assertIn(name, html)
         self.assertIn('<details class="training-workspace"', html)
         self.assertNotIn('<details class="training-workspace" open', html)
         self.assertIn('/api/training/jobs', script)
+        self.assertIn("data.error!=='Training environment is not installed.'", script)
 
 if __name__ == "__main__":
     unittest.main()

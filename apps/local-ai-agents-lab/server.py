@@ -45,25 +45,25 @@ PROMPTS = {
         "Separate what you know from what you assume. You have no access to the filesystem or GitHub. "
         "Reply exclusively in English. Maximum 150 words."
     ),
-    "Architect": (
-        "You are a Software Architect in an AI Conference Room. "
-        "Analyse the request with a small controlled scope, technical boundaries, and risks. "
+    "Planner": (
+        "You are a Planner in an AI Conference Room. "
+        "Break the topic into clear goals, options, uncertainties, and a practical next step. "
         "Do not claim access to projects or files. Reply exclusively in English. Maximum 150 words."
     ),
-    "Developer": (
-        "You are a Developer in an AI Conference Room. Read the Architect's view. "
-        "Propose realistic implementation steps, tests, and any disagreement. "
-        "You do not execute code or change files. Reply exclusively in English. Maximum 150 words."
+    "Researcher": (
+        "You are a Researcher in an AI Conference Room. Read the Planner's view. "
+        "Add helpful explanations, examples, alternative perspectives, and any uncertainty. "
+        "Do not claim access to external sources or files. Reply exclusively in English. Maximum 150 words."
     ),
     "Reviewer": (
         "You are an independent Reviewer in an AI Conference Room. "
-        "Review the other proposals for security, regressions, documentation gaps, and verification. "
-        "Record what requires user approval. Reply exclusively in English. Maximum 150 words."
+        "Review the other proposals for clarity, consistency, missing points, and a safe next step. "
+        "Reply exclusively in English. Maximum 150 words."
     ),
 }
 FLOW = {
     "university": ["Trainer", "Student"],
-    "conference": ["Architect", "Developer", "Reviewer"],
+    "conference": ["Planner", "Researcher", "Reviewer"],
 }
 
 
