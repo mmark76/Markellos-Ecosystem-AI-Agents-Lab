@@ -71,6 +71,11 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn('.workspace-main.main{overflow:hidden}', css)
         self.assertIn('.panel-content{min-height:0;overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}', css)
         self.assertIn('.workspace-main .chat-panel{min-height:0;overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}', css)
+        self.assertIn('.shell.left-collapsed{--left-panel:0px;--left-resizer:0px}', css)
+        self.assertIn('.shell.right-collapsed{--right-panel:0px;--right-resizer:0px}', css)
+        self.assertIn('.shell.left-collapsed .sidebar,.shell.right-collapsed .inspector{z-index:5;overflow:visible}', css)
+        self.assertIn('.shell.left-collapsed .sidebar .panel-toggle{right:auto;left:8px;z-index:6}', css)
+        self.assertIn('.shell.right-collapsed .inspector .panel-toggle{right:8px;left:auto;z-index:6}', css)
         for removed in ('id="update-check"', 'id="update-status"', '/static/updates.js'):
             with self.subTest(removed=removed):
                 self.assertNotIn(removed, html)
