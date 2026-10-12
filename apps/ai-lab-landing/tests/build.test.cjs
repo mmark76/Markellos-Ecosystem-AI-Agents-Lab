@@ -29,6 +29,8 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.match(html, /Download AI-Agents-Lab-Windows\.zip/);
   assert.match(html, /FREE VERSION · SAFE · PRIVATE/);
   assert.match(html, /Train your AI agents on your own device\./);
+  assert.match(html, /This public page is a guide only\. Download the ZIP to enter the Lab\./);
+  assert.doesNotMatch(html, /The Lab, its models, and its conversation history are never hosted here\./);
   assert.doesNotMatch(html, /Free local use\. No subscription or API fees for the local Lab\./);
   assert.doesNotMatch(html, /Learn with AI agents, on your own device\./);
   assert.match(html, /id="dashboard-update" class="dashboard-update" type="button" hidden/);
