@@ -22,6 +22,7 @@ test('Windows training wizard is packaged and opt-in',()=>{
   const launcher=fs.readFileSync(path.join(root,'setup-training-windows.bat'),'utf8');
   const wizard=fs.readFileSync(path.join(root,'scripts','setup-training.ps1'),'utf8');
   assert.match(launcher,/setup-training\.ps1/);
+  assert.match(wizard,/\$null = & py "-\$version" --version/);
   assert.match(wizard,/CPU, \[2\] NVIDIA CUDA/);
   assert.match(wizard,/Install these CPU training libraries now/);
   assert.match(wizard,/No CPU fallback/);

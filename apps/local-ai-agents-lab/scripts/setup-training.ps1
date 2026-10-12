@@ -9,7 +9,7 @@ $python = $null
 
 function Find-CompatiblePython {
   foreach ($version in @('3.12', '3.11')) {
-    & py "-$version" --version 2>$null
+    $null = & py "-$version" --version 2>$null
     if ($LASTEXITCODE -eq 0) { return @('py', "-$version") }
   }
   return $null
