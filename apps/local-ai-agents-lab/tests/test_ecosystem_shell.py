@@ -96,9 +96,11 @@ class EcosystemShellTests(unittest.TestCase):
     def test_training_workspace_is_local_and_english_only(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         script = (STATIC / "training.js").read_text(encoding="utf-8")
-        for name in ('Model Training', 'training-dataset',
+        for name in ('Advanced: Train a model (optional)', 'For advanced users only.', 'training-dataset',
                      'training-model', 'training-device', 'Which technology should I use?'):
             with self.subTest(name=name): self.assertIn(name, html)
+        self.assertIn('<details class="training-workspace"', html)
+        self.assertNotIn('<details class="training-workspace" open', html)
         self.assertIn('/api/training/jobs', script)
 
 if __name__ == "__main__":
