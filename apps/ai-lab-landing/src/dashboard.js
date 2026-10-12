@@ -33,6 +33,14 @@ async function checkForDashboardUpdate(button) {
     if (availableBuild && availableBuild !== currentBuild) button.hidden = false;
   } catch {}
 }
+function scheduleDashboardUpdateChecks(button) {
+  const check = () => void checkForDashboardUpdate(button);
+  check();
+  window.setInterval(check, 60_000);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') check();
+  });
+}
 document.addEventListener('DOMContentLoaded',()=>{
   let prefs=applyAppearance(loadAppearance());
   const status=document.getElementById('appearance-status');
@@ -43,9 +51,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   const dashboardUpdate=document.getElementById('dashboard-update');
   if (dashboardUpdate) {
     dashboardUpdate.addEventListener('click',()=>window.location.reload());
-    void checkForDashboardUpdate(dashboardUpdate);
+    scheduleDashboardUpdateChecks(dashboardUpdate);
   }
   [['settings-button','settings-dialog'],['info-button','info-dialog']].forEach(([button,dialog])=>document.getElementById(button)?.addEventListener('click',()=>document.getElementById(dialog)?.showModal()));
   document.querySelectorAll('[data-close-dialog]').forEach(button=>button.addEventListener('click',()=>button.closest('dialog')?.close()));
 });
-module.exports={DEFAULT,normalizeAppearance,syncThemeToggle,checkForDashboardUpdate};
+module.exports={DEFAULT,normalizeAppearance,syncThemeToggle,checkForDashboardUpdate,scheduleDashboardUpdateChecks};
