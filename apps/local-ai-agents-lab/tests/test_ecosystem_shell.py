@@ -60,8 +60,11 @@ class EcosystemShellTests(unittest.TestCase):
         for name in ('id="left-panel"', 'id="right-panel"', 'id="resize-left"', 'id="resize-right"',
                      'id="toggle-left"', 'id="toggle-right"', '/static/panel-layout.js'):
             with self.subTest(name=name): self.assertIn(name, html)
-        self.assertIn("setPointerCapture", script)
         self.assertIn("localStorage", script)
+        self.assertIn("window.addEventListener('pointermove'", script)
+        self.assertIn("window.addEventListener('pointerup'", script)
+        self.assertIn("event.preventDefault();activeResize={resize}", script)
+        self.assertIn('class="panel-toggle-label">Hide</span>', html)
         for removed in ('id="update-check"', 'id="update-status"', '/static/updates.js'):
             with self.subTest(removed=removed):
                 self.assertNotIn(removed, html)
