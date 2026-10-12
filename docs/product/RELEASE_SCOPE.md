@@ -20,6 +20,7 @@
 | AI-LAB-SCOPE-008 | Add an explicitly confirmed, local-only Ollama model downloader in the private Lab with progress, safe model-name validation, and refreshed model discovery. | Medium | Repository maintainer | Approved by direct user request on 2026-10-11 |
 | AI-LAB-SCOPE-009 | Publish a refreshed Windows release and add an explicit, safe Local Lab update check that never automatically downloads or installs files. | High | Repository maintainer | Approved by direct user request on 2026-10-11 |
 | AI-LAB-SCOPE-010 | Let Learning Lab users independently assign installed local models to Trainer and Student agents while preserving the fixed-loopback provider boundary. | High | Repository maintainer | Approved by direct user request on 2026-10-12 |
+| AI-LAB-SCOPE-011 | Extend Learning Lab to a strictly sequential four-stage Trainer, Student, Evaluator, Improver learning cycle with independent local Ollama model assignments and durable per-stage results. | High | Repository maintainer | Approved by direct user request on 2026-10-12 |
 
 ## Out of scope
 

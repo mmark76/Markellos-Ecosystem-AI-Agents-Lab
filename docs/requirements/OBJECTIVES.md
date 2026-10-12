@@ -14,5 +14,6 @@ Objectives are finite, owned, and traceable to scope, acceptance criteria, imple
 | AI-LAB-OBJ-008 | Let the owner explicitly install additional local Ollama models from the Lab UI with safe progress/status handling and refreshed discovery. | AI-LAB-SCOPE-008 | Medium | Yes | Repository maintainer | AI-LAB-AC-010 | APPROVED |
 | AI-LAB-OBJ-009 | Let the user manually check the official release for a newer Windows package without automatically changing the device. | AI-LAB-SCOPE-009 | High | Yes | Repository maintainer | AI-LAB-AC-011 | APPROVED |
 | AI-LAB-OBJ-010 | Let Learning Lab users independently configure installed local models for Trainer and Student inference. | AI-LAB-SCOPE-010 | High | Yes | Repository maintainer | AI-LAB-AC-012 | APPROVED |
+| AI-LAB-OBJ-011 | Provide a durable, evidence-oriented four-agent local learning cycle with serial Ollama inference, independent role assignments, evaluator feedback, and improver context. | AI-LAB-SCOPE-011 | High | Yes | Repository maintainer | AI-LAB-AC-013 | APPROVED |
 
 Applicable `ENG-*`, Shield, and Infrastructure requirements are recorded through their dedicated adoption records rather than duplicated here.
