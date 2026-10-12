@@ -22,13 +22,13 @@ class CampusTests(unittest.TestCase):
 
     def test_rooms_separate_and_persist(self):
         campus.add_message('university', 'Trainer', 'Exercise 1')
-        campus.add_message('conference', 'Architect', 'Design review')
+        campus.add_message('conference', 'Planner', 'Discussion plan')
         self.assertEqual(len(campus.history('university')), 1)
-        self.assertEqual(campus.history('conference')[0]['agent'], 'Architect')
+        self.assertEqual(campus.history('conference')[0]['agent'], 'Planner')
 
     def test_clear_history_only_removes_the_selected_room(self):
         campus.add_message('university', 'Trainer', 'Exercise 1')
-        campus.add_message('conference', 'Architect', 'Design review')
+        campus.add_message('conference', 'Planner', 'Discussion plan')
         self.assertEqual(campus.clear_history('university'), 1)
         self.assertEqual(campus.history('university'), [])
         self.assertEqual(len(campus.history('conference')), 1)
