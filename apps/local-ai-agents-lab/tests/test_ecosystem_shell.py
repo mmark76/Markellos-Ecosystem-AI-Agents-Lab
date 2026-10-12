@@ -39,7 +39,7 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn('language:responseLanguage', app)
         self.assertNotIn('document.documentElement.lang', settings)
         self.assertNotIn('document.documentElement.lang', shell)
-        for source in (html, app, settings, shell, (STATIC / "updates.js").read_text(encoding="utf-8")):
+        for source in (html, app, settings, shell):
             self.assertNotRegex(source, r'[\u0370-\u03ff]')
 
     def test_canonical_header_and_footer_elements(self):
@@ -50,6 +50,9 @@ class EcosystemShellTests(unittest.TestCase):
                      'Markellos Markides. All rights reserved.'):
             with self.subTest(name=name):
                 self.assertIn(name, html)
+        for removed in ('id="update-check"', 'id="update-status"', '/static/updates.js'):
+            with self.subTest(removed=removed):
+                self.assertNotIn(removed, html)
 
     def test_swatches_are_csp_compatible(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
@@ -89,17 +92,6 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn('/api/models/install', js)
         self.assertIn("confirm(", js)
         self.assertIn("value !== 'ollama'", js)
-
-    def test_update_check_is_explicit_and_never_installs_automatically(self):
-        html = (STATIC / "index.html").read_text(encoding="utf-8")
-        script = (STATIC / "updates.js").read_text(encoding="utf-8")
-        self.assertIn('id="update-check"', html)
-        self.assertIn('id="update-status"', html)
-        self.assertIn('/static/updates.js', html)
-        self.assertIn('/api/updates', script)
-        self.assertIn('noopener noreferrer', script)
-        self.assertNotIn('window.location', script)
-        self.assertNotIn('download=', script)
 
     def test_training_workspace_is_local_and_english_only(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")

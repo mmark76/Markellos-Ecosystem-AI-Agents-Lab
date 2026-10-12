@@ -1,4 +1,4 @@
-# Markellos Ecosystem AI Agents Lab — Private Local Starter (v0.1.5)
+# Markellos Ecosystem AI Agents Lab — Private Local Starter (v0.1.6)
 
 Local Windows application with two workspaces:
 
@@ -86,19 +86,12 @@ created. After manually updating to a new extracted folder, run that folder's
 
 ## Updates
 
-Use **Check for updates** in the Local Lab only when you want to check for a
-newer version. The button requests metadata from the project's single official
-GitHub Releases endpoint with a timeout and link validation. It never
-automatically downloads, extracts, installs, launches a file, or changes your
-conversations, models, or settings.
-
-If a newer version is available, open the suggested official link, download the
-ZIP manually, and follow the update procedure: first stop the Lab, back up
-`data/campus.sqlite3`, extract the new ZIP into a new folder, move the database
-only while both servers are stopped if you want to keep the history, and start
-the new version. Keep the old folder until the new installation works. If the
-check fails, for example because there is no internet connection, no local file
-is changed.
+The Local Lab has no in-app update check. Visit the public dashboard to learn
+when a newer `AI-Agents-Lab-Windows.zip` is available and download it manually.
+To update, first stop the Lab, back up `data/campus.sqlite3`, extract the new
+ZIP into a new folder, move the database only while both servers are stopped if
+you want to keep the history, and start the new version. Keep the old folder
+until the new installation works.
 
 ## Model Training
 

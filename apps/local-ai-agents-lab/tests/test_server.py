@@ -89,33 +89,6 @@ if __name__ == '__main__':
     unittest.main()
 
 class HttpIntegrationTests(unittest.TestCase):
-    def test_update_route_returns_only_server_checked_metadata(self):
-        from http.server import ThreadingHTTPServer
-        from threading import Thread
-        from urllib.request import build_opener, ProxyHandler
-        import json
-        original_port = campus.PORT
-        srv = ThreadingHTTPServer(('127.0.0.1', 0), campus.Handler)
-        campus.PORT = srv.server_address[1]
-        origin = f'http://127.0.0.1:{campus.PORT}'
-        thread = Thread(target=srv.serve_forever, daemon=True)
-        thread.start()
-        try:
-            checked = {
-                'currentVersion': '0.1.2', 'latestVersion': '0.1.3',
-                'available': True,
-                'releaseUrl': 'https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/tag/v0.1.3',
-                'downloadUrl': '',
-            }
-            with patch.object(campus, 'check_for_update', return_value=checked) as check:
-                with build_opener(ProxyHandler({})).open(origin + '/api/updates') as response:
-                    self.assertEqual(json.load(response), checked)
-                    self.assertEqual(response.headers['Content-Security-Policy'].split('connect-src ')[1].split(';')[0], "'self'")
-            check.assert_called_once_with(campus.APP_VERSION, campus.OPENER)
-        finally:
-            srv.shutdown(); srv.server_close(); thread.join(timeout=4)
-            campus.PORT = original_port
-
     def test_routes_origin_and_agent_turns(self):
         from http.server import ThreadingHTTPServer
         from threading import Thread

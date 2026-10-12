@@ -46,16 +46,6 @@ test('Windows launcher packages the University Lab desktop shortcut and icon',()
   assert.match(packager,/'assets\/university-lab\.ico'/);
   assert.ok(fs.statSync(path.join(root,'assets','university-lab.ico')).size > 0);
 });
-test('safe update-check inputs are packaged',()=>{
-  const root=path.resolve(__dirname,'..');
-  const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
-  const updates=fs.readFileSync(path.join(root,'updates.py'),'utf8');
-  assert.match(packager,/'updates\.py'/);
-  assert.match(packager,/'static\/updates\.js'/);
-  assert.match(updates,/releases\/latest/);
-  assert.match(updates,/never downloads, installs, or executes an/);
-});
-
 test('a VERSION bump on main automatically creates the matching release ZIP',()=>{
   const root=path.resolve(__dirname,'..','..','..');
   const workflow=fs.readFileSync(path.join(root,'.github','workflows','publish-local-ai-agents-lab-release.yml'),'utf8');
