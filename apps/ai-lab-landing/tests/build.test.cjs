@@ -29,6 +29,7 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.match(html, /Download AI-Agents-Lab-Windows\.zip/);
   assert.match(html, new RegExp(`id="zip-download" class="primary-button" data-zip-version="v${escapedReleaseVersion}"`));
   assert.match(html, new RegExp(`Download AI-Agents-Lab-Windows\\.zip \\(v${escapedReleaseVersion}\\)`));
+  assert.doesNotMatch(html, /\{\{RELEASE_VERSION\}\}/);
   assert.match(html, /FREE VERSION · SAFE · PRIVATE/);
   assert.match(html, /Train your AI agents on your own device\./);
   assert.match(html, /This public page is a guide only\. Download the ZIP to enter the Lab\./);
