@@ -60,6 +60,16 @@ class EcosystemShellTests(unittest.TestCase):
                 self.assertIn(f'button[data-accent="{name}"] .swatch-dot', css)
         self.assertNotIn('style="--swatch:', html)
 
+    def test_white_accent_is_the_default_and_desktop_choices_share_one_row(self):
+        html = (STATIC / "index.html").read_text(encoding="utf-8")
+        css = (STATIC / "style.css").read_text(encoding="utf-8")
+        settings = (STATIC / "settings.js").read_text(encoding="utf-8")
+        self.assertIn('<html lang="en" data-accent="white">', html)
+        self.assertIn('data-accent="white" aria-label="White" aria-pressed="true"', html)
+        self.assertIn(" : 'white';", settings)
+        self.assertIn("accent = 'white';", settings)
+        self.assertIn('grid-template-columns:repeat(6,minmax(110px,1fr))', css)
+
     def test_script_is_local_and_has_accessible_info_dialog(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         js = (STATIC / "ecosystem-shell.js").read_text(encoding="utf-8")
