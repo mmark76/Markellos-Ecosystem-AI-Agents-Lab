@@ -64,6 +64,9 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.match(readFileSync(join(output, 'styles.css'), 'utf8'), /html\[data-color-mode="light"\].*--color-text:#172033/s);
   assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /colorMode === 'dark' \? 'Light' : 'Dark'/);
   assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /checkForDashboardUpdate/);
+  assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /scheduleDashboardUpdateChecks/);
+  assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /window\.setInterval\(check, 60_000\)/);
+  assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /document\.visibilityState === 'visible'/);
   assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /window\.fetch\(window\.location\.href, \{cache:'no-store'\}\)/);
   assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /availableBuild !== currentBuild\) button\.hidden = false/);
   assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /dashboardUpdate\.addEventListener\('click',\(\)=>window\.location\.reload\(\)\)/);
