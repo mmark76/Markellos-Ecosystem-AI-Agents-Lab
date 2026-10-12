@@ -63,6 +63,8 @@ class EcosystemShellTests(unittest.TestCase):
             with self.subTest(name=name): self.assertIn(name, html)
         self.assertIn("localStorage", script)
         self.assertIn("window.addEventListener('pointermove'", script)
+        self.assertIn("setWidth(widthProperty,expanded?stored(storageKey,fallback):0)", script)
+        self.assertIn("setWidth(resizerProperty,expanded?14:0)", script)
         self.assertIn("window.addEventListener('pointerup'", script)
         self.assertIn("event.preventDefault();activeResize={resize}", script)
         self.assertIn('class="panel-toggle-label">Hide</span>', html)
@@ -74,8 +76,8 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn('.shell.left-collapsed{--left-panel:0px;--left-resizer:0px}', css)
         self.assertIn('.shell.right-collapsed{--right-panel:0px;--right-resizer:0px}', css)
         self.assertIn('.shell.left-collapsed .sidebar,.shell.right-collapsed .inspector{z-index:5;overflow:visible}', css)
-        self.assertIn('.shell.left-collapsed .sidebar .panel-toggle{right:auto;left:8px;z-index:6}', css)
-        self.assertIn('.shell.right-collapsed .inspector .panel-toggle{right:8px;left:auto;z-index:6}', css)
+        self.assertIn('.shell.left-collapsed .sidebar .panel-toggle{position:fixed;top:18px;right:auto;left:8px;z-index:30}', css)
+        self.assertIn('.shell.right-collapsed .inspector .panel-toggle{position:fixed;top:18px;right:8px;left:auto;z-index:30}', css)
         for removed in ('id="update-check"', 'id="update-status"', '/static/updates.js'):
             with self.subTest(removed=removed):
                 self.assertNotIn(removed, html)
