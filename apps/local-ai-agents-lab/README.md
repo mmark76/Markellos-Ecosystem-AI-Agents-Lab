@@ -70,6 +70,14 @@ only. The installer is intentionally separate from the PyTorch training wizard.
 
 Η υπηρεσία τερματίζεται με `Ctrl+C` στο παράθυρο PowerShell. Αν η θύρα 8765 χρησιμοποιείται ήδη, η εφαρμογή θα δείξει σφάλμα και δεν θα αντικαταστήσει καμία άλλη υπηρεσία.
 
+### Desktop shortcut
+
+The first run of `start-windows.bat` creates or refreshes a **Markellos AI
+Agents University Lab** shortcut on the current user's Desktop. It uses the
+included University Lab icon and opens the extracted copy of the Lab. This
+shortcut creation is local only: it does not install Python, Ollama, PyTorch,
+CUDA, models, drivers, or packages, and it makes no network request.
+
 ## Ενημερώσεις / Updates
 
 Πάτησε **Check for updates / Έλεγχος ενημερώσεων** μέσα στο Local Lab μόνο όταν

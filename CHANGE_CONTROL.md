@@ -185,3 +185,22 @@ Decision: APPROVED (CLARIFICATION)
 Approved by: Direct user request
 Target release: Next Local Lab release
 ```
+
+## Approved change record — AI-LAB-CC-014
+
+```text
+Change ID: AI-LAB-CC-014
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Create or refresh a Desktop shortcut with a University Lab icon when the local Windows launcher runs.
+Reason: Make the extracted local Lab easier to start after the user requests a shortcut and university-style icon.
+Affected objective IDs: AI-LAB-OBJ-003
+Architecture impact: Adds a fixed local Windows shortcut script and packaged icon asset; the launcher remains the single local server entry point.
+Security and privacy impact: The shortcut points only to the extracted local launcher; no network call, install, model download, driver change, or privilege elevation is performed.
+Data impact: Creates or updates one current-user Desktop shortcut; no SQLite, model, or training data change.
+Testing impact: Package regression verifies the shortcut script and icon are included.
+Cost and schedule impact: None.
+Decision: APPROVED (CLARIFICATION)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```

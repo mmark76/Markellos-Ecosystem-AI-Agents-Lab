@@ -12,6 +12,7 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 - Added an explicit public notice that ZIP upgrades are manual and local models plus SQLite history must be preserved.
 - Changed the public landing page default to the Local Lab's black appearance while retaining user-selectable accent and background colours.
 - Standardized the public landing page and Local Lab runtime UI, prompts, and new agent responses on English after removal of language controls.
+- Added a University Lab desktop shortcut with a packaged local icon, created when the Windows launcher first runs.
 
 ## [0.2.0] - 2026-10-08
 
