@@ -13,7 +13,7 @@
 | AI-LAB-SCOPE-001 | Publish a static, privacy-preserving guide at `ai-lab.markellosecosystem.com` through Cloudflare Pages. | High | Repository maintainer | Approved by direct user request on 2026-10-09 |
 | AI-LAB-SCOPE-002 | Provide a versioned public Windows ZIP and direct installation path for the local AI Agents Lab. | High | Repository maintainer | Approved by direct user request on 2026-10-10 |
 | AI-LAB-SCOPE-003 | Adopt the static visual and structural elements of the Ecosystem Framework canonical dashboard shell for the public guide, without JavaScript. | Medium | Repository maintainer | Approved by direct user request on 2026-10-10 |
-| AI-LAB-SCOPE-004 | Add fixed-loopback Ollama, LM Studio, and vLLM provider selection to the private Local Lab. | High | Repository maintainer | Approved by direct user request on 2026-10-11 |
+| AI-LAB-SCOPE-004 | Use fixed-loopback Ollama-only inference in the private Local Lab. | High | Repository maintainer | Superseded by direct user request on 2026-10-12 |
 | AI-LAB-SCOPE-005 | Adopt the complete interactive canonical dashboard shell for the public AI Agents Lab guide, using only local browser appearance preferences. | High | Repository maintainer | Approved by direct user request on 2026-10-11 |
 | AI-LAB-SCOPE-006 | Add an optional, isolated local PyTorch LoRA/SFT training workspace with CPU/CUDA selection while preserving fixed-loopback inference. | High | Repository maintainer | Approved by direct user request on 2026-10-11 |
 | AI-LAB-SCOPE-007 | Remove the two Local Lab language selectors and standardize its runtime UI and new agent responses on English while retaining model routing and local-only operation. | Medium | Repository maintainer | Approved by direct user request on 2026-10-12 |
@@ -27,7 +27,7 @@
 - Authentication, accounts, analytics, telemetry, or user-data collection. Local browser appearance preferences are permitted for AI-LAB-SCOPE-005 only.
 - Remote inference, arbitrary provider URLs, RunPod, Cloud Core, credentials, or payment functionality.
 - Remote training, cloud API keys, automatic training-model/dataset downloads, distributed training, DPO, and RLHF.
-- Cloud model pulls, unmanaged model URLs, arbitrary network endpoints, and in-app downloads for LM Studio or vLLM; AI-LAB-SCOPE-008 permits only explicit owner-confirmed Ollama pulls through fixed loopback.
+- Cloud model pulls, unmanaged model URLs, arbitrary network endpoints, and in-app downloads for non-Ollama engines; AI-LAB-SCOPE-008 permits only explicit owner-confirmed Ollama pulls through fixed loopback.
 - Automatic update downloads, installation, executable launch, release-channel selection, and arbitrary update URLs; AI-LAB-SCOPE-009 permits a manual check of one fixed official GitHub Releases endpoint only.
 
 ## Foundation impact

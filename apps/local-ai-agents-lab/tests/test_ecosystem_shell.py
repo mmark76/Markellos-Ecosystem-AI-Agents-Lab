@@ -16,14 +16,22 @@ class EcosystemShellTests(unittest.TestCase):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         app = (STATIC / "app.js").read_text(encoding="utf-8")
         for name in ('data-room="university"', 'data-room="conference"',
-                     'id="settings-toggle"', 'id="provider"', 'id="model"',
+                     'id="settings-toggle"', 'id="model"',
                      'id="trainer-model"', 'id="student-model"',
-                     'id="provider-help"',
                      'id="composer"'):
             with self.subTest(name=name):
                 self.assertIn(name, html)
         self.assertIn('Planner · Researcher · Reviewer', app)
         self.assertNotIn('Architect → Developer → Reviewer', app)
+
+    def test_lab_is_ollama_only_without_a_provider_selector(self):
+        html = (STATIC / "index.html").read_text(encoding="utf-8")
+        app = (STATIC / "app.js").read_text(encoding="utf-8")
+        installer = (STATIC / "model-install.js").read_text(encoding="utf-8")
+        self.assertIn('Inference Engine: <strong>Ollama</strong>', html)
+        for removed in ('id="provider"', 'LM Studio', 'vLLM', 'providerIds', "$('provider')"):
+            with self.subTest(removed=removed):
+                self.assertNotIn(removed, html + app + installer)
 
     def test_training_models_are_independent_and_persisted_locally(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
@@ -148,7 +156,7 @@ class EcosystemShellTests(unittest.TestCase):
                 self.assertIn(name, html)
         self.assertIn('/api/models/install', js)
         self.assertIn("confirm(", js)
-        self.assertIn("value !== 'ollama'", js)
+        self.assertNotIn("$('provider')", js)
 
     def test_training_workspace_is_local_and_english_only(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")

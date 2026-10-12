@@ -376,6 +376,25 @@ Approved by: Direct user request
 Target release: Next public landing deployment
 ```
 
+## Approved change record — AI-LAB-CC-032
+
+```text
+Change ID: AI-LAB-CC-032
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Remove LM Studio and vLLM choices and operate the Local Lab exclusively through fixed-loopback Ollama.
+Reason: Standardise local inference on Ollama to provide one reliable contract for independent model selection, performance metrics, and future streaming progress.
+Affected objective IDs: AI-LAB-OBJ-004, AI-LAB-OBJ-010
+Architecture impact: The provider adapter contains only the native Ollama route; the browser has no inference-engine selector or provider-status route.
+Security and privacy impact: Reduces the local inference attack surface to one fixed endpoint at 127.0.0.1:11434; no external endpoint, cloud API, or credential is introduced.
+Data impact: Existing SQLite conversation records and session metadata are preserved. New sessions record Ollama as the fixed provider.
+Testing impact: Replace multi-provider routing checks with Ollama-only discovery/routing and non-Ollama rejection coverage.
+Cost and schedule impact: None.
+Decision: APPROVED
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
 ## Approved change record — AI-LAB-CC-031
 
 ```text

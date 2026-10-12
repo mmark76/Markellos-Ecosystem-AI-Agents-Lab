@@ -42,40 +42,15 @@ class CampusTests(unittest.TestCase):
         with patch.object(campus.OPENER, 'open', return_value=Reply()):
             self.assertEqual(campus.local_models(), ['qwen3:4b'])
 
-    def test_openai_compatible_provider_model_discovery(self):
-        class Reply:
-            def __enter__(self): return self
-            def __exit__(self, *args): return False
-            def read(self, *_): return b'{"data":[{"id":"local-model"}]}'
-        with patch.object(campus.OPENER, 'open', return_value=Reply()) as open_request:
-            self.assertEqual(campus.local_models('lm-studio'), ['local-model'])
-            self.assertEqual(campus.local_models('vllm'), ['local-model'])
-        self.assertEqual(open_request.call_args_list[0].args[0].full_url, 'http://127.0.0.1:1234/v1/models')
-        self.assertEqual(open_request.call_args_list[1].args[0].full_url, 'http://127.0.0.1:8000/v1/models')
-
-    def test_openai_compatible_provider_chat_routing(self):
-        class Reply:
-            def __enter__(self): return self
-            def __exit__(self, *args): return False
-            def read(self, *_): return b'{"data":[{"id":"local-model"}]}'
-        class ChatReply(Reply):
-            def read(self, *_): return b'{"choices":[{"message":{"content":"Local reply"}}]}'
-        for provider, endpoint in (
-            ('lm-studio', 'http://127.0.0.1:1234/v1/chat/completions'),
-            ('vllm', 'http://127.0.0.1:8000/v1/chat/completions'),
-        ):
-            with self.subTest(provider=provider), patch.object(campus.OPENER, 'open', side_effect=[Reply(), ChatReply()]) as open_request:
-                answer = campus.PROVIDERS.chat(provider, 'local-model', [{'role':'user','content':'hello'}], campus.OPENER)
-            self.assertEqual(answer, 'Local reply')
-            request = open_request.call_args_list[1].args[0]
-            self.assertEqual(request.full_url, endpoint)
-            self.assertIn(b'"model": "local-model"', request.data)
-
-    def test_unavailable_provider_is_reported_without_fallback(self):
+    def test_ollama_unavailable_is_reported_without_fallback(self):
         with patch.object(campus.OPENER, 'open', side_effect=URLError('offline')):
-            status = campus.provider_status('vllm')
+            status = campus.provider_status('ollama')
         self.assertFalse(status['available'])
         self.assertEqual(status['models'], [])
+
+    def test_non_ollama_provider_is_not_supported(self):
+        with self.assertRaises(campus.ProviderError):
+            campus.PROVIDERS.get('lm-studio')
 
     def test_agent_prompts_exist(self):
         for flow in campus.FLOW.values():
@@ -119,10 +94,6 @@ class HttpIntegrationTests(unittest.TestCase):
                     with opener.open(origin + '/api/status') as response:
                         status = json.load(response)
                     self.assertEqual(status['models'], ['qwen3:8b', 'gemma3:4b'])
-                    with opener.open(origin + '/api/providers/lm-studio/status') as response:
-                        lm_studio_status = json.load(response)
-                    self.assertEqual(lm_studio_status['provider'], 'lm-studio')
-                    self.assertTrue(lm_studio_status['available'])
                     with opener.open(origin + '/static/panel-layout.js') as response:
                         panel_layout = response.read().decode('utf-8')
                     self.assertIn("setupResizer('resize-left','left')", panel_layout)

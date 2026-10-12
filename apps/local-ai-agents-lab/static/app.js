@@ -4,8 +4,7 @@ let room = 'university';
 let running = false;
 const uiLanguage = 'en';
 const responseLanguage = 'en';
-const providerIds = ['ollama', 'lm-studio', 'vllm'];
-let provider = providerIds.includes(localStorage.getItem('agents-lab-provider')) ? localStorage.getItem('agents-lab-provider') : 'ollama';
+const provider = 'ollama';
 const modelPreference = {Trainer:'agents-lab-trainer-model',Student:'agents-lab-student-model',Collaboration:'agents-lab-model'};
 let statusData = null;
 let statusError = false;
@@ -15,7 +14,7 @@ const words = {
     training:'Agent Training', collaboration:'Agent Collaboration',
     tip:'AI Agents Training Lab<br>1 AI Trainer · 1 AI Student<br>3 specialists: Planner · Researcher · Reviewer',
     note:'Stored locally in SQLite.<br>No GitHub or cloud API access.',
-    providerLabel:'Inference Engine', modelLabel:'Local AI Model',
+    modelLabel:'Local AI Model',
     universityDescription:'Learn → Practice → Evaluate → Improve',
     conferenceDescription:'Planner → Researcher → Reviewer · Shared history',
     universityLabel:'Training Topic', conferenceLabel:'Discussion Topic',
@@ -29,8 +28,6 @@ const words = {
     serviceError:'Local service is not responding.', offline:name=>name+' is not running locally. See README.',
     noModels:name=>name+' is online · No compatible local models found.',
     modelCount:(name,n)=>name+' online · '+n+' local models',
-    providerHelpTitle:'Which inference engine should I use?',
-    providerHelp:'<h2>Ollama — Simple Local AI</h2><p>Use it for easy installation, switching models, and automatic model loading.</p><h2>LM Studio — Local AI Experimentation</h2><p>Use its graphical interface to download, configure, and compare models manually.</p><h2>vLLM — High-Performance GPU Inference</h2><p>Use it for shared, concurrent GPU inference on Linux, compatible WSL2, or a GPU server. vLLM is not natively supported on Windows; RunPod requires separate remote-infrastructure approval.</p>',
     failed:'Session failed', you:'You',
     agents:{'You':'You','Trainer':'Trainer','Student':'Student','Agent A':'Student','Agent B':'Student','Trainer · Feedback':'Trainer · Feedback','\u0395\u03c3\u03cd':'You','\u039a\u03b1\u03b8\u03b7\u03b3\u03b7\u03c4\u03ae\u03c2':'Trainer','\u03a6\u03bf\u03b9\u03c4\u03b7\u03c4\u03ae\u03c2 \u0391':'Student','\u03a6\u03bf\u03b9\u03c4\u03b7\u03c4\u03ae\u03c2 \u0392':'Student','\u039a\u03b1\u03b8\u03b7\u03b3\u03b7\u03c4\u03ae\u03c2 · Feedback':'Trainer · Feedback'}
   }
@@ -44,8 +41,6 @@ function setStatus() {
 }
 function updateUI() {
   document.documentElement.lang=uiLanguage;
-  $('provider').value=provider;
-  $('provider-label').textContent=t().providerLabel;
   $('model-label').textContent='Collaboration Model';
   $('training-model-selects').hidden=room!=='university';
   $('collaboration-model-select').hidden=room==='university';
@@ -69,8 +64,6 @@ function updateUI() {
   });
   const empty=$('messages').querySelector('.empty');
   if(empty)empty.textContent=t().empty;
-  $('provider-help-title').textContent=t().providerHelpTitle;
-  $('provider-help-content').innerHTML=t().providerHelp;
 }
 function makeMessage(message) {
   const wrap=document.createElement('article');
@@ -101,8 +94,8 @@ async function refreshHistory() {
 }
 async function refreshStatus() {
   try {
-    const res=await fetch('/api/providers/'+encodeURIComponent(provider)+'/status');if(!res.ok)throw new Error('Status failed');
-    statusData=await res.json();statusError=false;
+    const res=await fetch('/api/status');if(!res.ok)throw new Error('Status failed');
+    const status=await res.json();statusData=status.provider;statusError=false;
     const legacy=localStorage.getItem(modelPreference.Collaboration);
     for(const [agent,id] of [['Trainer','trainer-model'],['Student','student-model'],['Collaboration','model']]){
       const select=$(id),old=select.value,stored=localStorage.getItem(modelPreference[agent]);select.replaceChildren();
@@ -116,7 +109,6 @@ async function refreshStatus() {
   setStatus();
 }
 function switchRoom(next){if(running||!['university','conference'].includes(next))return;room=next;hintError='';updateUI();refreshHistory();}
-$('provider').addEventListener('change',e=>{if(!providerIds.includes(e.target.value))return;provider=e.target.value;localStorage.setItem('agents-lab-provider',provider);hintError='';statusData=null;updateUI();refreshStatus();});
 [['Trainer','trainer-model'],['Student','student-model'],['Collaboration','model']].forEach(([agent,id])=>$(id).addEventListener('change',event=>localStorage.setItem(modelPreference[agent],event.target.value)));
 document.querySelectorAll('[data-room]').forEach(b=>b.addEventListener('click',()=>switchRoom(b.dataset.room)));
 $('composer').addEventListener('submit',async ev=>{

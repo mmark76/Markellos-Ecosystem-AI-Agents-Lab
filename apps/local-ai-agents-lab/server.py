@@ -22,8 +22,8 @@ OPENER = build_opener(ProxyHandler({}))  # No environment proxy; loopback only.
 RUN_LOCK = Lock()
 ROOMS = {"university", "conference"}
 
-# The adapter registry owns the fixed local provider URLs. User requests cannot
-# supply an endpoint, so the Lab cannot be redirected to a remote service.
+# The adapter owns the fixed local Ollama URL. User requests cannot supply an
+# endpoint, so the Lab cannot be redirected to a remote service.
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from providers import InferenceProviders, ProviderError
@@ -215,13 +215,6 @@ class Handler(BaseHTTPRequestHandler):
             except TrainingError as err:
                 self._json({"error": str(err)}, 404)
             return
-        if self.path.startswith("/api/providers/") and self.path.endswith("/status"):
-            provider = self.path[len("/api/providers/"):-len("/status")].strip("/")
-            try:
-                self._json(provider_status(provider))
-            except ProviderError:
-                self._json({"error": "Unknown inference provider"}, 404)
-            return
         if self.path.startswith("/api/history/"):
             room = self.path[len("/api/history/"):]
             if room in ROOMS:
@@ -329,7 +322,7 @@ class Handler(BaseHTTPRequestHandler):
             if not isinstance(raw_prompt, str):
                 raise ValueError("Invalid prompt")
             prompt = raw_prompt.strip()
-            if room not in ROOMS or not isinstance(provider, str) or not isinstance(model, str) or not 1 <= len(prompt) <= 2500:
+            if room not in ROOMS or provider != "ollama" or not isinstance(model, str) or not 1 <= len(prompt) <= 2500:
                 raise ValueError("Select a room, model, and topic of up to 2,500 characters.")
             if room == "university" and (not isinstance(trainer_model, str) or not isinstance(student_model, str)):
                 raise ValueError("Select both a Trainer model and a Student model.")

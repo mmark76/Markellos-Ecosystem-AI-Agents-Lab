@@ -20,23 +20,21 @@ Consequences: the public artifact has no application API, form, chat input, acco
 
 The original Local Lab communicated only with Ollama on `127.0.0.1:11434`. It did not use cloud AI keys or a provider SDK. AI-LAB-ADR-003 retains the local-only boundary while broadening the fixed local provider set.
 
-## AI-LAB-ADR-003 — Use fixed-loopback provider adapters for Local Lab inference
+## AI-LAB-ADR-003 — Use fixed-loopback Ollama-only inference for Local Lab
 
 - Status: Accepted
 - Date: 2026-10-11
 - Owner: Markellos Ecosystem repository maintainer
 - Related requirements: AI-LAB-OBJ-004, AI-LAB-AC-006, AI-LAB-SEC-004, AI-LAB-SEC-005
 
-The Local Lab supports Ollama, LM Studio, and vLLM through a small provider-adapter
-module. The registry hard-codes only `127.0.0.1:11434`, `127.0.0.1:1234/v1`, and
-`127.0.0.1:8000/v1`; browsers submit a provider identifier rather than a URL.
-Ollama retains its native API while LM Studio and vLLM use their OpenAI-compatible
-`/models` and `/chat/completions` APIs.
+The Local Lab supports only Ollama through a small fixed-loopback adapter module.
+The adapter hard-codes `127.0.0.1:11434`; browsers cannot submit an engine
+identifier or URL. Ollama retains its native `/api/tags` and `/api/chat` APIs.
 
-Consequences: an unavailable provider is isolated and reported without fallback;
-existing SQLite records and agent orchestration remain unchanged. RunPod, Cloud
-Core, arbitrary endpoints, credentials, and remote inference require a separate
-approved architecture and security scope.
+Consequences: an unavailable Ollama service is reported without fallback;
+existing SQLite records and agent orchestration remain unchanged. LM Studio,
+vLLM, RunPod, Cloud Core, arbitrary endpoints, credentials, and remote inference
+require a separate approved architecture and security scope.
 
 ## AI-LAB-ADR-004 — Isolate optional parameter training from inference
 

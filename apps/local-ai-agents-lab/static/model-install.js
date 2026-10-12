@@ -4,7 +4,7 @@
   const panel = $('model-installer'), form = $('model-install-form'), input = $('model-install-name');
   const button = $('model-install-submit'), output = $('model-install-status'), progress = $('model-install-progress');
   let wasRunning = false, lastCompleted = '', checking = false;
-  const showForProvider = () => { panel.hidden = $('provider').value !== 'ollama'; };
+  const showForProvider = () => { panel.hidden = false; };
   const api = async (path, options) => {
     const response = await fetch(path, options);
     const data = await response.json();
@@ -27,7 +27,7 @@
           (job.percent === null ? '' : ' (' + job.percent + '%)');
       } else if (job.state === 'completed') {
         output.textContent = job.model + ' installed in Ollama. Ready to use.';
-        if ((wasRunning || lastCompleted !== job.model) && $('provider').value === 'ollama') {
+        if (wasRunning || lastCompleted !== job.model) {
           await refreshStatus();
           if (Array.from($('model').options).some(option => option.value === job.model)) $('model').value = job.model;
         }
@@ -47,7 +47,6 @@
   }
   form.addEventListener('submit', async event => {
     event.preventDefault();
-    if ($('provider').value !== 'ollama') return;
     const model = input.value.trim();
     if (!model) return;
     if (!confirm('Install ' + model + ' via Ollama? This downloads model files from the internet and may use several GB of disk space.')) return;
@@ -64,7 +63,6 @@
       button.disabled = false;
     }
   });
-  $('provider').addEventListener('change', () => { showForProvider(); refreshInstallation(); });
   showForProvider();
   refreshInstallation();
   setInterval(refreshInstallation, 2000);
