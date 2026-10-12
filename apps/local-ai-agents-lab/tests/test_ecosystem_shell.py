@@ -68,6 +68,9 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn('class="panel-toggle-label">Hide</span>', html)
         self.assertIn('height:calc(100% - 48px)', css)
         self.assertIn('margin-top:48px', css)
+        self.assertIn('.workspace-main.main{overflow:hidden}', css)
+        self.assertIn('.panel-content{min-height:0;overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}', css)
+        self.assertIn('.workspace-main .chat-panel{min-height:0;overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}', css)
         for removed in ('id="update-check"', 'id="update-status"', '/static/updates.js'):
             with self.subTest(removed=removed):
                 self.assertNotIn(removed, html)

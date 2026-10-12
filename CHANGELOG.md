@@ -6,6 +6,7 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 
 ### Changed
 
+- Restored independent vertical scrolling for the left navigation, central conversation, and right tools panels in the desktop three-panel workspace.
 - Explained empty advanced-training model and dataset controls directly beside the fields, and disabled them until local compatible inputs are present.
 - Reserved a permanent header area for each Local Lab side panel, preventing the Hide control from covering scrolled tool content.
 - Fixed the three-panel Local Lab workspace: the interaction script is now served by the local server and included in the Windows ZIP; resize handles and hide/show controls are more reliable and clearly labelled.
