@@ -376,6 +376,25 @@ Approved by: Direct user request
 Target release: Next public landing deployment
 ```
 
+## Approved change record — AI-LAB-CC-028
+
+```text
+Change ID: AI-LAB-CC-028
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Apply zero-width values directly to the saved desktop panel-width properties when Hide is selected.
+Reason: Inline saved widths overrode the CSS collapse rule, leaving empty side areas visible.
+Affected objective IDs: AI-LAB-OBJ-007
+Architecture impact: Local presentation interaction only; no data, provider, training, or network changes.
+Security and privacy impact: None.
+Data impact: Existing browser-local panel-width preferences are preserved and restored when Show is selected.
+Testing impact: Add a regression assertion for explicit zero-width toggle behavior.
+Cost and schedule impact: None.
+Decision: APPROVED (DEFECT)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
 ## Approved change record — AI-LAB-CC-027
 
 ```text

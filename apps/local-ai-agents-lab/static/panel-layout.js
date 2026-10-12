@@ -13,7 +13,15 @@
   const setExpanded=(side,expanded)=>{
     const collapsed=`${side}-collapsed`, open=`${side}-open`, toggle=side==='left'?leftToggle:rightToggle;
     const toggleLabel=toggle.querySelector('.panel-toggle-label'), toggleIcon=toggle.querySelector('[aria-hidden="true"]');
-    if (desktop.matches) layout.classList.toggle(collapsed,!expanded);
+    if (desktop.matches) {
+      const widthProperty=side==='left'?'--left-panel':'--right-panel';
+      const resizerProperty=side==='left'?'--left-resizer':'--right-resizer';
+      const storageKey=side==='left'?'agents-lab-left-panel':'agents-lab-right-panel';
+      const fallback=side==='left'?272:352;
+      layout.classList.toggle(collapsed,!expanded);
+      setWidth(widthProperty,expanded?stored(storageKey,fallback):0);
+      setWidth(resizerProperty,expanded?14:0);
+    }
     else { layout.classList.toggle(open,expanded); if (expanded) layout.classList.remove(side==='left'?'right-open':'left-open'); }
     toggle.setAttribute('aria-expanded',String(expanded));
     const panelName=side==='left'?'workspace':'tools';
