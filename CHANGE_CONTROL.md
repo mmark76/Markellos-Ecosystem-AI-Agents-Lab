@@ -72,6 +72,25 @@ Approved by: Direct user request
 Target release: Next public landing deployment
 ```
 
+## Approved change record — AI-LAB-CC-023
+
+```text
+Change ID: AI-LAB-CC-023
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Repair the Local Lab three-panel resize and hide/show controls with wider handles, window-level pointer tracking, and clear toggle labels.
+Reason: The initial three-panel implementation was not operable for the user in the released Local Lab.
+Affected objective IDs: AI-LAB-OBJ-007
+Architecture impact: Local presentation interaction only; model routing, SQLite history, training, and provider boundaries are unchanged.
+Security and privacy impact: None; no endpoint, storage, or external connection is added.
+Data impact: Stored panel width preferences remain browser-local.
+Testing impact: Add regression assertions for global pointer completion and labelled panel controls.
+Cost and schedule impact: None.
+Decision: APPROVED (DEFECT)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
 ## Approved change record — AI-LAB-CC-011
 
 ```text

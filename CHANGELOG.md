@@ -6,6 +6,7 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 
 ### Changed
 
+- Fixed the three-panel Local Lab workspace: the interaction script is now served by the local server and included in the Windows ZIP; resize handles and hide/show controls are more reliable and clearly labelled.
 - Reorganized the Local Lab into a resizable three-panel workspace with collapsible navigation and tools panels.
 - Fixed Windows training setup Python detection so the wizard executes the Python launcher rather than its displayed version.
 - Explained how to install the optional local model-training environment when it is missing.
