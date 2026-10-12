@@ -20,6 +20,11 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.match(html, /not a native Windows desktop download/);
   assert.match(html, /href="http:\/\/127\.0\.0\.1:8765\/"/);
   assert.match(html, /Open Local Lab/);
+  assert.match(html, /Download AI-Agents-Lab-Windows\.zip/);
+  assert.doesNotMatch(html, /data-language|language-selector|language-button/);
+  assert.match(html, /Only after the local server has started/);
+  assert.match(html, /start-windows.bat/);
+  assert.match(html, /cannot start the Lab by itself/);
   assert.match(html, /class="site-header"/);
   assert.match(html, /class="primary-nav"/);
   assert.match(html, /href="#privacy"/);

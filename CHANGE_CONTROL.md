@@ -72,6 +72,25 @@ Approved by: Direct user request
 Target release: Local Lab 0.1.2
 ```
 
+## Approved change record — AI-LAB-CC-010
+
+```text
+Change ID: AI-LAB-CC-010
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Emphasize that the public Open Local Lab link is used only after start-windows.bat has started the Lab from the extracted ZIP folder; remove the public GR/EN language selector.
+Reason: Prevent users from expecting the browser link to launch the local server and remove the unrequested language control.
+Affected objective IDs: AI-LAB-OBJ-003
+Architecture impact: Public instructional copy, presentation control removal, and regression assertions only.
+Security and privacy impact: Reinforces the public-guide/local-runtime boundary; no data or endpoint change.
+Data impact: None.
+Testing impact: Landing-page build regression asserts the prerequisite and non-launch behavior.
+Cost and schedule impact: None.
+Decision: APPROVED (CLARIFICATION)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```
+
 ## Approved change record — AI-LAB-CC-007
 
 ```text
