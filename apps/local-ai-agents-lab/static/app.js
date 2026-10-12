@@ -37,7 +37,7 @@ function makeMessage(message) {
 async function refreshHistory() {
   const requestedRoom=room;
   try { const response=await fetch('/api/history/'+requestedRoom); if(!response.ok)throw new Error(); const result=await response.json(); if(requestedRoom!==room)return;
-    const element=$('messages'); element.replaceChildren(); if(!result.messages.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='No sessions yet. Enter a topic below.';element.append(empty);} else result.messages.forEach(message=>element.append(makeMessage(message))); element.parentElement.scrollTop=element.parentElement.scrollHeight;
+    const element=$('messages'); element.replaceChildren(); if(!result.messages.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='No sessions yet. Enter a topic above.';element.append(empty);} else result.messages.forEach(message=>element.append(makeMessage(message))); element.parentElement.scrollTop=element.parentElement.scrollHeight;
   } catch { $('status').textContent='Unable to read local database.'; }
 }
 function formatDuration(stage) {

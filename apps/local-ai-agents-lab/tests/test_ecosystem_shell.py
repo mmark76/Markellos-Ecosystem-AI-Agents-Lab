@@ -25,6 +25,21 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn("Reviewer", app)
         self.assertNotIn('Architect → Developer → Reviewer', app)
 
+    def test_agent_collaboration_remains_visible_but_is_temporarily_unavailable(self):
+        html = (STATIC / "index.html").read_text(encoding="utf-8")
+        app = (STATIC / "app.js").read_text(encoding="utf-8")
+        self.assertIn('data-room="conference" type="button" disabled', html)
+        self.assertIn('Agent Collaboration', html)
+        self.assertIn('Under Construction', html)
+        self.assertIn("'conference'", app)
+
+    def test_training_topic_precedes_the_scrollable_conversation(self):
+        html = (STATIC / "index.html").read_text(encoding="utf-8")
+        css = (STATIC / "style.css").read_text(encoding="utf-8")
+        self.assertLess(html.index('id="composer"'), html.index('class="chat-panel"'))
+        self.assertIn('class="beta-badge">BETA</span>', html)
+        self.assertIn('.chat-panel{min-height:0;overflow-x:hidden;overflow-y:auto', css)
+
     def test_lab_is_ollama_only_without_a_provider_selector(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         app = (STATIC / "app.js").read_text(encoding="utf-8")
@@ -183,9 +198,16 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertNotIn('<details class="training-workspace" open', html)
         self.assertIn('id="training-model-hint"', html)
         self.assertIn('id="training-dataset-hint"', html)
+        for name in ('id="training-model-path"', 'id="training-dataset-path"',
+                     'data-copy-training-path="model"', 'data-copy-training-path="dataset"',
+                     'data-open-training-directory="models"', 'data-open-training-directory="datasets"'):
+            with self.subTest(name=name): self.assertIn(name, html)
         self.assertIn("select.disabled=items.length===0", script)
-        self.assertIn("No models found in models\\\\", script)
-        self.assertIn("No .jsonl files found in training-data\\\\", script)
+        self.assertIn("setTrainingPaths(data.paths)", script)
+        self.assertIn("navigator.clipboard?.writeText", script)
+        self.assertIn("/api/training/open-directory", script)
+        self.assertIn("No compatible model folders found in the directory above.", script)
+        self.assertIn("No .jsonl datasets found in the directory above.", script)
         self.assertIn('/api/training/jobs', script)
         self.assertIn("data.error!=='Training environment is not installed.'", script)
 
