@@ -45,7 +45,7 @@ async function checkForZipUpdate(button) {
     const availableVersion = releaseVersion(availableBuild);
     if (availableVersion && isNewerRelease(availableVersion, currentVersion)) {
       button.hidden = false;
-      button.textContent = `New Lab ZIP available (v${availableVersion.join('.')}) ↓`;
+      button.textContent = `New version available: v${availableVersion.join('.')} — Download ZIP ↓`;
     }
   } catch {}
 }

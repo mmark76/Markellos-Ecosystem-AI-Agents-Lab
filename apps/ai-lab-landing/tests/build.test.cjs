@@ -33,7 +33,7 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.doesNotMatch(html, /The Lab, its models, and its conversation history are never hosted here\./);
   assert.doesNotMatch(html, /Free local use\. No subscription or API fees for the local Lab\./);
   assert.doesNotMatch(html, /Learn with AI agents, on your own device\./);
-  assert.match(html, /id="zip-update" class="zip-update" type="button" hidden>New Lab ZIP available/);
+  assert.match(html, /id="zip-update" class="zip-update" type="button" hidden>New version available — Download ZIP/);
   assert.match(html, /Read the README/);
   assert.match(html, /href="\.\/README\.md" target="_blank" rel="noopener noreferrer"/);
   assert.doesNotMatch(html, /data-language|language-selector|language-button/);
@@ -69,6 +69,7 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /document\.visibilityState === 'visible'/);
   assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /window\.fetch\(window\.location\.href, \{cache:'no-store'\}\)/);
   assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /isNewerRelease\(availableVersion, currentVersion\)/);
+  assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /New version available: v\$\{availableVersion\.join\('\.'\)\} — Download ZIP/);
   assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /return available\[index\] > current\[index\];/);
   assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /zipUpdate\.addEventListener\('click',\(\)=>window\.location\.assign\(LATEST_ZIP_URL\)\)/);
   assert.match(readFileSync(join(output, 'styles.css'), 'utf8'), /\.zip-update \{ position: fixed;/);
