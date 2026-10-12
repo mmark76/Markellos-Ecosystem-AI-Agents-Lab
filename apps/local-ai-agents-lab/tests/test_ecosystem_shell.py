@@ -122,6 +122,11 @@ class EcosystemShellTests(unittest.TestCase):
             with self.subTest(name=name): self.assertIn(name, html)
         self.assertIn('<details class="training-workspace"', html)
         self.assertNotIn('<details class="training-workspace" open', html)
+        self.assertIn('id="training-model-hint"', html)
+        self.assertIn('id="training-dataset-hint"', html)
+        self.assertIn("select.disabled=items.length===0", script)
+        self.assertIn("No models found in models\\\\", script)
+        self.assertIn("No .jsonl files found in training-data\\\\", script)
         self.assertIn('/api/training/jobs', script)
         self.assertIn("data.error!=='Training environment is not installed.'", script)
 

@@ -376,6 +376,25 @@ Approved by: Direct user request
 Target release: Next public landing deployment
 ```
 
+## Approved change record — AI-LAB-CC-025
+
+```text
+Change ID: AI-LAB-CC-025
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Explain empty advanced-training model and dataset dropdowns beside the affected fields, with disabled empty controls.
+Reason: Prevent users from assuming that these dropdowns should contain preset choices before they add local compatible inputs.
+Affected objective IDs: AI-LAB-OBJ-006
+Architecture impact: Local training presentation only; model discovery, validation, and the isolated training boundary are unchanged.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Add regression assertions for guidance text and disabled empty selections.
+Cost and schedule impact: None.
+Decision: APPROVED (CLARIFICATION)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
 ## Approved change record — AI-LAB-CC-024
 
 ```text
