@@ -29,7 +29,9 @@ test('Windows training wizard is packaged and opt-in',()=>{
 test('packaged README is English only',()=>{
   const root=path.resolve(__dirname,'..');
   const readme=fs.readFileSync(path.join(root,'README.md'),'utf8');
+  const version=fs.readFileSync(path.join(root,'VERSION'),'utf8').trim();
   assert.doesNotMatch(readme,/[\u0370-\u03ff]/);
+  assert.match(readme,new RegExp(`Private Local Starter \\(v${version.replaceAll('.', '\\.')}\\)`));
   assert.match(readme,/## Run the Lab on a laptop/);
   assert.match(readme,/## Privacy and boundaries/);
 });
