@@ -20,6 +20,8 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.match(html, /not a native Windows desktop download/);
   assert.match(html, /href="http:\/\/127\.0\.0\.1:8765\/"/);
   assert.match(html, /Open Local Lab/);
+  assert.match(html, /data-color-mode="dark"/);
+  assert.match(html, /value="#000000"/);
   assert.match(html, /Download AI-Agents-Lab-Windows\.zip/);
   assert.doesNotMatch(html, /data-language|language-selector|language-button/);
   assert.match(html, /Only after the local server has started/);
@@ -39,4 +41,6 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   for (const file of ['styles.css', 'tokens.css', 'dashboard.js', '_headers']) assert.equal(existsSync(join(output, file)), true, `${file} is missing`);
   assert.match(readFileSync(join(output, '_headers'), 'utf8'), /connect-src 'none'/);
   assert.match(readFileSync(join(output, '_headers'), 'utf8'), /script-src 'self'/);
+  assert.match(readFileSync(join(output, 'dashboard.js'), 'utf8'), /colorMode:'dark'/);
+  assert.match(readFileSync(join(output, 'styles.css'), 'utf8'), /--color-background:#000000/);
 });

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="engineering" data-color-mode="light">
+<html lang="en" data-theme="engineering" data-color-mode="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -19,7 +19,7 @@
         </a>
         <div class="header-actions" aria-label="Dashboard utilities">
           <a class="ecosystem-link" href="https://markellosecosystem.com/">Back to markellosecosystem</a>
-          <button id="theme-toggle" class="header-control" type="button" aria-pressed="false">◐ <span>Dark</span></button>
+          <button id="theme-toggle" class="header-control" type="button" aria-pressed="true">◐ <span>Light</span></button>
           <button id="settings-button" class="header-control" type="button" aria-haspopup="dialog" aria-controls="settings-dialog">⚙ <span>Settings</span></button>
           <button id="info-button" class="header-control" type="button" aria-haspopup="dialog" aria-controls="info-dialog">ⓘ <span>Info</span></button>
         </div>
@@ -79,7 +79,7 @@
   </main>
 
   <footer class="site-footer"><div class="footer-inner"><p class="footer-line">© 2026 Markellos Markides. All rights reserved.</p><p class="footer-line build-id">{{BUILD_ID}}</p></div></footer>
-  <dialog id="settings-dialog" class="shell-dialog" aria-labelledby="settings-title"><div class="dialog-header"><h2 id="settings-title">Settings</h2><button class="dialog-close" type="button" data-close-dialog aria-label="Close">×</button></div><div class="settings-grid"><label>Accent colour <input id="accent-color" type="color" value="#f2c230"></label><label>Background colour <input id="background-color" type="color" value="#f8fafc"></label><label>Font <select id="font-choice"><option value="system">System sans</option><option value="serif">Readable serif</option></select></label><label>Text size <select id="text-size"><option value="100">Standard</option><option value="112.5">Large</option><option value="125">Larger</option></select></label><label>Spacing <select id="spacing-choice"><option value="compact">Compact</option><option value="comfortable">Comfortable</option><option value="spacious">Spacious</option></select></label></div><p id="appearance-status" role="status" aria-live="polite"></p><div class="dialog-actions"><button id="reset-appearance" type="button">Reset appearance</button><button type="button" data-close-dialog>Close</button></div></dialog>
+  <dialog id="settings-dialog" class="shell-dialog" aria-labelledby="settings-title"><div class="dialog-header"><h2 id="settings-title">Settings</h2><button class="dialog-close" type="button" data-close-dialog aria-label="Close">×</button></div><div class="settings-grid"><label>Accent colour <input id="accent-color" type="color" value="#f2c230"></label><label>Background colour <input id="background-color" type="color" value="#000000"></label><label>Font <select id="font-choice"><option value="system">System sans</option><option value="serif">Readable serif</option></select></label><label>Text size <select id="text-size"><option value="100">Standard</option><option value="112.5">Large</option><option value="125">Larger</option></select></label><label>Spacing <select id="spacing-choice"><option value="compact">Compact</option><option value="comfortable">Comfortable</option><option value="spacious">Spacious</option></select></label></div><p id="appearance-status" role="status" aria-live="polite"></p><div class="dialog-actions"><button id="reset-appearance" type="button">Reset appearance</button><button type="button" data-close-dialog>Close</button></div></dialog>
   <dialog id="info-dialog" class="shell-dialog" aria-labelledby="info-title"><div class="dialog-header"><h2 id="info-title">Important Info</h2><button class="dialog-close" type="button" data-close-dialog aria-label="Close">×</button></div><details open><summary>Privacy</summary><p>Only validated appearance preferences may be stored in this browser. This site has no analytics, account, chat, or hosted model endpoint.</p></details><details><summary>Feedback</summary><p>No public feedback channel is configured.</p></details><p>© 2026 Markellos Markides. All rights reserved.</p><p class="build-id">{{BUILD_ID}}</p></dialog>
   <script src="./dashboard.js"></script>
 </body>

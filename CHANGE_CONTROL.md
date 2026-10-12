@@ -53,6 +53,25 @@ Approved by: Direct user request
 Target release: Next Local Lab release
 ```
 
+## Approved change record — AI-LAB-CC-012
+
+```text
+Change ID: AI-LAB-CC-012
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Make the public landing page default background fully black in the Local Lab style while retaining user-selectable button accent and appearance colours.
+Reason: Align the public guide's default visual appearance with the Local Lab.
+Affected objective IDs: AI-LAB-OBJ-005
+Architecture impact: Default presentation tokens and appearance preference defaults only.
+Security and privacy impact: None; local validated appearance storage remains unchanged.
+Data impact: Existing saved browser appearance preferences remain user-controlled.
+Testing impact: Landing build regression verifies the dark default and retained appearance controls.
+Cost and schedule impact: None.
+Decision: APPROVED (CLARIFICATION)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```
+
 ## Approved change record — AI-LAB-CC-011
 
 ```text

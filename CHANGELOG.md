@@ -10,6 +10,7 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 - Added Local Lab 0.1.2 safe manual update discovery: fixed official release metadata, validated links, and no automatic download or installation.
 - Clarified that the public `Open Local Lab` link works only after the user starts `start-windows.bat` from the extracted Windows ZIP.
 - Added an explicit public notice that ZIP upgrades are manual and local models plus SQLite history must be preserved.
+- Changed the public landing page default to the Local Lab's black appearance while retaining user-selectable accent and background colours.
 
 ## [0.2.0] - 2026-10-08
 
