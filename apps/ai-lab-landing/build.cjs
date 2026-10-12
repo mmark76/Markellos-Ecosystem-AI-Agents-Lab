@@ -23,7 +23,8 @@ cpSync(join(root, 'apps', 'local-ai-agents-lab', 'README.md'), join(output, 'REA
 cpSync(join(root, 'design-system', 'tokens', 'tokens.css'), join(output, 'tokens.css'));
 cpSync(join(__dirname, '_headers'), join(output, '_headers'));
 
-const releaseVersion = '0.1.2';
+const releaseVersion = readFileSync(join(root, 'apps', 'local-ai-agents-lab', 'VERSION'), 'utf8').trim();
+if (!/^\d+\.\d+\.\d+$/.test(releaseVersion)) throw new Error('Invalid local Lab VERSION');
 const commit = git(['rev-parse', '--short=7', 'HEAD']);
 const buildId = `v${releaseVersion}_${cyprusTimestamp(new Date())}_${commit}`;
 const indexPath = join(output, 'index.html');
