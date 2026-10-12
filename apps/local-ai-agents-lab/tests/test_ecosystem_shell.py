@@ -57,6 +57,7 @@ class EcosystemShellTests(unittest.TestCase):
     def test_three_panel_workspace_controls_are_packaged(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         script = (STATIC / "panel-layout.js").read_text(encoding="utf-8")
+        css = (STATIC / "style.css").read_text(encoding="utf-8")
         for name in ('id="left-panel"', 'id="right-panel"', 'id="resize-left"', 'id="resize-right"',
                      'id="toggle-left"', 'id="toggle-right"', '/static/panel-layout.js'):
             with self.subTest(name=name): self.assertIn(name, html)
@@ -65,6 +66,8 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn("window.addEventListener('pointerup'", script)
         self.assertIn("event.preventDefault();activeResize={resize}", script)
         self.assertIn('class="panel-toggle-label">Hide</span>', html)
+        self.assertIn('height:calc(100% - 48px)', css)
+        self.assertIn('margin-top:48px', css)
         for removed in ('id="update-check"', 'id="update-status"', '/static/updates.js'):
             with self.subTest(removed=removed):
                 self.assertNotIn(removed, html)

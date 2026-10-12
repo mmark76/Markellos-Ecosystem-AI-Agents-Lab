@@ -375,3 +375,22 @@ Decision: APPROVED (DEFECT)
 Approved by: Direct user request
 Target release: Next public landing deployment
 ```
+
+## Approved change record — AI-LAB-CC-024
+
+```text
+Change ID: AI-LAB-CC-024
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Reserve a fixed header area above the scrollable content of both Local Lab side panels.
+Reason: The persistent Hide control overlapped the first visible tool when the panel content was scrolled.
+Affected objective IDs: AI-LAB-OBJ-007
+Architecture impact: Local presentation layout only; no model, provider, SQLite, or network boundary changes.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Add CSS regression assertions for the reserved panel header area.
+Cost and schedule impact: None.
+Decision: APPROVED (DEFECT)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
