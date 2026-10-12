@@ -80,13 +80,14 @@
       <button type="button" id="info-close" class="settings-toggle">Close</button>
     </dialog>
     <section class="chat-panel" aria-live="polite">
+      <section id="training-stages" class="training-stages" aria-live="polite" hidden></section>
       <div id="messages" class="messages"><div class="empty">No training sessions yet. Enter a topic below.</div></div>
       <p id="execution-status" class="execution-status" role="status" aria-live="polite" hidden></p>
     </section>
     <form id="composer" class="composer">
       <label for="prompt" id="prompt-label">Training Topic</label>
       <textarea id="prompt" rows="3" maxlength="2500" required placeholder="e.g. Teach your AI agent how to..."></textarea>
-      <div class="actions"><div><span id="hint">Agents have no access to files or commands.</span><button id="clear-conversation" class="clear-conversation" type="button">Clear conversation / Start new session</button></div><button id="send" type="submit">Start Training ↗</button></div>
+      <div class="actions"><div><span id="hint">Agents have no access to files or commands.</span><button id="clear-conversation" class="clear-conversation" type="button">Clear conversation / Start new session</button></div><div class="run-actions"><button id="cancel-training" class="cancel-training" type="button" hidden>Cancel after current stage</button><button id="send" type="submit">Start Training ↗</button></div></div>
     </form>
     <footer><span>© <span class="copyright-year"></span> Markellos Markides. All rights reserved.</span><span class="build-id">v0.1.1_YYYYMMDD_HHMM_SHA</span></footer>
   </main>
@@ -97,7 +98,7 @@
       <section class="inspector-heading"><p class="eyebrow">LOCAL TOOLS</p><h2>Lab controls</h2></section>
       <section class="statusbar">
         <div><span class="status-icon">◉</span> <span id="status">Checking local model...</span></div>
-        <div class="model-select"><p class="ollama-engine">Inference Engine: <strong>Ollama</strong></p><div id="training-model-selects"><label for="trainer-model">Trainer Model</label><select id="trainer-model" disabled><option>Checking...</option></select><label for="student-model">Student Model</label><select id="student-model" disabled><option>Checking...</option></select></div><div id="collaboration-model-select"><label for="model" id="model-label">Collaboration Model</label><select id="model" disabled><option>Checking...</option></select></div></div>
+        <div class="model-select"><p class="ollama-engine">Inference Engine: <strong>Ollama</strong></p><div id="training-model-selects"><label for="trainer-model">Trainer Model</label><select id="trainer-model" disabled><option>Checking...</option></select><label for="student-model">Student Model</label><select id="student-model" disabled><option>Checking...</option></select><label for="evaluator-model">Evaluator Model</label><select id="evaluator-model" disabled><option>Checking...</option></select><label for="improver-model">Improver Model</label><select id="improver-model" disabled><option>Checking...</option></select></div><div id="collaboration-model-select"><label for="model" id="model-label">Collaboration Model</label><select id="model" disabled><option>Checking...</option></select></div></div>
       </section>
       <details class="model-installer" id="model-installer" hidden>
         <summary>Add Model · Ollama</summary>

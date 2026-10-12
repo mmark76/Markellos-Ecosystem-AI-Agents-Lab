@@ -2,10 +2,10 @@
 
 Local Windows application with two workspaces:
 
-- **Learning Lab:** one Trainer and one Student agent.
+- **Learning Lab:** Trainer → Student → Evaluator → Improver, one stage at a time.
 - **AI Conference Room:** Planner, Researcher, and Reviewer discuss any topic in sequence using the same history.
 
-The Learning Lab can assign independent installed **local Ollama** models to its Trainer and Student controls, while the Conference Room keeps one selected Ollama model. The selected role models are snapshotted when a Training session starts, so changing a control affects the next session only. They are not independently trained models. They do not execute commands or access GitHub, repositories, or files. Feedback is not objective proof of improvement.
+The Learning Lab independently assigns installed **local Ollama** models to Trainer, Student, Evaluator, and Improver controls; the Conference Room keeps one selected Ollama model. The selected role models are snapshotted when a Training session starts, so changing a control affects the next session only. Each completed stage is saved before the next starts. The Lab requests `keep_alive: 0` after each completed stage so Ollama can release the model; this is best effort and can be checked with `ollama ps`. Slow CPU inference has no application-imposed deadline. They are not independently trained models: this cycle improves context and feedback, not model weights. Agents do not execute commands or access GitHub, repositories, or files. Feedback is not objective proof of improvement.
 
 The **Learning Lab** is the teaching room (internal API id: `university` for compatibility with the original version). The **AI Conference Room** keeps its existing behavior.
 

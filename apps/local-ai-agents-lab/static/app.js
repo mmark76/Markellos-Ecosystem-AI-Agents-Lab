@@ -2,166 +2,64 @@
 const $ = id => document.getElementById(id);
 let room = 'university';
 let running = false;
-const uiLanguage = 'en';
-const responseLanguage = 'en';
-const provider = 'ollama';
-const modelPreference = {Trainer:'agents-lab-trainer-model',Student:'agents-lab-student-model',Collaboration:'agents-lab-model'};
-let statusData = null;
-let statusError = false;
-let hintError = '';
 let activeTrainingSession = null;
-const words = {
-  en: {
-    training:'Agent Training', collaboration:'Agent Collaboration',
-    tip:'AI Agents Training Lab<br>1 AI Trainer · 1 AI Student<br>3 specialists: Planner · Researcher · Reviewer',
-    note:'Stored locally in SQLite.<br>No GitHub or cloud API access.',
-    modelLabel:'Local AI Model',
-    universityDescription:'Learn → Practice → Evaluate → Improve',
-    conferenceDescription:'Planner → Researcher → Reviewer · Shared history',
-    universityLabel:'Training Topic', conferenceLabel:'Discussion Topic',
-    universityPlaceholder:'e.g. Teach your AI agent how to...',
-    conferencePlaceholder:'e.g. Explore the causes and effects of climate change...',
-    empty:'No sessions yet. Enter a topic below.', hint:'Agents have no access to files or commands.',
-    working:'Agents are responding sequentially. This may take some time.',
-    startUniversity:'Start Training ↗', startConference:'Start Discussion ↗', running:'Running...',
-    clearConversation:'Clear conversation / Start new session', cleared:'Conversation cleared. A new session is ready.',
-    checking:'Checking local inference engine...', databaseError:'Unable to read local database.',
-    serviceError:'Local service is not responding.', offline:name=>name+' is not running locally. See README.',
-    noModels:name=>name+' is online · No compatible local models found.',
-    modelCount:(name,n)=>name+' online · '+n+' local models',
-    failed:'Session failed', you:'You',
-    agents:{'You':'You','Trainer':'Trainer','Student':'Student','Agent A':'Student','Agent B':'Student','Trainer · Feedback':'Trainer · Feedback','\u0395\u03c3\u03cd':'You','\u039a\u03b1\u03b8\u03b7\u03b3\u03b7\u03c4\u03ae\u03c2':'Trainer','\u03a6\u03bf\u03b9\u03c4\u03b7\u03c4\u03ae\u03c2 \u0391':'Student','\u03a6\u03bf\u03b9\u03c4\u03b7\u03c4\u03ae\u03c2 \u0392':'Student','\u039a\u03b1\u03b8\u03b7\u03b3\u03b7\u03c4\u03ae\u03c2 · Feedback':'Trainer · Feedback'}
-  }
-};
-const t = () => words[uiLanguage];
-function labelAgent(name) { return t().agents[name] || name; }
+let stagePoll = null;
+const provider = 'ollama';
+const responseLanguage = 'en';
+const modelPreference = {Trainer:'agents-lab-trainer-model',Student:'agents-lab-student-model',Evaluator:'agents-lab-evaluator-model',Improver:'agents-lab-improver-model',Collaboration:'agents-lab-model'};
+const selectors = {Trainer:'trainer-model',Student:'student-model',Evaluator:'evaluator-model',Improver:'improver-model',Collaboration:'model'};
+let statusData = null, statusError = false, hintError = '';
+const stageNames = {Trainer:'LEARN - Trainer',Student:'PRACTICE - Student',Evaluator:'EVALUATE - Evaluator',Improver:'IMPROVE - Improver'};
+function agentName(name) { return name; }
 function setStatus() {
-  if (statusError) { $('status').textContent=t().serviceError; return; }
-  if (!statusData) { $('status').textContent=t().checking; return; }
-  $('status').textContent= !statusData.available ? t().offline(statusData.label) : !statusData.models.length ? t().noModels(statusData.label) : t().modelCount(statusData.label,statusData.models.length);
+  $('status').textContent = statusError ? 'Local service is not responding.' : !statusData ? 'Checking local inference engine...' : !statusData.available ? statusData.label+' is not running locally. See README.' : !statusData.models.length ? statusData.label+' is online · No compatible local models found.' : statusData.label+' online · '+statusData.models.length+' local models';
 }
 function updateUI() {
-  document.documentElement.lang=uiLanguage;
-  $('model-label').textContent='Collaboration Model';
-  $('training-model-selects').hidden=room!=='university';
-  $('collaboration-model-select').hidden=room==='university';
-  $('nav-training').textContent=t().training;
-  $('nav-conference').textContent=t().collaboration;
-  $('phase-tip').innerHTML=t().tip;
-  $('sidebar-note').innerHTML=t().note;
-  $('room-title').textContent=room==='university'?t().training:t().collaboration;
-  $('room-description').textContent=room==='university'?t().universityDescription:t().conferenceDescription;
-  $('prompt-label').textContent=room==='university'?t().universityLabel:t().conferenceLabel;
-  $('prompt').placeholder=room==='university'?t().universityPlaceholder:t().conferencePlaceholder;
-  $('send').textContent=running?t().running:room==='university'?t().startUniversity:t().startConference;
-  $('clear-conversation').textContent=t().clearConversation;
-  $('clear-conversation').disabled=running;
-  $('hint').textContent=hintError|| (running?t().working:t().hint);
-  document.querySelectorAll('[data-room]').forEach(b=>b.classList.toggle('selected',b.dataset.room===room));
-  setStatus();
-  document.querySelectorAll('.message').forEach(el=>{
-    const name=el.querySelector('.agent-name');
-    if(name)name.textContent=labelAgent(el.dataset.agent);
-  });
-  const empty=$('messages').querySelector('.empty');
-  if(empty)empty.textContent=t().empty;
+  $('training-model-selects').hidden=room!=='university'; $('collaboration-model-select').hidden=room==='university';
+  $('room-title').textContent=room==='university'?'Agent Training':'Agent Collaboration';
+  $('room-description').textContent=room==='university'?'Learn → Practice → Evaluate → Improve':'Planner → Researcher → Reviewer · Shared history';
+  $('prompt-label').textContent=room==='university'?'Training Topic':'Discussion Topic';
+  $('prompt').placeholder=room==='university'?'e.g. Teach your AI agent how to...':'e.g. Explore the causes and effects of climate change...';
+  $('send').textContent=running?'Running...':room==='university'?'Start Training ↗':'Start Discussion ↗';
+  $('clear-conversation').disabled=running; $('cancel-training').hidden=!activeTrainingSession; $('cancel-training').disabled=!activeTrainingSession;
+  $('hint').textContent=hintError||(running?'Stages run strictly one at a time. Slow local CPU inference is allowed to finish.':'Agents have no access to files or commands.');
+  document.querySelectorAll('[data-room]').forEach(button=>button.classList.toggle('selected',button.dataset.room===room)); setStatus();
 }
 function makeMessage(message) {
-  const wrap=document.createElement('article');
-  wrap.className='message'+(message.agent==='\u0395\u03c3\u03cd'||message.agent==='You'?' mine':'');
-  wrap.dataset.agent=message.agent;
-  const avatar=document.createElement('div');avatar.className='avatar';avatar.textContent=wrap.classList.contains('mine')?'M':labelAgent(message.agent)[0].toUpperCase();
-  const body=document.createElement('div');body.className='message-body';
-  const header=document.createElement('div');header.className='message-head';
-  const name=document.createElement('span');name.className='agent-name';name.textContent=labelAgent(message.agent);
-  const model=document.createElement('span');model.className='model-name';model.textContent=message.model?' · '+message.model:'';
-  const time=document.createElement('small');time.textContent=message.created_at||'';
-  const content=document.createElement('div');content.className='message-text';content.textContent=message.content;
-  header.append(name,model,time);body.append(header,content);wrap.append(avatar,body);
-  return wrap;
-}
-function showExecution(session) {
-  const status=$('execution-status');
-  if(!session){status.hidden=true;status.textContent='';return;}
-  const durations=[];
-  if(Number.isInteger(session.trainer_duration_ms))durations.push('Trainer: '+(session.trainer_duration_ms/1000).toFixed(1)+'s');
-  if(Number.isInteger(session.student_duration_ms))durations.push('Student: '+(session.student_duration_ms/1000).toFixed(1)+'s');
-  status.hidden=false;
-  status.textContent=session.stage+' · Trainer: '+session.trainer_model+' · Student: '+session.student_model+(durations.length?' · '+durations.join(', '):'')+(session.error?' · '+session.error:'');
+  const wrap=document.createElement('article'); wrap.className='message'+(message.agent==='You'?' mine':''); wrap.dataset.agent=message.agent;
+  const avatar=document.createElement('div'); avatar.className='avatar'; avatar.textContent=message.agent==='You'?'M':agentName(message.agent)[0].toUpperCase();
+  const body=document.createElement('div'); body.className='message-body'; const header=document.createElement('div'); header.className='message-head';
+  const name=document.createElement('span'); name.className='agent-name'; name.textContent=agentName(message.agent);
+  const model=document.createElement('span'); model.className='model-name'; model.textContent=message.model?' · '+message.model:'';
+  const time=document.createElement('small'); time.textContent=message.created_at||''; const content=document.createElement('div'); content.className='message-text'; content.textContent=message.content;
+  header.append(name,model,time); body.append(header,content); wrap.append(avatar,body); return wrap;
 }
 async function refreshHistory() {
   const requestedRoom=room;
-  try {
-    const res=await fetch('/api/history/'+requestedRoom);
-    if(!res.ok)throw new Error('History failed');
-    const result=await res.json();
-    if(requestedRoom!==room)return;
-    const el=$('messages');el.replaceChildren();
-    if(!result.messages.length){const empty=document.createElement('div');empty.className='empty';empty.textContent=t().empty;el.append(empty);}
-    else result.messages.forEach(m=>el.append(makeMessage(m)));
-    el.parentElement.scrollTop=el.parentElement.scrollHeight;
-  } catch { $('status').textContent=t().databaseError; }
+  try { const response=await fetch('/api/history/'+requestedRoom); if(!response.ok)throw new Error(); const result=await response.json(); if(requestedRoom!==room)return;
+    const element=$('messages'); element.replaceChildren(); if(!result.messages.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='No sessions yet. Enter a topic below.';element.append(empty);} else result.messages.forEach(message=>element.append(makeMessage(message))); element.parentElement.scrollTop=element.parentElement.scrollHeight;
+  } catch { $('status').textContent='Unable to read local database.'; }
+}
+function formatDuration(stage) {
+  if (typeof stage.duration_ms==='number') return (stage.duration_ms/1000).toFixed(1)+' s';
+  if (stage.status==='Running' && stage.started_at) { const started=Date.parse(stage.started_at.replace(' UTC','Z')); if(!Number.isNaN(started)) return ((Date.now()-started)/1000).toFixed(0)+' s elapsed'; }
+  return '—';
+}
+function renderTrainingStages(session) {
+  const host=$('training-stages');host.replaceChildren();host.hidden=!session;if(!session)return;
+  for(const stage of session.stages){const card=document.createElement('article');card.className='training-stage status-'+stage.status.toLowerCase().replaceAll(' ','-');const title=document.createElement('h2');title.textContent=stage.execution_order+'. '+(stageNames[stage.agent_role]||stage.agent_role);const meta=document.createElement('p');meta.className='stage-meta';meta.textContent='Model: '+stage.assigned_model+' · '+stage.status+' · '+formatDuration(stage);card.append(title,meta);if(stage.response){const response=document.createElement('pre');response.className='stage-response';response.textContent=stage.response;card.append(response);}if(stage.evaluation_score!==null||stage.evaluation_result){const evaluation=document.createElement('p');evaluation.className='stage-evaluation';evaluation.textContent='Evaluation: '+(stage.evaluation_score===null?'not structurally reported':stage.evaluation_score+'/100')+(stage.evaluation_result?' · '+stage.evaluation_result:'');card.append(evaluation);}if(stage.error){const error=document.createElement('p');error.className='stage-error';error.textContent=stage.error;card.append(error);}host.append(card);}
+}
+async function refreshTrainingSession() {
+  if(!activeTrainingSession)return;
+  try {const response=await fetch('/api/training-sessions/'+activeTrainingSession);if(!response.ok)throw new Error('Unable to read training status.');const session=await response.json();renderTrainingStages(session);await refreshHistory();if(['completed','failed','cancelled'].includes(session.status)){clearInterval(stagePoll);stagePoll=null;activeTrainingSession=null;running=false;hintError=session.status==='completed'?'Four-stage learning cycle completed.':(session.error||'Training session '+session.status+'.');await refreshStatus();updateUI();}}catch(error){hintError=error.message;updateUI();}
 }
 async function refreshStatus() {
-  try {
-    const res=await fetch('/api/status');if(!res.ok)throw new Error('Status failed');
-    const status=await res.json();statusData=status.provider;statusError=false;
-    const legacy=localStorage.getItem(modelPreference.Collaboration);
-    for(const [agent,id] of [['Trainer','trainer-model'],['Student','student-model'],['Collaboration','model']]){
-      const select=$(id),old=select.value,stored=localStorage.getItem(modelPreference[agent]);select.replaceChildren();
-      for(const model of statusData.models){const opt=document.createElement('option');opt.value=model;opt.textContent=model;select.append(opt);}
-      const selected=[stored,legacy,old,statusData.models[0]].find(value=>statusData.models.includes(value));
-      if(selected)select.value=selected;
-      select.disabled=!statusData.models.length;
-    }
-    if(!running)$('send').disabled=!statusData.models.length;
-  } catch { statusError=true;statusData=null;['model','trainer-model','student-model'].forEach(id=>$(id).disabled=true);$('send').disabled=true; }
-  setStatus();
-}
-async function pollTrainingSession(sessionId) {
-  while(running&&activeTrainingSession===sessionId){
-    const response=await fetch('/api/runs/'+sessionId);
-    const data=await response.json();
-    if(!response.ok)throw new Error(data.error||t().failed);
-    showExecution(data.session);
-    await refreshHistory();
-    if(data.session.status==='completed')return;
-    if(data.session.status==='failed')throw new Error(data.session.error||t().failed);
-    await new Promise(resolve=>setTimeout(resolve,750));
-  }
+  try {const response=await fetch('/api/status');if(!response.ok)throw new Error();const status=await response.json();statusData=status.provider;statusError=false;const legacy=localStorage.getItem(modelPreference.Collaboration);for(const [agent,id] of Object.entries(selectors)){const select=$(id),old=select.value,stored=localStorage.getItem(modelPreference[agent]);select.replaceChildren();for(const model of statusData.models){const option=document.createElement('option');option.value=model;option.textContent=model;select.append(option);}const selected=[stored,legacy,old,statusData.models[0]].find(value=>statusData.models.includes(value));if(selected)select.value=selected;select.disabled=running||!statusData.models.length;}if(!running)$('send').disabled=!statusData.models.length;}catch{statusError=true;statusData=null;Object.values(selectors).forEach(id=>$(id).disabled=true);$('send').disabled=true;}setStatus();
 }
 function switchRoom(next){if(running||!['university','conference'].includes(next))return;room=next;hintError='';updateUI();refreshHistory();}
-[['Trainer','trainer-model'],['Student','student-model'],['Collaboration','model']].forEach(([agent,id])=>$(id).addEventListener('change',event=>localStorage.setItem(modelPreference[agent],event.target.value)));
-document.querySelectorAll('[data-room]').forEach(b=>b.addEventListener('click',()=>switchRoom(b.dataset.room)));
-$('composer').addEventListener('submit',async ev=>{
-  ev.preventDefault();if(running)return;
-  const prompt=$('prompt').value.trim(),model=$('model').value,trainerModel=$('trainer-model').value,studentModel=$('student-model').value;
-  if(!prompt||(room==='university'&&(!trainerModel||!studentModel))||(room==='conference'&&!model))return;
-  running=true;hintError='';$('send').disabled=true;updateUI();
-  try {
-    const request=room==='university'?{room,provider,trainer_model:trainerModel,student_model:studentModel,prompt,language:responseLanguage}:{room,provider,model,prompt,language:responseLanguage};
-    const result=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(request)});
-    const payload=await result.json();
-    if(!result.ok)throw new Error(payload.error||t().failed);
-    if(room==='university'){
-      activeTrainingSession=payload.session_id;
-      await pollTrainingSession(activeTrainingSession);
-    }
-    $('prompt').value='';
-  } catch(err){hintError=err.message;}
-  finally {
-    running=false;activeTrainingSession=null;await refreshHistory();await refreshStatus();updateUI();
-  }
-});
-$('clear-conversation').addEventListener('click',async()=>{
-  if(running||!confirm('Clear this room\'s conversation? This cannot be undone.'))return;
-  $('clear-conversation').disabled=true;
-  try {
-    const result=await fetch('/api/history/clear',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({room})});
-    const payload=await result.json();
-    if(!result.ok)throw new Error(payload.error||'Unable to clear this conversation.');
-    $('prompt').value='';hintError=t().cleared;await refreshHistory();
-  } catch(err) { hintError=err.message; }
-  finally { updateUI(); }
-});
+Object.entries(selectors).forEach(([agent,id])=>$(id).addEventListener('change',event=>localStorage.setItem(modelPreference[agent],event.target.value)));
+document.querySelectorAll('[data-room]').forEach(button=>button.addEventListener('click',()=>switchRoom(button.dataset.room)));
+$('composer').addEventListener('submit',async event=>{event.preventDefault();if(running)return;const prompt=$('prompt').value.trim(),model=$('model').value,trainerModel=$('trainer-model').value,studentModel=$('student-model').value,evaluatorModel=$('evaluator-model').value,improverModel=$('improver-model').value;if(!prompt||(room==='university'&&(!trainerModel||!studentModel||!evaluatorModel||!improverModel))||(room==='conference'&&!model))return;running=true;hintError='';$('send').disabled=true;updateUI();try{const request=room==='university'?{room,provider,trainer_model:trainerModel,student_model:studentModel,evaluator_model:evaluatorModel,improver_model:improverModel,prompt,language:responseLanguage}:{room,provider,model,prompt,language:responseLanguage};const response=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(request)});const payload=await response.json();if(!response.ok)throw new Error(payload.error||'Session failed');$('prompt').value='';if(room==='university'){activeTrainingSession=payload.session_id;await refreshTrainingSession();stagePoll=setInterval(refreshTrainingSession,1000);return;}}catch(error){hintError=error.message;}finally{if(!activeTrainingSession){running=false;await refreshHistory();await refreshStatus();updateUI();}}});
+$('cancel-training').addEventListener('click',async()=>{if(!activeTrainingSession)return;try{const response=await fetch('/api/training-sessions/'+activeTrainingSession+'/cancel',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});const payload=await response.json();if(!response.ok)throw new Error(payload.error||'Unable to cancel this session.');hintError='Cancellation requested. The current model call is allowed to finish safely.';}catch(error){hintError=error.message;}updateUI();});
+$('clear-conversation').addEventListener('click',async()=>{if(running||!confirm('Clear this room\'s conversation? This cannot be undone.'))return;$('clear-conversation').disabled=true;try{const response=await fetch('/api/history/clear',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({room})});const payload=await response.json();if(!response.ok)throw new Error(payload.error||'Unable to clear this conversation.');$('prompt').value='';hintError='Conversation cleared. A new session is ready.';renderTrainingStages(null);await refreshHistory();}catch(error){hintError=error.message;}finally{updateUI();}});
 updateUI();refreshHistory();refreshStatus();

@@ -5,11 +5,12 @@ import json
 import sys
 from contextlib import closing
 import sqlite3
-from time import monotonic
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from threading import Lock, Thread
+from threading import Event, Lock, Thread
+from time import perf_counter
+import re
 from typing import Optional
 from urllib.error import HTTPError, URLError
 from urllib.request import ProxyHandler, build_opener
@@ -21,6 +22,8 @@ STATIC = ROOT / "static"
 DB_PATH = ROOT / "data" / "campus.sqlite3"
 OPENER = build_opener(ProxyHandler({}))  # No environment proxy; loopback only.
 RUN_LOCK = Lock()
+SESSION_CANCELS: dict[int, Event] = {}
+SESSION_CANCELS_LOCK = Lock()
 ROOMS = {"university", "conference"}
 
 # The adapter owns the fixed local Ollama URL. User requests cannot supply an
@@ -47,6 +50,21 @@ PROMPTS = {
         "Separate what you know from what you assume. You have no access to the filesystem or GitHub. "
         "Reply exclusively in English. Maximum 150 words."
     ),
+    "Evaluator": (
+        "You are an independent evaluator in the local Markellos Ecosystem AI Agents Lab. "
+        "Assess the Student response against the Trainer lesson and success criteria. "
+        "Do not automatically trust either response. Identify correct elements, errors, missing elements, "
+        "and limitations where authoritative validation is unavailable. Reply exclusively in English using "
+        "the headings Score: 0-100, Correct Elements, Errors, Missing Elements, Recommended Corrections, "
+        "and Result: Pass or Needs Improvement. Maximum 220 words."
+    ),
+    "Improver": (
+        "You are an improver in the local Markellos Ecosystem AI Agents Lab. Read the lesson, student "
+        "response, and evaluation. Identify the most important learning gaps, explain corrections, provide "
+        "an improved solution, and suggest one focused next exercise. Do not claim mastery without later "
+        "verification. Reply exclusively in English using the headings Corrected Explanation, Improved Solution, "
+        "Learning Recommendations, and Next Exercise. Maximum 220 words."
+    ),
     "Planner": (
         "You are a Planner in an AI Conference Room. "
         "Break the topic into clear goals, options, uncertainties, and a practical next step. "
@@ -64,7 +82,7 @@ PROMPTS = {
     ),
 }
 FLOW = {
-    "university": ["Trainer", "Student"],
+    "university": ["Trainer", "Student", "Evaluator", "Improver"],
     "conference": ["Planner", "Researcher", "Reviewer"],
 }
 
@@ -97,27 +115,38 @@ def initialize():
             provider TEXT NOT NULL,
             trainer_model TEXT NOT NULL,
             student_model TEXT NOT NULL,
-            created_at TEXT NOT NULL,
-            status TEXT NOT NULL DEFAULT 'running',
-            stage TEXT NOT NULL DEFAULT 'Preparing training session',
-            error TEXT NOT NULL DEFAULT '',
-            trainer_duration_ms INTEGER,
-            student_duration_ms INTEGER,
-            completed_at TEXT
+            created_at TEXT NOT NULL
         )""")
         session_columns = {row[1] for row in db.execute("PRAGMA table_info(training_sessions)")}
-        for name, definition in {
-            "status": "TEXT NOT NULL DEFAULT 'completed'",
-            "stage": "TEXT NOT NULL DEFAULT 'Session completed'",
-            "error": "TEXT NOT NULL DEFAULT ''",
-            "trainer_duration_ms": "INTEGER",
-            "student_duration_ms": "INTEGER",
-            "completed_at": "TEXT",
-        }.items():
-            if name not in session_columns:
-                db.execute(f"ALTER TABLE training_sessions ADD COLUMN {name} {definition}")
+        for column in ("evaluator_model", "improver_model"):
+            if column not in session_columns:
+                db.execute(f"ALTER TABLE training_sessions ADD COLUMN {column} TEXT")
+        for column, definition in (
+            ("status", "TEXT NOT NULL DEFAULT 'running'"),
+            ("started_at", "TEXT"), ("completed_at", "TEXT"), ("error", "TEXT"),
+        ):
+            if column not in session_columns:
+                db.execute(f"ALTER TABLE training_sessions ADD COLUMN {column} {definition}")
+        db.execute("""CREATE TABLE IF NOT EXISTS training_stages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id INTEGER NOT NULL,
+            agent_role TEXT NOT NULL,
+            assigned_model TEXT NOT NULL,
+            execution_order INTEGER NOT NULL,
+            status TEXT NOT NULL,
+            started_at TEXT,
+            completed_at TEXT,
+            duration_ms INTEGER,
+            response TEXT,
+            evaluation_score INTEGER,
+            evaluation_result TEXT,
+            error TEXT,
+            UNIQUE(session_id, agent_role),
+            FOREIGN KEY(session_id) REFERENCES training_sessions(id)
+        )""")
         db.execute("CREATE INDEX IF NOT EXISTS idx_room_id ON messages(room,id)")
         db.execute("CREATE INDEX IF NOT EXISTS idx_messages_session_id ON messages(session_id)")
+        db.execute("CREATE INDEX IF NOT EXISTS idx_training_stages_session ON training_stages(session_id,execution_order)")
 
 
 def add_message(room: str, agent: str, content: str, session_id: Optional[int] = None):
@@ -128,41 +157,21 @@ def add_message(room: str, agent: str, content: str, session_id: Optional[int] =
         )
 
 
-def create_training_session(provider: str, trainer_model: str, student_model: str) -> int:
+def create_training_session(provider: str, assignments: dict[str, str]) -> int:
     """Persist a model snapshot for one Training Lab run without changing old history."""
     with closing(connect()) as db, db:
         result = db.execute(
-            "INSERT INTO training_sessions(provider,trainer_model,student_model,created_at,status,stage,error) VALUES(?,?,?,?,?,?,?)",
-            (provider, trainer_model, student_model, utc_now(), "running", "Preparing training session", ""),
+            "INSERT INTO training_sessions(provider,trainer_model,student_model,evaluator_model,improver_model,created_at,status,started_at) VALUES(?,?,?,?,?,?,?,?)",
+            (provider, assignments["Trainer"], assignments["Student"], assignments["Evaluator"],
+             assignments["Improver"], utc_now(), "running", utc_now()),
         )
-    return result.lastrowid
-
-
-def update_training_session(session_id: int, *, status: str, stage: str, error: str = "",
-                            duration_ms: Optional[int] = None, agent: Optional[str] = None):
-    """Persist recoverable local run state without retaining prompts in diagnostics."""
-    updates = ["status=?", "stage=?", "error=?"]
-    values: list[object] = [status, stage, error[:1000]]
-    if agent == "Trainer" and duration_ms is not None:
-        updates.append("trainer_duration_ms=?")
-        values.append(duration_ms)
-    if agent == "Student" and duration_ms is not None:
-        updates.append("student_duration_ms=?")
-        values.append(duration_ms)
-    if status in {"completed", "failed"}:
-        updates.append("completed_at=?")
-        values.append(utc_now())
-    values.append(session_id)
-    with closing(connect()) as db, db:
-        db.execute(f"UPDATE training_sessions SET {', '.join(updates)} WHERE id=?", values)
-
-
-def training_session(session_id: int) -> Optional[dict]:
-    with closing(connect()) as db:
-        row = db.execute("SELECT id,provider,trainer_model,student_model,created_at,status,stage,error,"
-                         "trainer_duration_ms,student_duration_ms,completed_at FROM training_sessions WHERE id=?",
-                         (session_id,)).fetchone()
-    return dict(row) if row else None
+        session_id = result.lastrowid
+        db.executemany(
+            "INSERT INTO training_stages(session_id,agent_role,assigned_model,execution_order,status) VALUES(?,?,?,?,?)",
+            [(session_id, agent, assignments[agent], index, "Waiting")
+             for index, agent in enumerate(FLOW["university"], start=1)],
+        )
+    return session_id
 
 
 def history(room: str, limit: int = 80) -> list[dict]:
@@ -170,13 +179,117 @@ def history(room: str, limit: int = 80) -> list[dict]:
         rows = db.execute(
             "SELECT messages.id,messages.agent,messages.content,messages.created_at,messages.session_id,"
             " CASE messages.agent WHEN 'Trainer' THEN training_sessions.trainer_model"
-            " WHEN 'Student' THEN training_sessions.student_model END AS model"
+            " WHEN 'Student' THEN training_sessions.student_model"
+            " WHEN 'Evaluator' THEN training_sessions.evaluator_model"
+            " WHEN 'Improver' THEN training_sessions.improver_model END AS model"
             " FROM (SELECT id,agent,content,created_at,session_id FROM messages WHERE room=?"
             " ORDER BY id DESC LIMIT ?) AS messages"
             " LEFT JOIN training_sessions ON training_sessions.id=messages.session_id"
             " ORDER BY messages.id ASC", (room, limit)
         ).fetchall()
     return [dict(row) for row in rows]
+
+
+def training_session(session_id: int) -> Optional[dict]:
+    with closing(connect()) as db:
+        session = db.execute(
+            "SELECT id,provider,trainer_model,student_model,evaluator_model,improver_model,created_at,started_at,completed_at,status,error FROM training_sessions WHERE id=?",
+            (session_id,),
+        ).fetchone()
+        if not session:
+            return None
+        stages = db.execute(
+            "SELECT agent_role,assigned_model,execution_order,status,started_at,completed_at,duration_ms,response,evaluation_score,evaluation_result,error FROM training_stages WHERE session_id=? ORDER BY execution_order",
+            (session_id,),
+        ).fetchall()
+    data = dict(session)
+    data["stages"] = [dict(stage) for stage in stages]
+    return data
+
+
+def update_stage(session_id: int, agent: str, status: str, *, response: Optional[str] = None,
+                 duration_ms: Optional[int] = None, error: Optional[str] = None,
+                 score: Optional[int] = None, result: Optional[str] = None):
+    fields = ["status=?"]
+    values: list[object] = [status]
+    if status == "Running":
+        fields.append("started_at=?")
+        values.append(utc_now())
+    if status in {"Completed", "Failed", "Cancelled"}:
+        fields.append("completed_at=?")
+        values.append(utc_now())
+    if response is not None:
+        fields.append("response=?")
+        values.append(response[:12000])
+    if duration_ms is not None:
+        fields.append("duration_ms=?")
+        values.append(duration_ms)
+    if error is not None:
+        fields.append("error=?")
+        values.append(error[:500])
+    if score is not None:
+        fields.append("evaluation_score=?")
+        values.append(score)
+    if result is not None:
+        fields.append("evaluation_result=?")
+        values.append(result)
+    values.extend([session_id, agent])
+    with closing(connect()) as db, db:
+        db.execute(f"UPDATE training_stages SET {', '.join(fields)} WHERE session_id=? AND agent_role=?", values)
+
+
+def finish_training_session(session_id: int, status: str, error: str = ""):
+    with closing(connect()) as db, db:
+        db.execute("UPDATE training_sessions SET status=?,completed_at=?,error=? WHERE id=?",
+                   (status, utc_now(), error[:500], session_id))
+
+
+def evaluation_fields(response: str) -> tuple[Optional[int], Optional[str]]:
+    score_match = re.search(r"\bscore\s*:\s*(100|[1-9]?\d)\b", response, re.IGNORECASE)
+    score = int(score_match.group(1)) if score_match else None
+    result_match = re.search(r"\b(?:result|pass)\s*:\s*(Pass|Needs Improvement)\b", response, re.IGNORECASE)
+    result = result_match.group(1).title() if result_match else None
+    return score, result
+
+
+def run_training_session(session_id: int, prompt: str, assignments: dict[str, str], cancel: Event):
+    """Run one four-stage cycle serially; completed stages are durable immediately."""
+    transcript = [{"agent": "You", "content": prompt}]
+    add_message("university", "You", prompt, session_id)
+    try:
+        for agent in FLOW["university"]:
+            if cancel.is_set():
+                update_stage(session_id, agent, "Cancelled", error="Cancelled before inference started.")
+                for remaining in FLOW["university"][FLOW["university"].index(agent) + 1:]:
+                    update_stage(session_id, remaining, "Cancelled", error="Cancelled before inference started.")
+                finish_training_session(session_id, "cancelled", "Cancelled by the user.")
+                return
+            update_stage(session_id, agent, "Loading Model")
+            update_stage(session_id, agent, "Running")
+            started = perf_counter()
+            try:
+                answer = provider_chat("ollama", assignments[agent], agent, transcript, "en")
+                duration_ms = int((perf_counter() - started) * 1000)
+                add_message("university", agent, answer, session_id)
+                score, result = evaluation_fields(answer) if agent == "Evaluator" else (None, None)
+                update_stage(session_id, agent, "Completed", response=answer, duration_ms=duration_ms,
+                             score=score, result=result)
+                transcript.append({"agent": agent, "content": answer})
+            except (TimeoutError, HTTPError, URLError, OSError, ValueError, KeyError, ProviderError) as err:
+                update_stage(session_id, agent, "Failed", duration_ms=int((perf_counter() - started) * 1000),
+                             error=str(err))
+                for remaining in FLOW["university"][FLOW["university"].index(agent) + 1:]:
+                    update_stage(session_id, remaining, "Cancelled", error="A previous stage failed.")
+                finish_training_session(session_id, "failed", str(err))
+                return
+            finally:
+                # A completed response is written before the documented unload request.
+                PROVIDERS.unload("ollama", assignments[agent], OPENER)
+        finish_training_session(session_id, "completed")
+    finally:
+        with SESSION_CANCELS_LOCK:
+            SESSION_CANCELS.pop(session_id, None)
+        RUN_LOCK.release()
 
 
 def clear_history(room: str) -> int:
@@ -213,38 +326,6 @@ def provider_status(provider: str) -> dict:
     except ProviderError:
         return {"provider": info.identifier, "label": info.label, "available": False,
                 "models": [], "error": f"{info.label} is not running locally."}
-
-
-def run_training_session(session_id: int, provider: str, assigned_models: dict[str, str],
-                         language: str):
-    """Execute one recoverable Trainer/Student session without an inference deadline."""
-    transcript = history("university", 14)
-    try:
-        for agent in FLOW["university"]:
-            model = assigned_models[agent]
-            update_training_session(session_id, status="running", stage=f"{agent} — Waiting")
-            print(f"[training] session={session_id} agent={agent} model={model} stage=generating")
-            update_training_session(session_id, status="running", stage=f"{agent} — Generating")
-            started = monotonic()
-            answer = provider_chat(provider, model, agent, transcript, language)
-            duration_ms = round((monotonic() - started) * 1000)
-            add_message("university", agent, answer, session_id)
-            transcript.append({"agent": agent, "content": answer, "created_at": utc_now(),
-                               "model": model, "session_id": session_id})
-            update_training_session(session_id, status="running", stage=f"{agent} — Completed",
-                                    duration_ms=duration_ms, agent=agent)
-            print(f"[training] session={session_id} agent={agent} model={model} stage=completed duration_ms={duration_ms}")
-        update_training_session(session_id, status="completed", stage="Session completed")
-        print(f"[training] session={session_id} stage=completed")
-    except (TimeoutError, HTTPError, URLError, OSError, ValueError, KeyError, ProviderError) as err:
-        active = training_session(session_id) or {}
-        stage = active.get("stage", "Training")
-        message = f"{stage} failed for the configured local model: {err}"
-        update_training_session(session_id, status="failed",
-                                stage=stage.replace("Generating", "Failed").replace("Waiting", "Failed"), error=message)
-        print(f"[training] session={session_id} stage=failed error={type(err).__name__}")
-    finally:
-        RUN_LOCK.release()
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -299,16 +380,15 @@ class Handler(BaseHTTPRequestHandler):
             else:
                 self._json({"error": "Unknown room"}, 404)
             return
-        if self.path.startswith("/api/runs/"):
+        if self.path.startswith("/api/training-sessions/"):
             try:
                 session_id = int(self.path.rsplit("/", 1)[-1])
                 session = training_session(session_id)
                 if not session:
                     raise ValueError
-                messages = [message for message in history("university") if message["session_id"] == session_id]
-                self._json({"session": session, "messages": messages})
+                self._json(session)
             except ValueError:
-                self._json({"error": "Unknown training session."}, 404)
+                self._json({"error": "Unknown training session"}, 404)
             return
         pages = {"/": ("index.html", "text/html; charset=utf-8"),
                  "/static/style.css": ("style.css", "text/css; charset=utf-8"),
@@ -379,6 +459,20 @@ class Handler(BaseHTTPRequestHandler):
             except TrainingError as err:
                 self._json({"error": str(err)}, 400)
             return
+        if self.path.startswith("/api/training-sessions/") and self.path.endswith("/cancel"):
+            try:
+                session_id = int(self.path.split("/")[-2])
+                with SESSION_CANCELS_LOCK:
+                    cancel = SESSION_CANCELS.get(session_id)
+                if not cancel:
+                    raise ValueError("This session is no longer running.")
+                cancel.set()
+                with closing(connect()) as db, db:
+                    db.execute("UPDATE training_sessions SET status=? WHERE id=? AND status='running'", ("cancelling", session_id))
+                self._json({"session_id": session_id, "status": "cancelling"}, 202)
+            except ValueError as err:
+                self._json({"error": str(err)}, 400)
+            return
         if self.path == "/api/training/jobs":
             try:
                 size = int(self.headers.get("Content-Length", "0"))
@@ -403,6 +497,8 @@ class Handler(BaseHTTPRequestHandler):
             model = body.get("model", "")
             trainer_model = body.get("trainer_model", model)
             student_model = body.get("student_model", model)
+            evaluator_model = body.get("evaluator_model", model)
+            improver_model = body.get("improver_model", model)
             raw_prompt = body.get("prompt", "")
             language = body.get("language", "en")
             if language not in ("en", "el"):
@@ -412,8 +508,9 @@ class Handler(BaseHTTPRequestHandler):
             prompt = raw_prompt.strip()
             if room not in ROOMS or provider != "ollama" or not isinstance(model, str) or not 1 <= len(prompt) <= 2500:
                 raise ValueError("Select a room, model, and topic of up to 2,500 characters.")
-            if room == "university" and (not isinstance(trainer_model, str) or not isinstance(student_model, str)):
-                raise ValueError("Select both a Trainer model and a Student model.")
+            if room == "university" and not all(isinstance(value, str) and value for value in
+                                                (trainer_model, student_model, evaluator_model, improver_model)):
+                raise ValueError("Select a model for Trainer, Student, Evaluator, and Improver.")
             PROVIDERS.get(provider)
         except (ValueError, TypeError, json.JSONDecodeError) as err:
             self._json({"error": str(err)}, 400)
@@ -421,10 +518,11 @@ class Handler(BaseHTTPRequestHandler):
         if not RUN_LOCK.acquire(blocking=False):
             self._json({"error": "Another session is already running."}, 409)
             return
-        lock_released_by_worker = False
+        session_owns_lock = False
         try:
             available_models = local_models(provider)
-            assigned_models = ({"Trainer": trainer_model, "Student": student_model}
+            assigned_models = ({"Trainer": trainer_model, "Student": student_model,
+                                "Evaluator": evaluator_model, "Improver": improver_model}
                                if room == "university" else {agent: model for agent in FLOW[room]})
             missing = [f"{agent} model ({assigned_models[agent]})" for agent in FLOW[room]
                        if assigned_models[agent] not in available_models]
@@ -432,30 +530,29 @@ class Handler(BaseHTTPRequestHandler):
                 self._json({"error": "Unavailable local " + ", ".join(missing) + ". Refresh the model list and choose an available model."}, 400)
                 return
             if room == "university":
-                session_id = create_training_session(provider, trainer_model, student_model)
-                add_message(room, "You", prompt, session_id)
-                Thread(target=run_training_session,
-                       args=(session_id, provider, assigned_models, language), daemon=True).start()
-                lock_released_by_worker = True
-                self._json({"room": room, "session_id": session_id, "status": "running",
-                            "stage": "Preparing training session"}, 202)
+                session_id = create_training_session(provider, assigned_models)
+                cancel = Event()
+                with SESSION_CANCELS_LOCK:
+                    SESSION_CANCELS[session_id] = cancel
+                Thread(target=run_training_session, args=(session_id, prompt, assigned_models, cancel),
+                       name=f"training-session-{session_id}", daemon=True).start()
+                session_owns_lock = True
+                self._json({"room": room, "session_id": session_id, "status": "running"}, 202)
                 return
-            session_id = None
-            add_message(room, "You", prompt, session_id)
+            add_message(room, "You", prompt)
             transcript = history(room, 14)
             completed = []
             for agent in FLOW[room]:
                 answer = provider_chat(provider, assigned_models[agent], agent, transcript, language)
-                add_message(room, agent, answer, session_id)
-                item = {"agent": agent, "content": answer, "created_at": utc_now(),
-                        "model": assigned_models[agent], "session_id": session_id}
+                add_message(room, agent, answer)
+                item = {"agent": agent, "content": answer, "created_at": utc_now(), "model": assigned_models[agent]}
                 completed.append(item)
                 transcript.append(item)
-            self._json({"messages": completed, "room": room, "session_id": session_id})
+            self._json({"messages": completed, "room": room, "session_id": None})
         except (TimeoutError, HTTPError, URLError, OSError, ValueError, KeyError, ProviderError) as err:
             self._json({"error": f"The session stopped. Answers already produced were saved. {err}"}, 502)
         finally:
-            if not lock_released_by_worker:
+            if not session_owns_lock:
                 RUN_LOCK.release()
 
 

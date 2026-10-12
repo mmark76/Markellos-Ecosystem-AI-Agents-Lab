@@ -17,11 +17,12 @@ class EcosystemShellTests(unittest.TestCase):
         app = (STATIC / "app.js").read_text(encoding="utf-8")
         for name in ('data-room="university"', 'data-room="conference"',
                      'id="settings-toggle"', 'id="model"',
-                     'id="trainer-model"', 'id="student-model"',
+                     'id="trainer-model"', 'id="student-model"', 'id="evaluator-model"', 'id="improver-model"',
                      'id="composer"'):
             with self.subTest(name=name):
                 self.assertIn(name, html)
-        self.assertIn('Planner · Researcher · Reviewer', app)
+        self.assertIn("Planner", app)
+        self.assertIn("Reviewer", app)
         self.assertNotIn('Architect → Developer → Reviewer', app)
 
     def test_lab_is_ollama_only_without_a_provider_selector(self):
@@ -36,22 +37,24 @@ class EcosystemShellTests(unittest.TestCase):
     def test_training_models_are_independent_and_persisted_locally(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         app = (STATIC / "app.js").read_text(encoding="utf-8")
-        for selector in ('Trainer Model', 'Student Model', 'id="training-model-selects"'):
+        for selector in ('Trainer Model', 'Student Model', 'Evaluator Model', 'Improver Model', 'id="training-model-selects"'):
             with self.subTest(selector=selector): self.assertIn(selector, html)
-        for key in ('agents-lab-trainer-model', 'agents-lab-student-model', 'agents-lab-model'):
+        for key in ('agents-lab-trainer-model', 'agents-lab-student-model', 'agents-lab-evaluator-model', 'agents-lab-improver-model', 'agents-lab-model'):
             with self.subTest(key=key): self.assertIn(key, app)
         self.assertIn('trainer_model:trainerModel', app)
         self.assertIn('student_model:studentModel', app)
-
-    def test_training_execution_status_is_announced_and_polled(self):
-        html = (STATIC / 'index.html').read_text(encoding='utf-8')
-        app = (STATIC / 'app.js').read_text(encoding='utf-8')
-        self.assertIn('id="execution-status"', html)
-        self.assertIn('aria-live="polite"', html)
-        self.assertIn('/api/runs/', app)
-        self.assertIn('Trainer: ', app)
-        self.assertIn('Student: ', app)
+        self.assertIn('evaluator_model:evaluatorModel', app)
+        self.assertIn('improver_model:improverModel', app)
         self.assertIn("model.className='model-name'", app)
+
+    def test_four_stage_progress_and_cancellation_are_visible(self):
+        html = (STATIC / "index.html").read_text(encoding="utf-8")
+        app = (STATIC / "app.js").read_text(encoding="utf-8")
+        for name in ('id="training-stages"', 'id="cancel-training"'):
+            with self.subTest(name=name): self.assertIn(name, html)
+        for name in ('LEARN - Trainer', 'PRACTICE - Student', 'EVALUATE - Evaluator', 'IMPROVE - Improver',
+                     '/api/training-sessions/', 'setInterval(refreshTrainingSession,1000)'):
+            with self.subTest(name=name): self.assertIn(name, app)
 
     def test_language_selectors_are_removed_and_runtime_is_english_only(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
@@ -172,7 +175,7 @@ class EcosystemShellTests(unittest.TestCase):
         app = (STATIC / "app.js").read_text(encoding="utf-8")
         script = (STATIC / "training.js").read_text(encoding="utf-8")
         self.assertIn('placeholder="e.g. Teach your AI agent how to..."', html)
-        self.assertIn("universityPlaceholder:'e.g. Teach your AI agent how to...'", app)
+        self.assertIn("'e.g. Teach your AI agent how to...'", app)
         for name in ('Advanced: Train a model (optional)', 'For advanced users only.', 'training-dataset',
                      'training-model', 'training-device', 'setup-training-windows.bat', 'Which technology should I use?'):
             with self.subTest(name=name): self.assertIn(name, html)

@@ -72,6 +72,25 @@ Approved by: Direct user request
 Target release: Next Local Lab release
 ```
 
+## Approved change record — AI-LAB-CC-033
+
+```text
+Change ID: AI-LAB-CC-033
+Requested by: Repository maintainer
+Date: 2026-10-12
+Description: Expand Learning Lab from two agents to a Trainer, Student, Evaluator, Improver cycle with independently selected local Ollama models and durable per-stage progress.
+Reason: The owner requested a complete evidence-oriented learning loop that keeps all local inference strictly serial and supports slow CPU operation.
+Affected objective IDs: AI-LAB-OBJ-011
+Architecture impact: Adds a locked session worker, backward-compatible SQLite stage records, role-specific prompts, and polling-only presentation state. Conference Room behavior remains unchanged.
+Security and privacy impact: Fixed loopback Ollama is retained; no cloud provider, browser-supplied endpoint, credentials, or external storage is added.
+Data impact: Existing messages and two-role sessions remain readable. New sessions persist four model snapshots and stage status, timing, output, assessment metadata, and errors.
+Testing impact: Mocked serial routing, no-overlap, unload, slow/unbounded inference contract, failure, cancellation, migration, HTTP, and UI regression coverage.
+Cost and schedule impact: Four inference stages can take substantial time on CPU; the Lab deliberately does not impose an inference duration limit.
+Decision: APPROVED (SCOPE INCREASE)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
 ## Approved change record — AI-LAB-CC-012
 
 ```text

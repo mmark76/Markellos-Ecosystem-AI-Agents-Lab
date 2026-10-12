@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from typing import Optional
 from urllib.error import HTTPError, URLError
 from urllib.request import Request
 
@@ -57,9 +58,10 @@ class InferenceProviders:
                                      "think": False, "options": {"num_predict": 450}}).encode("utf-8"),
                     headers={"Content-Type": "application/json"}, method="POST",
                 )
-                # Local model loading and CPU inference can legitimately take longer
-                # than a fixed HTTP read deadline. Do not impose one here.
-                payload = self._json(opener, request)
+                # Do not impose a wall-clock deadline on local CPU inference.  A
+                # model may legitimately need longer than a browser-style request
+                # timeout; cancellation is controlled by the Lab between stages.
+                payload = self._json(opener, request, None)
                 answer = (payload.get("message") or {}).get("content", "")
         except (HTTPError, URLError, OSError, json.JSONDecodeError, UnicodeDecodeError, KeyError, TypeError) as err:
             raise ProviderUnavailable(f"{provider.label} did not complete the local request.") from err
@@ -67,9 +69,34 @@ class InferenceProviders:
             raise ProviderError("The selected model returned no text response.")
         return answer.strip()
 
+    def unload(self, identifier: str, model: str, opener) -> None:
+        """Ask Ollama to release one completed model without delaying a session.
+
+        Ollama documents ``keep_alive: 0`` on /api/generate as an immediate
+        unload request.  Failure to confirm an unload must not erase a completed
+        learning response, because the daemon may already have released it.
+        """
+        provider = self.get(identifier)
+        if provider.api_style != "ollama":
+            return
+        request = Request(
+            provider.base_url + "/api/generate",
+            data=json.dumps({"model": model, "prompt": "", "stream": False,
+                             "keep_alive": 0}).encode("utf-8"),
+            headers={"Content-Type": "application/json"}, method="POST",
+        )
+        try:
+            self._json(opener, request, 4)
+        except (HTTPError, URLError, OSError, json.JSONDecodeError, UnicodeDecodeError,
+                KeyError, TypeError, ProviderError):
+            # The result has already been persisted.  Treat daemon-side unload
+            # confirmation as best effort and continue with the next stage.
+            return
+
     @staticmethod
-    def _json(opener, request: Request, timeout: int | None = None) -> dict:
-        with (opener.open(request) if timeout is None else opener.open(request, timeout=timeout)) as response:
+    def _json(opener, request: Request, timeout: Optional[int]) -> dict:
+        open_args = {} if timeout is None else {"timeout": timeout}
+        with opener.open(request, **open_args) as response:
             payload = json.loads(response.read(2_000_000))
         if not isinstance(payload, dict):
             raise ProviderError("Invalid provider response.")
