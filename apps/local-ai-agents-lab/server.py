@@ -5,10 +5,11 @@ import json
 import sys
 from contextlib import closing
 import sqlite3
+from time import monotonic
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from threading import Lock
+from threading import Lock, Thread
 from typing import Optional
 from urllib.error import HTTPError, URLError
 from urllib.request import ProxyHandler, build_opener
@@ -96,8 +97,25 @@ def initialize():
             provider TEXT NOT NULL,
             trainer_model TEXT NOT NULL,
             student_model TEXT NOT NULL,
-            created_at TEXT NOT NULL
+            created_at TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'running',
+            stage TEXT NOT NULL DEFAULT 'Preparing training session',
+            error TEXT NOT NULL DEFAULT '',
+            trainer_duration_ms INTEGER,
+            student_duration_ms INTEGER,
+            completed_at TEXT
         )""")
+        session_columns = {row[1] for row in db.execute("PRAGMA table_info(training_sessions)")}
+        for name, definition in {
+            "status": "TEXT NOT NULL DEFAULT 'completed'",
+            "stage": "TEXT NOT NULL DEFAULT 'Session completed'",
+            "error": "TEXT NOT NULL DEFAULT ''",
+            "trainer_duration_ms": "INTEGER",
+            "student_duration_ms": "INTEGER",
+            "completed_at": "TEXT",
+        }.items():
+            if name not in session_columns:
+                db.execute(f"ALTER TABLE training_sessions ADD COLUMN {name} {definition}")
         db.execute("CREATE INDEX IF NOT EXISTS idx_room_id ON messages(room,id)")
         db.execute("CREATE INDEX IF NOT EXISTS idx_messages_session_id ON messages(session_id)")
 
@@ -114,10 +132,37 @@ def create_training_session(provider: str, trainer_model: str, student_model: st
     """Persist a model snapshot for one Training Lab run without changing old history."""
     with closing(connect()) as db, db:
         result = db.execute(
-            "INSERT INTO training_sessions(provider,trainer_model,student_model,created_at) VALUES(?,?,?,?)",
-            (provider, trainer_model, student_model, utc_now()),
+            "INSERT INTO training_sessions(provider,trainer_model,student_model,created_at,status,stage,error) VALUES(?,?,?,?,?,?,?)",
+            (provider, trainer_model, student_model, utc_now(), "running", "Preparing training session", ""),
         )
     return result.lastrowid
+
+
+def update_training_session(session_id: int, *, status: str, stage: str, error: str = "",
+                            duration_ms: Optional[int] = None, agent: Optional[str] = None):
+    """Persist recoverable local run state without retaining prompts in diagnostics."""
+    updates = ["status=?", "stage=?", "error=?"]
+    values: list[object] = [status, stage, error[:1000]]
+    if agent == "Trainer" and duration_ms is not None:
+        updates.append("trainer_duration_ms=?")
+        values.append(duration_ms)
+    if agent == "Student" and duration_ms is not None:
+        updates.append("student_duration_ms=?")
+        values.append(duration_ms)
+    if status in {"completed", "failed"}:
+        updates.append("completed_at=?")
+        values.append(utc_now())
+    values.append(session_id)
+    with closing(connect()) as db, db:
+        db.execute(f"UPDATE training_sessions SET {', '.join(updates)} WHERE id=?", values)
+
+
+def training_session(session_id: int) -> Optional[dict]:
+    with closing(connect()) as db:
+        row = db.execute("SELECT id,provider,trainer_model,student_model,created_at,status,stage,error,"
+                         "trainer_duration_ms,student_duration_ms,completed_at FROM training_sessions WHERE id=?",
+                         (session_id,)).fetchone()
+    return dict(row) if row else None
 
 
 def history(room: str, limit: int = 80) -> list[dict]:
@@ -168,6 +213,38 @@ def provider_status(provider: str) -> dict:
     except ProviderError:
         return {"provider": info.identifier, "label": info.label, "available": False,
                 "models": [], "error": f"{info.label} is not running locally."}
+
+
+def run_training_session(session_id: int, provider: str, assigned_models: dict[str, str],
+                         language: str):
+    """Execute one recoverable Trainer/Student session without an inference deadline."""
+    transcript = history("university", 14)
+    try:
+        for agent in FLOW["university"]:
+            model = assigned_models[agent]
+            update_training_session(session_id, status="running", stage=f"{agent} — Waiting")
+            print(f"[training] session={session_id} agent={agent} model={model} stage=generating")
+            update_training_session(session_id, status="running", stage=f"{agent} — Generating")
+            started = monotonic()
+            answer = provider_chat(provider, model, agent, transcript, language)
+            duration_ms = round((monotonic() - started) * 1000)
+            add_message("university", agent, answer, session_id)
+            transcript.append({"agent": agent, "content": answer, "created_at": utc_now(),
+                               "model": model, "session_id": session_id})
+            update_training_session(session_id, status="running", stage=f"{agent} — Completed",
+                                    duration_ms=duration_ms, agent=agent)
+            print(f"[training] session={session_id} agent={agent} model={model} stage=completed duration_ms={duration_ms}")
+        update_training_session(session_id, status="completed", stage="Session completed")
+        print(f"[training] session={session_id} stage=completed")
+    except (TimeoutError, HTTPError, URLError, OSError, ValueError, KeyError, ProviderError) as err:
+        active = training_session(session_id) or {}
+        stage = active.get("stage", "Training")
+        message = f"{stage} failed for the configured local model: {err}"
+        update_training_session(session_id, status="failed",
+                                stage=stage.replace("Generating", "Failed").replace("Waiting", "Failed"), error=message)
+        print(f"[training] session={session_id} stage=failed error={type(err).__name__}")
+    finally:
+        RUN_LOCK.release()
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -221,6 +298,17 @@ class Handler(BaseHTTPRequestHandler):
                 self._json({"room": room, "messages": history(room)})
             else:
                 self._json({"error": "Unknown room"}, 404)
+            return
+        if self.path.startswith("/api/runs/"):
+            try:
+                session_id = int(self.path.rsplit("/", 1)[-1])
+                session = training_session(session_id)
+                if not session:
+                    raise ValueError
+                messages = [message for message in history("university") if message["session_id"] == session_id]
+                self._json({"session": session, "messages": messages})
+            except ValueError:
+                self._json({"error": "Unknown training session."}, 404)
             return
         pages = {"/": ("index.html", "text/html; charset=utf-8"),
                  "/static/style.css": ("style.css", "text/css; charset=utf-8"),
@@ -333,6 +421,7 @@ class Handler(BaseHTTPRequestHandler):
         if not RUN_LOCK.acquire(blocking=False):
             self._json({"error": "Another session is already running."}, 409)
             return
+        lock_released_by_worker = False
         try:
             available_models = local_models(provider)
             assigned_models = ({"Trainer": trainer_model, "Student": student_model}
@@ -342,8 +431,16 @@ class Handler(BaseHTTPRequestHandler):
             if missing:
                 self._json({"error": "Unavailable local " + ", ".join(missing) + ". Refresh the model list and choose an available model."}, 400)
                 return
-            session_id = (create_training_session(provider, trainer_model, student_model)
-                          if room == "university" else None)
+            if room == "university":
+                session_id = create_training_session(provider, trainer_model, student_model)
+                add_message(room, "You", prompt, session_id)
+                Thread(target=run_training_session,
+                       args=(session_id, provider, assigned_models, language), daemon=True).start()
+                lock_released_by_worker = True
+                self._json({"room": room, "session_id": session_id, "status": "running",
+                            "stage": "Preparing training session"}, 202)
+                return
+            session_id = None
             add_message(room, "You", prompt, session_id)
             transcript = history(room, 14)
             completed = []
@@ -358,7 +455,8 @@ class Handler(BaseHTTPRequestHandler):
         except (TimeoutError, HTTPError, URLError, OSError, ValueError, KeyError, ProviderError) as err:
             self._json({"error": f"The session stopped. Answers already produced were saved. {err}"}, 502)
         finally:
-            RUN_LOCK.release()
+            if not lock_released_by_worker:
+                RUN_LOCK.release()
 
 
 def main():
