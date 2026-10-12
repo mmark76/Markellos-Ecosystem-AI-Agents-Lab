@@ -26,7 +26,8 @@ test('build creates a self-contained Pages artifact with a populated build ID', 
   assert.doesNotMatch(html, /secondary-button" href="http:\/\/127\.0\.0\.1:8765\//);
   assert.match(html, /data-color-mode="dark"/);
   assert.doesNotMatch(html, /background-color|Background colour/);
-  assert.match(html, new RegExp(`Download AI-Agents-Lab-Windows\\.zip · v${escapedReleaseVersion}`));
+  assert.match(html, /Dashboard update available/);
+  assert.doesNotMatch(html, /Download AI-Agents-Lab-Windows\.zip ·/);
   assert.match(html, /Read the README/);
   assert.match(html, /href="\.\/README\.md" target="_blank" rel="noopener noreferrer"/);
   assert.doesNotMatch(html, /data-language|language-selector|language-button/);
