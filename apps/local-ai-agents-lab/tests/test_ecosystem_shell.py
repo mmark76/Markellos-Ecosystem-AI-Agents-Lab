@@ -40,6 +40,12 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn('class="beta-badge">BETA</span>', html)
         self.assertIn('.chat-panel{min-height:0;overflow-x:hidden;overflow-y:auto', css)
 
+    def test_training_surfaces_use_clearer_panel_borders(self):
+        css = (STATIC / "style.css").read_text(encoding="utf-8")
+        self.assertIn('--panel-border:#3f5b66', css)
+        self.assertIn('--panel-border:#b6c6d0', css)
+        self.assertIn('.composer,textarea,.empty,.training-stage{border-color:var(--panel-border)}', css)
+
     def test_lab_is_ollama_only_without_a_provider_selector(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         app = (STATIC / "app.js").read_text(encoding="utf-8")
