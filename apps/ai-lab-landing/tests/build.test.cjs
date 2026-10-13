@@ -26,8 +26,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.equal(distribution.version, releaseVersion);
   assert.match(distribution.url, new RegExp(`/releases/v${escapedReleaseVersion}/AI-Agents-Lab-Windows\\.zip$`));
   assert.match(distribution.sha256, /^[a-f0-9]{64}$/);
-  assert.match(html, /Public BETA download/);
-  assert.match(html, /available without GitHub sign-in/);
+  assert.doesNotMatch(html, /Public BETA download|available without GitHub sign-in/);
   assert.doesNotMatch(html, /Download access note|private GitHub repository.*authorized GitHub access/);
   assert.match(html, new RegExp(`id="zip-download" class="primary-button" data-zip-version="v${escapedReleaseVersion}" data-zip-sha256="${distribution.sha256}"`));
   assert.match(html, new RegExp(`Download AI-Agents-Lab-Windows\\.zip \\(v${escapedReleaseVersion}\\)`));
@@ -36,11 +35,8 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /Trainer → Student → Evaluator → Improver/);
   assert.match(html, /UNDER CONSTRUCTION/);
   assert.match(html, /Agent Collaboration \/ Conference Room/);
-  assert.match(html, /NOT YET OPERATIONAL/);
-  assert.match(html, /confirmed compatibility issue/);
-  assert.match(html, /Manual update check in the Local App/);
-  assert.match(html, /Ollama only/);
-  assert.match(html, /LM Studio and vLLM are not supported inference providers/);
+  assert.doesNotMatch(html, /card-label">SUPPORTED PROVIDER|<h2>Ollama only<\/h2>|LM Studio and vLLM are not supported/);
+  assert.doesNotMatch(html, /NOT YET OPERATIONAL|Advanced model fine-tuning|NOT IMPLEMENTED|Manual update check in the Local App/);
   assert.match(html, /https:\/\/ollama\.com\/download/);
   assert.doesNotMatch(html, /https:\/\/lmstudio\.ai\/download|https:\/\/docs\.vllm\.ai/);
   assert.match(html, /href="http:\/\/127\.0\.0\.1:8765\/"/);
@@ -50,9 +46,6 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.doesNotMatch(html, /data-language|language-selector|language-button|Lab Assistant|assistant-button|assistant-dialog/);
   assert.match(guide, /Public BETA download/);
   assert.match(guide, new RegExp(distribution.sha256));
-  assert.match(guide, /LM Studio and vLLM are not supported/);
-  assert.match(guide, /Agent Collaboration \/ Conference Room is disabled/);
-  assert.match(guide, /no in-app manual update check/);
   assert.doesNotMatch(script, /checkForZipUpdate|scheduleZipUpdateChecks|downloaded-zip-version/);
   assert.match(script, /typeof module !== 'undefined'/);
   for (const file of ['styles.css', 'tokens.css', 'dashboard.js', '_headers', 'README.md', 'simple-guide.html']) assert.equal(existsSync(join(output, file)), true, `${file} is missing`);
