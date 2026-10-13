@@ -38,7 +38,9 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /Trainer → Student → Evaluator → Improver/);
   assert.match(html, /UNDER CONSTRUCTION/);
   assert.match(html, /Agent Collaboration \/ Conference Room/);
-  assert.match(html, /Start in five simple steps/);
+  assert.match(html, /Start in three simple steps/);
+  assert.match(html, /Start AI Agents Lab\.bat/);
+  assert.match(html, /asks separately before installing Python, Ollama, or the initial local model/);
   assert.match(html, /You do not need a GitHub account/);
   assert.doesNotMatch(html, /Verify and extract the ZIP|disable_ollama_cloud|ollama pull qwen3:4b/);
   assert.doesNotMatch(html, /card-label">SUPPORTED PROVIDER|<h2>Ollama only<\/h2>|LM Studio and vLLM are not supported/);
@@ -51,7 +53,9 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /id="info-dialog"/);
   assert.doesNotMatch(html, /data-language|language-selector|language-button|Lab Assistant|assistant-button|assistant-dialog/);
   assert.match(guide, /Before you begin/);
-  assert.match(guide, /Start in five steps/);
+  assert.match(guide, /Start in three steps/);
+  assert.match(guide, /Start AI Agents Lab\.bat/);
+  assert.match(guide, /asks separately before installing Python, Ollama, or the first local AI model/);
   assert.match(guide, /You do not need a GitHub account/);
   assert.match(guide, /Agent Collaboration is under construction/);
   assert.doesNotMatch(guide, /Public current-state documentation|Advanced model fine-tuning|Manual update check/);

@@ -47,6 +47,29 @@ test('Windows launcher packages the University Lab desktop shortcut and icon',()
   assert.match(packager,/'assets\/university-lab\.ico'/);
   assert.ok(fs.statSync(path.join(root,'assets','university-lab.ico')).size > 0);
 });
+test('Easy Start is packaged, readiness-first, and requires explicit approval for each device change',()=>{
+  const root=path.resolve(__dirname,'..');
+  const launcher=fs.readFileSync(path.join(root,'start-windows.bat'),'utf8');
+  const friendlyLauncher=fs.readFileSync(path.join(root,'Start AI Agents Lab.bat'),'utf8');
+  const easyStart=fs.readFileSync(path.join(root,'scripts','easy-start.ps1'),'utf8');
+  const shortcut=fs.readFileSync(path.join(root,'scripts','create-desktop-shortcut.ps1'),'utf8');
+  const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
+  assert.match(launcher,/easy-start\.ps1/);
+  assert.match(launcher,/--launch-server/);
+  assert.match(friendlyLauncher,/start-windows\.bat/);
+  assert.match(shortcut,/Start AI Agents Lab\.bat/);
+  assert.match(packager,/Start AI Agents Lab\.bat/);
+  assert.match(packager,/easy-start\.ps1/);
+  assert.match(easyStart,/Python\.Python\.3\.12/);
+  assert.match(easyStart,/Ollama\.Ollama/);
+  assert.match(easyStart,/http:\/\/127\.0\.0\.1:11434\/api\/tags/);
+  assert.match(easyStart,/http:\/\/127\.0\.0\.1:11434\/api\/pull/);
+  assert.match(easyStart,/qwen2\.5:0\.5b/);
+  assert.ok((easyStart.match(/Require-Approval/g)||[]).length >= 5);
+  for(const forbidden of ['Invoke-Expression','DownloadString','Start-BitsTransfer','Invoke-WebRequest']){
+    assert.doesNotMatch(easyStart,new RegExp(forbidden));
+  }
+});
 test('three-panel interaction script is included in the Windows release',()=>{
   const root=path.resolve(__dirname,'..');
   const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
