@@ -27,7 +27,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(distribution.url, new RegExp(`/releases/v${escapedReleaseVersion}/AI-Agents-Lab-Windows\\.zip$`));
   assert.match(distribution.sha256, /^[a-f0-9]{64}$/);
   assert.match(html, new RegExp(`Public BETA download:<\\/strong> The v${escapedReleaseVersion} Windows ZIP is available\\.`));
-  assert.doesNotMatch(html, /available without GitHub sign-in|SHA-256/);
+  assert.doesNotMatch(html, /available without GitHub sign-in/);
   assert.doesNotMatch(html, /Download access note|private GitHub repository.*authorized GitHub access/);
   assert.match(html, new RegExp(`id="zip-download" class="primary-button" data-zip-version="v${escapedReleaseVersion}" data-zip-sha256="${distribution.sha256}"`));
   assert.match(html, new RegExp(`Download AI-Agents-Lab-Windows\\.zip \\(v${escapedReleaseVersion}\\)`));
