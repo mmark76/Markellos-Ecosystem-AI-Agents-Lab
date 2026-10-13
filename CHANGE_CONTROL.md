@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-045
+
+```text
+Change ID: AI-LAB-CC-045
+Requested by: Repository maintainer
+Date: 2026-10-14
+Description: Retain and publish the verified Windows ZIP archive from v1.0.0 onward through a compact, collapsed release-history control on the public dashboard.
+Reason: Preserve the evolution of the agents for future study without presenting a long list of previous versions in the primary dashboard view.
+Affected objective IDs: AI-LAB-OBJ-003
+Architecture impact: Static public landing presentation and versioned R2 artifact retention only; no Local Lab, model, data, or API changes.
+Security and privacy impact: Existing public R2 distribution boundary remains unchanged; every displayed ZIP remains versioned and checksum-identified.
+Data impact: Existing public R2 ZIPs are retained; v1.1.0 and v1.1.3 are added as immutable public archive objects.
+Testing impact: Extend landing build regression for the complete v1.0.0+ manifest and its collapsed two-column archive.
+Cost and schedule impact: Small ongoing R2 storage cost for two additional retained ZIPs.
+Decision: APPROVED (SCOPE INCREASE)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```
+
 ## Rule
 
 After scope freeze, every proposed change must be classified.

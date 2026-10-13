@@ -44,9 +44,11 @@
     </section>
 
     <section class="simple-section release-history" aria-labelledby="release-history-title">
-      <p class="eyebrow">RELEASE HISTORY</p><h2 id="release-history-title">Previous Windows ZIPs</h2>
-      <p>The current release and two earlier verified downloads remain available.</p>
-      <ul>{{RELEASE_HISTORY}}</ul>
+      <details>
+        <summary id="release-history-title">Release archive <span>{{ARCHIVE_COUNT}} earlier Windows ZIPs</span></summary>
+        <p>Verified historical releases are retained for reference and future agent studies.</p>
+        <ul>{{RELEASE_HISTORY}}</ul>
+      </details>
     </section>
 
     <section id="overview" class="card-grid" aria-labelledby="what-title">

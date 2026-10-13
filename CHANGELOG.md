@@ -6,6 +6,7 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 
 ### Changed
 
+- Retained the public Windows ZIP archive from v1.0.0 onward in a compact, collapsed dashboard control for future agent studies.
 - Preserved each Training Lab response panel's manual vertical scroll position while session polling refreshes stage status.
 - Standardized every public, packaged, and internal project reference on Markellos Ecosystem AI Agents Lab; migrated legacy local training-room history to the `training` identifier and renamed the shortcut plus its icon asset.
 - Added locally stored settings for background color and text font.

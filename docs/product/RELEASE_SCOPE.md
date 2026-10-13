@@ -24,6 +24,7 @@
 | AI-LAB-SCOPE-012 | Provide a Windows Easy Start bootstrap that checks prerequisites and requests a separate explicit user approval before installing Python, installing Ollama, starting Ollama, or downloading the initial local model. | High | Repository maintainer | Approved by direct user request on 2026-10-13 |
 | AI-LAB-SCOPE-013 | Provide optional, vendor-neutral informational Model Guidance for the four Learning Lab roles without changing model selection or execution. | Medium | Repository maintainer | Approved by direct user request on 2026-10-13 |
 | AI-LAB-SCOPE-014 | Add consented Google Analytics 4 to the public Cloudflare Pages landing page only, including page/navigation and ZIP-download measurement, withdrawal controls, and accurate privacy information. | High | Repository maintainer | Approved by direct user request on 2026-10-13 |
+| AI-LAB-SCOPE-015 | Retain and provide the public Windows ZIP archive from v1.0.0 onward in a compact, collapsed release-history control for future agent studies. | Medium | Repository maintainer | Approved by direct user request on 2026-10-14 |
 
 ## Out of scope
 
