@@ -72,6 +72,25 @@ Approved by: Direct user request on 2026-10-13
 Target release: Next Local Lab release
 ```
 
+## Approved change record — AI-LAB-CC-044
+
+```text
+Change ID: AI-LAB-CC-044
+Requested by: Repository maintainer
+Date: 2026-10-13
+Description: Preserve each four-stage response panel's vertical scroll position when the local Training Lab refreshes session status.
+Reason: Polling replaced completed response elements and returned manually scrolled content to the top.
+Affected objective IDs: AI-LAB-OBJ-011
+Architecture impact: Local presentation rendering only; stage execution, provider routing, prompts, and stored responses are unchanged.
+Security and privacy impact: None; no endpoint, storage, credential, or telemetry change.
+Data impact: None.
+Testing impact: Add a static regression assertion and manually verify independent response-panel scrolling in the local browser.
+Cost and schedule impact: None.
+Decision: APPROVED (DEFECT)
+Approved by: Direct user request on 2026-10-13
+Target release: Next Local Lab release
+```
+
 ## Approved change record — AI-LAB-CC-042
 
 ```text
