@@ -22,7 +22,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, new RegExp(`v${escapedReleaseVersion}_\\d{8}_\\d{4}_[0-9a-f]{7}`));
   assert.doesNotMatch(html, /\{\{BUILD_ID\}\}|\{\{RELEASE_VERSION\}\}/);
   assert.match(html, new RegExp(`CURRENT RELEASE · v${escapedDistributionVersion} · LOCAL ONLY`));
-  assert.match(html, new RegExp(`<h1 id="page-title">AI Agents Lab v${escapedDistributionVersion}<\\/h1>`));
+  assert.match(html, new RegExp(`<h1 id="page-title">AI Training Lab v${escapedDistributionVersion}<\\/h1>`));
   assert.match(html, /class="beta-badge">BETA<\/span>/);
   assert.match(styles, /\.beta-badge/);
   assert.match(distribution.version, /^\d+\.\d+\.\d+$/);
@@ -32,14 +32,14 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.doesNotMatch(html, /available without GitHub sign-in/);
   assert.doesNotMatch(html, /Download access note|private GitHub repository.*authorized GitHub access/);
   assert.match(html, new RegExp(`id="zip-download" class="primary-button" data-zip-version="v${escapedDistributionVersion}" data-zip-sha256="${distribution.sha256}"`));
-  assert.match(html, new RegExp(`Download AI-Agents-Lab-Windows\\.zip \\(v${escapedDistributionVersion}\\)`));
+  assert.match(html, new RegExp(`Download AI Training Lab for Windows \\(v${escapedDistributionVersion}\\)`));
   assert.match(html, new RegExp(distribution.url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.doesNotMatch(html, /id="zip-update"/);
   assert.match(html, /Trainer → Student → Evaluator → Improver/);
   assert.match(html, /UNDER CONSTRUCTION/);
   assert.match(html, /Agent Collaboration \/ Conference Room/);
   assert.match(html, /Start in three simple steps/);
-  assert.match(html, /Start AI Agents Lab\.bat/);
+  assert.match(html, /Start AI Training Lab\.bat/);
   assert.match(html, /asks separately before installing Python, Ollama, or the initial local model/);
   assert.match(html, /You do not need a GitHub account/);
   assert.doesNotMatch(html, /Verify and extract the ZIP|disable_ollama_cloud|ollama pull qwen3:4b/);
@@ -54,7 +54,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.doesNotMatch(html, /data-language|language-selector|language-button|Lab Assistant|assistant-button|assistant-dialog/);
   assert.match(guide, /Before you begin/);
   assert.match(guide, /Start in three steps/);
-  assert.match(guide, /Start AI Agents Lab\.bat/);
+  assert.match(guide, /Start AI Training Lab\.bat/);
   assert.match(guide, /asks separately before installing Python, Ollama, or the first local AI model/);
   assert.match(guide, /You do not need a GitHub account/);
   assert.match(guide, /Agent Collaboration is under construction/);

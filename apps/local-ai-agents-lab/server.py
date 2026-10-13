@@ -1,4 +1,4 @@
-"""Private local Markellos Ecosystem AI Agents Lab + Conference Room starter."""
+"""Private local Markellos Ecosystem AI Training Lab + Conference Room starter."""
 from __future__ import annotations
 
 import json
@@ -43,7 +43,7 @@ MODEL_INSTALLER = OllamaModelInstaller(OPENER)
 
 PROMPTS = {
     "Trainer": (
-        "You are a trainer in the local Markellos Ecosystem AI Agents Lab. "
+        "You are a trainer in the local Markellos Ecosystem AI Training Lab. "
         "Give a concise practical lesson on the user's topic and one specific exercise. "
         "State clear success criteria. Reply exclusively in English. Maximum 150 words."
     ),
@@ -54,7 +54,7 @@ PROMPTS = {
         "Reply exclusively in English. Maximum 150 words."
     ),
     "Evaluator": (
-        "You are an independent evaluator in the local Markellos Ecosystem AI Agents Lab. "
+        "You are an independent evaluator in the local Markellos Ecosystem AI Training Lab. "
         "Assess the Student response against the Trainer lesson and success criteria. "
         "Do not automatically trust either response. Identify correct elements, errors, missing elements, "
         "and limitations where authoritative validation is unavailable. Reply exclusively in English using "
@@ -62,7 +62,7 @@ PROMPTS = {
         "and Result: Pass or Needs Improvement. Maximum 220 words."
     ),
     "Improver": (
-        "You are an improver in the local Markellos Ecosystem AI Agents Lab. Read the lesson, student "
+        "You are an improver in the local Markellos Ecosystem AI Training Lab. Read the lesson, student "
         "response, and evaluation. Identify the most important learning gaps, explain corrections, provide "
         "an improved solution, and suggest one focused next exercise. Do not claim mastery without later "
         "verification. Reply exclusively in English using the headings Corrected Explanation, Improved Solution, "
@@ -577,7 +577,7 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     initialize()
     server = ThreadingHTTPServer((HOST, PORT), Handler)
-    print(f"Markellos Ecosystem AI Agents Lab — http://{HOST}:{PORT}/")
+    print(f"Markellos Ecosystem AI Training Lab — http://{HOST}:{PORT}/")
     print(f"Database: {DB_PATH}")
     print("Local operation only. Press Ctrl+C to stop.")
     try:

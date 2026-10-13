@@ -32,26 +32,30 @@ test('packaged README is English only',()=>{
   const readme=fs.readFileSync(path.join(root,'README.md'),'utf8');
   const version=fs.readFileSync(path.join(root,'VERSION'),'utf8').trim();
   assert.doesNotMatch(readme,/[\u0370-\u03ff]/);
-  assert.match(readme,/^# Markellos Ecosystem AI Agents Lab$/m);
+  assert.match(readme,/^# Markellos Ecosystem AI Training Lab$/m);
   assert.match(readme,new RegExp(`Version: v${version.replaceAll('.', '\\.')} · Private local starter`));
   assert.match(readme,/## Run the Lab on a laptop/);
   assert.match(readme,/## Privacy and boundaries/);
 });
-test('Windows launcher packages the AI Agents Lab desktop shortcut and icon',()=>{
+test('Windows launcher packages the AI Training Lab desktop shortcut and valid icon',()=>{
   const root=path.resolve(__dirname,'..');
   const launcher=fs.readFileSync(path.join(root,'start-windows.bat'),'utf8');
   const shortcut=fs.readFileSync(path.join(root,'scripts','create-desktop-shortcut.ps1'),'utf8');
   const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
   assert.match(launcher,/create-desktop-shortcut\.ps1/);
-  assert.match(shortcut,/Markellos Ecosystem AI Agents Lab\.lnk/);
-  assert.match(shortcut,/assets\\ai-agents-lab\.ico/);
-  assert.match(packager,/'assets\/ai-agents-lab\.ico'/);
-  assert.ok(fs.statSync(path.join(root,'assets','ai-agents-lab.ico')).size > 0);
+  const icon=fs.readFileSync(path.join(root,'assets','ai-training-lab.ico'));
+  assert.match(shortcut,/Markellos Ecosystem AI Training Lab\.lnk/);
+  assert.match(shortcut,/assets\\ai-training-lab\.ico/);
+  assert.match(packager,/'assets\/ai-training-lab\.ico'/);
+  assert.equal(icon.readUInt16LE(0),0);
+  assert.equal(icon.readUInt16LE(2),1);
+  assert.equal(icon.readUInt16LE(4),7);
+  assert.ok(icon.length > 100000);
 });
 test('Easy Start is packaged, readiness-first, and requires explicit approval for each device change',()=>{
   const root=path.resolve(__dirname,'..');
   const launcher=fs.readFileSync(path.join(root,'start-windows.bat'),'utf8');
-  const friendlyLauncher=fs.readFileSync(path.join(root,'Start AI Agents Lab.bat'),'utf8');
+  const friendlyLauncher=fs.readFileSync(path.join(root,'Start AI Training Lab.bat'),'utf8');
   const easyStart=fs.readFileSync(path.join(root,'scripts','easy-start.ps1'),'utf8');
   const shortcut=fs.readFileSync(path.join(root,'scripts','create-desktop-shortcut.ps1'),'utf8');
   const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
@@ -59,8 +63,8 @@ test('Easy Start is packaged, readiness-first, and requires explicit approval fo
   assert.match(launcher,/-LabRoot "%~dp0\."/g);
   assert.match(launcher,/--launch-server/);
   assert.match(friendlyLauncher,/start-windows\.bat/);
-  assert.match(shortcut,/Start AI Agents Lab\.bat/);
-  assert.match(packager,/Start AI Agents Lab\.bat/);
+  assert.match(shortcut,/Start AI Training Lab\.bat/);
+  assert.match(packager,/Start AI Training Lab\.bat/);
   assert.match(packager,/easy-start\.ps1/);
   assert.match(easyStart,/Python\.Python\.3\.12/);
   assert.match(easyStart,/Ollama\.Ollama/);

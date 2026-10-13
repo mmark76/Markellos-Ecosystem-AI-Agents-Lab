@@ -14,7 +14,7 @@ if /I not "%~1"=="--launch-server" (
 rem Easy Start completed; create or refresh the local shortcut before opening the local server.
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\create-desktop-shortcut.ps1" -LabRoot "%~dp0." >nul 2>&1
 echo ==========================================
-echo Markellos Ecosystem AI Agents Lab
+echo Markellos Ecosystem AI Training Lab
 echo Open: http://127.0.0.1:8765/
 echo Close this window or press Ctrl+C to stop.
 echo ==========================================

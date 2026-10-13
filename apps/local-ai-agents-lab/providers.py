@@ -1,4 +1,4 @@
-"""Fixed loopback Ollama adapter for the Local AI Agents Lab."""
+"""Fixed loopback Ollama adapter for the Local AI Training Lab."""
 from __future__ import annotations
 
 import json
