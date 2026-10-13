@@ -8,7 +8,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $root = [System.IO.Path]::GetFullPath($LabRoot)
 $launcher = Join-Path $root 'Start AI Agents Lab.bat'
-$icon = Join-Path $root 'assets\ai-agents-lab.ico'
+$icon = Join-Path $root 'assets\ai-training-lab.ico'
 
 if (-not (Test-Path -LiteralPath $launcher -PathType Leaf)) {
     $launcher = Join-Path $root 'start-windows.bat'
