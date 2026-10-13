@@ -16,6 +16,11 @@ function verify(dir,expectedSha){
   const version=fs.readFileSync(path.join(dir,'VERSION'),'utf8').trim();
   if(version!==manifest.version)throw Error('Package VERSION mismatch');
   if(fs.existsSync(path.join(dir,'data')))throw Error('Runtime data bundled');
+  for(const role of ["trainer","student","evaluator","improver","planner","researcher","reviewer"]){
+    const file=path.join(dir,'prompts',role+'.txt');
+    if(!fs.existsSync(file)||!fs.readFileSync(file,'utf8').trim())
+      throw Error('Missing or empty agent prompt: '+role);
+  }
   console.log('RELEASE_VERIFIED '+expectedId);
 }
 if(require.main===module){
