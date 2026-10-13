@@ -2,9 +2,9 @@
 
 This is a static Cloudflare Pages landing page for `ai-lab.markellosecosystem.com`. It describes how to run the local-only AI Agents Lab; it does not host the application, an LLM, chat input, analytics, accounts, or user data.
 
-Its HTML/CSS shell follows the static visual structure of the Ecosystem Framework dashboard: project identity, concise anchor navigation, ecosystem return path, responsive content cards, and a two-line footer with the generated build identity. It intentionally excludes JavaScript-driven utilities and local preference storage.
+Its dashboard shell follows the Ecosystem Framework visual structure: project identity, visible BETA designation, concise anchor navigation, ecosystem return path, responsive content cards, and a two-line footer with the generated build identity. It stores only validated local appearance preferences.
 
-The primary download button points to the latest public GitHub Release asset, `AI-Agents-Lab-Windows.zip`. The small fixed **New version available** button appears only when a newer Lab release is detected, names that version, then takes the user to the official ZIP download after an explicit click. It never downloads, installs, or launches the ZIP automatically. The landing build reads `apps/local-ai-agents-lab/VERSION` for its generated build identity. When that file changes on `main`, GitHub Actions creates the matching immutable tag and Release, verifies the package build identity, and uploads the ZIP automatically.
+The landing page reports the current released state of `v0.1.24` truthfully. Its ZIP is hosted in a private GitHub repository, so anonymous public distribution is unavailable; the page must not present the private Release URL as a usable public download. It also states that Ollama is the only supported inference provider, the Conference Room is disabled, optional advanced model fine-tuning is not yet operational because of a confirmed training-worker compatibility issue, and the Local App has no in-app manual update check. The landing build reads `apps/local-ai-agents-lab/VERSION` only to stamp the published state with its release version and build identity.
 
 ## Installation guidance
 
@@ -13,7 +13,7 @@ The landing page links only to the official download pages for the required Wind
 - [Python 3.9+](https://www.python.org/downloads/windows/)
 - [Ollama](https://ollama.com/download/windows), which the Lab requires at `127.0.0.1:11434`
 
-It also links to [LM Studio](https://lmstudio.ai/download) as an optional local-model application. LM Studio is not a prerequisite or a drop-in replacement: this release communicates specifically with Ollama's local API. The guide states that Internet access is needed for tool/model downloads, while the Lab itself uses only its local Ollama connection.
+LM Studio and vLLM are not supported inference providers for this release. The guide states that Internet access is needed for authorized tool/model downloads, while the Lab itself uses only its local Ollama connection.
 
 ## Build
 
