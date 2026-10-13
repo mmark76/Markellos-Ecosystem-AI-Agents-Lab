@@ -60,3 +60,17 @@ jobs:
       - name: Validate local-only boundaries
         run: |
           python -c "from pathlib import Path; p=Path('.'); assert not (p/'data').exists(); assert not (p/'backups').exists(); assert not list(p.rglob('*.sqlite3'))"
+
+  windows-launcher:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: apps/local-ai-agents-lab
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Exercise both Windows launchers with isolated test doubles
+        shell: pwsh
+        run: node --test tests/windows-launcher.test.cjs
