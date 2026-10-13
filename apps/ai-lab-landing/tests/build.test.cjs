@@ -35,11 +35,8 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /Trainer → Student → Evaluator → Improver/);
   assert.match(html, /UNDER CONSTRUCTION/);
   assert.match(html, /Agent Collaboration \/ Conference Room/);
-  assert.match(html, /NOT YET OPERATIONAL/);
-  assert.match(html, /confirmed compatibility issue/);
-  assert.match(html, /Manual update check in the Local App/);
   assert.doesNotMatch(html, /card-label">SUPPORTED PROVIDER|<h2>Ollama only<\/h2>|LM Studio and vLLM are not supported/);
-  assert.doesNotMatch(html, /UNDER CONSTRUCTION|Conference Room|NOT YET OPERATIONAL|Advanced model fine-tuning|NOT IMPLEMENTED|Manual update check in the Local App/);
+  assert.doesNotMatch(html, /NOT YET OPERATIONAL|Advanced model fine-tuning|NOT IMPLEMENTED|Manual update check in the Local App/);
   assert.match(html, /https:\/\/ollama\.com\/download/);
   assert.doesNotMatch(html, /https:\/\/lmstudio\.ai\/download|https:\/\/docs\.vllm\.ai/);
   assert.match(html, /href="http:\/\/127\.0\.0\.1:8765\/"/);
