@@ -56,6 +56,7 @@ test('Easy Start is packaged, readiness-first, and requires explicit approval fo
   const shortcut=fs.readFileSync(path.join(root,'scripts','create-desktop-shortcut.ps1'),'utf8');
   const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
   assert.match(launcher,/easy-start\.ps1/);
+  assert.match(launcher,/-LabRoot "%~dp0\."/g);
   assert.match(launcher,/--launch-server/);
   assert.match(friendlyLauncher,/start-windows\.bat/);
   assert.match(shortcut,/Start AI Agents Lab\.bat/);
