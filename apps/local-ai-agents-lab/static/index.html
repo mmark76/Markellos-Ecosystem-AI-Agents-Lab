@@ -17,7 +17,7 @@
 <body>
 <div class="shell" id="panel-layout">
   <aside class="sidebar" id="left-panel" aria-label="Workspace navigation">
-    <button type="button" class="panel-toggle" id="toggle-left" aria-controls="left-panel" aria-expanded="true" title="Hide workspace panel"><span aria-hidden="true">◀</span><span class="panel-toggle-label">Hide</span></button>
+    <button type="button" class="panel-toggle" id="toggle-left" aria-controls="left-panel" aria-expanded="true" aria-label="Hide left sidebar" title="Hide left sidebar"><svg class="panel-toggle-icon" aria-hidden="true" viewBox="0 0 24 24" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M9 4v16"></path></svg></button>
     <div class="panel-content">
       <div class="brand-stack"><span class="beta-badge">BETA</span><div class="brand"><span class="mark">M</span><span><strong>Markellos Ecosystem<br>AI Agents Lab</strong><small>Private Local Workspace</small></span></div></div>
       <div class="label">WORKSPACE</div>
@@ -93,7 +93,7 @@
   </main>
   <div class="panel-resizer panel-resizer-right" id="resize-right" role="separator" aria-label="Resize tools panel" aria-orientation="vertical" tabindex="0"></div>
   <aside class="inspector" id="right-panel" aria-label="Lab tools">
-    <button type="button" class="panel-toggle" id="toggle-right" aria-controls="right-panel" aria-expanded="true" title="Hide tools panel"><span aria-hidden="true">▶</span><span class="panel-toggle-label">Hide</span></button>
+    <button type="button" class="panel-toggle" id="toggle-right" aria-controls="right-panel" aria-expanded="true" aria-label="Hide right sidebar" title="Hide right sidebar"><svg class="panel-toggle-icon" aria-hidden="true" viewBox="0 0 24 24" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M15 4v16"></path></svg></button>
     <div class="panel-content">
       <section class="inspector-heading"><p class="eyebrow">LOCAL TOOLS</p><h2>Lab controls</h2></section>
       <section class="statusbar">
@@ -112,7 +112,7 @@
         <p id="model-install-status" role="status" aria-live="polite">Model installation is optional.</p>
       </details>
       <details class="training-workspace" aria-labelledby="training-title">
-      <summary id="training-title">Advanced: Train a model (optional)</summary>
+      <summary id="training-title">Advanced: Train a model (optional)<span class="nav-status training-status">Under Construction</span></summary>
       <p class="training-intro">For advanced users only. This requires a separate local training setup, a compatible model, and a JSONL dataset. It is not needed to use the agents.</p>
       <div class="training-paths" aria-label="Local training directories">
         <section class="training-path"><h3>Compatible model directory</h3><p>Place each compatible local model folder here.</p><code id="training-model-path" class="training-path-value" aria-live="polite">Loading local path…</code><div class="training-path-actions"><button type="button" data-copy-training-path="model" disabled>Copy path</button><button type="button" data-open-training-directory="models" disabled>Open Folder</button></div></section>
