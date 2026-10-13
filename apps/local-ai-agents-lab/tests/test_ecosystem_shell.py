@@ -229,5 +229,10 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn("available locally · '+statusData.models.length+' local models", app)
         self.assertNotIn(" online · ", app)
 
+    def test_easy_start_default_model_is_offered_to_each_training_role(self):
+        app = (STATIC / "app.js").read_text(encoding="utf-8")
+        self.assertIn("const easyStartModel = 'qwen2.5:0.5b';", app)
+        self.assertIn('[stored,legacy,old,easyStartModel,statusData.models[0]]', app)
+
 if __name__ == "__main__":
     unittest.main()

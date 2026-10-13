@@ -1,21 +1,28 @@
-# Markellos Ecosystem AI Agents Lab — Private Local Starter (v0.1.28)
+# Markellos Ecosystem AI Agents Lab — Private Local Starter (v0.1.29)
 
 Local Windows application with two workspaces:
 
 - **Learning Lab:** Trainer → Student → Evaluator → Improver, one stage at a time.
-- **AI Conference Room:** Planner, Researcher, and Reviewer discuss any topic in sequence using the same history.
+- **AI Conference Room:** retained internally, but disabled in this release while collaboration is under construction.
 
 The Learning Lab independently assigns installed **local Ollama** models to Trainer, Student, Evaluator, and Improver controls; the Conference Room keeps one selected Ollama model. The selected role models are snapshotted when a Training session starts, so changing a control affects the next session only. Each completed stage is saved before the next starts. The Lab requests `keep_alive: 0` after each completed stage so Ollama can release the model; this is best effort and can be checked with `ollama ps`. Slow CPU inference has no application-imposed deadline. They are not independently trained models: this cycle improves context and feedback, not model weights. Agents do not execute commands or access GitHub, repositories, or files. Feedback is not objective proof of improvement.
 
-The **Learning Lab** is the teaching room (internal API id: `university` for compatibility with the original version). The **AI Conference Room** keeps its existing behavior.
+The **Learning Lab** is the teaching room (internal API id: `university` for compatibility with the original version). The **AI Conference Room** is not a verified user-available feature in this release.
 
 > This is an experimental local lab, not an accredited educational institution.
 
-## Prerequisites
+## Easy Start for Windows
 
-1. **Python 3.9 or later** for Windows, installed from python.org with the PATH option enabled.
-2. **Ollama for Windows** from <https://ollama.com/download/windows>.
-3. A **local** model, for example with PowerShell: `ollama pull qwen3:4b`. It requires about 2.5 GB of disk space; suitability depends on available RAM, CPU, and GPU.
+For a first-time setup, extract the ZIP and double-click **`Start AI Agents Lab.bat`**. Easy Start checks the computer, then starts the Lab when everything is ready.
+
+It asks for a separate, explicit approval before it can:
+
+1. Install Python 3.12 through Windows Package Manager (`winget`) if Python is missing.
+2. Install Ollama through Windows Package Manager if Ollama is missing.
+3. Start an already installed Ollama service when it is not running locally.
+4. Download the initial local model, `qwen2.5:0.5b`, through the local Ollama service.
+
+No package, service, or model download begins before its own approval dialog. Easy Start reuses compatible Python, Ollama, and local models already on the computer, and does not reinstall them. The first setup requires an Internet connection, Windows Package Manager, and at least 3 GiB of free disk space. Windows may show its own confirmation prompts for package installation.
 
 ## Inference engine
 
@@ -49,10 +56,11 @@ the PyTorch training wizard.
 ## Run the Lab on a laptop
 
 1. Extract `AI-Agents-Lab-Windows.zip` into a folder you control, for example `C:\Markellos-Ecosystem-AI-Agents-Lab`.
-2. Disable Ollama cloud capabilities as described below, restart Ollama, then run `ollama list` to confirm the installed local model. No sign-in is required.
-3. Double-click `start-windows.bat`, or run `py -3 server.py` from PowerShell in the extracted folder.
-4. Open **http://127.0.0.1:8765/** in a browser.
-5. Choose a local model from the list and start a session.
+2. Double-click **`Start AI Agents Lab.bat`**.
+3. If Easy Start finds missing components, review each approval dialog. You can decline any step; the Lab will not start until its required local components are ready.
+4. After setup, the Lab starts automatically at **http://127.0.0.1:8765/**.
+
+Experienced users may run `start-windows.bat`; it performs the same readiness check before starting the server.
 
 Stop the service with `Ctrl+C` in its PowerShell window. If port 8765 is
 already in use, the application reports an error and does not replace another
@@ -60,16 +68,16 @@ service.
 
 ### Desktop shortcut
 
-The first run of `start-windows.bat` creates or refreshes a **Markellos AI
+The first successful Easy Start run creates or refreshes a **Markellos AI
 Agents University Lab** shortcut on the current user's Desktop. It uses the
 included University Lab icon and opens the extracted copy of the Lab. This
-shortcut creation is local only: it does not install Python, Ollama, PyTorch,
-CUDA, models, drivers, or packages, and it makes no network request.
+shortcut points to **`Start AI Agents Lab.bat`**, so it repeats the same safe
+readiness check. Shortcut creation itself is local only and makes no network request.
 
 The Lab folder is the folder where the user extracted
 `AI-Agents-Lab-Windows.zip`; no separate or hidden installation folder is
 created. After manually updating to a new extracted folder, run that folder's
-`start-windows.bat` once so the shortcut points to the new copy.
+`Start AI Agents Lab.bat` once so the shortcut points to the new copy.
 
 ## Updates
 
@@ -80,119 +88,14 @@ ZIP into a new folder, move the database only while both servers are stopped if
 you want to keep the history, and start the new version. Keep the old folder
 until the new installation works.
 
-## Model Training
+## Advanced model training — locked
 
-The optional Training workspace performs real local parameter updates for a
-compatible model using PEFT LoRA or TRL supervised fine-tuning. It is not an
-agent exercise, inference request, or evaluation result. The standard Lab has
-no ML dependencies: create `training/.venv`, install the pinned
-`training/requirements.txt` there, and restart the Lab. No package, CUDA
-toolkit, NVIDIA driver, model, or dataset is installed automatically.
-
-Put an already downloaded compatible Transformers model directory below
-`models/` and a selected JSONL file below `training-data/`. Each non-empty line
-must be an object with a `text` string, for example `{"text":"User: Hello\nAssistant: Hello"}`.
-Adapters, checkpoints, and status records are written only under
-`training-output/`; these directories are excluded from Git. The server never
-accepts paths, commands, model URLs, or remote datasets from the browser.
-
-Compute choices are Auto (CUDA when PyTorch supports it, otherwise CPU), CPU,
-and CUDA GPU. Explicit CUDA selection fails rather than falling back to CPU.
-For a CUDA-capable build, install the PyTorch build appropriate to your Windows
-driver and supported CUDA runtime using the official PyTorch selector, then
-install the remaining pinned requirements in the same virtual environment.
-CUDA is optional and no GPU, CUDA Toolkit, or driver is needed for the basic
-Lab. A GPU out-of-memory failure leaves the job failed with retained partial
-output; reduce model size or sequence length before retrying.
-
-### Installation guide
-
-The following is an **optional local installation** for training only. Do not
-run it for the normal Ollama inference workflow.
-
-**Guided path:** double-click
-`setup-training-windows.bat`. The Windows Training Setup Wizard checks Python
-3.11/3.12 and disk space, asks for CPU or NVIDIA CUDA, displays the exact CPU
-libraries before download, asks for confirmation, creates `training\.venv`, and
-runs a health check. It never downloads models/datasets, modifies inference,
-installs drivers, or falls back from selected CUDA to CPU. CUDA setup opens the
-official PyTorch selector because the matching wheel depends on the local
-NVIDIA driver; the wizard verifies CUDA only after that explicit installation.
-
-**Expert path:** use the commands below directly to
-choose a specific supported Python, a corporate package mirror, or a PyTorch
-CUDA build. Both paths use the same `training\.venv` and output folders.
-
-1. Install a Python version supported by the pinned ML packages (use Python
-   3.11 or 3.12 for this release). Python 3.14 is not compatible with the
-   packaged `torch==2.7.1` requirement. Confirm the launcher can see it:
-
-   ```powershell
-   py -3.12 --version
-   ```
-
-2. Open PowerShell in the extracted `apps\local-ai-agents-lab` directory and
-   create the isolated environment. This does not change the system Python:
-
-   ```powershell
-   py -3.12 -m venv training\.venv
-   training\.venv\Scripts\python.exe -m pip install --upgrade pip
-   ```
-
-3. For **CPU training**, install the documented pinned packages:
-
-   ```powershell
-   training\.venv\Scripts\python.exe -m pip install -r training\requirements.txt
-   ```
-
-4. For **NVIDIA CUDA training**, first use the official [PyTorch installation
-   selector](https://pytorch.org/get-started/locally/) to choose a Windows,
-   Pip, Python, and CUDA build matching the installed NVIDIA driver. Install
-   that `torch` command in `training\.venv`, then install the remaining
-   packages from `requirements.txt`. Do not install drivers, a CUDA Toolkit,
-   or a CUDA-enabled PyTorch build automatically from the Lab.
-
-5. Verify the environment and hardware detection before starting the Lab:
-
-   ```powershell
-   training\.venv\Scripts\python.exe -c "import torch; print(torch.__version__); print('CUDA:', torch.cuda.is_available()); print('GPU:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'none')"
-   ```
-
-6. Create these local directories beside `server.py` if they do not exist:
-
-   ```text
-   models\<your-compatible-local-transformers-model>\
-   training-data\<dataset>.jsonl
-   ```
-
-   Model files must already be downloaded. The Lab intentionally uses
-   `local_files_only=True`; it will not download models. Every JSONL line must
-   be a small valid JSON object with one non-empty `text` field:
-
-   ```json
-   {"text":"User: Explain LoRA briefly.\nAssistant: LoRA fine-tunes small adapter matrices."}
-   ```
-
-7. Start the Lab, open `http://127.0.0.1:8765/`, then open **Model Training**.
-   Select the model, JSONL dataset, LoRA or SFT, and
-   Auto, CPU, or CUDA GPU. Review the shown configuration and confirm the
-   explicit start prompt. Only one job can run at a time.
-
-8. Read the status and output location in the Training workspace. Finished
-   adapters and checkpoints remain under `training-output\<job-id>\`; keep
-   these files local and back them up separately if needed. A stopped or failed
-   job preserves partial output. An explicit CUDA selection never falls back to
-   CPU—correct the PyTorch/CUDA installation or choose CPU intentionally.
-
-### What is and is not installed
-
-- Installed locally only in `training\.venv`: PyTorch, Transformers, PEFT,
-  TRL, and their dependencies.
-- Not included or automatically installed: CUDA drivers/Toolkit, models,
-  datasets, adapters, checkpoints, or cloud credentials.
-- The ZIP contains only the code and instructions for Training. The main
-  application and Ollama continue to work without these
-  libraries.
+Optional parameter fine-tuning is **not operational in this release** because
+of a confirmed training-worker compatibility issue. The released Local App
+locks this option and the normal Easy Start flow does not install training
+packages, CUDA components, models, or datasets. Do not use the retained
+developer-only training scripts until a future release explicitly verifies and
+enables this feature.
 
 ## Required Ollama configuration for fully local operation
 

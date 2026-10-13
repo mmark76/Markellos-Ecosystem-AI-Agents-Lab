@@ -34,6 +34,25 @@ Target release:
 
 AI agents must not approve their own material scope increases.
 
+## Approved change record — AI-LAB-CC-036
+
+```text
+Change ID: AI-LAB-CC-036
+Requested by: Repository maintainer
+Date: 2026-10-13
+Description: Implement a beginner-facing Windows Easy Start bootstrap in the released ZIP.
+Reason: Beginners need a direct setup path while retaining explicit, informed control of every device-changing installation action.
+Affected objective IDs: AI-LAB-OBJ-012
+Architecture impact: Adds a packaged launcher and a fixed-boundary PowerShell readiness flow before the existing loopback server launcher; inference and Local Lab runtime behavior are unchanged.
+Security and privacy impact: Default-No confirmations are separate for Python installation, Ollama installation, starting Ollama, and downloading the fixed initial local model. The flow permits only fixed winget IDs and fixed loopback Ollama paths; it adds no telemetry, arbitrary URL, credential, or public route.
+Data impact: None. Existing local Lab data is reused unchanged.
+Testing impact: Add source/package consent-boundary regression tests and a PowerShell parser check; clean Windows smoke testing remains required before release verification.
+Cost and schedule impact: New ZIP release, public distribution update, and deployment verification are required.
+Decision: APPROVED (SCOPE INCREASE)
+Approved by: Direct user request on 2026-10-13
+Target release: v0.1.29
+```
+
 ## Approved change record — AI-LAB-CC-035
 
 ```text

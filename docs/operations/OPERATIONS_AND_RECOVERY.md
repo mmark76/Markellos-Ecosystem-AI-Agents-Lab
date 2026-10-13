@@ -10,6 +10,7 @@ The repository maintainer owns local installation guidance, public landing-page 
 - Stop the server before copying, restoring, or deleting the SQLite database.
 - Preserve `data/` during a package upgrade; it is excluded from Git and release artifacts.
 - Roll back by restoring the previous verified local package and local data backup.
+- Easy Start must be launched from the extracted official ZIP. It checks first and requests an explicit approval separately for every install, local service start, and initial-model download. If setup fails or is declined, it makes no further change; correct the displayed prerequisite and run it again.
 
 ## Public landing page
 

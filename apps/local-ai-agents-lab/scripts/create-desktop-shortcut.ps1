@@ -7,9 +7,12 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $root = [System.IO.Path]::GetFullPath($LabRoot)
-$launcher = Join-Path $root 'start-windows.bat'
+$launcher = Join-Path $root 'Start AI Agents Lab.bat'
 $icon = Join-Path $root 'assets\university-lab.ico'
 
+if (-not (Test-Path -LiteralPath $launcher -PathType Leaf)) {
+    $launcher = Join-Path $root 'start-windows.bat'
+}
 if (-not (Test-Path -LiteralPath $launcher -PathType Leaf)) {
     throw 'The Local Lab launcher was not found.'
 }
@@ -24,5 +27,5 @@ $shortcut = $shell.CreateShortcut($shortcutPath)
 $shortcut.TargetPath = $launcher
 $shortcut.WorkingDirectory = $root
 $shortcut.IconLocation = "$icon,0"
-$shortcut.Description = 'Open the local Markellos AI Agents University Lab.'
+$shortcut.Description = 'Set up and open the local Markellos AI Agents Lab.'
 $shortcut.Save()
