@@ -39,8 +39,8 @@
     <section class="hero" aria-labelledby="page-title">
       <p class="eyebrow">CURRENT RELEASE · {{RELEASE_VERSION}} · LOCAL ONLY</p>
       <h1 id="page-title">The verified state of AI Agents Lab {{RELEASE_VERSION}}.</h1>
-      <p class="shell-notice"><strong>Download access note:</strong> The {{RELEASE_VERSION}} ZIP is hosted in a private GitHub repository. The official download may require authorized GitHub access.</p>
-      <div class="hero-actions"><a id="zip-download" class="primary-button" data-zip-version="{{RELEASE_VERSION}}" href="https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/latest/download/AI-Agents-Lab-Windows.zip">Download AI-Agents-Lab-Windows.zip ({{RELEASE_VERSION}}) <span aria-hidden="true">↓</span></a><a class="secondary-button" href="./simple-guide.html" target="_blank" rel="noopener noreferrer">Read the current-state guide <span aria-hidden="true">↗</span></a></div>
+      <p class="shell-notice"><strong>Public BETA download:</strong> The {{RELEASE_VERSION}} Windows ZIP is available without GitHub sign-in. SHA-256: <code>{{RELEASE_SHA256}}</code>.</p>
+      <div class="hero-actions"><a id="zip-download" class="primary-button" data-zip-version="{{RELEASE_VERSION}}" data-zip-sha256="{{RELEASE_SHA256}}" href="{{DISTRIBUTION_URL}}">Download AI-Agents-Lab-Windows.zip ({{RELEASE_VERSION}}) <span aria-hidden="true">↓</span></a><a class="secondary-button" href="./simple-guide.html" target="_blank" rel="noopener noreferrer">Read the current-state guide <span aria-hidden="true">↗</span></a></div>
     </section>
 
     <section id="overview" class="card-grid" aria-labelledby="what-title">
@@ -59,10 +59,10 @@
     </section>
 
     <section id="start" class="simple-section steps" aria-labelledby="start-title">
-      <p class="eyebrow">INSTALLATION STATUS</p><h2 id="start-title">What is required when public distribution is restored.</h2>
+      <p class="eyebrow">INSTALLATION STATUS</p><h2 id="start-title">Install the public BETA release.</h2>
       <ol>
-        <li><strong>Download the official ZIP.</strong> The GitHub Release is private, so this step may require authorized GitHub access.</li>
-        <li><strong>Extract the ZIP.</strong> When an authorized copy is available, extract it to a folder you control, such as <code>Documents\\AI-Agents-Lab</code>. There is no hidden installation folder: this extracted folder is the Lab.</li>
+        <li><strong>Download the official ZIP.</strong> Use the public BETA download above; GitHub access is not required.</li>
+        <li><strong>Verify and extract the ZIP.</strong> Confirm the displayed SHA-256 checksum, then extract it to a folder you control, such as <code>Documents\\AI-Agents-Lab</code>. There is no hidden installation folder: this extracted folder is the Lab.</li>
         <li><strong>Install Python and Ollama.</strong> Install <a class="inline-link" href="https://www.python.org/downloads/windows/">Python 3.9 or later for Windows</a>, then install Ollama from the official link above.</li>
         <li><strong>Run a local Ollama model.</strong> For example, run <code>ollama pull qwen3:4b</code>; the Lab uses Ollama only at <code>127.0.0.1:11434</code>.</li>
         <li><strong>Keep Ollama local-only if you use it.</strong> Add <code>"disable_ollama_cloud": true</code> to <code>%USERPROFILE%\.ollama\server.json</code>, preserving any existing settings, then restart Ollama. Use downloaded local models, not names ending in <code>:cloud</code>.</li>
@@ -74,7 +74,7 @@
 
     <section id="privacy" class="simple-section" aria-labelledby="privacy-title">
       <p class="eyebrow">PRIVACY</p><h2 id="privacy-title">This site does not run the Lab.</h2>
-      <p>There is no sign-in, chat input, model endpoint, telemetry, or personal-data collection on this Pages site. The current release is a local package and, when obtained through an authorized path, connects only to local Ollama.</p>
+      <p>There is no sign-in, chat input, model endpoint, telemetry, or personal-data collection on this Pages site. The current release is a local package and connects only to local Ollama.</p>
     </section>
   </main>
 

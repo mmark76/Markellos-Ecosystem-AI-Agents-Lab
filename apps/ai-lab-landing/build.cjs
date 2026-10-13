@@ -25,8 +25,12 @@ cpSync(join(__dirname, '_headers'), join(output, '_headers'));
 
 const releaseVersion = readFileSync(join(root, 'apps', 'local-ai-agents-lab', 'VERSION'), 'utf8').trim();
 if (!/^\d+\.\d+\.\d+$/.test(releaseVersion)) throw new Error('Invalid local Lab VERSION');
+const distribution = JSON.parse(readFileSync(join(__dirname, 'release-distribution.json'), 'utf8'));
+if (distribution.version !== releaseVersion) throw new Error('Release distribution version must match local Lab VERSION');
+if (!/^https:\/\/pub-[a-z0-9]+\.r2\.dev\/releases\/v\d+\.\d+\.\d+\/AI-Agents-Lab-Windows\.zip$/.test(distribution.url)) throw new Error('Invalid public R2 distribution URL');
+if (!/^[a-f0-9]{64}$/.test(distribution.sha256)) throw new Error('Invalid public release SHA-256');
 const commit = git(['rev-parse', '--short=7', 'HEAD']);
 const buildId = `v${releaseVersion}_${cyprusTimestamp(new Date())}_${commit}`;
 const indexPath = join(output, 'index.html');
-writeFileSync(indexPath, readFileSync(indexPath, 'utf8').replaceAll('{{BUILD_ID}}', buildId).replaceAll('{{RELEASE_VERSION}}', `v${releaseVersion}`));
+writeFileSync(indexPath, readFileSync(indexPath, 'utf8').replaceAll('{{BUILD_ID}}', buildId).replaceAll('{{RELEASE_VERSION}}', `v${releaseVersion}`).replaceAll('{{DISTRIBUTION_URL}}', distribution.url).replaceAll('{{RELEASE_SHA256}}', distribution.sha256));
 console.log(`Built ${output} (${buildId})`);
