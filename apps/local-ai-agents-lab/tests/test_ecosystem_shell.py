@@ -68,6 +68,19 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn('improver_model:improverModel', app)
         self.assertIn("model.className='model-name'", app)
 
+    def test_agent_responses_have_local_copy_and_user_initiated_share_actions(self):
+        app = (STATIC / "app.js").read_text(encoding="utf-8")
+        css = (STATIC / "style.css").read_text(encoding="utf-8")
+        self.assertIn("if(message.agent!=='You')", app)
+        self.assertIn("Copy agent response", app)
+        self.assertIn("Share agent response", app)
+        self.assertIn("navigator.clipboard?.writeText", app)
+        self.assertIn("navigator.share", app)
+        self.assertIn("Sharing is unavailable. Response copied.", app)
+        self.assertIn("className='message-actions'", app)
+        self.assertIn('.message-action{display:inline-grid', css)
+        self.assertIn('width:44px', css)
+
     def test_model_guidance_is_role_specific_informational_and_accessible(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         css = (STATIC / "style.css").read_text(encoding="utf-8")
