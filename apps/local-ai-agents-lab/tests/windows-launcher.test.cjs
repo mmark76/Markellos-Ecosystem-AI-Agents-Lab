@@ -8,14 +8,14 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 
 const sourceRoot=path.resolve(__dirname,'..');
-const launcherNames=['start-windows.bat','Start AI Agents Lab.bat'];
+const launcherNames=['start-windows.bat','Start AI Training Lab.bat'];
 const testDirectories=[
   ['AI-Lab'],
-  ['My Projects','AI Agents Lab'],
-  ['Test User','Documents','AI Agents Lab'],
-  ['Δοκιμές','AI Agents Lab'],
-  ['Χρήστης','Τα Έργα μου','AI Agents Lab'],
-  ['nested','directories','AI Agents Lab']
+  ['My Projects','AI Training Lab'],
+  ['Test User','Documents','AI Training Lab'],
+  ['Δοκιμές','AI Training Lab'],
+  ['Χρήστης','Τα Έργα μου','AI Training Lab'],
+  ['nested','directories','AI Training Lab']
 ];
 
 function writeFixture(root){
@@ -46,12 +46,12 @@ function readPaths(root,file){
 
 test('Windows launchers pass a non-trailing LabRoot to PowerShell and preserve its normalized path',
   {skip:process.platform!=='win32'},()=>{
-    const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'ai-agents-lab-launcher-'));
+    const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'ai-training-lab-launcher-'));
     try {
       for(const segments of testDirectories){
         const root=path.join(workspace,...segments);
         writeFixture(root);
-        execFileSync('cmd.exe',['/d','/c','Start AI Agents Lab.bat'],{
+        execFileSync('cmd.exe',['/d','/c','Start AI Training Lab.bat'],{
           cwd:root,
           encoding:'utf8',
           input:'\r\n',

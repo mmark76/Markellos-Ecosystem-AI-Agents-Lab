@@ -1,4 +1,4 @@
-# Markellos Ecosystem AI Agents Lab
+# Markellos Ecosystem AI Training Lab
 
 Version: v1.1.0 · Private local starter
 
@@ -15,7 +15,7 @@ The **Learning Lab** uses the internal API id `training`. Existing local history
 
 ## Easy Start for Windows
 
-For a first-time setup, extract the ZIP and double-click **`Start AI Agents Lab.bat`**. Easy Start checks the computer, then starts the Lab when everything is ready.
+For a first-time setup, extract the ZIP and double-click **`Start AI Training Lab.bat`**. Easy Start checks the computer, then starts the Lab when everything is ready.
 
 It asks for a separate, explicit approval before it can:
 
@@ -58,7 +58,7 @@ the PyTorch training wizard.
 ## Run the Lab on a laptop
 
 1. Extract `AI-Agents-Lab-Windows.zip` into a folder you control, for example `C:\Markellos-Ecosystem-AI-Agents-Lab`.
-2. Double-click **`Start AI Agents Lab.bat`**.
+2. Double-click **`Start AI Training Lab.bat`**.
 3. If Easy Start finds missing components, review each approval dialog. You can decline any step; the Lab will not start until its required local components are ready.
 4. After setup, the Lab starts automatically at **http://127.0.0.1:8765/**.
 
@@ -71,15 +71,15 @@ service.
 ### Desktop shortcut
 
 The first successful Easy Start run creates or refreshes a **Markellos Ecosystem
-AI Agents Lab** shortcut on the current user's Desktop. It uses the
-included AI Agents Lab icon and opens the extracted copy of the Lab. This
-shortcut points to **`Start AI Agents Lab.bat`**, so it repeats the same safe
+AI Training Lab** shortcut on the current user's Desktop. It uses the
+included AI Training Lab icon and opens the extracted copy of the Lab. This
+shortcut points to **`Start AI Training Lab.bat`**, so it repeats the same safe
 readiness check. Shortcut creation itself is local only and makes no network request.
 
 The Lab folder is the folder where the user extracted
 `AI-Agents-Lab-Windows.zip`; no separate or hidden installation folder is
 created. After manually updating to a new extracted folder, run that folder's
-`Start AI Agents Lab.bat` once so the shortcut points to the new copy.
+`Start AI Training Lab.bat` once so the shortcut points to the new copy.
 
 ## Updates
 

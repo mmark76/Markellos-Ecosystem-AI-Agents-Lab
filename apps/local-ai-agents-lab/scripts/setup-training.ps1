@@ -22,7 +22,7 @@ function Invoke-VenvPython([string[]]$Arguments) {
 }
 
 Write-Host ''
-Write-Host 'Markellos Ecosystem AI Agents Lab - Training Setup Wizard' -ForegroundColor Cyan
+Write-Host 'Markellos Ecosystem AI Training Lab - Training Setup Wizard' -ForegroundColor Cyan
 Write-Host 'This optional wizard configures only local Python training libraries.'
 Write-Host 'It does not change Ollama, SQLite data, models, or datasets.'
 
