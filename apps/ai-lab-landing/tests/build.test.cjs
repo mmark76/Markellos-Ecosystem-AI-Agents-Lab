@@ -62,6 +62,8 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(guide, /Quick Start \(Windows\)/);
   assert.match(guide, /Which Windows \.bat file should I use/);
   assert.match(guide, /Start AI Agents Lab\.bat/);
+  assert.doesNotMatch(html, /Start AI Training Lab\.bat/);
+  assert.doesNotMatch(guide, /Start AI Training Lab\.bat/);
   assert.match(guide, /start-windows\.bat/);
   assert.match(guide, /setup-training-windows\.bat/);
   assert.match(guide, /Technical Documentation/);
@@ -76,6 +78,8 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /public current-state documentation/);
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Quick Start \(Windows\)/);
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Understanding the three Windows \.bat files/);
+  assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Start AI Agents Lab\.bat/);
+  assert.doesNotMatch(readFileSync(join(output, 'README.md'), 'utf8'), /Start AI Training Lab\.bat/);
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Technical documentation/);
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Manual update checking inside the Local App: not implemented/);
   assert.match(readFileSync(join(output, '_headers'), 'utf8'), /connect-src 'self'/);
