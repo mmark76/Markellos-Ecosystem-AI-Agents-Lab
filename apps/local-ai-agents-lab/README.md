@@ -1,4 +1,6 @@
-# Markellos Ecosystem AI Agents Lab — Private Local Starter (v0.1.29)
+# Markellos Ecosystem AI Agents Lab
+
+Version: v0.1.30 · Private local starter
 
 Local Windows application with two workspaces:
 
@@ -7,7 +9,7 @@ Local Windows application with two workspaces:
 
 The Learning Lab independently assigns installed **local Ollama** models to Trainer, Student, Evaluator, and Improver controls; the Conference Room keeps one selected Ollama model. The selected role models are snapshotted when a Training session starts, so changing a control affects the next session only. Each completed stage is saved before the next starts. The Lab requests `keep_alive: 0` after each completed stage so Ollama can release the model; this is best effort and can be checked with `ollama ps`. Slow CPU inference has no application-imposed deadline. They are not independently trained models: this cycle improves context and feedback, not model weights. Agents do not execute commands or access GitHub, repositories, or files. Feedback is not objective proof of improvement.
 
-The **Learning Lab** is the teaching room (internal API id: `university` for compatibility with the original version). The **AI Conference Room** is not a verified user-available feature in this release.
+The **Learning Lab** uses the internal API id `training`. Existing local history is migrated to that identifier automatically. The **AI Conference Room** is not a verified user-available feature in this release.
 
 > This is an experimental local lab, not an accredited educational institution.
 
@@ -68,9 +70,9 @@ service.
 
 ### Desktop shortcut
 
-The first successful Easy Start run creates or refreshes a **Markellos AI
-Agents University Lab** shortcut on the current user's Desktop. It uses the
-included University Lab icon and opens the extracted copy of the Lab. This
+The first successful Easy Start run creates or refreshes a **Markellos Ecosystem
+AI Agents Lab** shortcut on the current user's Desktop. It uses the
+included AI Agents Lab icon and opens the extracted copy of the Lab. This
 shortcut points to **`Start AI Agents Lab.bat`**, so it repeats the same safe
 readiness check. Shortcut creation itself is local only and makes no network request.
 
@@ -148,7 +150,7 @@ SQLite keeps the two workspaces with separate histories.
 
 ## Migration from the original ZIP
 
-This ZIP replaces **AI-Agents-University-Local-Starter.zip**. If you already
+This ZIP replaces earlier Local Starter ZIP packages. If you already
 ran the older version, stop its server first. `data/campus.sqlite3` is **not**
 included in the ZIP and is not moved automatically. To keep previous
 conversations, back up the existing database and put it in the corresponding

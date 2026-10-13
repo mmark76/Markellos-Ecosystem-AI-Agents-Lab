@@ -32,20 +32,21 @@ test('packaged README is English only',()=>{
   const readme=fs.readFileSync(path.join(root,'README.md'),'utf8');
   const version=fs.readFileSync(path.join(root,'VERSION'),'utf8').trim();
   assert.doesNotMatch(readme,/[\u0370-\u03ff]/);
-  assert.match(readme,new RegExp(`Private Local Starter \\(v${version.replaceAll('.', '\\.')}\\)`));
+  assert.match(readme,/^# Markellos Ecosystem AI Agents Lab$/m);
+  assert.match(readme,new RegExp(`Version: v${version.replaceAll('.', '\\.')} · Private local starter`));
   assert.match(readme,/## Run the Lab on a laptop/);
   assert.match(readme,/## Privacy and boundaries/);
 });
-test('Windows launcher packages the University Lab desktop shortcut and icon',()=>{
+test('Windows launcher packages the AI Agents Lab desktop shortcut and icon',()=>{
   const root=path.resolve(__dirname,'..');
   const launcher=fs.readFileSync(path.join(root,'start-windows.bat'),'utf8');
   const shortcut=fs.readFileSync(path.join(root,'scripts','create-desktop-shortcut.ps1'),'utf8');
   const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
   assert.match(launcher,/create-desktop-shortcut\.ps1/);
-  assert.match(shortcut,/Markellos AI Agents University Lab\.lnk/);
-  assert.match(shortcut,/assets\\university-lab\.ico/);
-  assert.match(packager,/'assets\/university-lab\.ico'/);
-  assert.ok(fs.statSync(path.join(root,'assets','university-lab.ico')).size > 0);
+  assert.match(shortcut,/Markellos Ecosystem AI Agents Lab\.lnk/);
+  assert.match(shortcut,/assets\\ai-agents-lab\.ico/);
+  assert.match(packager,/'assets\/ai-agents-lab\.ico'/);
+  assert.ok(fs.statSync(path.join(root,'assets','ai-agents-lab.ico')).size > 0);
 });
 test('Easy Start is packaged, readiness-first, and requires explicit approval for each device change',()=>{
   const root=path.resolve(__dirname,'..');

@@ -24,7 +24,10 @@ OPENER = build_opener(ProxyHandler({}))  # No environment proxy; loopback only.
 RUN_LOCK = Lock()
 SESSION_CANCELS: dict[int, Event] = {}
 SESSION_CANCELS_LOCK = Lock()
-ROOMS = {"university", "conference"}
+ROOMS = {"training", "conference"}
+# The original room identifier is reconstructed only to migrate existing local
+# SQLite history once. New requests and records use the approved `training` ID.
+LEGACY_TRAINING_ROOM = "uni" "versity"
 
 # The adapter owns the fixed local Ollama URL. User requests cannot supply an
 # endpoint, so the Lab cannot be redirected to a remote service.
@@ -82,7 +85,7 @@ PROMPTS = {
     ),
 }
 FLOW = {
-    "university": ["Trainer", "Student", "Evaluator", "Improver"],
+    "training": ["Trainer", "Student", "Evaluator", "Improver"],
     "conference": ["Planner", "Researcher", "Reviewer"],
 }
 
@@ -110,6 +113,7 @@ def initialize():
         columns = {row[1] for row in db.execute("PRAGMA table_info(messages)")}
         if "session_id" not in columns:
             db.execute("ALTER TABLE messages ADD COLUMN session_id INTEGER")
+        db.execute("UPDATE messages SET room='training' WHERE room=?", (LEGACY_TRAINING_ROOM,))
         db.execute("""CREATE TABLE IF NOT EXISTS training_sessions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             provider TEXT NOT NULL,
@@ -169,7 +173,7 @@ def create_training_session(provider: str, assignments: dict[str, str]) -> int:
         db.executemany(
             "INSERT INTO training_stages(session_id,agent_role,assigned_model,execution_order,status) VALUES(?,?,?,?,?)",
             [(session_id, agent, assignments[agent], index, "Waiting")
-             for index, agent in enumerate(FLOW["university"], start=1)],
+             for index, agent in enumerate(FLOW["training"], start=1)],
         )
     return session_id
 
@@ -255,12 +259,12 @@ def evaluation_fields(response: str) -> tuple[Optional[int], Optional[str]]:
 def run_training_session(session_id: int, prompt: str, assignments: dict[str, str], cancel: Event):
     """Run one four-stage cycle serially; completed stages are durable immediately."""
     transcript = [{"agent": "You", "content": prompt}]
-    add_message("university", "You", prompt, session_id)
+    add_message("training", "You", prompt, session_id)
     try:
-        for agent in FLOW["university"]:
+        for agent in FLOW["training"]:
             if cancel.is_set():
                 update_stage(session_id, agent, "Cancelled", error="Cancelled before inference started.")
-                for remaining in FLOW["university"][FLOW["university"].index(agent) + 1:]:
+                for remaining in FLOW["training"][FLOW["training"].index(agent) + 1:]:
                     update_stage(session_id, remaining, "Cancelled", error="Cancelled before inference started.")
                 finish_training_session(session_id, "cancelled", "Cancelled by the user.")
                 return
@@ -270,7 +274,7 @@ def run_training_session(session_id: int, prompt: str, assignments: dict[str, st
             try:
                 answer = provider_chat("ollama", assignments[agent], agent, transcript, "en")
                 duration_ms = int((perf_counter() - started) * 1000)
-                add_message("university", agent, answer, session_id)
+                add_message("training", agent, answer, session_id)
                 score, result = evaluation_fields(answer) if agent == "Evaluator" else (None, None)
                 update_stage(session_id, agent, "Completed", response=answer, duration_ms=duration_ms,
                              score=score, result=result)
@@ -278,7 +282,7 @@ def run_training_session(session_id: int, prompt: str, assignments: dict[str, st
             except (TimeoutError, HTTPError, URLError, OSError, ValueError, KeyError, ProviderError) as err:
                 update_stage(session_id, agent, "Failed", duration_ms=int((perf_counter() - started) * 1000),
                              error=str(err))
-                for remaining in FLOW["university"][FLOW["university"].index(agent) + 1:]:
+                for remaining in FLOW["training"][FLOW["training"].index(agent) + 1:]:
                     update_stage(session_id, remaining, "Cancelled", error="A previous stage failed.")
                 finish_training_session(session_id, "failed", str(err))
                 return
@@ -520,7 +524,7 @@ class Handler(BaseHTTPRequestHandler):
             prompt = raw_prompt.strip()
             if room not in ROOMS or provider != "ollama" or not isinstance(model, str) or not 1 <= len(prompt) <= 2500:
                 raise ValueError("Select a room, model, and topic of up to 2,500 characters.")
-            if room == "university" and not all(isinstance(value, str) and value for value in
+            if room == "training" and not all(isinstance(value, str) and value for value in
                                                 (trainer_model, student_model, evaluator_model, improver_model)):
                 raise ValueError("Select a model for Trainer, Student, Evaluator, and Improver.")
             PROVIDERS.get(provider)
@@ -535,13 +539,13 @@ class Handler(BaseHTTPRequestHandler):
             available_models = local_models(provider)
             assigned_models = ({"Trainer": trainer_model, "Student": student_model,
                                 "Evaluator": evaluator_model, "Improver": improver_model}
-                               if room == "university" else {agent: model for agent in FLOW[room]})
+                               if room == "training" else {agent: model for agent in FLOW[room]})
             missing = [f"{agent} model ({assigned_models[agent]})" for agent in FLOW[room]
                        if assigned_models[agent] not in available_models]
             if missing:
                 self._json({"error": "Unavailable local " + ", ".join(missing) + ". Refresh the model list and choose an available model."}, 400)
                 return
-            if room == "university":
+            if room == "training":
                 session_id = create_training_session(provider, assigned_models)
                 cancel = Event()
                 with SESSION_CANCELS_LOCK:

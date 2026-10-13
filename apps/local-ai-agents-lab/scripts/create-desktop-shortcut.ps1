@@ -8,7 +8,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $root = [System.IO.Path]::GetFullPath($LabRoot)
 $launcher = Join-Path $root 'Start AI Agents Lab.bat'
-$icon = Join-Path $root 'assets\university-lab.ico'
+$icon = Join-Path $root 'assets\ai-agents-lab.ico'
 
 if (-not (Test-Path -LiteralPath $launcher -PathType Leaf)) {
     $launcher = Join-Path $root 'start-windows.bat'
@@ -22,7 +22,7 @@ if (-not (Test-Path -LiteralPath $icon -PathType Leaf)) {
 
 $shell = New-Object -ComObject WScript.Shell
 $desktop = $shell.SpecialFolders('Desktop')
-$shortcutPath = Join-Path $desktop 'Markellos AI Agents University Lab.lnk'
+$shortcutPath = Join-Path $desktop 'Markellos Ecosystem AI Agents Lab.lnk'
 $shortcut = $shell.CreateShortcut($shortcutPath)
 $shortcut.TargetPath = $launcher
 $shortcut.WorkingDirectory = $root

@@ -33,8 +33,8 @@ class CampusTests(unittest.TestCase):
         return {"Trainer": "trainer:1", "Student": "student:1", "Evaluator": "evaluator:1", "Improver": "improver:1"}
 
     def test_training_flow_has_four_named_roles(self):
-        self.assertEqual(campus.FLOW["university"], ["Trainer", "Student", "Evaluator", "Improver"])
-        self.assertTrue(all(role in campus.PROMPTS for role in campus.FLOW["university"]))
+        self.assertEqual(campus.FLOW["training"], ["Trainer", "Student", "Evaluator", "Improver"])
+        self.assertTrue(all(role in campus.PROMPTS for role in campus.FLOW["training"]))
 
     def test_four_stage_cycle_is_strictly_serial_and_persists_every_result(self):
         session_id = campus.create_training_session("ollama", self.assignments())
@@ -59,7 +59,7 @@ class CampusTests(unittest.TestCase):
         self.assertEqual(calls[3][2], ["You", "Trainer", "Student", "Evaluator"])
         self.assertEqual(record["stages"][2]["evaluation_score"], 87)
         self.assertEqual(record["stages"][2]["evaluation_result"], "Needs Improvement")
-        self.assertEqual([message["agent"] for message in campus.history("university")], ["You", "Trainer", "Student", "Evaluator", "Improver"])
+        self.assertEqual([message["agent"] for message in campus.history("training")], ["You", "Trainer", "Student", "Evaluator", "Improver"])
 
     def test_failed_stage_preserves_completed_responses_and_does_not_complete_session(self):
         session_id = campus.create_training_session("ollama", self.assignments())
@@ -69,7 +69,7 @@ class CampusTests(unittest.TestCase):
         record = campus.training_session(session_id)
         self.assertEqual(record["status"], "failed")
         self.assertEqual([stage["status"] for stage in record["stages"]], ["Completed", "Failed", "Cancelled", "Cancelled"])
-        self.assertEqual([message["agent"] for message in campus.history("university")], ["You", "Trainer"])
+        self.assertEqual([message["agent"] for message in campus.history("training")], ["You", "Trainer"])
 
     def test_cancelled_session_does_not_start_inference(self):
         session_id = campus.create_training_session("ollama", self.assignments())
@@ -87,10 +87,10 @@ class CampusTests(unittest.TestCase):
         campus.DB_PATH.parent.mkdir(parents=True)
         with campus.closing(sqlite3.connect(campus.DB_PATH)) as db, db:
             db.execute("CREATE TABLE messages (id INTEGER PRIMARY KEY AUTOINCREMENT, room TEXT NOT NULL, agent TEXT NOT NULL, content TEXT NOT NULL, created_at TEXT NOT NULL)")
-            db.execute("INSERT INTO messages(room,agent,content,created_at) VALUES('university','Trainer','Old lesson','2026-01-01 UTC')")
+            db.execute("INSERT INTO messages(room,agent,content,created_at) VALUES(?,'Trainer','Old lesson','2026-01-01 UTC')", (campus.LEGACY_TRAINING_ROOM,))
             db.execute("CREATE TABLE training_sessions (id INTEGER PRIMARY KEY AUTOINCREMENT, provider TEXT NOT NULL, trainer_model TEXT NOT NULL, student_model TEXT NOT NULL, created_at TEXT NOT NULL)")
         campus.initialize()
-        self.assertEqual(campus.history("university")[0]["content"], "Old lesson")
+        self.assertEqual(campus.history("training")[0]["content"], "Old lesson")
         with campus.closing(campus.connect()) as db:
             columns = {row[1] for row in db.execute("PRAGMA table_info(training_sessions)")}
         self.assertTrue({"evaluator_model", "improver_model", "status"}.issubset(columns))
@@ -112,7 +112,7 @@ class HttpIntegrationTests(unittest.TestCase):
             thread = Thread(target=server.serve_forever, daemon=True); thread.start(); origin = f"http://127.0.0.1:{campus.PORT}"; opener = build_opener(ProxyHandler({}))
             try:
                 with patch.object(campus, "local_models", return_value=["trainer:1", "student:1", "evaluator:1", "improver:1"]), patch.object(campus, "provider_chat", side_effect=lambda provider, model, role, transcript, language: "Score: 100\nResult: Pass" if role == "Evaluator" else role), patch.object(campus.PROVIDERS, "unload") as unload:
-                    request = Request(origin+"/api/run", data=json.dumps({"room":"university","provider":"ollama","trainer_model":"trainer:1","student_model":"student:1","evaluator_model":"evaluator:1","improver_model":"improver:1","prompt":"Topic"}).encode(), headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
+                    request = Request(origin+"/api/run", data=json.dumps({"room":"training","provider":"ollama","trainer_model":"trainer:1","student_model":"student:1","evaluator_model":"evaluator:1","improver_model":"improver:1","prompt":"Topic"}).encode(), headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
                     with opener.open(request) as response: started = json.load(response)
                     self.assertEqual(response.status, 202); self.assertIn("session_id", started)
                     for _ in range(40):

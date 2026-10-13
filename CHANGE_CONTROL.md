@@ -34,6 +34,25 @@ Target release:
 
 AI agents must not approve their own material scope increases.
 
+## Approved change record — AI-LAB-CC-037
+
+```text
+Change ID: AI-LAB-CC-037
+Requested by: Repository maintainer
+Date: 2026-10-13
+Description: Remove retired institutional terminology from all user-visible and internal project identifiers.
+Reason: The approved project name is Markellos Ecosystem AI Agents Lab.
+Affected objective IDs: AI-LAB-OBJ-003, AI-LAB-OBJ-007, AI-LAB-OBJ-012
+Architecture impact: Rename the active training-room identifier to `training`; initialize migrates pre-existing local message records to the new identifier before normal operation.
+Security and privacy impact: No new endpoint, remote service, credential, or data collection. The local SQLite migration changes only the room label while preserving records.
+Data impact: Existing local training history remains accessible after a one-way local room-label migration.
+Testing impact: Update package, shell, and server tests; add regression coverage that retired branding is absent from user-visible Local Lab sources.
+Cost and schedule impact: Requires a new Windows ZIP release and public dashboard metadata deployment.
+Decision: APPROVED (CLARIFICATION)
+Approved by: Direct user request on 2026-10-13
+Target release: v0.1.30
+```
+
 ## Approved change record — AI-LAB-CC-036
 
 ```text
@@ -306,8 +325,8 @@ Target release: Next Local Lab release
 Change ID: AI-LAB-CC-014
 Requested by: Repository maintainer
 Date: 2026-10-12
-Description: Create or refresh a Desktop shortcut with a University Lab icon when the local Windows launcher runs.
-Reason: Make the extracted local Lab easier to start after the user requests a shortcut and university-style icon.
+Description: Create or refresh a Desktop shortcut with an AI Agents Lab icon when the local Windows launcher runs.
+Reason: Make the extracted local Lab easier to start after the user requests a shortcut and project-specific icon.
 Affected objective IDs: AI-LAB-OBJ-003
 Architecture impact: Adds a fixed local Windows shortcut script and packaged icon asset; the launcher remains the single local server entry point.
 Security and privacy impact: The shortcut points only to the extracted local launcher; no network call, install, model download, driver change, or privilege elevation is performed.
@@ -344,8 +363,8 @@ Target release: Next public landing deployment and Local Lab release
 Change ID: AI-LAB-CC-016
 Requested by: Repository maintainer
 Date: 2026-10-12
-Description: Replace the University Lab shortcut icon with a dark-azure icon featuring two arches and a white graduation cap.
-Reason: The user specified the University Lab visual identity for the Windows shortcut.
+Description: Replace the Local Lab shortcut icon with a dark-azure project icon.
+Reason: The user specified the Local Lab visual identity for the Windows shortcut.
 Affected objective IDs: AI-LAB-OBJ-003
 Architecture impact: Packaged icon asset only; no launch, server, or shortcut behavior change.
 Security and privacy impact: None.
@@ -366,7 +385,7 @@ Date: 2026-10-12
 Description: Set the default Training Lab flow to one Trainer and one Student.
 Reason: The user requested a simpler default collaboration pair for now.
 Affected objective IDs: AI-LAB-OBJ-007
-Architecture impact: The university flow and visible participant summary are reduced from four automated turns to two; Conference Room remains unchanged.
+Architecture impact: The training flow and visible participant summary are reduced from four automated turns to two; Conference Room remains unchanged.
 Security and privacy impact: None.
 Data impact: Existing SQLite records are preserved; new training sessions write two generated agent messages.
 Testing impact: Server integration and flow regression expectations are updated.
