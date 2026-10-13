@@ -16,5 +16,6 @@ Objectives are finite, owned, and traceable to scope, acceptance criteria, imple
 | AI-LAB-OBJ-010 | Let Learning Lab users independently configure installed local models for Trainer and Student inference. | AI-LAB-SCOPE-010 | High | Yes | Repository maintainer | AI-LAB-AC-012 | APPROVED |
 | AI-LAB-OBJ-011 | Provide a durable, evidence-oriented four-agent local learning cycle with serial Ollama inference, independent role assignments, evaluator feedback, and improver context. | AI-LAB-SCOPE-011 | High | Yes | Repository maintainer | AI-LAB-AC-013 | APPROVED |
 | AI-LAB-OBJ-012 | Make the released Windows ZIP approachable for beginners through a readiness-first setup flow that obtains separate explicit approval for every installation, service-start, or initial-model-download action. | AI-LAB-SCOPE-012 | High | Yes | Repository maintainer | AI-LAB-AC-014 | APPROVED |
+| AI-LAB-OBJ-013 | Help users compare suitable local-model sizes, capabilities, and general hardware considerations for Trainer, Student, Evaluator, and Improver without restricting their selections. | AI-LAB-SCOPE-013 | Medium | Yes | Repository maintainer | AI-LAB-AC-015 | APPROVED |
 
 Applicable `ENG-*`, Shield, and Infrastructure requirements are recorded through their dedicated adoption records rather than duplicated here.

@@ -22,6 +22,7 @@
 | AI-LAB-SCOPE-010 | Let Learning Lab users independently assign installed local models to Trainer and Student agents while preserving the fixed-loopback provider boundary. | High | Repository maintainer | Approved by direct user request on 2026-10-12 |
 | AI-LAB-SCOPE-011 | Extend Learning Lab to a strictly sequential four-stage Trainer, Student, Evaluator, Improver learning cycle with independent local Ollama model assignments and durable per-stage results. | High | Repository maintainer | Approved by direct user request on 2026-10-12 |
 | AI-LAB-SCOPE-012 | Provide a Windows Easy Start bootstrap that checks prerequisites and requests a separate explicit user approval before installing Python, installing Ollama, starting Ollama, or downloading the initial local model. | High | Repository maintainer | Approved by direct user request on 2026-10-13 |
+| AI-LAB-SCOPE-013 | Provide optional, vendor-neutral informational Model Guidance for the four Learning Lab roles without changing model selection or execution. | Medium | Repository maintainer | Approved by direct user request on 2026-10-13 |
 
 ## Out of scope
 

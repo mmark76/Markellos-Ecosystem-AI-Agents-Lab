@@ -10,6 +10,8 @@
   <script defer src="/static/app.js"></script>
   <script defer src="/static/settings.js"></script>
   <script defer src="/static/ecosystem-shell.js"></script>
+  <script defer src="/static/model-guidance-data.js"></script>
+  <script defer src="/static/model-guidance.js"></script>
   <script defer src="/static/model-install.js"></script>
   <script defer src="/static/panel-layout.js"></script>
 </head>
@@ -79,6 +81,15 @@
       <p class="build-id">ZIP version: ZIP_VERSION</p>
       <button type="button" id="info-close" class="settings-toggle">Close</button>
     </dialog>
+    <dialog id="model-guidance-dialog" class="model-guidance-dialog" aria-labelledby="model-guidance-title" aria-describedby="model-guidance-disclaimer">
+      <div class="model-guidance-heading"><div><p class="eyebrow">MODEL ADVISOR · PHASE 1</p><h2 id="model-guidance-title">Model Guidance</h2></div><button type="button" id="model-guidance-close" class="dialog-close" aria-label="Close Model Guidance">×</button></div>
+      <p class="model-guidance-intro">General, vendor-neutral starting points for choosing an installed local model. Guidance does not change your selection.</p>
+      <div id="model-guidance-tabs" class="model-guidance-tabs" role="tablist" aria-label="Agent role guidance"></div>
+      <section class="model-guidance-content" aria-live="polite"><h3 id="model-guidance-role"></h3><dl class="model-guidance-facts"><div><dt>Recommended Model Size</dt><dd id="model-guidance-size"></dd></div><div><dt>Required Capabilities</dt><dd id="model-guidance-capabilities"></dd></div></dl><h4>Why this recommendation?</h4><p id="model-guidance-explanation"></p><h4>Hardware considerations</h4><p id="model-guidance-hardware"></p></section>
+      <section class="model-guidance-profiles" aria-labelledby="model-guidance-profiles-title"><h3 id="model-guidance-profiles-title">Informational profiles</h3><div id="model-guidance-profiles"></div></section>
+      <section class="model-guidance-hardware" aria-labelledby="model-guidance-hardware-title"><h3 id="model-guidance-hardware-title">Hardware guidance</h3><p>System RAM, available GPU VRAM, CPU performance, quantization, context length, and the individual model's memory requirements all affect compatibility and speed. Parameter count alone cannot determine memory needs or execution performance.</p><p class="compatibility-status"><strong>Hardware Compatibility: Not Verified</strong></p></section>
+      <p id="model-guidance-disclaimer" class="model-guidance-disclaimer">Recommended model sizes are indicative starting points, not strict requirements. Larger models are not necessarily better. Model architecture, specialization, quantization and task-specific performance also influence suitability.</p>
+    </dialog>
     <form id="composer" class="composer">
       <label for="prompt" id="prompt-label">Training Topic</label>
       <textarea id="prompt" rows="3" maxlength="2500" required placeholder="e.g. Teach your AI agent how to..."></textarea>
@@ -98,7 +109,7 @@
       <section class="inspector-heading"><p class="eyebrow">LOCAL TOOLS</p><h2>Lab controls</h2></section>
       <section class="statusbar">
         <div><span class="status-icon">◉</span> <span id="status">Checking local model...</span></div>
-        <div class="model-select"><p class="ollama-engine">Inference Engine: <strong>Ollama</strong></p><div id="training-model-selects"><label for="trainer-model">Trainer Model</label><select id="trainer-model" disabled><option>Checking...</option></select><label for="student-model">Student Model</label><select id="student-model" disabled><option>Checking...</option></select><label for="evaluator-model">Evaluator Model</label><select id="evaluator-model" disabled><option>Checking...</option></select><label for="improver-model">Improver Model</label><select id="improver-model" disabled><option>Checking...</option></select></div><div id="collaboration-model-select"><label for="model" id="model-label">Collaboration Model</label><select id="model" disabled><option>Checking...</option></select></div></div>
+        <div class="model-select"><p class="ollama-engine">Inference Engine: <strong>Ollama</strong></p><div id="training-model-selects"><label for="trainer-model">Trainer Model</label><select id="trainer-model" disabled><option>Checking...</option></select><button type="button" class="model-guidance-trigger" data-guidance-role="Trainer" aria-haspopup="dialog">ⓘ Model Guidance</button><label for="student-model">Student Model</label><select id="student-model" disabled><option>Checking...</option></select><button type="button" class="model-guidance-trigger" data-guidance-role="Student" aria-haspopup="dialog">ⓘ Model Guidance</button><label for="evaluator-model">Evaluator Model</label><select id="evaluator-model" disabled><option>Checking...</option></select><button type="button" class="model-guidance-trigger" data-guidance-role="Evaluator" aria-haspopup="dialog">ⓘ Model Guidance</button><label for="improver-model">Improver Model</label><select id="improver-model" disabled><option>Checking...</option></select><button type="button" class="model-guidance-trigger" data-guidance-role="Improver" aria-haspopup="dialog">ⓘ Model Guidance</button></div><div id="collaboration-model-select"><label for="model" id="model-label">Collaboration Model</label><select id="model" disabled><option>Checking...</option></select></div></div>
       </section>
       <details class="model-installer" id="model-installer" hidden>
         <summary>Add Model · Ollama</summary>

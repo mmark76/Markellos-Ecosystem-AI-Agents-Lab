@@ -68,6 +68,30 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn('improver_model:improverModel', app)
         self.assertIn("model.className='model-name'", app)
 
+    def test_model_guidance_is_role_specific_informational_and_accessible(self):
+        html = (STATIC / "index.html").read_text(encoding="utf-8")
+        css = (STATIC / "style.css").read_text(encoding="utf-8")
+        data = (STATIC / "model-guidance-data.js").read_text(encoding="utf-8")
+        script = (STATIC / "model-guidance.js").read_text(encoding="utf-8")
+        for role, size in (("Trainer", "8B–14B"), ("Student", "3B–8B"),
+                           ("Evaluator", "7B–14B"), ("Improver", "14B–32B")):
+            with self.subTest(role=role):
+                self.assertIn(f'data-guidance-role="{role}"', html)
+                self.assertIn(size, data)
+        for item in ('id="model-guidance-dialog"', 'aria-labelledby="model-guidance-title"',
+                     'id="model-guidance-close"', 'role="tablist"', 'Hardware Compatibility: Not Verified',
+                     'Recommended model sizes are indicative starting points'):
+            with self.subTest(item=item): self.assertIn(item, html)
+        for profile in ('Lite', 'Balanced', 'Advanced'):
+            with self.subTest(profile=profile): self.assertIn(profile, data)
+        self.assertIn('/static/model-guidance-data.js', html)
+        self.assertIn('/static/model-guidance.js', html)
+        self.assertIn('dialog.showModal()', script)
+        self.assertIn('event.target===dialog', script)
+        self.assertIn('trigger.focus()', script)
+        self.assertIn('.model-guidance-dialog', css)
+        self.assertNotIn('fetch(', script + data)
+
     def test_four_stage_progress_and_cancellation_are_visible(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         app = (STATIC / "app.js").read_text(encoding="utf-8")

@@ -34,6 +34,25 @@ Target release:
 
 AI agents must not approve their own material scope increases.
 
+## Approved change record — AI-LAB-CC-038
+
+```text
+Change ID: AI-LAB-CC-038
+Requested by: Repository maintainer
+Date: 2026-10-13
+Description: Add an optional Model Guidance modal beside the four Learning Lab model selectors.
+Reason: Help users compare vendor-neutral role needs, indicative model sizes, and general hardware considerations without changing their local model choices.
+Affected objective IDs: AI-LAB-OBJ-013
+Architecture impact: Static presentation data and modal controller only; no backend API, provider, prompt, model assignment, or execution-flow change.
+Security and privacy impact: No hardware detection, telemetry, network request, credential, installation, download, or configuration change.
+Data impact: None.
+Testing impact: Add static role/content/accessibility and package-inclusion regression coverage; retain existing local model-selection tests.
+Cost and schedule impact: None.
+Decision: APPROVED (SCOPE INCREASE)
+Approved by: Direct user request on 2026-10-13
+Target release: Next Local Lab release
+```
+
 ## Approved change record — AI-LAB-CC-037
 
 ```text

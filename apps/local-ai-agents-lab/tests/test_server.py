@@ -102,6 +102,22 @@ class CampusTests(unittest.TestCase):
 
 
 class HttpIntegrationTests(unittest.TestCase):
+    def test_model_guidance_static_assets_are_served_locally(self):
+        from http.server import ThreadingHTTPServer
+        from urllib.request import build_opener, ProxyHandler
+        original_port = campus.PORT
+        server = ThreadingHTTPServer(("127.0.0.1", 0), campus.Handler); campus.PORT = server.server_address[1]
+        thread = Thread(target=server.serve_forever, daemon=True); thread.start()
+        try:
+            opener = build_opener(ProxyHandler({}))
+            for asset, expected in (("/static/model-guidance-data.js", "ModelGuidanceData"),
+                                    ("/static/model-guidance.js", "dialog.showModal()")):
+                with self.subTest(asset=asset), opener.open(f"http://127.0.0.1:{campus.PORT}{asset}") as response:
+                    self.assertEqual(response.status, 200)
+                    self.assertIn(expected, response.read().decode("utf-8"))
+        finally:
+            server.shutdown(); server.server_close(); thread.join(timeout=4); campus.PORT = original_port
+
     def test_http_session_routes_four_models_and_publishes_stage_state(self):
         from http.server import ThreadingHTTPServer
         from urllib.request import Request, build_opener, ProxyHandler
