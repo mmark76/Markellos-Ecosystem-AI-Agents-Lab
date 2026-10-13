@@ -4,7 +4,7 @@ This public guide describes the released Local Lab as it is, without claiming fu
 
 ## Public distribution
 
-`AI-Agents-Lab-Windows.zip` for `v0.1.24` is hosted in a private GitHub repository. Anonymous public download is currently unavailable. Do not rely on a public GitHub Release URL until an authorized public distribution path is available.
+`AI-Agents-Lab-Windows.zip` for `v0.1.24` remains available through the official GitHub Release URL. The repository is private, so downloading may require authorized GitHub access.
 
 ## Available now
 

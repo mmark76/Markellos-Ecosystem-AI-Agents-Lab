@@ -22,9 +22,12 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, new RegExp(`CURRENT RELEASE · v${escapedReleaseVersion} · LOCAL ONLY`));
   assert.match(html, /class="beta-badge">BETA<\/span>/);
   assert.match(styles, /\.beta-badge/);
-  assert.match(html, /Public ZIP distribution is currently unavailable/);
-  assert.match(html, /private GitHub repository and cannot be downloaded anonymously/);
-  assert.doesNotMatch(html, /id="zip-download"|id="zip-update"|releases\/latest\/download/);
+  assert.match(html, /Download access note/);
+  assert.match(html, /private GitHub repository.*may require authorized GitHub access/);
+  assert.match(html, new RegExp(`id="zip-download" class="primary-button" data-zip-version="v${escapedReleaseVersion}"`));
+  assert.match(html, new RegExp(`Download AI-Agents-Lab-Windows\\.zip \\(v${escapedReleaseVersion}\\)`));
+  assert.match(html, /https:\/\/github\.com\/mmark76\/Markellos-Ecosystem-AI-Agents-Lab\/releases\/latest\/download\/AI-Agents-Lab-Windows\.zip/);
+  assert.doesNotMatch(html, /id="zip-update"/);
   assert.match(html, /Trainer → Student → Evaluator → Improver/);
   assert.match(html, /UNDER CONSTRUCTION/);
   assert.match(html, /Agent Collaboration \/ Conference Room/);
@@ -40,7 +43,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /id="settings-dialog"/);
   assert.match(html, /id="info-dialog"/);
   assert.doesNotMatch(html, /data-language|language-selector|language-button|Lab Assistant|assistant-button|assistant-dialog/);
-  assert.match(guide, /Public download unavailable/);
+  assert.match(guide, /Download access note/);
   assert.match(guide, /LM Studio and vLLM are not supported/);
   assert.match(guide, /Agent Collaboration \/ Conference Room is disabled/);
   assert.match(guide, /no in-app manual update check/);

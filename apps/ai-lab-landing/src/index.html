@@ -39,8 +39,8 @@
     <section class="hero" aria-labelledby="page-title">
       <p class="eyebrow">CURRENT RELEASE · {{RELEASE_VERSION}} · LOCAL ONLY</p>
       <h1 id="page-title">The verified state of AI Agents Lab {{RELEASE_VERSION}}.</h1>
-      <p class="shell-notice"><strong>Public ZIP distribution is currently unavailable.</strong> The {{RELEASE_VERSION}} ZIP is hosted in a private GitHub repository and cannot be downloaded anonymously. This page describes the released Local Lab without implying that a public download is available.</p>
-      <div class="hero-actions"><a class="secondary-button" href="./simple-guide.html" target="_blank" rel="noopener noreferrer">Read the current-state guide <span aria-hidden="true">↗</span></a></div>
+      <p class="shell-notice"><strong>Download access note:</strong> The {{RELEASE_VERSION}} ZIP is hosted in a private GitHub repository. The official download may require authorized GitHub access.</p>
+      <div class="hero-actions"><a id="zip-download" class="primary-button" data-zip-version="{{RELEASE_VERSION}}" href="https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/latest/download/AI-Agents-Lab-Windows.zip">Download AI-Agents-Lab-Windows.zip ({{RELEASE_VERSION}}) <span aria-hidden="true">↓</span></a><a class="secondary-button" href="./simple-guide.html" target="_blank" rel="noopener noreferrer">Read the current-state guide <span aria-hidden="true">↗</span></a></div>
     </section>
 
     <section id="overview" class="card-grid" aria-labelledby="what-title">
@@ -61,7 +61,7 @@
     <section id="start" class="simple-section steps" aria-labelledby="start-title">
       <p class="eyebrow">INSTALLATION STATUS</p><h2 id="start-title">What is required when public distribution is restored.</h2>
       <ol>
-        <li><strong>Obtain the ZIP only through an authorized distribution path.</strong> The current public GitHub Release link is unavailable to anonymous visitors because its repository is private.</li>
+        <li><strong>Download the official ZIP.</strong> The GitHub Release is private, so this step may require authorized GitHub access.</li>
         <li><strong>Extract the ZIP.</strong> When an authorized copy is available, extract it to a folder you control, such as <code>Documents\\AI-Agents-Lab</code>. There is no hidden installation folder: this extracted folder is the Lab.</li>
         <li><strong>Install Python and Ollama.</strong> Install <a class="inline-link" href="https://www.python.org/downloads/windows/">Python 3.9 or later for Windows</a>, then install Ollama from the official link above.</li>
         <li><strong>Run a local Ollama model.</strong> For example, run <code>ollama pull qwen3:4b</code>; the Lab uses Ollama only at <code>127.0.0.1:11434</code>.</li>
