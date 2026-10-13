@@ -176,6 +176,12 @@ class EcosystemShellTests(unittest.TestCase):
             with self.subTest(removed=removed):
                 self.assertNotIn(removed, html)
 
+    def test_training_stage_polling_preserves_each_response_scroll_position(self):
+        app = (STATIC / "app.js").read_text(encoding="utf-8")
+        self.assertIn("const scrollPositions=new Map([...host.querySelectorAll('.stage-response')].map(response=>[response.dataset.agentRole,response.scrollTop]));", app)
+        self.assertIn("response.dataset.agentRole=stage.agent_role;", app)
+        self.assertIn("const scrollTop=scrollPositions.get(stage.agent_role);if(scrollTop!==undefined)response.scrollTop=scrollTop;", app)
+
     def test_swatches_are_csp_compatible(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         css = (STATIC / "style.css").read_text(encoding="utf-8")
