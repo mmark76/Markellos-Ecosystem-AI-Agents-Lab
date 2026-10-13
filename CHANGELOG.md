@@ -6,6 +6,7 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 
 ### Changed
 
+- Standardized every public, packaged, and internal project reference on Markellos Ecosystem AI Agents Lab; migrated legacy local training-room history to the `training` identifier and renamed the shortcut plus its icon asset.
 - Added locally stored settings for background color and text font.
 - Fixed full desktop side-panel collapse when saved custom widths are present.
 - Made Hide fully collapse each Local Lab side column; its Show control remains accessible at the corresponding central-workspace edge.
@@ -27,9 +28,9 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 - Added an explicit public notice that ZIP upgrades are manual and local models plus SQLite history must be preserved.
 - Changed the public landing page default to the Local Lab's black appearance while retaining user-selectable accent and background colours.
 - Standardized the public landing page and Local Lab runtime UI, prompts, and new agent responses on English after removal of language controls.
-- Added a University Lab desktop shortcut with a packaged local icon, created when the Windows launcher first runs.
+- Added an AI Agents Lab desktop shortcut with a packaged local icon, created when the Windows launcher first runs.
 - Clarified that the extracted ZIP folder is the Lab location and that an update refreshes the Desktop shortcut only after the new launcher runs.
-- Replaced the University Lab shortcut icon with a dark-azure design featuring two arches and a white graduation cap.
+- Replaced the Local Lab shortcut icon with a dark-azure design.
 - Simplified the default Training Lab flow to one Trainer and one Student.
 - Removed the hero-area Open Local Lab button while retaining the contextual local link in the startup instructions.
 - Translated the packaged Local Lab README into English only.

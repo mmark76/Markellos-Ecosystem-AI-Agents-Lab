@@ -1,6 +1,6 @@
 # Markellos Ecosystem AI Agents Lab
 
-AI Agents Lab is a local-first experimentation environment for a Windows device, with a small public landing page that explains installation and its privacy boundary. It is not a cloud AI service, university, autonomous deployment system, or public chat endpoint.
+AI Agents Lab is a local-first experimentation environment for a Windows device, with a small public landing page that explains installation and its privacy boundary. It is not a cloud AI service, academic institution, autonomous deployment system, or public chat endpoint.
 
 ## Components
 

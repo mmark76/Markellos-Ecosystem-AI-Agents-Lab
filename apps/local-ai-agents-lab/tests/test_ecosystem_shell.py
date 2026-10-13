@@ -15,7 +15,7 @@ class EcosystemShellTests(unittest.TestCase):
     def test_project_navigation_and_local_controls_preserved(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         app = (STATIC / "app.js").read_text(encoding="utf-8")
-        for name in ('data-room="university"', 'data-room="conference"',
+        for name in ('data-room="training"', 'data-room="conference"',
                      'id="settings-toggle"', 'id="model"',
                      'id="trainer-model"', 'id="student-model"', 'id="evaluator-model"', 'id="improver-model"',
                      'id="composer"'):
@@ -228,6 +228,12 @@ class EcosystemShellTests(unittest.TestCase):
         app = (STATIC / "app.js").read_text(encoding="utf-8")
         self.assertIn("available locally · '+statusData.models.length+' local models", app)
         self.assertNotIn(" online · ", app)
+
+    def test_user_visible_local_shell_has_no_retired_branding(self):
+        html = (STATIC / "index.html").read_text(encoding="utf-8")
+        app = (STATIC / "app.js").read_text(encoding="utf-8")
+        self.assertNotRegex(html.lower(), r"uni" r"versity")
+        self.assertNotRegex(app.lower(), r"uni" r"versity")
 
     def test_easy_start_default_model_is_offered_to_each_training_role(self):
         app = (STATIC / "app.js").read_text(encoding="utf-8")

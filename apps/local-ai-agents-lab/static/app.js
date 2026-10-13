@@ -1,6 +1,6 @@
 'use strict';
 const $ = id => document.getElementById(id);
-let room = 'university';
+let room = 'training';
 let running = false;
 let activeTrainingSession = null;
 let stagePoll = null;
@@ -16,12 +16,12 @@ function setStatus() {
   $('status').textContent = statusError ? 'Local service is not responding.' : !statusData ? 'Checking local inference engine...' : !statusData.available ? statusData.label+' is not running locally. See README.' : !statusData.models.length ? statusData.label+' is available locally · No compatible local models found.' : statusData.label+' available locally · '+statusData.models.length+' local models';
 }
 function updateUI() {
-  $('training-model-selects').hidden=room!=='university'; $('collaboration-model-select').hidden=room==='university';
-  $('room-title').textContent=room==='university'?'Agent Training':'Agent Collaboration';
-  $('room-description').textContent=room==='university'?'Learn → Practice → Evaluate → Improve':'Planner → Researcher → Reviewer · Shared history';
-  $('prompt-label').textContent=room==='university'?'Training Topic':'Discussion Topic';
-  $('prompt').placeholder=room==='university'?'e.g. Teach your AI agent how to...':'e.g. Explore the causes and effects of climate change...';
-  $('send').textContent=running?'Running...':room==='university'?'Start Training ↗':'Start Discussion ↗';
+  $('training-model-selects').hidden=room!=='training'; $('collaboration-model-select').hidden=room==='training';
+  $('room-title').textContent=room==='training'?'Agent Training':'Agent Collaboration';
+  $('room-description').textContent=room==='training'?'Learn → Practice → Evaluate → Improve':'Planner → Researcher → Reviewer · Shared history';
+  $('prompt-label').textContent=room==='training'?'Training Topic':'Discussion Topic';
+  $('prompt').placeholder=room==='training'?'e.g. Teach your AI agent how to...':'e.g. Explore the causes and effects of climate change...';
+  $('send').textContent=running?'Running...':room==='training'?'Start Training ↗':'Start Discussion ↗';
   $('clear-conversation').disabled=running; $('cancel-training').hidden=!activeTrainingSession; $('cancel-training').disabled=!activeTrainingSession;
   $('hint').textContent=hintError||(running?'Stages run strictly one at a time. Slow local CPU inference is allowed to finish.':'Agents have no access to files or commands.');
   document.querySelectorAll('[data-room]').forEach(button=>button.classList.toggle('selected',button.dataset.room===room)); setStatus();
@@ -57,10 +57,10 @@ async function refreshTrainingSession() {
 async function refreshStatus() {
   try {const response=await fetch('/api/status');if(!response.ok)throw new Error();const status=await response.json();statusData=status.provider;statusError=false;const legacy=localStorage.getItem(modelPreference.Collaboration);for(const [agent,id] of Object.entries(selectors)){const select=$(id),old=select.value,stored=localStorage.getItem(modelPreference[agent]);select.replaceChildren();for(const model of statusData.models){const option=document.createElement('option');option.value=model;option.textContent=model;select.append(option);}const selected=[stored,legacy,old,easyStartModel,statusData.models[0]].find(value=>statusData.models.includes(value));if(selected)select.value=selected;select.disabled=running||!statusData.models.length;}if(!running)$('send').disabled=!statusData.models.length;}catch{statusError=true;statusData=null;Object.values(selectors).forEach(id=>$(id).disabled=true);$('send').disabled=true;}setStatus();
 }
-function switchRoom(next){if(running||!['university','conference'].includes(next))return;room=next;hintError='';updateUI();refreshHistory();}
+function switchRoom(next){if(running||!['training','conference'].includes(next))return;room=next;hintError='';updateUI();refreshHistory();}
 Object.entries(selectors).forEach(([agent,id])=>$(id).addEventListener('change',event=>localStorage.setItem(modelPreference[agent],event.target.value)));
 document.querySelectorAll('[data-room]').forEach(button=>button.addEventListener('click',()=>switchRoom(button.dataset.room)));
-$('composer').addEventListener('submit',async event=>{event.preventDefault();if(running)return;const prompt=$('prompt').value.trim(),model=$('model').value,trainerModel=$('trainer-model').value,studentModel=$('student-model').value,evaluatorModel=$('evaluator-model').value,improverModel=$('improver-model').value;if(!prompt||(room==='university'&&(!trainerModel||!studentModel||!evaluatorModel||!improverModel))||(room==='conference'&&!model))return;running=true;hintError='';$('send').disabled=true;updateUI();try{const request=room==='university'?{room,provider,trainer_model:trainerModel,student_model:studentModel,evaluator_model:evaluatorModel,improver_model:improverModel,prompt,language:responseLanguage}:{room,provider,model,prompt,language:responseLanguage};const response=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(request)});const payload=await response.json();if(!response.ok)throw new Error(payload.error||'Session failed');$('prompt').value='';if(room==='university'){activeTrainingSession=payload.session_id;await refreshTrainingSession();stagePoll=setInterval(refreshTrainingSession,1000);return;}}catch(error){hintError=error.message;}finally{if(!activeTrainingSession){running=false;await refreshHistory();await refreshStatus();updateUI();}}});
+$('composer').addEventListener('submit',async event=>{event.preventDefault();if(running)return;const prompt=$('prompt').value.trim(),model=$('model').value,trainerModel=$('trainer-model').value,studentModel=$('student-model').value,evaluatorModel=$('evaluator-model').value,improverModel=$('improver-model').value;if(!prompt||(room==='training'&&(!trainerModel||!studentModel||!evaluatorModel||!improverModel))||(room==='conference'&&!model))return;running=true;hintError='';$('send').disabled=true;updateUI();try{const request=room==='training'?{room,provider,trainer_model:trainerModel,student_model:studentModel,evaluator_model:evaluatorModel,improver_model:improverModel,prompt,language:responseLanguage}:{room,provider,model,prompt,language:responseLanguage};const response=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(request)});const payload=await response.json();if(!response.ok)throw new Error(payload.error||'Session failed');$('prompt').value='';if(room==='training'){activeTrainingSession=payload.session_id;await refreshTrainingSession();stagePoll=setInterval(refreshTrainingSession,1000);return;}}catch(error){hintError=error.message;}finally{if(!activeTrainingSession){running=false;await refreshHistory();await refreshStatus();updateUI();}}});
 $('cancel-training').addEventListener('click',async()=>{if(!activeTrainingSession)return;try{const response=await fetch('/api/training-sessions/'+activeTrainingSession+'/cancel',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});const payload=await response.json();if(!response.ok)throw new Error(payload.error||'Unable to cancel this session.');hintError='Cancellation requested. The current model call is allowed to finish safely.';}catch(error){hintError=error.message;}updateUI();});
 $('clear-conversation').addEventListener('click',async()=>{if(running||!confirm('Clear this room\'s conversation? This cannot be undone.'))return;$('clear-conversation').disabled=true;try{const response=await fetch('/api/history/clear',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({room})});const payload=await response.json();if(!response.ok)throw new Error(payload.error||'Unable to clear this conversation.');$('prompt').value='';hintError='Conversation cleared. A new session is ready.';renderTrainingStages(null);await refreshHistory();}catch(error){hintError=error.message;}finally{updateUI();}});
 updateUI();refreshHistory();refreshStatus();
