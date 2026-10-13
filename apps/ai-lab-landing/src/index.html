@@ -56,15 +56,13 @@
     </section>
 
     <section id="start" class="simple-section steps" aria-labelledby="start-title">
-      <p class="eyebrow">INSTALLATION STATUS</p><h2 id="start-title">Install the public BETA release.</h2>
+      <p class="eyebrow">GET STARTED</p><h2 id="start-title">Start in five simple steps.</h2>
       <ol>
-        <li><strong>Download the official ZIP.</strong> Use the public BETA download above; GitHub access is not required.</li>
-        <li><strong>Verify and extract the ZIP.</strong> Confirm the displayed SHA-256 checksum, then extract it to a folder you control, such as <code>Documents\\AI-Agents-Lab</code>. There is no hidden installation folder: this extracted folder is the Lab.</li>
-        <li><strong>Install Python and Ollama.</strong> Install <a class="inline-link" href="https://www.python.org/downloads/windows/">Python 3.9 or later for Windows</a>, then install Ollama from the official link above.</li>
-        <li><strong>Run a local Ollama model.</strong> For example, run <code>ollama pull qwen3:4b</code>; the Lab uses Ollama only at <code>127.0.0.1:11434</code>.</li>
-        <li><strong>Keep Ollama local-only if you use it.</strong> Add <code>"disable_ollama_cloud": true</code> to <code>%USERPROFILE%\.ollama\server.json</code>, preserving any existing settings, then restart Ollama. Use downloaded local models, not names ending in <code>:cloud</code>.</li>
-        <li><strong>Start the local server from the extracted ZIP folder.</strong> Open <code>start-windows.bat</code> in that extracted folder (or run <code>py -3 server.py</code> there) and keep its window open. Its first run creates a Desktop shortcut that continues to open this extracted copy.</li>
-        <li><strong>Only after the local server has started, open the local address.</strong> When the <code>start-windows.bat</code> window confirms that the Lab is running, select <a class="inline-link" href="http://127.0.0.1:8765/">Open Local Lab</a>. The link cannot start the Lab by itself.</li>
+        <li><strong>Download the ZIP.</strong> Use the public BETA download above. You do not need a GitHub account.</li>
+        <li><strong>Extract the ZIP.</strong> Extract it into a folder such as Documents.</li>
+        <li><strong>Install Python and Ollama.</strong> Install <a class="inline-link" href="https://www.python.org/downloads/windows/">Python</a> and Ollama if you do not already have them.</li>
+        <li><strong>Download a local model in Ollama.</strong> A small model is a good choice for your first try.</li>
+        <li><strong>Open the Lab.</strong> Open <code>start-windows.bat</code> in the extracted folder, keep its window open, then select <a class="inline-link" href="http://127.0.0.1:8765/">Open Local Lab</a>.</li>
       </ol>
     </section>
 

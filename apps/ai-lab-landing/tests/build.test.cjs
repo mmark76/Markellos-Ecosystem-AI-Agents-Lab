@@ -38,6 +38,9 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /Trainer → Student → Evaluator → Improver/);
   assert.match(html, /UNDER CONSTRUCTION/);
   assert.match(html, /Agent Collaboration \/ Conference Room/);
+  assert.match(html, /Start in five simple steps/);
+  assert.match(html, /You do not need a GitHub account/);
+  assert.doesNotMatch(html, /Verify and extract the ZIP|disable_ollama_cloud|ollama pull qwen3:4b/);
   assert.doesNotMatch(html, /card-label">SUPPORTED PROVIDER|<h2>Ollama only<\/h2>|LM Studio and vLLM are not supported/);
   assert.doesNotMatch(html, /NOT YET OPERATIONAL|Advanced model fine-tuning|NOT IMPLEMENTED|Manual update check in the Local App/);
   assert.match(html, /https:\/\/ollama\.com\/download/);
