@@ -9,7 +9,7 @@
 
 The project needs a public installation guide without exposing the private local application. The selected design uses a static Cloudflare Pages artifact for the guide and retains the Lab as a Windows loopback application.
 
-Consequences: the public artifact has no application API, form, chat input, account, analytics, or user-data processing; the Lab, Ollama, local models, and SQLite database remain outside public routing. A future hosted Lab requires a new approved architecture, security, privacy, and deployment scope.
+Consequences: the public artifact has no application API, form, chat input, account, or Local Lab data processing; the Lab, Ollama, local models, and SQLite database remain outside public routing. AI-LAB-ADR-006 is the limited approved exception for consented public-site analytics. A future hosted Lab requires a new approved architecture, security, privacy, and deployment scope.
 
 ## AI-LAB-ADR-002 — Use only local Ollama access for the Local Lab
 
@@ -64,3 +64,14 @@ optional safe external link; it has no direct external connection.
 Consequences: release discovery does not weaken the local inference boundary or
 create an updater privilege. Download, extraction, replacement, and restart
 remain a manual, user-controlled upgrade procedure.
+
+## AI-LAB-ADR-006 — Gate GA4 behind explicit landing-page consent
+
+- Status: Accepted
+- Date: 2026-10-13
+- Owner: Markellos Ecosystem repository maintainer
+- Related requirements: AI-LAB-OBJ-014, AI-LAB-AC-016, AI-LAB-SEC-011
+
+The public Cloudflare Pages landing page may use GA4 property `G-ZEPZK1T1YQ` to measure aggregate website use only after a visitor explicitly accepts analytics. The first-party dashboard script stores that choice locally, uses Consent Mode v2 consent signals, and dynamically loads Google's tag only after consent. It sends one manual page view per location and one `zip_download` event per Windows ZIP click. Rejecting or withdrawing consent disables future events.
+
+Consequences: the CSP permits only the Google tag and analytics collection origins required after consent. No tag is included unconditionally, no sensitive or Local Lab data is sent, and no Local Lab source, build, or deployment setting changes.

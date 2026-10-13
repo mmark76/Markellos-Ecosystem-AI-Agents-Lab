@@ -52,6 +52,13 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.equal((html.match(/Open Local Lab/g) || []).length, 1);
   assert.match(html, /id="settings-dialog"/);
   assert.match(html, /id="info-dialog"/);
+  assert.match(html, /id="analytics-consent-banner"/);
+  assert.match(html, /id="accept-analytics"/);
+  assert.match(html, /id="reject-analytics"/);
+  assert.match(html, /id="analytics-dialog"/);
+  assert.match(html, /id="manage-analytics"/);
+  assert.match(html, /Google Analytics 4 measures page use, traffic source, approximate geographic distribution, and Windows ZIP download interactions/);
+  assert.doesNotMatch(html, /googletagmanager\.com\/gtag/);
   assert.doesNotMatch(html, /data-language|language-selector|language-button|Lab Assistant|assistant-button|assistant-dialog/);
   assert.match(guide, /Before you begin/);
   assert.match(guide, /Start in three steps/);
@@ -73,6 +80,16 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.doesNotMatch(html, /Read the current-state guide/);
   assert.match(html, /href="\.\/simple-guide\.html"[^>]*>README \/ Installation Guide/);
   assert.doesNotMatch(script, /checkForZipUpdate|scheduleZipUpdateChecks|downloaded-zip-version/);
+  assert.match(script, /const ANALYTICS_CONSENT_KEY = 'markellos\.ai-lab\.analytics-consent\.v1'/);
+  assert.match(script, /const GA_MEASUREMENT_ID = 'G-ZEPZK1T1YQ'/);
+  assert.match(script, /send\('consent','default',CONSENT_DENIED\)/);
+  assert.match(script, /send\('consent','update',CONSENT_GRANTED\)/);
+  assert.match(script, /script\.src=`https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=\$\{encodeURIComponent\(GA_MEASUREMENT_ID\)\}`/);
+  assert.equal((script.match(/send\('config',GA_MEASUREMENT_ID,\{send_page_view:false\}\)/g) || []).length, 1);
+  assert.match(script, /window\.gtag\('event','page_view'/);
+  assert.match(script, /window\.gtag\('event','zip_download'/);
+  assert.match(script, /window\.addEventListener\('hashchange',trackPageView\)/);
+  assert.match(script, /window\[`ga-disable-\$\{GA_MEASUREMENT_ID\}`\]=true/);
   assert.match(script, /typeof module !== 'undefined'/);
   for (const file of ['styles.css', 'tokens.css', 'dashboard.js', '_headers', 'README.md', 'simple-guide.html', 'ai-training-lab-mark.png']) assert.equal(existsSync(join(output, file)), true, `${file} is missing`);
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /public current-state documentation/);
@@ -82,6 +99,53 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.doesNotMatch(readFileSync(join(output, 'README.md'), 'utf8'), /Start AI Training Lab\.bat/);
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Technical documentation/);
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Manual update checking inside the Local App: not implemented/);
-  assert.match(readFileSync(join(output, '_headers'), 'utf8'), /connect-src 'self'/);
-  assert.match(readFileSync(join(output, '_headers'), 'utf8'), /script-src 'self'/);
+  assert.match(readFileSync(join(output, '_headers'), 'utf8'), /script-src 'self' https:\/\/www\.googletagmanager\.com/);
+  assert.match(readFileSync(join(output, '_headers'), 'utf8'), /connect-src 'self' https:\/\/www\.google-analytics\.com https:\/\/region1\.google-analytics\.com/);
+});
+
+test('analytics stays unloaded until consent and sends only approved events after acceptance', () => {
+  const listeners = new Map();
+  const createElement = () => ({
+    dataset: {}, hidden: true, style: { setProperty() {} }, listeners: new Map(),
+    addEventListener(type, handler) { this.listeners.set(type, handler); },
+    setAttribute() {}, querySelector() { return null; }, closest() { return this; },
+    close() {}, showModal() {}, value: '',
+  });
+  const ids = ['theme-toggle','accent-color','font-choice','text-size','spacing-choice','appearance-status','reset-appearance','settings-button','info-button','analytics-consent-banner','analytics-dialog','analytics-consent-status','accept-analytics','reject-analytics','accept-analytics-dialog','reject-analytics-dialog','manage-analytics','privacy-analytics-choices','zip-download'];
+  const elements = Object.fromEntries(ids.map(id => [id, createElement()]));
+  elements['zip-download'].dataset.zipVersion = 'v1.1.0';
+  const scripts = [];
+  const values = new Map();
+  const originalWindow = global.window;
+  const originalDocument = global.document;
+  global.window = {
+    location: { href: 'https://example.test/' }, dataLayer: [],
+    localStorage: { getItem: key => values.get(key) || null, setItem: (key, value) => values.set(key, value), removeItem: key => values.delete(key) },
+    addEventListener(type, handler) { listeners.set(type, handler); },
+  };
+  global.document = {
+    title: 'AI Training Lab', documentElement: { dataset: {}, style: { setProperty() {} } },
+    addEventListener(type, handler) { if (type === 'DOMContentLoaded') handler(); },
+    getElementById: id => elements[id] || null, querySelectorAll: () => [], querySelector: () => null,
+    createElement, head: { append: script => scripts.push(script) },
+  };
+  try {
+    const modulePath = resolve(output, 'dashboard.js');
+    delete require.cache[modulePath];
+    require(modulePath);
+    assert.equal(scripts.length, 0, 'Google tag must not load before consent');
+    elements['accept-analytics'].listeners.get('click')();
+    assert.equal(scripts.length, 1, 'acceptance loads one Google tag');
+    scripts[0].listeners.get('load')();
+    elements['zip-download'].listeners.get('click')();
+    const events = window.dataLayer.filter(entry => entry[0] === 'event');
+    assert.deepEqual(events.map(entry => entry[1]), ['page_view', 'zip_download']);
+    elements['reject-analytics'].listeners.get('click')();
+    assert.equal(window['ga-disable-G-ZEPZK1T1YQ'], true, 'rejection disables future analytics events');
+    elements['zip-download'].listeners.get('click')();
+    assert.equal(window.dataLayer.filter(entry => entry[0] === 'event' && entry[1] === 'zip_download').length, 1);
+  } finally {
+    global.window = originalWindow;
+    global.document = originalDocument;
+  }
 });
