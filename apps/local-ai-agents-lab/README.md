@@ -26,6 +26,14 @@ It asks for a separate, explicit approval before it can:
 
 No package, service, or model download begins before its own approval dialog. Easy Start reuses compatible Python, Ollama, and local models already on the computer, and does not reinstall them. The first setup requires an Internet connection, Windows Package Manager, and at least 3 GiB of free disk space. Windows may show its own confirmation prompts for package installation.
 
+## Agent system prompts
+
+All seven system prompts are independently maintained as UTF-8 text files under
+`prompts/`: Trainer, Student, Evaluator, Improver, Planner, Researcher, and
+Reviewer. The local server loads them on startup; restart the Lab to apply an
+edited prompt. The packaged Windows release includes all seven files. The
+Conference Room remains disabled in this release.
+
 ## Inference engine
 
 The Lab uses **only Ollama** at the fixed loopback address

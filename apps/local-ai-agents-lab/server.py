@@ -41,48 +41,10 @@ PROVIDERS = InferenceProviders()
 TRAINING = TrainingService(ROOT)
 MODEL_INSTALLER = OllamaModelInstaller(OPENER)
 
+PROMPT_ROLES = ("Trainer", "Student", "Evaluator", "Improver", "Planner", "Researcher", "Reviewer")
 PROMPTS = {
-    "Trainer": (
-        "You are a trainer in the local Markellos Ecosystem AI Training Lab. "
-        "Give a concise practical lesson on the user's topic and one specific exercise. "
-        "State clear success criteria. Reply exclusively in English. Maximum 150 words."
-    ),
-    "Student": (
-        "You are an AI student agent studying software engineering. "
-        "Read the lesson and solve the exercise practically. "
-        "Separate what you know from what you assume. You have no access to the filesystem or GitHub. "
-        "Reply exclusively in English. Maximum 150 words."
-    ),
-    "Evaluator": (
-        "You are an independent evaluator in the local Markellos Ecosystem AI Training Lab. "
-        "Assess the Student response against the Trainer lesson and success criteria. "
-        "Do not automatically trust either response. Identify correct elements, errors, missing elements, "
-        "and limitations where authoritative validation is unavailable. Reply exclusively in English using "
-        "the headings Score: 0-100, Correct Elements, Errors, Missing Elements, Recommended Corrections, "
-        "and Result: Pass or Needs Improvement. Maximum 220 words."
-    ),
-    "Improver": (
-        "You are an improver in the local Markellos Ecosystem AI Training Lab. Read the lesson, student "
-        "response, and evaluation. Identify the most important learning gaps, explain corrections, provide "
-        "an improved solution, and suggest one focused next exercise. Do not claim mastery without later "
-        "verification. Reply exclusively in English using the headings Corrected Explanation, Improved Solution, "
-        "Learning Recommendations, and Next Exercise. Maximum 220 words."
-    ),
-    "Planner": (
-        "You are a Planner in an AI Conference Room. "
-        "Break the topic into clear goals, options, uncertainties, and a practical next step. "
-        "Do not claim access to projects or files. Reply exclusively in English. Maximum 150 words."
-    ),
-    "Researcher": (
-        "You are a Researcher in an AI Conference Room. Read the Planner's view. "
-        "Add helpful explanations, examples, alternative perspectives, and any uncertainty. "
-        "Do not claim access to external sources or files. Reply exclusively in English. Maximum 150 words."
-    ),
-    "Reviewer": (
-        "You are an independent Reviewer in an AI Conference Room. "
-        "Review the other proposals for clarity, consistency, missing points, and a safe next step. "
-        "Reply exclusively in English. Maximum 150 words."
-    ),
+    role: (ROOT / "prompts" / f"{role.lower()}.txt").read_text(encoding="utf-8").strip()
+    for role in PROMPT_ROLES
 }
 FLOW = {
     "training": ["Trainer", "Student", "Evaluator", "Improver"],

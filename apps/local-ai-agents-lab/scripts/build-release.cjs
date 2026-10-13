@@ -5,7 +5,7 @@ const path=require('node:path');
 const root=path.resolve(__dirname,'../../..');
 const prefix='apps/local-ai-agents-lab/';
 const git=(...args)=>execFileSync('git',args,{cwd:root,encoding:'utf8'}).trim();
-const files=['VERSION','README.md','.gitignore','server.py','providers.py','model_install.py','training.py','training/requirements.txt','training/training_worker.py','assets/ai-training-lab.ico','Start AI Training Lab.bat','start-windows.bat','setup-training-windows.bat','scripts/create-desktop-shortcut.ps1','scripts/easy-start.ps1','scripts/setup-training.ps1','static/app.js','static/model-install.js','static/training.js','static/panel-layout.js','static/model-guidance-data.js','static/model-guidance.js','static/index.html','static/settings.js','static/style.css','static/ecosystem-shell.js','static/ecosystem-tokens.css'];
+const files=['VERSION','README.md','prompts/trainer.txt','prompts/student.txt','prompts/evaluator.txt','prompts/improver.txt','prompts/planner.txt','prompts/researcher.txt','prompts/reviewer.txt','.gitignore','server.py','providers.py','model_install.py','training.py','training/requirements.txt','training/training_worker.py','assets/ai-training-lab.ico','Start AI Training Lab.bat','start-windows.bat','setup-training-windows.bat','scripts/create-desktop-shortcut.ps1','scripts/easy-start.ps1','scripts/setup-training.ps1','static/app.js','static/model-install.js','static/training.js','static/panel-layout.js','static/model-guidance-data.js','static/model-guidance.js','static/index.html','static/settings.js','static/style.css','static/ecosystem-shell.js','static/ecosystem-tokens.css'];
 const BUILD_ID=/^v\d+\.\d+\.\d+_\d{8}_\d{4}_[0-9a-f]{7}$/;
 
 function formatBuildId(version,sha,timestamp){
