@@ -4,7 +4,7 @@ This is a static Cloudflare Pages landing page for `ai-lab.markellosecosystem.co
 
 Its dashboard shell follows the Ecosystem Framework visual structure: project identity, visible BETA designation, concise anchor navigation, ecosystem return path, responsive content cards, and a two-line footer with the generated build identity. It stores only validated local appearance preferences.
 
-The landing page reports the current released state of `v0.1.24` truthfully. Its ZIP is hosted in a private GitHub repository, so anonymous public distribution is unavailable; the page must not present the private Release URL as a usable public download. It also states that Ollama is the only supported inference provider, the Conference Room is disabled, optional advanced model fine-tuning is not yet operational because of a confirmed training-worker compatibility issue, and the Local App has no in-app manual update check. The landing build reads `apps/local-ai-agents-lab/VERSION` only to stamp the published state with its release version and build identity.
+The landing page reports the current released state of `v0.1.24` truthfully. Its prominent official ZIP download button retains the GitHub Release URL; because the repository is private, the page states that downloading may require authorized GitHub access. It also states that Ollama is the only supported inference provider, the Conference Room is disabled, optional advanced model fine-tuning is not yet operational because of a confirmed training-worker compatibility issue, and the Local App has no in-app manual update check. The landing build reads `apps/local-ai-agents-lab/VERSION` only to stamp the published state with its release version and build identity.
 
 ## Installation guidance
 
