@@ -23,6 +23,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.doesNotMatch(html, /\{\{BUILD_ID\}\}|\{\{RELEASE_VERSION\}\}/);
   assert.match(html, new RegExp(`CURRENT RELEASE · v${escapedDistributionVersion} · LOCAL ONLY`));
   assert.match(html, new RegExp(`<h1 id="page-title">AI Training Lab v${escapedDistributionVersion}<\\/h1>`));
+  assert.match(html, /<img class="brand-mark" src="\.\/ai-training-lab-mark\.png" alt="AI Training Lab">/);
   assert.match(html, /class="beta-badge">BETA<\/span>/);
   assert.match(styles, /\.beta-badge/);
   assert.match(distribution.version, /^\d+\.\d+\.\d+$/);
@@ -63,7 +64,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /Simple start guide/);
   assert.doesNotMatch(script, /checkForZipUpdate|scheduleZipUpdateChecks|downloaded-zip-version/);
   assert.match(script, /typeof module !== 'undefined'/);
-  for (const file of ['styles.css', 'tokens.css', 'dashboard.js', '_headers', 'README.md', 'simple-guide.html']) assert.equal(existsSync(join(output, file)), true, `${file} is missing`);
+  for (const file of ['styles.css', 'tokens.css', 'dashboard.js', '_headers', 'README.md', 'simple-guide.html', 'ai-training-lab-mark.png']) assert.equal(existsSync(join(output, file)), true, `${file} is missing`);
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /public current-state documentation/);
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Manual update checking inside the Local App: not implemented/);
   assert.match(readFileSync(join(output, '_headers'), 'utf8'), /connect-src 'self'/);
