@@ -33,12 +33,13 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn('Under Construction', html)
         self.assertIn("'conference'", app)
 
-    def test_training_topic_precedes_the_scrollable_conversation(self):
+    def test_training_topic_and_conversation_scroll_together(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         css = (STATIC / "style.css").read_text(encoding="utf-8")
         self.assertLess(html.index('id="composer"'), html.index('class="chat-panel"'))
         self.assertIn('class="beta-badge">BETA</span>', html)
-        self.assertIn('.chat-panel{min-height:0;overflow-x:hidden;overflow-y:auto', css)
+        self.assertIn('.workspace-main.main{display:block;overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}', css)
+        self.assertIn('.workspace-main .chat-panel{min-height:0;overflow:visible}', css)
 
     def test_training_surfaces_use_clearer_panel_borders(self):
         css = (STATIC / "style.css").read_text(encoding="utf-8")
@@ -67,6 +68,19 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn('evaluator_model:evaluatorModel', app)
         self.assertIn('improver_model:improverModel', app)
         self.assertIn("model.className='model-name'", app)
+
+    def test_agent_responses_have_local_copy_and_user_initiated_share_actions(self):
+        app = (STATIC / "app.js").read_text(encoding="utf-8")
+        css = (STATIC / "style.css").read_text(encoding="utf-8")
+        self.assertIn("if(message.agent!=='You')", app)
+        self.assertIn("Copy agent response", app)
+        self.assertIn("Share agent response", app)
+        self.assertIn("navigator.clipboard?.writeText", app)
+        self.assertIn("navigator.share", app)
+        self.assertIn("Sharing is unavailable. Response copied.", app)
+        self.assertIn("className='message-actions'", app)
+        self.assertIn('.message-action{display:inline-grid', css)
+        self.assertIn('width:44px', css)
 
     def test_model_guidance_is_role_specific_informational_and_accessible(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
@@ -164,9 +178,9 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertNotIn('▶', html)
         self.assertIn('height:calc(100% - 48px)', css)
         self.assertIn('margin-top:48px', css)
-        self.assertIn('.workspace-main.main{overflow:hidden}', css)
+        self.assertIn('.workspace-main.main{display:block;overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}', css)
         self.assertIn('.panel-content{min-height:0;overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}', css)
-        self.assertIn('.workspace-main .chat-panel{min-height:0;overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}', css)
+        self.assertIn('.workspace-main .chat-panel{min-height:0;overflow:visible}', css)
         self.assertIn('.shell.left-collapsed{--left-panel:0px;--left-resizer:0px}', css)
         self.assertIn('.shell.right-collapsed{--right-panel:0px;--right-resizer:0px}', css)
         self.assertIn('.shell.left-collapsed .sidebar,.shell.right-collapsed .inspector{z-index:5;overflow:visible}', css)

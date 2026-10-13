@@ -12,6 +12,15 @@ const selectors = {Trainer:'trainer-model',Student:'student-model',Evaluator:'ev
 let statusData = null, statusError = false, hintError = '';
 const stageNames = {Trainer:'LEARN - Trainer',Student:'PRACTICE - Student',Evaluator:'EVALUATE - Evaluator',Improver:'IMPROVE - Improver'};
 function agentName(name) { return name; }
+async function copyMessageText(text) {
+  if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(text);
+  const fallback=document.createElement('textarea'); fallback.value=text; fallback.setAttribute('readonly',''); fallback.style.position='fixed'; fallback.style.opacity='0'; document.body.append(fallback); fallback.select();
+  const copied=document.execCommand('copy'); fallback.remove(); if(!copied) throw Error('Copy is unavailable.');
+}
+function messageActionButton(label, icon) {
+  const button=document.createElement('button'); button.className='message-action'; button.type='button'; button.setAttribute('aria-label',label); button.title=label;
+  button.innerHTML=icon; return button;
+}
 function setStatus() {
   $('status').textContent = statusError ? 'Local service is not responding.' : !statusData ? 'Checking local inference engine...' : !statusData.available ? statusData.label+' is not running locally. See README.' : !statusData.models.length ? statusData.label+' is available locally · No compatible local models found.' : statusData.label+' available locally · '+statusData.models.length+' local models';
 }
@@ -33,7 +42,17 @@ function makeMessage(message) {
   const name=document.createElement('span'); name.className='agent-name'; name.textContent=agentName(message.agent);
   const model=document.createElement('span'); model.className='model-name'; model.textContent=message.model?' · '+message.model:'';
   const time=document.createElement('small'); time.textContent=message.created_at||''; const content=document.createElement('div'); content.className='message-text'; content.textContent=message.content;
-  header.append(name,model,time); body.append(header,content); wrap.append(avatar,body); return wrap;
+  header.append(name,model,time); body.append(header,content);
+  if(message.agent!=='You'){
+    const actions=document.createElement('div'); actions.className='message-actions'; actions.setAttribute('aria-label','Response actions');
+    const actionStatus=document.createElement('span'); actionStatus.className='message-action-status'; actionStatus.setAttribute('role','status'); actionStatus.setAttribute('aria-live','polite');
+    const copy=messageActionButton('Copy agent response','<svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3"></path></svg>');
+    copy.addEventListener('click',async()=>{try{await copyMessageText(message.content);actionStatus.textContent='Response copied.';}catch(error){actionStatus.textContent='Could not copy the response.';}});
+    const share=messageActionButton('Share agent response','<svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><path d="M12 16V3"></path><path d="m7 8 5-5 5 5"></path><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"></path></svg>');
+    share.addEventListener('click',async()=>{const text=agentName(message.agent)+': '+message.content;try{if(navigator.share){await navigator.share({title:'AI Agents Lab response',text});actionStatus.textContent='Response shared.';}else{await copyMessageText(text);actionStatus.textContent='Sharing is unavailable. Response copied.';}}catch(error){if(error?.name!=='AbortError')actionStatus.textContent='Could not share the response.';}});
+    actions.append(copy,share,actionStatus); body.append(actions);
+  }
+  wrap.append(avatar,body); return wrap;
 }
 async function refreshHistory() {
   const requestedRoom=room;

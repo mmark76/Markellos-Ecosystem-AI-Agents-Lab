@@ -34,6 +34,44 @@ Target release:
 
 AI agents must not approve their own material scope increases.
 
+## Approved change record — AI-LAB-CC-041
+
+```text
+Change ID: AI-LAB-CC-041
+Requested by: Repository maintainer
+Date: 2026-10-13
+Description: Add Copy and Share controls below each generated agent response in the private Local Lab discussion history.
+Reason: Let the user reuse or explicitly share an individual agent response without selecting text manually.
+Affected objective IDs: AI-LAB-OBJ-011
+Architecture impact: Local presentation behavior only in the message renderer; no server route, model workflow, or database schema change.
+Security and privacy impact: Copy stays in the local clipboard. Share invokes only the browser's native user-initiated share action; unsupported browsers copy the response locally instead. No automatic transmission, telemetry, or remote endpoint is added.
+Data impact: None.
+Testing impact: Add static regression coverage for agent-only controls, clipboard fallback, native share use, and accessible target sizing.
+Cost and schedule impact: None.
+Decision: APPROVED (SCOPE INCREASE)
+Approved by: Direct user request on 2026-10-13
+Target release: Next Local Lab release
+```
+
+## Approved change record — AI-LAB-CC-042
+
+```text
+Change ID: AI-LAB-CC-042
+Requested by: Repository maintainer
+Date: 2026-10-13
+Description: Let the Training Topic composer scroll with the discussion history instead of remaining fixed above an independently scrolling conversation panel.
+Reason: The user prefers one continuous conversation flow.
+Affected objective IDs: AI-LAB-OBJ-011
+Architecture impact: Local CSS layout behavior only; no server route, model workflow, or database schema change.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Replace the independent-conversation-scroll assertion with a regression check for workspace-level scrolling.
+Cost and schedule impact: None.
+Decision: APPROVED (CLARIFICATION)
+Approved by: Direct user request on 2026-10-13
+Target release: Next Local Lab release
+```
+
 ## Approved change record — AI-LAB-CC-039
 
 ```text
