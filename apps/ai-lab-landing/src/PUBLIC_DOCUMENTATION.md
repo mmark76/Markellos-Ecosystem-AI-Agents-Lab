@@ -2,6 +2,24 @@
 
 This public guide describes the released Local Lab as it is, without claiming future or unavailable functionality.
 
+## Quick Start (Windows)
+
+The application is free to use, runs locally, and requires no subscription. After installing prerequisites and downloading a local model, basic inference can work without an Internet connection. Downloads and updates still require connectivity. To ensure fully local Ollama behavior, disable its cloud features as documented in the packaged Local Lab README.
+
+1. Download `AI-Agents-Lab-Windows.zip` from the public landing page; a GitHub account is not required.
+2. Extract the ZIP into a folder on your Windows PC.
+3. Double-click `Start AI Training Lab.bat`. Easy Start checks prerequisites and requests separate approval before installing Python or Ollama, starting Ollama, or downloading the first local model. When setup succeeds, open `http://127.0.0.1:8765/`.
+
+### Understanding the three Windows .bat files
+
+- **`Start AI Training Lab.bat` — recommended:** Beginner-friendly setup and launch. If an earlier package instead has `Start AI Agents Lab.bat`, use that equivalent primary launcher; names vary by package version.
+- **`start-windows.bat` — alternative:** Starts the same readiness-first local workflow for users who prefer the direct Windows launcher.
+- **`setup-training-windows.bat` — advanced setup, not normal installation:** Separate optional fine-tuning setup. Model-weight fine-tuning is currently disabled; do not use this file to start the Lab.
+
+For a more accessible explanation, use the linked `simple-guide.html` page. The following technical release notes remain available in full.
+
+## Technical documentation
+
 ## Public distribution
 
 `AI-Agents-Lab-Windows.zip` for `v1.0.0` is distributed through the public Cloudflare R2 BETA channel, without GitHub authentication. The GitHub repository remains private. The dashboard displays the stable versioned URL and SHA-256 checksum (`98d5b560e5bdbdd6888adcef29c820d793d389fcfda022a56a326a0365af9fc5`) for verification.
