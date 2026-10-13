@@ -197,33 +197,26 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn("confirm(", js)
         self.assertNotIn("$('provider')", js)
 
-    def test_training_workspace_is_local_and_english_only(self):
+    def test_advanced_model_training_is_visible_but_locked(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         app = (STATIC / "app.js").read_text(encoding="utf-8")
-        script = (STATIC / "training.js").read_text(encoding="utf-8")
         self.assertIn('placeholder="e.g. Teach your AI agent how to..."', html)
         self.assertIn("'e.g. Teach your AI agent how to...'", app)
-        for name in ('Advanced: Train a model (optional)', 'For advanced users only.', 'training-dataset',
-                     'training-model', 'training-device', 'setup-training-windows.bat', 'Which technology should I use?'):
+        for name in ('Advanced: Train a model (optional)', 'This option is temporarily locked.',
+                     'confirmed training-worker compatibility issue', 'Under Construction'):
             with self.subTest(name=name): self.assertIn(name, html)
-        self.assertIn('<details class="training-workspace"', html)
-        self.assertNotIn('<details class="training-workspace" open', html)
-        self.assertIn('id="training-model-hint"', html)
-        self.assertIn('id="training-dataset-hint"', html)
-        for name in ('id="training-model-path"', 'id="training-dataset-path"',
-                     'data-copy-training-path="model"', 'data-copy-training-path="dataset"',
-                     'data-open-training-directory="models"', 'data-open-training-directory="datasets"'):
-            with self.subTest(name=name): self.assertIn(name, html)
-        self.assertIn("select.disabled=items.length===0", script)
-        self.assertIn("setTrainingPaths(data.paths)", script)
-        self.assertIn("navigator.clipboard?.writeText", script)
-        self.assertIn("/api/training/open-directory", script)
-        self.assertIn("No compatible model folders found in the directory above.", script)
-        self.assertIn("No .jsonl datasets found in the directory above.", script)
-        self.assertIn('/api/training/jobs', script)
-        self.assertIn("data.error!=='Training environment is not installed.'", script)
+        self.assertIn('<section class="training-workspace training-unavailable"', html)
+        self.assertNotIn('<details class="training-workspace"', html)
+        self.assertNotIn('/static/training.js', html)
+        self.assertNotIn('id="training-form"', html)
+        self.assertNotIn('Review and start training', html)
         self.assertIn('class="nav-status training-status">Under Construction</span>', html)
-        self.assertIn('.training-workspace>summary .training-status', (STATIC / "style.css").read_text(encoding="utf-8"))
+        self.assertIn('.training-workspace.training-unavailable', (STATIC / "style.css").read_text(encoding="utf-8"))
+
+    def test_local_model_status_does_not_imply_internet_connectivity(self):
+        app = (STATIC / "app.js").read_text(encoding="utf-8")
+        self.assertIn("available locally · '+statusData.models.length+' local models", app)
+        self.assertNotIn(" online · ", app)
 
 if __name__ == "__main__":
     unittest.main()
