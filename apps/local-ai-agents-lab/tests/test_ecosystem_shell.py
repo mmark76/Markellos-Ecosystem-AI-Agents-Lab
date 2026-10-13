@@ -107,6 +107,17 @@ class EcosystemShellTests(unittest.TestCase):
             with self.subTest(name=name):
                 self.assertIn(name, html)
 
+    def test_application_controls_are_in_the_left_sidebar(self):
+        html = (STATIC / "index.html").read_text(encoding="utf-8")
+        sidebar = html[html.index('<aside class="sidebar"'):html.index('</aside>')]
+        header = html[html.index('<header class="top">'):html.index('</header>')]
+        for control in ('id="quick-mode"', 'id="info-toggle"', 'id="settings-toggle"'):
+            with self.subTest(control=control):
+                self.assertIn(control, sidebar)
+                self.assertNotIn(control, header)
+        self.assertIn('class="sidebar-utility-actions"', sidebar)
+        self.assertIn('id="ecosystem-link"', header)
+
     def test_three_panel_workspace_controls_are_packaged(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         script = (STATIC / "panel-layout.js").read_text(encoding="utf-8")
