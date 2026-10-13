@@ -45,6 +45,9 @@ a:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 4px; }
 .simple-section { max-width: var(--content-narrow); margin-top: var(--space-12); }
 .simple-section h2 { margin-bottom: var(--space-4); font-size: var(--font-size-2xl); }
 .engine-downloads { max-width: var(--content-wide); }
+.release-history ul { display: grid; gap: var(--space-3); padding: 0; list-style: none; }
+.release-history li { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+.release-history code { overflow-wrap: anywhere; color: var(--color-text-muted); font-size: var(--font-size-xs); }
 .engine-card { min-height: 17rem; }
 .engine-card .primary-button { margin-top: auto; width: fit-content; }
 .steps ol { display: grid; gap: var(--space-4); padding-left: var(--space-5); }

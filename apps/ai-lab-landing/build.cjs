@@ -26,11 +26,19 @@ cpSync(join(__dirname, '_headers'), join(output, '_headers'));
 const releaseVersion = readFileSync(join(root, 'apps', 'local-ai-agents-lab', 'VERSION'), 'utf8').trim();
 if (!/^\d+\.\d+\.\d+$/.test(releaseVersion)) throw new Error('Invalid local Lab VERSION');
 const distribution = JSON.parse(readFileSync(join(__dirname, 'release-distribution.json'), 'utf8'));
-if (!/^\d+\.\d+\.\d+$/.test(distribution.version)) throw new Error('Invalid public distribution version');
-if (!/^https:\/\/pub-[a-z0-9]+\.r2\.dev\/releases\/v\d+\.\d+\.\d+\/AI-Agents-Lab-Windows\.zip$/.test(distribution.url)) throw new Error('Invalid public R2 distribution URL');
-if (!/^[a-f0-9]{64}$/.test(distribution.sha256)) throw new Error('Invalid public release SHA-256');
+if (!Array.isArray(distribution.releases) || distribution.releases.length < 3) throw new Error('At least three public ZIP releases are required');
+const releaseHistory = distribution.releases.slice(0, 3);
+const seenVersions = new Set();
+for (const release of releaseHistory) {
+  if (!/^\d+\.\d+\.\d+$/.test(release.version) || seenVersions.has(release.version)) throw new Error('Invalid or duplicate public distribution version');
+  if (!/^https:\/\/pub-[a-z0-9]+\.r2\.dev\/releases\/v\d+\.\d+\.\d+\/AI-Agents-Lab-Windows\.zip$/.test(release.url)) throw new Error('Invalid public R2 distribution URL');
+  if (!/^[a-f0-9]{64}$/.test(release.sha256)) throw new Error('Invalid public release SHA-256');
+  seenVersions.add(release.version);
+}
+const [currentRelease, ...previousReleases] = releaseHistory;
 const commit = git(['rev-parse', '--short=7', 'HEAD']);
 const buildId = `v${releaseVersion}_${cyprusTimestamp(new Date())}_${commit}`;
 const indexPath = join(output, 'index.html');
-writeFileSync(indexPath, readFileSync(indexPath, 'utf8').replaceAll('{{BUILD_ID}}', buildId).replaceAll('{{RELEASE_VERSION}}', `v${distribution.version}`).replaceAll('{{DISTRIBUTION_URL}}', distribution.url).replaceAll('{{RELEASE_SHA256}}', distribution.sha256));
+const releaseLinks = previousReleases.map(({ version, url, sha256 }) => `<li><a class="secondary-button" data-zip-version="v${version}" data-zip-sha256="${sha256}" href="${url}">Download Windows ZIP (v${version}) <span aria-hidden="true">↓</span></a><code>SHA-256: ${sha256}</code></li>`).join('');
+writeFileSync(indexPath, readFileSync(indexPath, 'utf8').replaceAll('{{BUILD_ID}}', buildId).replaceAll('{{RELEASE_VERSION}}', `v${currentRelease.version}`).replaceAll('{{DISTRIBUTION_URL}}', currentRelease.url).replaceAll('{{RELEASE_SHA256}}', currentRelease.sha256).replaceAll('{{RELEASE_HISTORY}}', releaseLinks));
 console.log(`Built ${output} (${buildId})`);

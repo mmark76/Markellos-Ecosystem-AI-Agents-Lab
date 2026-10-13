@@ -43,6 +43,12 @@
       <div class="hero-actions"><a id="zip-download" class="primary-button" data-zip-version="{{RELEASE_VERSION}}" data-zip-sha256="{{RELEASE_SHA256}}" href="{{DISTRIBUTION_URL}}">Download AI Training Lab for Windows ({{RELEASE_VERSION}}) <span aria-hidden="true">↓</span></a><a class="secondary-button" href="./simple-guide.html" target="_blank" rel="noopener noreferrer">README / Installation Guide <span aria-hidden="true">↗</span></a></div>
     </section>
 
+    <section class="simple-section release-history" aria-labelledby="release-history-title">
+      <p class="eyebrow">RELEASE HISTORY</p><h2 id="release-history-title">Previous Windows ZIPs</h2>
+      <p>The current release and two earlier verified downloads remain available.</p>
+      <ul>{{RELEASE_HISTORY}}</ul>
+    </section>
+
     <section id="overview" class="card-grid" aria-labelledby="what-title">
       <article class="dashboard-card"><p class="card-label">AVAILABLE IN {{RELEASE_VERSION}}</p><h2 id="what-title">Local Agent Training</h2><p>Using Ollama on the same device, the Learning Lab runs the released sequence: Trainer → Student → Evaluator → Improver. It is local-only and requires a running local Ollama model.</p></article>
       <article class="dashboard-card"><p class="card-label">UNDER CONSTRUCTION</p><h2>Agent Collaboration / Conference Room</h2><p>Planner, Researcher, and Reviewer collaboration is under construction for a future release.</p></article>

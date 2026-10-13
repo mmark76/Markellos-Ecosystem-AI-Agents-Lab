@@ -34,6 +34,25 @@ Target release:
 
 AI agents must not approve their own material scope increases.
 
+## Approved change record — AI-LAB-CC-043
+
+```text
+Change ID: AI-LAB-CC-043
+Requested by: Repository maintainer
+Date: 2026-10-13
+Description: Keep the three newest verified Windows ZIP releases available and visible on the public landing page.
+Reason: Let users download a recent release while retaining two prior verified packages for compatibility and rollback.
+Affected objective IDs: AI-LAB-OBJ-003
+Architecture impact: The static distribution manifest becomes a three-entry ordered release history rendered by the landing-page build; the Local Lab runtime is unchanged.
+Security and privacy impact: Every listed R2 URL remains versioned and carries its SHA-256; no new endpoint, credential, or visitor data is added.
+Data impact: Three public ZIP objects are retained in R2.
+Testing impact: Landing build regression verifies exactly three ordered, validated release entries and their rendered links/checksums.
+Cost and schedule impact: Small ongoing R2 storage cost for two retained historical ZIPs.
+Decision: APPROVED (SCOPE INCREASE)
+Approved by: Direct user request on 2026-10-13
+Target release: Next public landing deployment
+```
+
 ## Approved change record — AI-LAB-CC-041
 
 ```text
