@@ -9,7 +9,8 @@ const output = join(app, 'dist');
 const releaseVersion = readFileSync(join(app, '..', 'local-ai-agents-lab', 'VERSION'), 'utf8').trim();
 const distribution = JSON.parse(readFileSync(join(app, 'release-distribution.json'), 'utf8'));
 const escapedReleaseVersion = releaseVersion.replaceAll('.', '\\.');
-const escapedDistributionVersion = distribution.version.replaceAll('.', '\\.');
+const [currentDistribution, ...previousDistributions] = distribution.releases;
+const escapedDistributionVersion = currentDistribution.version.replaceAll('.', '\\.');
 
 test('build truthfully presents the current public state of the Local Lab', () => {
   rmSync(output, { recursive: true, force: true });
@@ -27,15 +28,26 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /<img class="brand-mark" src="\.\/ai-training-lab-mark\.png" alt="AI Training Lab">/);
   assert.match(html, /class="beta-badge">BETA<\/span>/);
   assert.match(styles, /\.beta-badge/);
-  assert.match(distribution.version, /^\d+\.\d+\.\d+$/);
-  assert.match(distribution.url, new RegExp(`/releases/v${escapedDistributionVersion}/AI-Agents-Lab-Windows\\.zip$`));
-  assert.match(distribution.sha256, /^[a-f0-9]{64}$/);
+  assert.equal(distribution.releases.length, 3);
+  assert.deepEqual(distribution.releases.map(({ version }) => version), ['1.1.2', '1.1.1', '1.0.0']);
+  for (const release of distribution.releases) {
+    assert.match(release.version, /^\d+\.\d+\.\d+$/);
+    assert.match(release.url, new RegExp(`/releases/v${release.version.replaceAll('.', '\\.')}/AI-Agents-Lab-Windows\\.zip$`));
+    assert.match(release.sha256, /^[a-f0-9]{64}$/);
+  }
   assert.match(html, new RegExp(`Public BETA download:<\\/strong> The v${escapedDistributionVersion} Windows ZIP is available\\.`));
   assert.doesNotMatch(html, /available without GitHub sign-in/);
   assert.doesNotMatch(html, /Download access note|private GitHub repository.*authorized GitHub access/);
-  assert.match(html, new RegExp(`id="zip-download" class="primary-button" data-zip-version="v${escapedDistributionVersion}" data-zip-sha256="${distribution.sha256}"`));
+  assert.match(html, new RegExp(`id="zip-download" class="primary-button" data-zip-version="v${escapedDistributionVersion}" data-zip-sha256="${currentDistribution.sha256}"`));
   assert.match(html, new RegExp(`Download AI Training Lab for Windows \\(v${escapedDistributionVersion}\\)`));
-  assert.match(html, new RegExp(distribution.url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  assert.match(html, new RegExp(currentDistribution.url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  assert.match(html, /Previous Windows ZIPs/);
+  for (const release of previousDistributions) {
+    const escapedVersion = release.version.replaceAll('.', '\\.');
+    assert.match(html, new RegExp(`Download Windows ZIP \\(v${escapedVersion}\\)`));
+    assert.match(html, new RegExp(release.url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    assert.match(html, new RegExp(release.sha256));
+  }
   assert.doesNotMatch(html, /id="zip-update"/);
   assert.match(html, /Trainer → Student → Evaluator → Improver/);
   assert.match(html, /UNDER CONSTRUCTION/);
