@@ -4,7 +4,7 @@ This public guide describes the released Local Lab as it is, without claiming fu
 
 ## Public distribution
 
-`AI-Agents-Lab-Windows.zip` for `v0.1.24` remains available through the official GitHub Release URL. The repository is private, so downloading may require authorized GitHub access.
+`AI-Agents-Lab-Windows.zip` for `v0.1.24` is distributed through the public Cloudflare R2 BETA channel, without GitHub authentication. The GitHub repository remains private. The dashboard displays the stable versioned URL and SHA-256 checksum (`3a791b964584d00994a737b0d84796f122fe47c3f911a3045d6bdccd1ad47db1`) for verification.
 
 ## Available now
 

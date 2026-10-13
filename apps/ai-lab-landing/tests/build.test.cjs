@@ -7,6 +7,7 @@ const test = require('node:test');
 const app = resolve(__dirname, '..');
 const output = join(app, 'dist');
 const releaseVersion = readFileSync(join(app, '..', 'local-ai-agents-lab', 'VERSION'), 'utf8').trim();
+const distribution = JSON.parse(readFileSync(join(app, 'release-distribution.json'), 'utf8'));
 const escapedReleaseVersion = releaseVersion.replaceAll('.', '\\.');
 
 test('build truthfully presents the current public state of the Local Lab', () => {
@@ -22,11 +23,15 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, new RegExp(`CURRENT RELEASE · v${escapedReleaseVersion} · LOCAL ONLY`));
   assert.match(html, /class="beta-badge">BETA<\/span>/);
   assert.match(styles, /\.beta-badge/);
-  assert.match(html, /Download access note/);
-  assert.match(html, /private GitHub repository.*may require authorized GitHub access/);
-  assert.match(html, new RegExp(`id="zip-download" class="primary-button" data-zip-version="v${escapedReleaseVersion}"`));
+  assert.equal(distribution.version, releaseVersion);
+  assert.match(distribution.url, new RegExp(`/releases/v${escapedReleaseVersion}/AI-Agents-Lab-Windows\\.zip$`));
+  assert.match(distribution.sha256, /^[a-f0-9]{64}$/);
+  assert.match(html, /Public BETA download/);
+  assert.match(html, /available without GitHub sign-in/);
+  assert.doesNotMatch(html, /Download access note|private GitHub repository.*authorized GitHub access/);
+  assert.match(html, new RegExp(`id="zip-download" class="primary-button" data-zip-version="v${escapedReleaseVersion}" data-zip-sha256="${distribution.sha256}"`));
   assert.match(html, new RegExp(`Download AI-Agents-Lab-Windows\\.zip \\(v${escapedReleaseVersion}\\)`));
-  assert.match(html, /https:\/\/github\.com\/mmark76\/Markellos-Ecosystem-AI-Agents-Lab\/releases\/latest\/download\/AI-Agents-Lab-Windows\.zip/);
+  assert.match(html, new RegExp(distribution.url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.doesNotMatch(html, /id="zip-update"/);
   assert.match(html, /Trainer → Student → Evaluator → Improver/);
   assert.match(html, /UNDER CONSTRUCTION/);
@@ -43,7 +48,8 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /id="settings-dialog"/);
   assert.match(html, /id="info-dialog"/);
   assert.doesNotMatch(html, /data-language|language-selector|language-button|Lab Assistant|assistant-button|assistant-dialog/);
-  assert.match(guide, /Download access note/);
+  assert.match(guide, /Public BETA download/);
+  assert.match(guide, new RegExp(distribution.sha256));
   assert.match(guide, /LM Studio and vLLM are not supported/);
   assert.match(guide, /Agent Collaboration \/ Conference Room is disabled/);
   assert.match(guide, /no in-app manual update check/);
