@@ -19,6 +19,7 @@ This project-owned record connects approved scope to implementation, verificatio
 | AI-LAB-OBJ-011 | AI-LAB-SCOPE-011 | One locked session worker with durable serial stage records and best-effort Ollama release | `apps/local-ai-agents-lab/server.py`, `providers.py`, and `static/` | `AI-LAB-TEST-010` | Mocked sequential-routing, no-overlap, unload, migration, failure, and UI-progress tests | Repository maintainer | LOCAL VERIFICATION COMPLETE 2026-10-12 (MOCKED OLLAMA) |
 | AI-LAB-OBJ-012 | AI-LAB-SCOPE-012 | Consent-based Windows prerequisite detection and bootstrap | `apps/local-ai-agents-lab/Start AI Agents Lab.bat`, `start-windows.bat`, and `scripts/easy-start.ps1` | `AI-LAB-TEST-011` | Source/package tests, PowerShell parser check, and clean Windows smoke test | Repository maintainer | SOURCE VERIFICATION PENDING |
 | AI-LAB-OBJ-013 | AI-LAB-SCOPE-013 | Informational role-specific model guidance modal | `apps/local-ai-agents-lab/static/model-guidance-data.js`, `model-guidance.js`, `index.html`, and `style.css` | `AI-LAB-TEST-012` | Static shell, package, and local browser regression checks | Repository maintainer | LOCAL VERIFICATION PENDING |
+| AI-LAB-OBJ-014 | AI-LAB-SCOPE-014 | Consent-gated GA4 adapter with no pre-consent external request | `apps/ai-lab-landing/src/dashboard.js`, `src/index.html`, `src/styles.css`, and `_headers` | `AI-LAB-TEST-013` | Build/source and deterministic DOM/runtime regression; optional GA4 DebugView | Repository maintainer | LOCAL VERIFICATION COMPLETE 2026-10-13; PRODUCTION/DEBUGVIEW PENDING |
 
 ## Engineering Standards adoption
 
@@ -28,7 +29,7 @@ Record the detailed requirement mapping in `../../engineering/requirements/ENG_A
 |---|---|---|---|---|
 | ENG-ARCH-001 | Applicable | Static source, build artifact, and deployment boundary are isolated in `apps/ai-lab-landing/`. | Source review and build test. | VERIFIED 2026-10-09 |
 | ENG-DEP-001 | Applicable | Cloudflare Pages deployment is documented with named output and rollback procedure. | `apps/ai-lab-landing/README.md`. | PENDING EXTERNAL DEPLOYMENT |
-| ENG-SEC-001 | Applicable | No application endpoint, personal data, or third-party script is deployed; restrictive headers are emitted. | Header and artifact inspection. | VERIFIED 2026-10-09 |
+| ENG-SEC-001 | Applicable | No application endpoint or Local Lab data is deployed; the only third-party script is consent-gated GA4 and restrictive headers are emitted. | Header, artifact, and consent regression inspection. | LOCAL VERIFICATION COMPLETE 2026-10-13; PRODUCTION PENDING |
 | ENG-TEST-001 | Applicable | Build output is covered by a Node test. | `apps/ai-lab-landing/tests/build.test.cjs`. | VERIFIED 2026-10-09 |
 | ENG-DOC-001 | Applicable | Scope, deployment configuration, and public/local boundary are documented. | Project records and landing-page README. | VERIFIED 2026-10-09 |
 
@@ -38,7 +39,7 @@ Shield remains authoritative. Record applicable requirement/control IDs, the sel
 
 | Shield ID | Source revision | Applicability | Project control / evidence | Status |
 |---|---|---|---|---|
-| Shield public web controls | d684570fb240fc5a84ff175fe6c16daabbbfdaa4 | Applicable | No scripts, no API, no data collection, restrictive headers, and Cloudflare-managed HTTPS. | LOCAL CONTROLS VERIFIED; HTTPS PENDING EXTERNAL DEPLOYMENT |
+| Shield public web controls | d684570fb240fc5a84ff175fe6c16daabbbfdaa4 | Applicable | No public application API; GA4 is consent-gated, has a narrow event allowlist, and is constrained by restrictive headers and Cloudflare-managed HTTPS. | LOCAL VERIFICATION COMPLETE 2026-10-13; PRODUCTION PENDING |
 
 ## Infrastructure adoption
 

@@ -72,6 +72,25 @@ Approved by: Direct user request on 2026-10-13
 Target release: Next Local Lab release
 ```
 
+## Approved change record — AI-LAB-CC-040
+
+```text
+Change ID: AI-LAB-CC-040
+Requested by: Repository maintainer
+Date: 2026-10-13
+Description: Add consent-gated GA4 measurement to the public Cloudflare Pages landing page, including page/navigation and ZIP-download events, privacy information, and withdrawal controls.
+Reason: The owner requires traffic, geographic, acquisition, engagement, and Windows ZIP-download reporting for the public guide.
+Affected objective IDs: AI-LAB-OBJ-014
+Architecture impact: Adds a small first-party landing-page analytics adapter and narrowly expands the Pages CSP. The Local Lab, Ollama, training, SQLite, and release package remain outside the change.
+Security and privacy impact: Google Analytics is never loaded before explicit consent. Consent Mode v2 signals, a non-sensitive event allowlist, Reject, and withdrawal controls reduce collection to the approved public-site scope.
+Data impact: Stores one analytics-consent preference in browser local storage. GA4 receives only standard website analytics and `zip_download` metadata after consent; no Local Lab or sensitive data is sent.
+Testing impact: Add landing build/source assertions and perform local browser network checks; GA4 DebugView is optional when property access is available.
+Cost and schedule impact: No new runtime dependency or production deployment action.
+Decision: APPROVED (SCOPE_INCREASE)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```
+
 ## Approved change record — AI-LAB-CC-037
 
 ```text

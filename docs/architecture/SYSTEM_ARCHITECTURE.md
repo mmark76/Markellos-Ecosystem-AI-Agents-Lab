@@ -7,7 +7,7 @@ AI Agents Lab has two deliberately separated components:
 | Component | Purpose | Exposure | Data boundary |
 |---|---|---|---|
 | Local Lab | Local learning and role-based agent conversations using Ollama. | Windows loopback only (`127.0.0.1`). | Local SQLite session history and downloaded local models. |
-| Public landing page | Explain installation, local-only use, and release downloads. | Static HTTPS through Cloudflare Pages. | No application or visitor data. |
+| Public landing page | Explain installation, local-only use, and release downloads. | Static HTTPS through Cloudflare Pages; GA4 loads only after visitor consent. | No application or Local Lab data; consented standard web analytics and a ZIP-download event only. |
 
 The public site never proxies, embeds, or routes to the Local Lab, Ollama, or SQLite. The Local Lab never requires a cloud API key or public ingress.
 
@@ -34,7 +34,7 @@ The public site never proxies, embeds, or routes to the Local Lab, Ollama, or SQ
 1. A local browser communicates with the Local Lab at `127.0.0.1:8765`.
 2. The Lab communicates only with Ollama at `127.0.0.1:11434`; it does not accept an engine identifier or URL.
 3. Local conversation records are stored in the Lab SQLite database and are excluded from Git.
-4. Public visitors receive only static landing-page files through Cloudflare Pages.
+4. Public visitors receive static landing-page files through Cloudflare Pages. Before analytics consent, the page makes no Google Analytics request. After consent, GA4 receives page/navigation and ZIP-download events only.
 5. Training requests select only local `models/` and `training-data/` entries; the optional worker writes adapters/checkpoints to `training-output/` and never uses inference adapters or SQLite history.
 
 ## Deployment and recovery
@@ -42,4 +42,4 @@ The public site never proxies, embeds, or routes to the Local Lab, Ollama, or SQ
 - Local Lab: an owner-controlled Windows installation; release packaging is verified before distribution.
 - Public landing page: `apps/ai-lab-landing/dist` is the only Cloudflare Pages artifact; rollback uses Pages deployment history.
 - Local data recovery: stop the local server before copying or restoring the SQLite database.
-- No production database, secrets manager, public API, or shared runtime is in the approved scope.
+- No production database, public API, or shared runtime is in the approved scope. The GA4 Measurement ID is public configuration, not a credential; no GA4 secret is stored in this repository.

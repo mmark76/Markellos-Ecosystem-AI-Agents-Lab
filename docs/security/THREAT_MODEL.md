@@ -5,9 +5,9 @@ Complete this project-owned record before development readiness and reassess it 
 ## Context
 
 - Selected Shield source revision/baseline: `d684570fb240fc5a84ff175fe6c16daabbbfdaa4`; public static-site controls.
-- Assets and data classification: public instructional content and deployment integrity; no user data, credentials, application database, or models.
+- Assets and data classification: public instructional content, deployment integrity, and consented web-analytics events; no credentials, application database, Local Lab conversations, or models.
 - Actors and trust boundaries: anonymous readers access Cloudflare Pages over HTTPS; maintainers control the Git repository and Cloudflare project. The local Lab is outside this boundary.
-- Entry points and dependencies: HTTPS GET requests to Cloudflare Pages; Cloudflare Pages and the repository build process.
+- Entry points and dependencies: HTTPS GET requests to Cloudflare Pages; Cloudflare Pages, the repository build process, and GA4 only after visitor consent.
 - Assumptions and out-of-scope items: the local Lab may call only the fixed loopback Ollama API. Hosting the Lab, LM Studio, vLLM, arbitrary endpoints, RunPod, Cloud Core, and its SQLite database are out of scope.
 
 ## Threats and treatments
@@ -25,5 +25,6 @@ Complete this project-owned record before development readiness and reassess it 
 | AI-LAB-THR-007 | Local Ollama model-management boundary | A crafted model name redirects a download, triggers code execution, or causes an unapproved resource-consuming pull. | Medium | Medium | Strict model identifier regex, fixed loopback endpoint, no shell, exact-origin writes, explicit confirmation, one job, progress, errors, and documented disk/network/licensing risks. | `tests/test_model_install.py`, HTTP and UI regression tests. | Repository maintainer | PENDING VERIFICATION |
 | AI-LAB-THR-008 | Local update-check boundary | A compromised or malformed response redirects the user to an untrusted download or silently changes the device. | Low | High | One fixed API endpoint, bounded response and timeout, semantic-version parsing, GitHub repository URL-prefix validation, explicit link click, and no download/install/launch behavior. | `tests/test_updates.py`, shell/package tests, and source review. | Repository maintainer | PENDING VERIFICATION |
 | AI-LAB-THR-009 | Windows Easy Start boundary | A beginner launcher silently changes the device, uses arbitrary software or URLs, or downloads a model without meaningful consent. | Medium | High | Readiness-first checks; fixed winget IDs; fixed loopback Ollama URLs; separate default-No confirmation before each device-changing action; no arbitrary script, driver, CUDA, update, or training path. | Package/source regression tests and clean Windows smoke test. | Repository maintainer | SOURCE VERIFICATION PENDING |
+| AI-LAB-THR-010 | Public analytics consent boundary | GA4 loads before consent, records duplicate events, or receives Local Lab/sensitive data. | Medium | Medium | No unconditional Google tag; local consent state defaults to no choice; dynamic tag load only after Accept; reject/withdraw disable future events; fixed page-view and ZIP-download event allowlist; narrow CSP. | Landing build/source regression and browser network inspection. | Repository maintainer | LOCAL VERIFICATION COMPLETE 2026-10-13; PRODUCTION/DEBUGVIEW PENDING |
 
 Unknown evidence is not a pass. Record approved deviations in `docs/governance/EXCEPTIONS.md` with risk, compensating controls, owner, approval, and review/expiry details.
