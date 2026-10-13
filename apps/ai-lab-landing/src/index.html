@@ -43,10 +43,7 @@
     </section>
 
     <section id="overview" class="card-grid" aria-labelledby="what-title">
-      <article class="dashboard-card"><p class="card-label">AVAILABLE IN {{RELEASE_VERSION}}</p><h2 id="what-title">Local Agent Training</h2><p>Using Ollama on the same device, the Learning Lab runs the released sequence: Trainer → Student → Evaluator → Improver. It is local-only and requires a running local Ollama model; LM Studio and vLLM are not supported.</p></article>
-      <article class="dashboard-card"><p class="card-label">UNDER CONSTRUCTION</p><h2>Agent Collaboration / Conference Room</h2><p>The released interface keeps this room disabled. Planner, Researcher, and Reviewer code exists, but the feature is not available to users in {{RELEASE_VERSION}}.</p></article>
-      <article class="dashboard-card"><p class="card-label">NOT YET OPERATIONAL</p><h2>Advanced model fine-tuning</h2><p>Optional parameter fine-tuning is not operational in {{RELEASE_VERSION}}. Its training worker has a confirmed compatibility issue that must be resolved before it can be presented as available.</p></article>
-      <article class="dashboard-card"><p class="card-label">NOT IMPLEMENTED</p><h2>Manual update check in the Local App</h2><p>The released Local App has no in-app update checker. A future manual check must be explicitly implemented and must never download or install updates automatically.</p></article>
+      <article class="dashboard-card"><p class="card-label">AVAILABLE IN {{RELEASE_VERSION}}</p><h2 id="what-title">Local Agent Training</h2><p>Using Ollama on the same device, the Learning Lab runs the released sequence: Trainer → Student → Evaluator → Improver. It is local-only and requires a running local Ollama model.</p></article>
     </section>
 
     <section id="engines" class="simple-section engine-downloads" aria-labelledby="engines-title">
@@ -67,7 +64,6 @@
         <li><strong>Start the local server from the extracted ZIP folder.</strong> Open <code>start-windows.bat</code> in that extracted folder (or run <code>py -3 server.py</code> there) and keep its window open. Its first run creates a Desktop shortcut that continues to open this extracted copy.</li>
         <li><strong>Only after the local server has started, open the local address.</strong> When the <code>start-windows.bat</code> window confirms that the Lab is running, select <a class="inline-link" href="http://127.0.0.1:8765/">Open Local Lab</a>. The link cannot start the Lab by itself.</li>
       </ol>
-      <p class="shell-notice"><strong>Updates — current state:</strong> The Local App in {{RELEASE_VERSION}} has no manual in-app update check. If an authorized newer ZIP is provided, update manually: stop the Lab, back up <code>data/campus.sqlite3</code>, extract the new ZIP to a new folder, and start that copy once to refresh the Desktop shortcut.</p>
     </section>
 
     <section id="privacy" class="simple-section" aria-labelledby="privacy-title">

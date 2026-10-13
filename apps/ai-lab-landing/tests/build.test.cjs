@@ -38,8 +38,8 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /NOT YET OPERATIONAL/);
   assert.match(html, /confirmed compatibility issue/);
   assert.match(html, /Manual update check in the Local App/);
-  assert.doesNotMatch(html, /card-label">SUPPORTED PROVIDER|<h2>Ollama only<\/h2>/);
-  assert.match(html, /LM Studio and vLLM are not supported/);
+  assert.doesNotMatch(html, /card-label">SUPPORTED PROVIDER|<h2>Ollama only<\/h2>|LM Studio and vLLM are not supported/);
+  assert.doesNotMatch(html, /UNDER CONSTRUCTION|Conference Room|NOT YET OPERATIONAL|Advanced model fine-tuning|NOT IMPLEMENTED|Manual update check in the Local App/);
   assert.match(html, /https:\/\/ollama\.com\/download/);
   assert.doesNotMatch(html, /https:\/\/lmstudio\.ai\/download|https:\/\/docs\.vllm\.ai/);
   assert.match(html, /href="http:\/\/127\.0\.0\.1:8765\/"/);
@@ -49,9 +49,6 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.doesNotMatch(html, /data-language|language-selector|language-button|Lab Assistant|assistant-button|assistant-dialog/);
   assert.match(guide, /Public BETA download/);
   assert.match(guide, new RegExp(distribution.sha256));
-  assert.match(guide, /LM Studio and vLLM are not supported/);
-  assert.match(guide, /Agent Collaboration \/ Conference Room is disabled/);
-  assert.match(guide, /no in-app manual update check/);
   assert.doesNotMatch(script, /checkForZipUpdate|scheduleZipUpdateChecks|downloaded-zip-version/);
   assert.match(script, /typeof module !== 'undefined'/);
   for (const file of ['styles.css', 'tokens.css', 'dashboard.js', '_headers', 'README.md', 'simple-guide.html']) assert.equal(existsSync(join(output, file)), true, `${file} is missing`);
