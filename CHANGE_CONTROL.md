@@ -53,6 +53,25 @@ Approved by: Direct user request on 2026-10-13
 Target release: Next Local Lab release
 ```
 
+## Approved change record — AI-LAB-CC-042
+
+```text
+Change ID: AI-LAB-CC-042
+Requested by: Repository maintainer
+Date: 2026-10-13
+Description: Let the Training Topic composer scroll with the discussion history instead of remaining fixed above an independently scrolling conversation panel.
+Reason: The user prefers one continuous conversation flow.
+Affected objective IDs: AI-LAB-OBJ-011
+Architecture impact: Local CSS layout behavior only; no server route, model workflow, or database schema change.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Replace the independent-conversation-scroll assertion with a regression check for workspace-level scrolling.
+Cost and schedule impact: None.
+Decision: APPROVED (CLARIFICATION)
+Approved by: Direct user request on 2026-10-13
+Target release: Next Local Lab release
+```
+
 ## Approved change record — AI-LAB-CC-039
 
 ```text
