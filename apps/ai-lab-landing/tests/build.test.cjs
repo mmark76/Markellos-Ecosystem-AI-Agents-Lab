@@ -58,6 +58,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /id="analytics-dialog"/);
   assert.match(html, /id="manage-analytics"/);
   assert.match(html, /Google Analytics 4 measures page use, traffic source, approximate geographic distribution, and Windows ZIP download interactions/);
+  assert.match(styles, /\.analytics-consent-banner\[hidden\] \{ display: none !important; \}/);
   assert.doesNotMatch(html, /googletagmanager\.com\/gtag/);
   assert.doesNotMatch(html, /data-language|language-selector|language-button|Lab Assistant|assistant-button|assistant-dialog/);
   assert.match(guide, /Before you begin/);
