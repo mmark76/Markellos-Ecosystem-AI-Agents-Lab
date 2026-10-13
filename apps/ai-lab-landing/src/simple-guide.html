@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <title>Simple Guide · AI Training Lab</title>
+  <title>README / Installation Guide · AI Training Lab</title>
   <link rel="stylesheet" href="./tokens.css">
   <link rel="stylesheet" href="./styles.css">
 </head>
@@ -12,18 +12,42 @@
   <header class="site-header"><div class="header-inner"><a class="brand-lockup" href="./" aria-label="AI Training Lab home"><span class="brand-mark" aria-hidden="true">AI</span><span class="brand-copy"><span class="project-label">MARKELLOS ECOSYSTEM</span><span class="project-name">AI Training Lab</span></span></a></div></header>
   <main class="main-content">
     <section class="simple-section guide" aria-labelledby="guide-title">
-      <p class="eyebrow">SIMPLE START GUIDE</p>
-      <h1 id="guide-title">Start AI Training Lab</h1>
-      <p class="hero-copy">A short guide for your first use on Windows.</p>
-      <p class="shell-notice"><strong>Before you begin:</strong> You need a Windows computer, an Internet connection for the first setup, and at least 3 GiB of free disk space.</p>
+      <p class="eyebrow">README / INSTALLATION GUIDE</p>
+      <h1 id="guide-title">Install and use AI Training Lab</h1>
+      <p class="hero-copy">Begin with the simple instructions below, then explore the technical details on the same page.</p>
+      <p><a class="inline-link" href="#quick-start">Quick Start</a> · <a class="inline-link" href="#technical-documentation">Technical Documentation</a></p>
+
+      <h2 id="quick-start">Quick Start (Windows)</h2>
+      <p>The Lab lets you experiment with local AI agents through a Trainer → Student → Evaluator → Improver learning-and-feedback cycle. It is free to use, needs no subscription, and runs on your own computer rather than on this public website.</p>
+      <p class="shell-notice"><strong>Before you begin:</strong> Use a Windows computer with at least 3 GiB of free disk space and an Internet connection for any missing prerequisites or initial AI model downloads. Larger models may require substantially more disk space and memory.</p>
       <h2>Start in three steps</h2>
       <ol>
-        <li>Download <strong>AI-Agents-Lab-Windows.zip</strong> from this dashboard. You do not need a GitHub account.</li>
-        <li>Extract the ZIP into a folder such as Documents.</li>
-        <li>Double-click <strong>Start AI Training Lab.bat</strong>. Easy Start checks your computer and asks separately before installing Python, Ollama, or the first local AI model. It starts the Lab automatically when ready.</li>
+        <li>Download <strong>AI-Agents-Lab-Windows.zip</strong> from the <a class="inline-link" href="./">public dashboard</a>. You do not need a GitHub account.</li>
+        <li>Extract the ZIP to a folder you control, such as Documents. Run the launcher from the extracted folder, not from inside the ZIP.</li>
+        <li>Double-click <strong>Start AI Agents Lab.bat</strong>. Easy Start checks your computer and asks separately before installing Python, Ollama, or the first local AI model. It starts the Lab automatically when ready.</li>
       </ol>
-      <p class="shell-notice"><strong>Ready:</strong> Choose your installed model and begin Local Agent Training: Trainer → Student → Evaluator → Improver.</p>
-      <p>Agent Collaboration is under construction and will be available in a future release. Advanced model training is temporarily locked in this release.</p>
+      <h2>Which Windows .bat file should I use?</h2>
+      <ol>
+        <li><strong><code>Start AI Agents Lab.bat</code> — recommended.</strong> The main beginner-friendly launcher. It checks the prerequisites, requests approval for any required setup, and starts the Lab. The publicly distributed v1.0.0 ZIP uses this filename. If a future ZIP has a different launcher name, follow the README included with that ZIP.</li>
+        <li><strong><code>start-windows.bat</code> — alternative launcher.</strong> Intended for users who prefer the direct Windows start script. It performs the same Easy Start readiness checks before launching the local server.</li>
+        <li><strong><code>setup-training-windows.bat</code> — advanced training setup only.</strong> It is separate from normal installation. Optional model-weight fine-tuning is currently disabled in this release, so this file is not needed and should not be run to start the Lab.</li>
+      </ol>
+      <p class="shell-notice"><strong>Ready:</strong> The Lab opens at <a class="inline-link" href="http://127.0.0.1:8765/">http://127.0.0.1:8765/</a> after its local server starts. Choose an installed Ollama model and start a learning session.</p>
+      <p>After the initial setup and local model downloads, the basic application can run offline. Installing or updating software or downloading additional AI models requires Internet access.</p>
+
+      <h2 id="technical-documentation">Technical Documentation</h2>
+      <h2>How local agent learning works</h2>
+      <p>The current Lab uses a Trainer, Student, Evaluator, and Improver in a sequential workflow. The cycle produces responses and feedback; it does <strong>not</strong> retrain model weights or demonstrate objective improvement in model capability. Agent Collaboration is under construction; the Conference Room is not yet available.</p>
+      <h2>Local runtime and privacy</h2>
+      <p>The Lab server is available only at <code>127.0.0.1:8765</code> and talks to local Ollama at <code>127.0.0.1:11434</code>. The public website does not run the Lab, host a model, collect conversations, or expose the local server. The released inference provider is Ollama only.</p>
+      <p>For fully local Ollama operation, disable Ollama cloud features using <code>disable_ollama_cloud: true</code> in <code>%USERPROFILE%\.ollama\server.json</code> while retaining other settings, and restart Ollama. Alternatively, set <code>OLLAMA_NO_CLOUD=1</code> in the Ollama process environment. Use installed local models only. This additional setting matters: a local web address alone does not guarantee that Ollama cloud features are disabled.</p>
+      <p>Conversation history is stored in a local SQLite file (<code>data/campus.sqlite3</code>) without application-level encryption. Other people with access to the same Windows account or device may be able to read it. Use device encryption where needed.</p>
+      <h2>Setup, models, and troubleshooting</h2>
+      <p>Easy Start reuses compatible Python, Ollama, and existing local models. If a required component is missing, it requests a separate confirmation before installing Python, installing Ollama, starting the local Ollama service, or downloading the initial <code>qwen2.5:0.5b</code> model. If approval is declined, the required setup will not continue.</p>
+      <p>If the Lab does not start, first check that Easy Start completed, that Ollama is running locally, and that port <code>8765</code> is free. Close the server window or use <code>Ctrl+C</code> to stop the Lab. Additional model downloads are optional and require approval and Internet access.</p>
+      <h2>Feature status, updates, and reference</h2>
+      <p>Advanced model fine-tuning is not operational in the current release; the Conference Room is not yet available. Updates are manual: stop the Lab, back up <code>data/campus.sqlite3</code>, then extract a new official ZIP separately and preserve your data and installed Ollama models.</p>
+      <p>Read the <a class="inline-link" href="./README.md">public technical README</a> for release-specific documentation, and the <code>README.md</code> inside your downloaded ZIP for fuller Local Lab technical, configuration, backup, and migration information.</p>
     </section>
   </main>
 </body>

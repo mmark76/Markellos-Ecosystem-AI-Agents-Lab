@@ -34,6 +34,25 @@ Target release:
 
 AI agents must not approve their own material scope increases.
 
+## Approved change record — AI-LAB-CC-039
+
+```text
+Change ID: AI-LAB-CC-039
+Requested by: Repository maintainer
+Date: 2026-10-13
+Description: Expand the public README / Installation Guide in English with a beginner Quick Start, explanations of the three Windows BAT launchers, and a technical documentation section that preserves the existing detailed public README.
+Reason: Give new users a reliable first-install path while retaining technical instructions and truthful current-feature status.
+Affected objective IDs: AI-LAB-OBJ-001, AI-LAB-OBJ-003
+Architecture impact: Static landing-page documentation and existing guide link only; no Local Lab code, ZIP artifact, deployment settings, or provider changes.
+Security and privacy impact: Clarifies first-use network requirements, local-only boundaries, and Ollama cloud-disable configuration; no new APIs, credentials, telemetry, or connections.
+Data impact: None.
+Testing impact: Extend the existing landing build regression to cover the README link, BAT explanations, offline caveats, and retained technical sections.
+Cost and schedule impact: Limited documentation and regression update; production publication requires separate verification.
+Decision: APPROVED (CLARIFICATION)
+Approved by: Direct user request on 2026-10-13
+Target release: Next controlled public landing-page deployment
+```
+
 ## Approved change record — AI-LAB-CC-038
 
 ```text
