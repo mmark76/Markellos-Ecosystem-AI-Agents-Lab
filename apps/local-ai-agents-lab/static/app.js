@@ -12,7 +12,7 @@ let statusData = null, statusError = false, hintError = '';
 const stageNames = {Trainer:'LEARN - Trainer',Student:'PRACTICE - Student',Evaluator:'EVALUATE - Evaluator',Improver:'IMPROVE - Improver'};
 function agentName(name) { return name; }
 function setStatus() {
-  $('status').textContent = statusError ? 'Local service is not responding.' : !statusData ? 'Checking local inference engine...' : !statusData.available ? statusData.label+' is not running locally. See README.' : !statusData.models.length ? statusData.label+' is online · No compatible local models found.' : statusData.label+' online · '+statusData.models.length+' local models';
+  $('status').textContent = statusError ? 'Local service is not responding.' : !statusData ? 'Checking local inference engine...' : !statusData.available ? statusData.label+' is not running locally. See README.' : !statusData.models.length ? statusData.label+' is available locally · No compatible local models found.' : statusData.label+' available locally · '+statusData.models.length+' local models';
 }
 function updateUI() {
   $('training-model-selects').hidden=room!=='university'; $('collaboration-model-select').hidden=room==='university';
