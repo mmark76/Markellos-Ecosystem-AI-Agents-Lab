@@ -21,6 +21,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
 
   assert.match(html, new RegExp(`v${escapedReleaseVersion}_\\d{8}_\\d{4}_[0-9a-f]{7}`));
   assert.doesNotMatch(html, /\{\{BUILD_ID\}\}|\{\{RELEASE_VERSION\}\}/);
+  assert.match(html, /styles\.css\?v=v\d+\.\d+\.\d+_\d{8}_\d{4}_[a-f0-9]{7}/);
   assert.match(html, new RegExp(`CURRENT RELEASE · v${escapedDistributionVersion} · LOCAL ONLY`));
   assert.match(html, new RegExp(`<h1 id="page-title">AI Training Lab v${escapedDistributionVersion}<\\/h1>`));
   assert.match(html, /<img class="brand-mark" src="\.\/ai-training-lab-mark\.png" alt="AI Training Lab">/);
