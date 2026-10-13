@@ -17,6 +17,15 @@ test('invalid version, SHA, and time are rejected',()=>{
   assert.throws(()=>formatBuildId('1.0.0','not-a-git-sha','2026-01-15T12:00:00Z'));
   assert.throws(()=>formatBuildId('1.0.0',sha,'nonsense'));
 });
+test('all seven role prompt files are included in the Windows release',()=>{
+  const root=path.resolve(__dirname,'..');
+  const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
+  for(const role of ["trainer","student","evaluator","improver","planner","researcher","reviewer"]){
+    const name='prompts/'+role+'.txt';
+    assert.ok(fs.readFileSync(path.join(root,name),'utf8').trim());
+    assert.ok(packager.includes("'"+name+"'"));
+  }
+});
 test('Windows training wizard is packaged and opt-in',()=>{
   const root=path.resolve(__dirname,'..');
   const launcher=fs.readFileSync(path.join(root,'setup-training-windows.bat'),'utf8');

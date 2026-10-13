@@ -36,6 +36,17 @@ class CampusTests(unittest.TestCase):
         self.assertEqual(campus.FLOW["training"], ["Trainer", "Student", "Evaluator", "Improver"])
         self.assertTrue(all(role in campus.PROMPTS for role in campus.FLOW["training"]))
 
+    def test_all_seven_agent_prompts_load_from_role_files(self):
+        expected = ("Trainer", "Student", "Evaluator", "Improver", "Planner", "Researcher", "Reviewer")
+        self.assertEqual(campus.PROMPT_ROLES, expected)
+        self.assertEqual(set(campus.PROMPTS), set(expected))
+        for role in expected:
+            prompt_file = campus.ROOT / "prompts" / (role.lower() + ".txt")
+            with self.subTest(role=role):
+                self.assertTrue(prompt_file.is_file())
+                self.assertEqual(campus.PROMPTS[role], prompt_file.read_text(encoding="utf-8").strip())
+                self.assertTrue(campus.PROMPTS[role])
+
     def test_four_stage_cycle_is_strictly_serial_and_persists_every_result(self):
         session_id = campus.create_training_session("ollama", self.assignments())
         calls, unloads, active = [], [], [0]
