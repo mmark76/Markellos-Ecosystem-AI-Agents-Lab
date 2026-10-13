@@ -15,7 +15,7 @@
       <div class="identity-row">
         <a class="brand-lockup" href="#home" aria-label="AI Agents Lab home">
         <span class="brand-mark" aria-hidden="true">AI</span>
-          <span class="brand-copy"><span class="project-label">MARKELLOS ECOSYSTEM</span><span class="project-name">AI Agents Lab</span></span>
+          <span class="brand-copy"><span class="project-label">MARKELLOS ECOSYSTEM</span><span class="project-name">AI Agents Lab <span class="beta-badge">BETA</span></span></span>
         </a>
         <div class="header-actions" aria-label="Dashboard utilities">
           <a class="ecosystem-link" href="https://markellosecosystem.com/">Back to markellosecosystem</a>
@@ -37,50 +37,50 @@
 
   <main id="home" class="main-content">
     <section class="hero" aria-labelledby="page-title">
-      <p class="eyebrow">FREE VERSION · SAFE · PRIVATE</p>
-      <h1 id="page-title">Train your AI agents on your own device.</h1>
-      <p class="shell-notice">This public page is a guide only. Download the ZIP to enter the Lab.</p>
-      <div class="hero-actions"><a id="zip-download" class="primary-button" data-zip-version="{{RELEASE_VERSION}}" href="https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/latest/download/AI-Agents-Lab-Windows.zip">Download AI-Agents-Lab-Windows.zip ({{RELEASE_VERSION}}) <span aria-hidden="true">↓</span></a><a class="secondary-button" href="./simple-guide.html" target="_blank" rel="noopener noreferrer">Simple Guide <span aria-hidden="true">↗</span></a></div>
+      <p class="eyebrow">CURRENT RELEASE · {{RELEASE_VERSION}} · LOCAL ONLY</p>
+      <h1 id="page-title">The verified state of AI Agents Lab {{RELEASE_VERSION}}.</h1>
+      <p class="shell-notice"><strong>Public ZIP distribution is currently unavailable.</strong> The {{RELEASE_VERSION}} ZIP is hosted in a private GitHub repository and cannot be downloaded anonymously. This page describes the released Local Lab without implying that a public download is available.</p>
+      <div class="hero-actions"><a class="secondary-button" href="./simple-guide.html" target="_blank" rel="noopener noreferrer">Read the current-state guide <span aria-hidden="true">↗</span></a></div>
     </section>
 
     <section id="overview" class="card-grid" aria-labelledby="what-title">
-      <article class="dashboard-card"><p class="card-label">LEARNING SPACE</p><h2 id="what-title">University room</h2><p>A professor and student agents turn a topic into a practical lesson, exercise, alternative solution, and feedback.</p></article>
-      <article class="dashboard-card"><p class="card-label">DISCUSSION SPACE</p><h2>Conference room</h2><p>A planner, researcher, and reviewer examine any topic with goals, alternative perspectives, and a practical next step in mind.</p></article>
-      <article class="dashboard-card"><p class="card-label">SERVICE BOUNDARY</p><h2>Local by design</h2><p>The Lab connects to Ollama, LM Studio, or vLLM running locally. It has no hosted AI API, analytics, or cloud chat backend.</p></article>
+      <article class="dashboard-card"><p class="card-label">AVAILABLE IN {{RELEASE_VERSION}}</p><h2 id="what-title">Local Agent Training</h2><p>Using Ollama on the same device, the Learning Lab runs the released sequence: Trainer → Student → Evaluator → Improver. It is local-only and requires a running local Ollama model.</p></article>
+      <article class="dashboard-card"><p class="card-label">UNDER CONSTRUCTION</p><h2>Agent Collaboration / Conference Room</h2><p>The released interface keeps this room disabled. Planner, Researcher, and Reviewer code exists, but the feature is not available to users in {{RELEASE_VERSION}}.</p></article>
+      <article class="dashboard-card"><p class="card-label">NOT YET OPERATIONAL</p><h2>Advanced model fine-tuning</h2><p>Optional parameter fine-tuning is not operational in {{RELEASE_VERSION}}. Its training worker has a confirmed compatibility issue that must be resolved before it can be presented as available.</p></article>
+      <article class="dashboard-card"><p class="card-label">NOT IMPLEMENTED</p><h2>Manual update check in the Local App</h2><p>The released Local App has no in-app update checker. A future manual check must be explicitly implemented and must never download or install updates automatically.</p></article>
+      <article class="dashboard-card"><p class="card-label">SUPPORTED PROVIDER</p><h2>Ollama only</h2><p>The released Local App connects only to Ollama at its fixed loopback address. LM Studio and vLLM are not supported inference providers in {{RELEASE_VERSION}}.</p></article>
     </section>
 
     <section id="engines" class="simple-section engine-downloads" aria-labelledby="engines-title">
-      <p class="eyebrow">LOCAL INFERENCE ENGINES</p><h2 id="engines-title">Choose the provider that fits your setup.</h2>
+      <p class="eyebrow">LOCAL INFERENCE PROVIDER</p><h2 id="engines-title">Use Ollama for this release.</h2>
       <div class="card-grid">
-        <article class="dashboard-card engine-card"><p class="card-label">RECOMMENDED START</p><h2>Ollama</h2><p>A straightforward local runtime for Windows, macOS, and Linux.</p><a class="primary-button" href="https://ollama.com/download">Download Ollama <span aria-hidden="true">↗</span></a></article>
-        <article class="dashboard-card engine-card"><p class="card-label">DESKTOP APP</p><h2>LM Studio</h2><p>A desktop app for running local models and an OpenAI-compatible local server.</p><a class="primary-button" href="https://lmstudio.ai/download">Download LM Studio <span aria-hidden="true">↗</span></a></article>
-        <article class="dashboard-card engine-card"><p class="card-label">HIGH-PERFORMANCE SERVING</p><h2>vLLM</h2><p>For Linux or compatible WSL2/GPU setups. Follow its installation guide; it is not a native Windows desktop download.</p><a class="primary-button" href="https://docs.vllm.ai/en/latest/getting_started/quickstart/">Open vLLM install guide <span aria-hidden="true">↗</span></a></article>
+        <article class="dashboard-card engine-card"><p class="card-label">REQUIRED FOR INFERENCE</p><h2>Ollama</h2><p>A local runtime for Windows, macOS, and Linux. AI Agents Lab {{RELEASE_VERSION}} uses only Ollama at <code>127.0.0.1:11434</code>.</p><a class="primary-button" href="https://ollama.com/download">Download Ollama <span aria-hidden="true">↗</span></a></article>
       </div>
     </section>
 
     <section id="start" class="simple-section steps" aria-labelledby="start-title">
-      <p class="eyebrow">GET STARTED</p><h2 id="start-title">Run the Lab locally.</h2>
+      <p class="eyebrow">INSTALLATION STATUS</p><h2 id="start-title">What is required when public distribution is restored.</h2>
       <ol>
-        <li><strong>Download and extract the ZIP.</strong> Extract it to a folder you control, such as <code>Documents\\AI-Agents-Lab</code>. There is no hidden installation folder: this extracted folder is the Lab.</li>
-        <li><strong>Install Python and choose a local engine.</strong> Install <a class="inline-link" href="https://www.python.org/downloads/windows/">Python 3.9 or later for Windows</a>, then use one of the official provider links above.</li>
-        <li><strong>Run a local model or server.</strong> With Ollama, for example, run <code>ollama pull qwen3:4b</code>; the Lab uses its local address, <code>127.0.0.1:11434</code>. LM Studio and vLLM expose OpenAI-compatible local servers on their configured loopback addresses.</li>
+        <li><strong>Obtain the ZIP only through an authorized distribution path.</strong> The current public GitHub Release link is unavailable to anonymous visitors because its repository is private.</li>
+        <li><strong>Extract the ZIP.</strong> When an authorized copy is available, extract it to a folder you control, such as <code>Documents\\AI-Agents-Lab</code>. There is no hidden installation folder: this extracted folder is the Lab.</li>
+        <li><strong>Install Python and Ollama.</strong> Install <a class="inline-link" href="https://www.python.org/downloads/windows/">Python 3.9 or later for Windows</a>, then install Ollama from the official link above.</li>
+        <li><strong>Run a local Ollama model.</strong> For example, run <code>ollama pull qwen3:4b</code>; the Lab uses Ollama only at <code>127.0.0.1:11434</code>.</li>
         <li><strong>Keep Ollama local-only if you use it.</strong> Add <code>"disable_ollama_cloud": true</code> to <code>%USERPROFILE%\.ollama\server.json</code>, preserving any existing settings, then restart Ollama. Use downloaded local models, not names ending in <code>:cloud</code>.</li>
         <li><strong>Start the local server from the extracted ZIP folder.</strong> Open <code>start-windows.bat</code> in that extracted folder (or run <code>py -3 server.py</code> there) and keep its window open. Its first run creates a Desktop shortcut that continues to open this extracted copy.</li>
         <li><strong>Only after the local server has started, open the local address.</strong> When the <code>start-windows.bat</code> window confirms that the Lab is running, select <a class="inline-link" href="http://127.0.0.1:8765/">Open Local Lab</a>. The link cannot start the Lab by itself.</li>
       </ol>
-      <p class="shell-notice"><strong>Manual updates — important:</strong> You do not download the ZIP each time you start the Lab. Download a new <code>AI-Agents-Lab-Windows.zip</code> only when you choose to update to a newer version. Keep your existing local models and back up <code>data/campus.sqlite3</code> before moving to the new extracted folder. Then run <code>start-windows.bat</code> there once to update the Desktop shortcut.</p>
+      <p class="shell-notice"><strong>Updates — current state:</strong> The Local App in {{RELEASE_VERSION}} has no manual in-app update check. If an authorized newer ZIP is provided, update manually: stop the Lab, back up <code>data/campus.sqlite3</code>, extract the new ZIP to a new folder, and start that copy once to refresh the Desktop shortcut.</p>
     </section>
 
     <section id="privacy" class="simple-section" aria-labelledby="privacy-title">
       <p class="eyebrow">PRIVACY</p><h2 id="privacy-title">This site does not run the Lab.</h2>
-      <p>There is no sign-in, chat input, model endpoint, telemetry, or personal-data collection on this Pages site. The download is a versioned local package; to use the Lab, extract it and connect only to a local Ollama, LM Studio, or vLLM installation.</p>
+      <p>There is no sign-in, chat input, model endpoint, telemetry, or personal-data collection on this Pages site. The current release is a local package and, when obtained through an authorized path, connects only to local Ollama.</p>
     </section>
   </main>
 
   <footer class="site-footer"><div class="footer-inner"><p class="footer-line">© 2026 Markellos Markides. All rights reserved.</p><p class="footer-line build-id">{{BUILD_ID}}</p></div></footer>
   <dialog id="settings-dialog" class="shell-dialog" aria-labelledby="settings-title"><div class="dialog-header"><h2 id="settings-title">Settings</h2><button class="dialog-close" type="button" data-close-dialog aria-label="Close">×</button></div><div class="settings-grid"><label>Accent colour <input id="accent-color" type="color" value="#f2c230"></label><label>Font <select id="font-choice"><option value="system">System sans</option><option value="serif">Readable serif</option></select></label><label>Text size <select id="text-size"><option value="100">Standard</option><option value="112.5">Large</option><option value="125">Larger</option></select></label><label>Spacing <select id="spacing-choice"><option value="compact">Compact</option><option value="comfortable">Comfortable</option><option value="spacious">Spacious</option></select></label></div><p id="appearance-status" role="status" aria-live="polite"></p><div class="dialog-actions"><button id="reset-appearance" type="button">Reset appearance</button><button type="button" data-close-dialog>Close</button></div></dialog>
   <dialog id="info-dialog" class="shell-dialog" aria-labelledby="info-title"><div class="dialog-header"><h2 id="info-title">Important Info</h2><button class="dialog-close" type="button" data-close-dialog aria-label="Close">×</button></div><details open><summary>Privacy</summary><p>Only validated appearance preferences may be stored in this browser. This site has no analytics, account, chat, or hosted model endpoint.</p></details><details><summary>Feedback</summary><p>No public feedback channel is configured.</p></details><p>© 2026 Markellos Markides. All rights reserved.</p><p class="build-id">{{BUILD_ID}}</p></dialog>
-  <button id="zip-update" class="zip-update" type="button" hidden>New version available — Download ZIP <span aria-hidden="true">↓</span></button>
   <script src="./dashboard.js"></script>
 </body>
 </html>
