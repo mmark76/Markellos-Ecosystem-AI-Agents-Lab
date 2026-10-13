@@ -47,8 +47,13 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /id="settings-dialog"/);
   assert.match(html, /id="info-dialog"/);
   assert.doesNotMatch(html, /data-language|language-selector|language-button|Lab Assistant|assistant-button|assistant-dialog/);
-  assert.match(guide, /Public BETA download/);
-  assert.match(guide, new RegExp(distribution.sha256));
+  assert.match(guide, /Before you begin/);
+  assert.match(guide, /Start in five steps/);
+  assert.match(guide, /You do not need a GitHub account/);
+  assert.match(guide, /Agent Collaboration is under construction/);
+  assert.doesNotMatch(guide, /Public current-state documentation|Advanced model fine-tuning|Manual update check/);
+  assert.doesNotMatch(html, /Read the current-state guide/);
+  assert.match(html, /Simple start guide/);
   assert.doesNotMatch(script, /checkForZipUpdate|scheduleZipUpdateChecks|downloaded-zip-version/);
   assert.match(script, /typeof module !== 'undefined'/);
   for (const file of ['styles.css', 'tokens.css', 'dashboard.js', '_headers', 'README.md', 'simple-guide.html']) assert.equal(existsSync(join(output, file)), true, `${file} is missing`);
