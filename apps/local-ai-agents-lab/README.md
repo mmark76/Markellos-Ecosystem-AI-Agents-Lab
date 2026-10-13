@@ -1,4 +1,4 @@
-# Markellos Ecosystem AI Agents Lab — Private Local Starter (v0.1.25)
+# Markellos Ecosystem AI Agents Lab — Private Local Starter (v0.1.26)
 
 Local Windows application with two workspaces:
 
