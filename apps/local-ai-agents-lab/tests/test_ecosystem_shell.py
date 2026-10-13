@@ -114,7 +114,13 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn("setWidth(resizerProperty,expanded?14:0)", script)
         self.assertIn("window.addEventListener('pointerup'", script)
         self.assertIn("event.preventDefault();activeResize={resize}", script)
-        self.assertIn('class="panel-toggle-label">Hide</span>', html)
+        for name in ('class="panel-toggle-icon"', 'aria-label="Hide left sidebar"', 'aria-label="Hide right sidebar"'):
+            with self.subTest(name=name): self.assertIn(name, html)
+        self.assertIn("const action=`${expanded?'Hide':'Show'} ${side} sidebar`", script)
+        self.assertIn("toggle.setAttribute('aria-label',action)", script)
+        self.assertNotIn('panel-toggle-label', html)
+        self.assertNotIn('◀', html)
+        self.assertNotIn('▶', html)
         self.assertIn('height:calc(100% - 48px)', css)
         self.assertIn('margin-top:48px', css)
         self.assertIn('.workspace-main.main{overflow:hidden}', css)
@@ -210,6 +216,8 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn("No .jsonl datasets found in the directory above.", script)
         self.assertIn('/api/training/jobs', script)
         self.assertIn("data.error!=='Training environment is not installed.'", script)
+        self.assertIn('class="nav-status training-status">Under Construction</span>', html)
+        self.assertIn('.training-workspace>summary .training-status', (STATIC / "style.css").read_text(encoding="utf-8"))
 
 if __name__ == "__main__":
     unittest.main()

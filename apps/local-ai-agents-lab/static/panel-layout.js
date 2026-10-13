@@ -12,7 +12,6 @@
   const saveWidth=(key,value)=>{try{localStorage.setItem(key,String(Math.round(value)));}catch{}};
   const setExpanded=(side,expanded)=>{
     const collapsed=`${side}-collapsed`, open=`${side}-open`, toggle=side==='left'?leftToggle:rightToggle;
-    const toggleLabel=toggle.querySelector('.panel-toggle-label'), toggleIcon=toggle.querySelector('[aria-hidden="true"]');
     if (desktop.matches) {
       const widthProperty=side==='left'?'--left-panel':'--right-panel';
       const resizerProperty=side==='left'?'--left-resizer':'--right-resizer';
@@ -24,10 +23,9 @@
     }
     else { layout.classList.toggle(open,expanded); if (expanded) layout.classList.remove(side==='left'?'right-open':'left-open'); }
     toggle.setAttribute('aria-expanded',String(expanded));
-    const panelName=side==='left'?'workspace':'tools';
-    toggle.title=`${expanded?'Hide':'Show'} ${panelName} panel`;
-    if (toggleLabel) toggleLabel.textContent=expanded?'Hide':'Show';
-    if (toggleIcon) toggleIcon.textContent=side==='left'?(expanded?'◀':'▶'):(expanded?'▶':'◀');
+    const action=`${expanded?'Hide':'Show'} ${side} sidebar`;
+    toggle.title=action;
+    toggle.setAttribute('aria-label',action);
   };
   leftToggle.addEventListener('click',event=>{event.preventDefault();setExpanded('left',desktop.matches?layout.classList.contains('left-collapsed'):!layout.classList.contains('left-open'));});
   rightToggle.addEventListener('click',event=>{event.preventDefault();setExpanded('right',desktop.matches?layout.classList.contains('right-collapsed'):!layout.classList.contains('right-open'));});
