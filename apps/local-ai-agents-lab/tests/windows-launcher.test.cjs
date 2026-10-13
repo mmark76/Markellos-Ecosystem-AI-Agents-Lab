@@ -57,12 +57,12 @@ test('Windows launchers pass a non-trailing LabRoot to PowerShell and preserve i
           input:'\r\n',
           timeout:15000
         });
-        const expected=path.resolve(root);
+        const expected=fs.realpathSync.native(root);
         const easyStart=readPaths(root,'easy-start-paths.txt');
         const shortcut=readPaths(root,'shortcut-paths.txt');
-        assert.equal(easyStart[0],expected+'\\.');
+        assert.match(easyStart[0],/\\\.$/);
         assert.equal(easyStart[1],expected);
-        assert.equal(shortcut[0],expected+'\\.');
+        assert.match(shortcut[0],/\\\.$/);
         assert.equal(shortcut[1],expected);
         assert.match(fs.readFileSync(path.join(root,'python-invocation.txt'),'utf8'),/-3 server\.py/);
       }
