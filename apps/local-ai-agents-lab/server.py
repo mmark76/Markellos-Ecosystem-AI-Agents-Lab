@@ -399,6 +399,8 @@ class Handler(BaseHTTPRequestHandler):
                  "/static/app.js": ("app.js", "text/javascript; charset=utf-8"),
                  "/static/settings.js": ("settings.js", "text/javascript; charset=utf-8"),
                  "/static/ecosystem-shell.js": ("ecosystem-shell.js", "text/javascript; charset=utf-8"),
+                 "/static/model-guidance-data.js": ("model-guidance-data.js", "text/javascript; charset=utf-8"),
+                 "/static/model-guidance.js": ("model-guidance.js", "text/javascript; charset=utf-8"),
                  "/static/ecosystem-tokens.css": ("ecosystem-tokens.css", "text/css; charset=utf-8"),
                  "/static/training.js": ("training.js", "text/javascript; charset=utf-8"),
                  "/static/model-install.js": ("model-install.js", "text/javascript; charset=utf-8"),

@@ -79,6 +79,15 @@ test('three-panel interaction script is included in the Windows release',()=>{
   assert.match(packager,/'static\/panel-layout\.js'/);
   assert.match(server,/"\/static\/panel-layout\.js"/);
 });
+test('Model Guidance modules are included in the Windows release',()=>{
+  const root=path.resolve(__dirname,'..');
+  const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
+  const html=fs.readFileSync(path.join(root,'static','index.html'),'utf8');
+  assert.match(packager,/'static\/model-guidance-data\.js'/);
+  assert.match(packager,/'static\/model-guidance\.js'/);
+  assert.match(html,/\/static\/model-guidance-data\.js/);
+  assert.match(html,/\/static\/model-guidance\.js/);
+});
 test('packaged UI identifies the ZIP version rather than a build identifier',()=>{
   const root=path.resolve(__dirname,'..');
   const html=fs.readFileSync(path.join(root,'static','index.html'),'utf8');
