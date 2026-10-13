@@ -1,17 +1,17 @@
-# AI Agents Lab v0.1.27 — public current-state documentation
+# AI Agents Lab v0.1.28 — public current-state documentation
 
 This public guide describes the released Local Lab as it is, without claiming future or unavailable functionality.
 
 ## Public distribution
 
-`AI-Agents-Lab-Windows.zip` for `v0.1.27` is distributed through the public Cloudflare R2 BETA channel, without GitHub authentication. The GitHub repository remains private. The dashboard displays the stable versioned URL and SHA-256 checksum (`96a0db01a3f5c6d7de8080cb85c9a9fe535b4b0e9df9213e8ac87e94d768f8f8`) for verification.
+`AI-Agents-Lab-Windows.zip` for `v0.1.28` is distributed through the public Cloudflare R2 BETA channel, without GitHub authentication. The GitHub repository remains private. The dashboard displays the stable versioned URL and SHA-256 checksum (`12d6d73dce2939e4e1f02f3e6a2a20932f2b6688f1b643ad2821900e9ffcaed3`) for verification.
 
 ## Available now
 
 - Local Agent Training through Ollama only, using the released sequence: Trainer → Student → Evaluator → Improver.
 - A local-only application boundary: the Lab uses Ollama at `127.0.0.1:11434` and does not provide a hosted AI API.
 
-## Under construction in v0.1.27
+## Under construction in v0.1.28
 
 - Agent Collaboration / Conference Room: the released UI keeps it disabled. Supporting code is not a verified user-available feature.
 - Optional advanced model fine-tuning: not operational pending resolution of a confirmed training-worker compatibility issue.
