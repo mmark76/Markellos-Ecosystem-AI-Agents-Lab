@@ -90,3 +90,8 @@ html[data-color-mode="light"] .secondary-button { background:#ffffff; color:#172
 @media (min-width: 64rem) {
   .header-actions { margin-right: clamp(8rem, 15vw, 16rem); }
 }
+
+/* More pronounced inward alignment on wide desktop viewports. */
+@media (min-width: 80rem) {
+  .header-actions { margin-right: clamp(15rem, 24vw, 26rem); }
+}
