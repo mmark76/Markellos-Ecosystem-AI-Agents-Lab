@@ -37,7 +37,7 @@
 
       <h2 id="technical-documentation">Technical Documentation</h2>
       <h2>How local agent learning works</h2>
-      <p>The current Lab uses a Trainer, Student, Evaluator, and Improver in a sequential workflow. The cycle produces responses and feedback; it does <strong>not</strong> retrain model weights or demonstrate objective improvement in model capability. Agent Collaboration is under construction; the Conference Room is not yet available.</p>
+      <p>The current Lab uses a Trainer, Student, Evaluator, and Improver in a sequential workflow. The cycle produces responses and feedback; it does <strong>not</strong> retrain model weights or demonstrate objective improvement in model capability. Conference Room is available from v1.1.6, running Planner, Researcher, and Reviewer sequentially using local Ollama.</p>
       <h2>Local runtime and privacy</h2>
       <p>The Lab server is available only at <code>127.0.0.1:8765</code> and talks to local Ollama at <code>127.0.0.1:11434</code>. The public website does not run the Lab, host a model, collect conversations, or expose the local server. The released inference provider is Ollama only.</p>
       <p>For fully local Ollama operation, disable Ollama cloud features using <code>disable_ollama_cloud: true</code> in <code>%USERPROFILE%\.ollama\server.json</code> while retaining other settings, and restart Ollama. Alternatively, set <code>OLLAMA_NO_CLOUD=1</code> in the Ollama process environment. Use installed local models only. This additional setting matters: a local web address alone does not guarantee that Ollama cloud features are disabled.</p>

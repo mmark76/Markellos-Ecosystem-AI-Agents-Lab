@@ -28,7 +28,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /<img class="brand-mark" src="\.\/ai-training-lab-mark\.png" alt="AI Training Lab">/);
   assert.match(html, /class="beta-badge">BETA<\/span>/);
   assert.match(styles, /\.beta-badge/);
-  assert.deepEqual(distribution.releases.map(({ version }) => version), ['1.1.5', '1.1.4', '1.1.3', '1.1.2', '1.1.1', '1.1.0', '1.0.0']);
+  assert.deepEqual(distribution.releases.map(({ version }) => version), ['1.1.6', '1.1.5', '1.1.4', '1.1.3', '1.1.2', '1.1.1', '1.1.0', '1.0.0']);
   for (const release of distribution.releases) {
     assert.match(release.version, /^\d+\.\d+\.\d+$/);
     assert.match(release.url, new RegExp(`/releases/v${release.version.replaceAll('.', '\\.')}/AI-Agents-Lab-Windows\\.zip$`));
@@ -41,7 +41,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, new RegExp(`Download AI Training Lab for Windows \\(v${escapedDistributionVersion}\\)`));
   assert.match(html, new RegExp(currentDistribution.url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.match(html, /Release archive/);
-  assert.match(html, /6 earlier Windows ZIPs/);
+  assert.match(html, /7 earlier Windows ZIPs/);
   assert.match(html, /Verified historical releases are retained for reference and future agent studies\./);
   assert.match(styles, /\.release-history details/);
   assert.match(styles, /margin-right: clamp\(8rem, 15vw, 16rem\)/);
@@ -60,7 +60,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   }
   assert.doesNotMatch(html, /id="zip-update"/);
   assert.match(html, /Trainer → Student → Evaluator → Improver/);
-  assert.match(html, /UNDER CONSTRUCTION/);
+  assert.match(html, /AVAILABLE IN v1.1.6<\/p><h2>Agent Collaboration \/ Conference Room/);
   assert.match(html, /Agent Collaboration \/ Conference Room/);
   assert.match(html, /Start in three simple steps/);
   assert.match(html, /Start AI Training Lab\.bat/);
@@ -89,7 +89,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(guide, /Start AI Training Lab\.bat/);
   assert.match(guide, /asks separately before installing Python, Ollama, or the first local AI model/);
   assert.match(guide, /You do not need a GitHub account/);
-  assert.match(guide, /Agent Collaboration is under construction/);
+  assert.match(guide, /Conference Room is available from v1.1.6/);
   assert.match(guide, /Quick Start \(Windows\)/);
   assert.match(guide, /Which Windows \.bat file should I use/);
   assert.match(guide, /Start AI Training Lab\.bat/);
