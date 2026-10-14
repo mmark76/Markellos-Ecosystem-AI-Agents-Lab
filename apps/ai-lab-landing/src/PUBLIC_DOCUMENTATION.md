@@ -32,7 +32,7 @@ For a more accessible explanation, use the linked `simple-guide.html` page. The 
 
 ## Under construction in v0.1.30
 
-- Agent Collaboration / Conference Room: the released UI keeps it disabled. Supporting code is not a verified user-available feature.
+- Agent Collaboration / Conference Room: available from v1.1.6, with Planner, Researcher, and Reviewer using local Ollama.
 - Optional advanced model fine-tuning: not operational pending resolution of a confirmed training-worker compatibility issue.
 - Manual update checking inside the Local App: not implemented.
 - LM Studio and vLLM inference: not supported.
