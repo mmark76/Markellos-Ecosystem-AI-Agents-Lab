@@ -26,6 +26,14 @@ test('all seven role prompt files are included in the Windows release',()=>{
     assert.ok(packager.includes("'"+name+"'"));
   }
 });
+test('four-department workflow modules are included in the Windows release',()=>{
+  const root=path.resolve(__dirname,'..');
+  const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
+  for(const name of ['features/__init__.py','features/workflow.py']){
+    assert.ok(fs.readFileSync(path.join(root,name),'utf8').trim());
+    assert.ok(packager.includes("'"+name+"'"));
+  }
+});
 test('Windows training wizard is packaged and opt-in',()=>{
   const root=path.resolve(__dirname,'..');
   const launcher=fs.readFileSync(path.join(root,'setup-training-windows.bat'),'utf8');

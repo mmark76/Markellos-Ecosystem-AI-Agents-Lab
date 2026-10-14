@@ -36,10 +36,12 @@ if str(ROOT) not in sys.path:
 from providers import InferenceProviders, ProviderError
 from training import TrainingError, TrainingService
 from model_install import ModelInstallError, ModelInstallBusy, OllamaModelInstaller
+from features.workflow import WorkflowError, WorkflowService
 
 PROVIDERS = InferenceProviders()
 TRAINING = TrainingService(ROOT)
 MODEL_INSTALLER = OllamaModelInstaller(OPENER)
+WORKFLOW = WorkflowService(DB_PATH)
 
 PROMPT_ROLES = ("Trainer", "Student", "Evaluator", "Improver", "Planner", "Researcher", "Reviewer")
 PROMPTS = {
@@ -63,6 +65,9 @@ def connect():
 
 
 def initialize():
+    # Tests and controlled recovery can select an alternate SQLite path before
+    # initialization; keep the feature-owned migration on that same database.
+    WORKFLOW.db_path = DB_PATH
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     with closing(connect()) as db, db:
         db.execute("""CREATE TABLE IF NOT EXISTS messages (
@@ -115,6 +120,8 @@ def initialize():
         db.execute("CREATE INDEX IF NOT EXISTS idx_room_id ON messages(room,id)")
         db.execute("CREATE INDEX IF NOT EXISTS idx_messages_session_id ON messages(session_id)")
         db.execute("CREATE INDEX IF NOT EXISTS idx_training_stages_session ON training_stages(session_id,execution_order)")
+    # The departmental migration is additive and leaves all legacy rows intact.
+    WORKFLOW.initialize()
 
 
 def add_message(room: str, agent: str, content: str, session_id: Optional[int] = None, model: Optional[str] = None):
@@ -260,6 +267,58 @@ def run_training_session(session_id: int, prompt: str, assignments: dict[str, st
         RUN_LOCK.release()
 
 
+def run_department_training(session_id: int, task: str, assignments: dict[str, str]):
+    """Training Lab has exactly two speaking roles and an immutable hand-off."""
+    transcript = [{"agent": "User", "content": task}]
+    try:
+        for role in ("Trainer", "Student"):
+            answer = provider_chat("ollama", assignments[role], role, transcript, "en")
+            WORKFLOW.append_training_message(session_id, role, answer, assignments[role])
+            transcript.append({"agent": role, "content": answer})
+            PROVIDERS.unload("ollama", assignments[role], OPENER)
+        WORKFLOW.finish_training(session_id, "completed")
+    except (TimeoutError, HTTPError, URLError, OSError, ValueError, KeyError, ProviderError, WorkflowError) as err:
+        WORKFLOW.finish_training(session_id, "failed", str(err))
+    finally:
+        RUN_LOCK.release()
+
+
+def run_evaluation(scorecard_id: int, session_id: int, evaluator_model: str):
+    try:
+        record = WORKFLOW.training(session_id)
+        if not record:
+            raise WorkflowError("Training session is unavailable.")
+        transcript = "\n".join(f"{item['role']}: {item['content']}" for item in record["chat_log"])
+        request = ("Independently assess this completed Training Lab record. The evaluator did not participate in the conversation. "
+                   "Use only the supplied task and Chat Log. Separate verifiable record facts from model judgments. "
+                   "Return JSON only with metrics for Faithfulness, Clarity, Task Completion, Consistency; each metric has score 0-100 and explanation; plus failures and evidence arrays.\n"
+                   f"Original task requirements:\n{record['task_requirements']}\n\nImmutable Chat Log:\n{transcript}")
+        raw = provider_chat("ollama", evaluator_model, "Evaluator", [{"agent": "Evaluation request", "content": request}], "en")
+        WORKFLOW.complete_scorecard(scorecard_id, raw)
+        PROVIDERS.unload("ollama", evaluator_model, OPENER)
+    except (TimeoutError, HTTPError, URLError, OSError, ValueError, KeyError, ProviderError, WorkflowError) as err:
+        WORKFLOW.fail_scorecard(scorecard_id, str(err))
+    finally:
+        RUN_LOCK.release()
+
+
+def run_optimization(scorecard_id: int, improver_model: str):
+    try:
+        scorecard = WORKFLOW.scorecard(scorecard_id)
+        if not scorecard or not scorecard["scorecard"]:
+            raise WorkflowError("Scorecard is unavailable.")
+        originals = WORKFLOW.current_prompts(PROMPTS)
+        request = ("Analyze this evaluation scorecard and propose controlled prompt improvements only. This is not neural-network training and does not modify model weights. "
+                   "Return JSON only with analysis and proposed_prompts containing complete Trainer and Student replacement prompts. Preserve good behavior.\n\n"
+                   "Scorecard:\n" + json.dumps(scorecard["scorecard"], ensure_ascii=False) + "\n\nCurrent prompts:\n" +
+                   json.dumps({role: originals[role] for role in ("Trainer", "Student")}, ensure_ascii=False))
+        raw = provider_chat("ollama", improver_model, "Improver", [{"agent": "Optimization request", "content": request}], "en")
+        WORKFLOW.create_proposal(scorecard_id, improver_model, raw, {role: originals[role] for role in ("Trainer", "Student")})
+        PROVIDERS.unload("ollama", improver_model, OPENER)
+    finally:
+        RUN_LOCK.release()
+
+
 def clear_history(room: str) -> int:
     """Delete only the saved conversation for one known local room."""
     with closing(connect()) as db, db:
@@ -273,7 +332,8 @@ def local_models(provider: str = "ollama") -> list[str]:
 
 
 def provider_chat(provider: str, model: str, agent: str, transcript: list[dict], language: str = "en") -> str:
-    system = PROMPTS[agent] + (" Do not execute commands. Reply exclusively in " + ("Greek" if language == "el" else "English") + ", maintaining standard technical terms. /no_think")
+    prompt = WORKFLOW.current_prompts(PROMPTS).get(agent, PROMPTS[agent])
+    system = prompt + (" Do not execute commands. Reply exclusively in " + ("Greek" if language == "el" else "English") + ", maintaining standard technical terms. /no_think")
     dialog = [{"role": "system", "content": system}]
     for row in transcript[-12:]:
         who = row["agent"]
@@ -340,6 +400,42 @@ class Handler(BaseHTTPRequestHandler):
                 self._json(TRAINING.status(self.path.rsplit("/", 1)[-1]))
             except TrainingError as err:
                 self._json({"error": str(err)}, 404)
+            return
+        if self.path == "/api/departments/training-sessions":
+            self._json({"sessions": WORKFLOW.training_records(), "legacy_records_preserved": True})
+            return
+        if self.path.startswith("/api/departments/training-sessions/"):
+            try:
+                record = WORKFLOW.training(int(self.path.rsplit("/", 1)[-1]))
+                if not record:
+                    raise ValueError
+                self._json(record)
+            except ValueError:
+                self._json({"error": "Unknown Training Lab session"}, 404)
+            return
+        if self.path == "/api/departments/scorecards":
+            self._json({"scorecards": WORKFLOW.scorecards()})
+            return
+        if self.path.startswith("/api/departments/scorecards/"):
+            try:
+                record = WORKFLOW.scorecard(int(self.path.rsplit("/", 1)[-1]))
+                if not record:
+                    raise ValueError
+                self._json(record)
+            except ValueError:
+                self._json({"error": "Unknown Evaluation Lab scorecard"}, 404)
+            return
+        if self.path == "/api/departments/proposals":
+            self._json({"proposals": WORKFLOW.proposals(), "revisions": WORKFLOW.revisions()})
+            return
+        if self.path.startswith("/api/departments/proposals/"):
+            try:
+                record = WORKFLOW.proposal(int(self.path.rsplit("/", 1)[-1]))
+                if not record:
+                    raise ValueError
+                self._json(record)
+            except ValueError:
+                self._json({"error": "Unknown Optimization Lab proposal"}, 404)
             return
         if self.path.startswith("/api/history/"):
             room = self.path[len("/api/history/"):]
@@ -462,6 +558,98 @@ class Handler(BaseHTTPRequestHandler):
                     raise TrainingError("Invalid training request size.")
                 self._json(TRAINING.start(json.loads(self.rfile.read(size))), 202)
             except (TrainingError, ValueError, TypeError, json.JSONDecodeError) as err:
+                self._json({"error": str(err)}, 400)
+            return
+        if self.path == "/api/departments/training-sessions":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if size < 2 or size > 4000:
+                    raise WorkflowError("Invalid Training Lab request.")
+                body = json.loads(self.rfile.read(size))
+                if not isinstance(body, dict) or set(body) != {"task", "trainer_model", "student_model"}:
+                    raise WorkflowError("Provide a task and exactly the Trainer and Student models.")
+                if not RUN_LOCK.acquire(blocking=False):
+                    raise WorkflowError("Another department is already running.")
+                try:
+                    models = local_models("ollama")
+                    assignments = {"Trainer": body["trainer_model"], "Student": body["student_model"]}
+                    if any(not isinstance(model, str) or model not in models for model in assignments.values()):
+                        raise WorkflowError("Choose installed local Ollama models.")
+                    session_id = WORKFLOW.create_training(assignments, body["task"].strip() if isinstance(body["task"], str) else "")
+                    Thread(target=run_department_training, args=(session_id, body["task"].strip(), assignments), name=f"department-training-{session_id}", daemon=True).start()
+                    self._json({"session_id": session_id, "status": "running"}, 202)
+                    return
+                except Exception:
+                    RUN_LOCK.release()
+                    raise
+            except (WorkflowError, ValueError, TypeError, json.JSONDecodeError) as err:
+                self._json({"error": str(err)}, 400)
+            return
+        if self.path == "/api/departments/scorecards":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if size < 2 or size > 512:
+                    raise WorkflowError("Invalid Evaluation Lab request.")
+                body = json.loads(self.rfile.read(size))
+                if not isinstance(body, dict) or set(body) != {"training_session_id", "evaluator_model"} or not isinstance(body["training_session_id"], int):
+                    raise WorkflowError("Choose one completed session and an Evaluator model.")
+                if not RUN_LOCK.acquire(blocking=False):
+                    raise WorkflowError("Another department is already running.")
+                try:
+                    if body["evaluator_model"] not in local_models("ollama"):
+                        raise WorkflowError("Choose an installed local Evaluator model.")
+                    scorecard_id = WORKFLOW.create_scorecard(body["training_session_id"], body["evaluator_model"])
+                    Thread(target=run_evaluation, args=(scorecard_id, body["training_session_id"], body["evaluator_model"]), name=f"evaluation-{scorecard_id}", daemon=True).start()
+                    self._json({"scorecard_id": scorecard_id, "status": "running"}, 202)
+                    return
+                except Exception:
+                    RUN_LOCK.release()
+                    raise
+            except (WorkflowError, ValueError, TypeError, json.JSONDecodeError) as err:
+                self._json({"error": str(err)}, 400)
+            return
+        if self.path == "/api/departments/proposals":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if size < 2 or size > 512:
+                    raise WorkflowError("Invalid Optimization Lab request.")
+                body = json.loads(self.rfile.read(size))
+                if not isinstance(body, dict) or set(body) != {"scorecard_id", "improver_model"} or not isinstance(body["scorecard_id"], int):
+                    raise WorkflowError("Choose one completed scorecard and an Improver model.")
+                if not RUN_LOCK.acquire(blocking=False):
+                    raise WorkflowError("Another department is already running.")
+                try:
+                    if body["improver_model"] not in local_models("ollama"):
+                        raise WorkflowError("Choose an installed local Improver model.")
+                    Thread(target=run_optimization, args=(body["scorecard_id"], body["improver_model"]), name=f"optimization-{body['scorecard_id']}", daemon=True).start()
+                    self._json({"scorecard_id": body["scorecard_id"], "status": "running"}, 202)
+                    return
+                except Exception:
+                    RUN_LOCK.release()
+                    raise
+            except (WorkflowError, ValueError, TypeError, json.JSONDecodeError) as err:
+                self._json({"error": str(err)}, 400)
+            return
+        if self.path.startswith("/api/departments/proposals/") and self.path.endswith("/approve"):
+            try:
+                self._json(WORKFLOW.approve(int(self.path.split("/")[-2])))
+            except (WorkflowError, ValueError) as err:
+                self._json({"error": str(err)}, 400)
+            return
+        if self.path.startswith("/api/departments/proposals/") and self.path.endswith("/apply"):
+            try:
+                self._json(WORKFLOW.apply(int(self.path.split("/")[-2])))
+            except (WorkflowError, ValueError) as err:
+                self._json({"error": str(err)}, 400)
+            return
+        if self.path == "/api/departments/prompt-revisions/rollback":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                body = json.loads(self.rfile.read(size))
+                if not isinstance(body, dict) or set(body) != {"role", "revision_id"} or not isinstance(body["revision_id"], int):
+                    raise WorkflowError("Choose one prompt revision to roll back.")
+                self._json(WORKFLOW.rollback(body["role"], body["revision_id"]))
+            except (WorkflowError, ValueError, TypeError, json.JSONDecodeError) as err:
                 self._json({"error": str(err)}, 400)
             return
         if self.path != "/api/run":

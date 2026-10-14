@@ -2,14 +2,14 @@
 
 Version: v1.1.7 · Private local starter
 
-Local Windows application with two workspaces:
+Local Windows application with four departments:
 
-- **Learning Lab:** Trainer → Student → Evaluator → Improver, one stage at a time.
-- **AI Conference Room:** Planner → Researcher → Reviewer, one stage at a time, with separate local history.
+- **Conference Room:** Planner → Researcher → Reviewer, with independent local conversation history.
+- **Training Lab:** Trainer → Student, producing an immutable chronological Chat Log.
+- **Evaluation Lab:** Evaluator, independently reading a completed Training record and producing a traceable Scorecard.
+- **Optimization Lab:** Improver, producing versioned prompt proposals from a Scorecard. A proposal must be approved and then applied; earlier revisions remain available for rollback.
 
-The Learning Lab independently assigns installed **local Ollama** models to Trainer, Student, Evaluator, and Improver controls; the Conference Room independently assigns installed local Ollama models to Planner, Researcher, and Reviewer. The selected role models are snapshotted when a Training session starts, so changing a control affects the next session only. Each completed stage is saved before the next starts. The Lab requests `keep_alive: 0` after each completed stage so Ollama can release the model; this is best effort and can be checked with `ollama ps`. Slow CPU inference has no application-imposed deadline. They are not independently trained models: this cycle improves context and feedback, not model weights. Agents do not execute commands or access GitHub, repositories, or files. Feedback is not objective proof of improvement.
-
-The **Learning Lab** uses the internal API id `training`. Existing local history is migrated to that identifier automatically. The **AI Conference Room** is available in this release. It runs three general-purpose agents sequentially through separately selected local Ollama models.
+Every role independently selects an installed **local Ollama** model. Training, Evaluation, and Optimization are separate local records with explicit hand-offs; none participates in an earlier department's execution. The selected models, timestamps, and session identifiers are saved. Completed Training records cannot be edited by later departments. Scorecard conclusions are labelled model judgments alongside the verifiable source record. Prompt optimization changes future prompt configuration only: it does not train, fine-tune, or modify neural-network weights. Agents do not execute commands or access GitHub, repositories, or files.
 
 > This is an experimental local lab, not an accredited educational institution.
 
@@ -32,7 +32,7 @@ All seven system prompts are independently maintained as UTF-8 text files under
 `prompts/`: Trainer, Student, Evaluator, Improver, Planner, Researcher, and
 Reviewer. The local server loads them on startup; restart the Lab to apply an
 edited prompt. The packaged Windows release includes all seven files. The
-Conference Room remains disabled in this release.
+Conference Room is the first and default workspace in this release.
 
 ## Inference engine
 

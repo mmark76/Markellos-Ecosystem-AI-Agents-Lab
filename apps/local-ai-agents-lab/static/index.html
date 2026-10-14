@@ -22,8 +22,10 @@
     <div class="panel-content">
       <div class="brand-stack"><span class="beta-badge">BETA</span><div class="brand"><span class="mark">M</span><span><strong>Markellos Ecosystem<br>AI Training Lab</strong><small>Private Local Workspace</small></span></div></div>
       <div class="label">WORKSPACE</div>
-      <button class="nav selected" data-room="training">▣ &nbsp; <span id="nav-training">Training Room</span></button>
-      <button class="nav" data-room="conference" type="button">▤ &nbsp; <span id="nav-conference">Conference Room</span></button>
+      <button class="nav selected" data-room="conference" type="button">▤ &nbsp; <span id="nav-conference">Conference Room</span></button>
+      <button class="nav" data-room="training" type="button">▣ &nbsp; <span id="nav-training">Training Lab</span></button>
+      <button class="nav" data-room="evaluation" type="button">✓ &nbsp; <span id="nav-evaluation">Evaluation Lab</span></button>
+      <button class="nav" data-room="optimization" type="button">↻ &nbsp; <span id="nav-optimization">Optimization Lab</span></button>
       <div class="label section-gap">PHASE 1 · SANDBOX</div>
       <p class="tip" id="phase-tip"></p>
       <div class="sidebar-footer" id="sidebar-note"></div>
@@ -33,7 +35,7 @@
   <div class="panel-resizer panel-resizer-left" id="resize-left" role="separator" aria-label="Resize workspace navigation" aria-orientation="vertical" tabindex="0"></div>
   <main class="main workspace-main">
     <header class="top">
-      <div><div class="eyebrow">MARKELLOS ECOSYSTEM · LOCAL LAB</div><h1 id="room-title">Learning Lab</h1><p class="subtitle" id="room-description">Learn → Practice → Evaluate → Improve</p></div>
+      <div><div class="eyebrow">MARKELLOS ECOSYSTEM · LOCAL LAB</div><h1 id="room-title">Conference Room</h1><p class="subtitle" id="room-description">Planner → Researcher → Reviewer · Shared discussion context</p></div>
       <div class="top-controls"><a class="ecosystem-link" href="https://markellosecosystem.com/" target="_blank" rel="noopener noreferrer" id="ecosystem-link">Back to markellosecosystem</a><span class="privacy"><span class="dot"></span> LOCAL ONLY</span></div>
     </header>
     <section class="settings-panel" id="settings-panel" aria-labelledby="settings-heading" hidden>
@@ -90,16 +92,7 @@
       <section class="model-guidance-hardware" aria-labelledby="model-guidance-hardware-title"><h3 id="model-guidance-hardware-title">Hardware guidance</h3><p>System RAM, available GPU VRAM, CPU performance, quantization, context length, and the individual model's memory requirements all affect compatibility and speed. Parameter count alone cannot determine memory needs or execution performance.</p><p class="compatibility-status"><strong>Hardware Compatibility: Not Verified</strong></p></section>
       <p id="model-guidance-disclaimer" class="model-guidance-disclaimer">Recommended model sizes are indicative starting points, not strict requirements. Larger models are not necessarily better. Model architecture, specialization, quantization and task-specific performance also influence suitability.</p>
     </dialog>
-    <form id="composer" class="composer">
-      <label for="prompt" id="prompt-label">Training Topic</label>
-      <textarea id="prompt" rows="3" maxlength="2500" required placeholder="e.g. Teach your AI agent how to..."></textarea>
-      <div class="actions"><div><span id="hint">Agents have no access to files or commands.</span><button id="clear-conversation" class="clear-conversation" type="button">Clear conversation / Start new session</button></div><div class="run-actions"><button id="cancel-training" class="cancel-training" type="button" hidden>Cancel after current stage</button><button id="send" type="submit">Start Training ↗</button></div></div>
-    </form>
-    <section class="chat-panel" aria-live="polite">
-      <section id="training-stages" class="training-stages" aria-live="polite" hidden></section>
-      <div id="messages" class="messages"><div class="empty">No training sessions yet. Enter a topic above.</div></div>
-      <p id="execution-status" class="execution-status" role="status" aria-live="polite" hidden></p>
-    </section>
+    <section id="department-view" class="department-view" aria-live="polite"></section>
     <footer><span>© <span class="copyright-year"></span> Markellos Markides. All rights reserved.</span><span class="build-id">ZIP version: ZIP_VERSION</span></footer>
   </main>
   <div class="panel-resizer panel-resizer-right" id="resize-right" role="separator" aria-label="Resize tools panel" aria-orientation="vertical" tabindex="0"></div>
@@ -109,7 +102,7 @@
       <section class="inspector-heading"><p class="eyebrow">LOCAL TOOLS</p><h2>Lab controls</h2></section>
       <section class="statusbar">
         <div><span class="status-icon">◉</span> <span id="status">Checking local model...</span></div>
-        <div class="model-select"><p class="ollama-engine">Inference Engine: <strong>Ollama</strong></p><div id="training-model-selects"><label for="trainer-model">Trainer Model</label><select id="trainer-model" disabled><option>Checking...</option></select><button type="button" class="model-guidance-trigger" data-guidance-role="Trainer" aria-haspopup="dialog">ⓘ Model Guidance</button><label for="student-model">Student Model</label><select id="student-model" disabled><option>Checking...</option></select><button type="button" class="model-guidance-trigger" data-guidance-role="Student" aria-haspopup="dialog">ⓘ Model Guidance</button><label for="evaluator-model">Evaluator Model</label><select id="evaluator-model" disabled><option>Checking...</option></select><button type="button" class="model-guidance-trigger" data-guidance-role="Evaluator" aria-haspopup="dialog">ⓘ Model Guidance</button><label for="improver-model">Improver Model</label><select id="improver-model" disabled><option>Checking...</option></select><button type="button" class="model-guidance-trigger" data-guidance-role="Improver" aria-haspopup="dialog">ⓘ Model Guidance</button></div><div id="collaboration-model-select"><label for="planner-model">Planner Model</label><select id="planner-model" disabled><option>Checking...</option></select><label for="researcher-model">Researcher Model</label><select id="researcher-model" disabled><option>Checking...</option></select><label for="reviewer-model">Reviewer Model</label><select id="reviewer-model" disabled><option>Checking...</option></select></div></div>
+        <div class="model-select"><p class="ollama-engine">Inference Engine: <strong>Ollama</strong></p><div data-models-for="training"><label for="trainer-model">Trainer Model</label><select id="trainer-model" disabled><option>Checking...</option></select><button type="button" class="model-guidance-trigger" data-guidance-role="Trainer" aria-haspopup="dialog">ⓘ Model Guidance</button><label for="student-model">Student Model</label><select id="student-model" disabled><option>Checking...</option></select><button type="button" class="model-guidance-trigger" data-guidance-role="Student" aria-haspopup="dialog">ⓘ Model Guidance</button></div><div data-models-for="evaluation"><label for="evaluator-model">Evaluator Model</label><select id="evaluator-model" disabled><option>Checking...</option></select><button type="button" class="model-guidance-trigger" data-guidance-role="Evaluator" aria-haspopup="dialog">ⓘ Model Guidance</button></div><div data-models-for="optimization"><label for="improver-model">Improver Model</label><select id="improver-model" disabled><option>Checking...</option></select><button type="button" class="model-guidance-trigger" data-guidance-role="Improver" aria-haspopup="dialog">ⓘ Model Guidance</button></div><div data-models-for="conference"><label for="planner-model">Planner Model</label><select id="planner-model" disabled><option>Checking...</option></select><label for="researcher-model">Researcher Model</label><select id="researcher-model" disabled><option>Checking...</option></select><label for="reviewer-model">Reviewer Model</label><select id="reviewer-model" disabled><option>Checking...</option></select></div></div>
       </section>
       <details class="model-installer" id="model-installer" hidden>
         <summary>Add Model · Ollama</summary>
