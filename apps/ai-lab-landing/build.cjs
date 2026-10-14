@@ -39,6 +39,6 @@ const [currentRelease, ...previousReleases] = releaseHistory;
 const commit = git(['rev-parse', '--short=7', 'HEAD']);
 const buildId = `v${releaseVersion}_${cyprusTimestamp(new Date())}_${commit}`;
 const indexPath = join(output, 'index.html');
-const releaseLinks = previousReleases.map(({ version, url, sha256 }) => `<li><a data-zip-version="v${version}" data-zip-sha256="${sha256}" href="${url}">v${version}</a><code>${sha256}</code></li>`).join('');
+const releaseLinks = previousReleases.map(({ version, url, sha256 }) => `<li><a data-zip-version="v${version}" data-zip-sha256="${sha256}" href="${url}">v${version}</a><code title="SHA-256: ${sha256}">${sha256.slice(0, 7)}</code></li>`).join('');
 writeFileSync(indexPath, readFileSync(indexPath, 'utf8').replaceAll('{{BUILD_ID}}', buildId).replaceAll('{{RELEASE_VERSION}}', `v${currentRelease.version}`).replaceAll('{{DISTRIBUTION_URL}}', currentRelease.url).replaceAll('{{RELEASE_SHA256}}', currentRelease.sha256).replaceAll('{{ARCHIVE_COUNT}}', String(previousReleases.length)).replaceAll('{{RELEASE_HISTORY}}', releaseLinks));
 console.log(`Built ${output} (${buildId})`);
