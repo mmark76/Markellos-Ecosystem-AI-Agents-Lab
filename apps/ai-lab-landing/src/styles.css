@@ -88,5 +88,5 @@ html[data-color-mode="light"] .secondary-button { background:#ffffff; color:#172
 
 /* Keep desktop utility controls visually anchored inside the header. */
 @media (min-width: 64rem) {
-  .header-actions { margin-right: clamp(2rem, 7vw, 8rem); }
+  .header-actions { margin-right: clamp(8rem, 15vw, 16rem); }
 }
