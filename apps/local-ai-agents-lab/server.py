@@ -302,7 +302,7 @@ def run_evaluation(scorecard_id: int, session_id: int, evaluator_model: str):
         RUN_LOCK.release()
 
 
-def run_optimization(scorecard_id: int, improver_model: str):
+def run_optimization(proposal_id: int, scorecard_id: int, improver_model: str):
     try:
         scorecard = WORKFLOW.scorecard(scorecard_id)
         if not scorecard or not scorecard["scorecard"]:
@@ -313,8 +313,10 @@ def run_optimization(scorecard_id: int, improver_model: str):
                    "Scorecard:\n" + json.dumps(scorecard["scorecard"], ensure_ascii=False) + "\n\nCurrent prompts:\n" +
                    json.dumps({role: originals[role] for role in ("Trainer", "Student")}, ensure_ascii=False))
         raw = provider_chat("ollama", improver_model, "Improver", [{"agent": "Optimization request", "content": request}], "en")
-        WORKFLOW.create_proposal(scorecard_id, improver_model, raw, {role: originals[role] for role in ("Trainer", "Student")})
+        WORKFLOW.complete_optimization(proposal_id, raw, {role: originals[role] for role in ("Trainer", "Student")})
         PROVIDERS.unload("ollama", improver_model, OPENER)
+    except (TimeoutError, HTTPError, URLError, OSError, ValueError, KeyError, ProviderError, WorkflowError) as err:
+        WORKFLOW.fail_optimization(proposal_id, str(err))
     finally:
         RUN_LOCK.release()
 
@@ -621,8 +623,10 @@ class Handler(BaseHTTPRequestHandler):
                 try:
                     if body["improver_model"] not in local_models("ollama"):
                         raise WorkflowError("Choose an installed local Improver model.")
-                    Thread(target=run_optimization, args=(body["scorecard_id"], body["improver_model"]), name=f"optimization-{body['scorecard_id']}", daemon=True).start()
-                    self._json({"scorecard_id": body["scorecard_id"], "status": "running"}, 202)
+                    defaults = WORKFLOW.current_prompts(PROMPTS)
+                    proposal_id = WORKFLOW.create_optimization_attempt(body["scorecard_id"], body["improver_model"], {role: defaults[role] for role in ("Trainer", "Student")})
+                    Thread(target=run_optimization, args=(proposal_id, body["scorecard_id"], body["improver_model"]), name=f"optimization-{proposal_id}", daemon=True).start()
+                    self._json({"proposal_id": proposal_id, "status": "running"}, 202)
                     return
                 except Exception:
                     RUN_LOCK.release()

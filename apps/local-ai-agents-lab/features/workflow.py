@@ -95,6 +95,8 @@ class WorkflowService:
                     created_at TEXT NOT NULL,
                     approved_at TEXT,
                     applied_at TEXT,
+                    error TEXT,
+                    retry_of INTEGER,
                     architecture_version TEXT NOT NULL,
                     FOREIGN KEY(evaluation_id) REFERENCES evaluation_scorecards(id)
                 );
@@ -119,6 +121,10 @@ class WorkflowService:
                 CREATE INDEX IF NOT EXISTS idx_proposals_evaluation
                     ON optimization_proposals(evaluation_id, id DESC);
             """)
+            columns = {row[1] for row in db.execute("PRAGMA table_info(optimization_proposals)")}
+            for column, definition in (("error", "TEXT"), ("retry_of", "INTEGER")):
+                if column not in columns:
+                    db.execute(f"ALTER TABLE optimization_proposals ADD COLUMN {column} {definition}")
 
     @staticmethod
     def _key(session_id: int) -> str:
@@ -282,6 +288,31 @@ class WorkflowService:
         with closing(self.connect()) as db, db:
             cursor = db.execute("INSERT INTO optimization_proposals(evaluation_id,improver_model,status,original_prompts_json,proposed_prompts_json,analysis,raw_response,created_at,architecture_version) VALUES(?,?,?,?,?,?,?,?,?)", (scorecard_id, improver_model, "draft", json.dumps(defaults), json.dumps(proposed), analysis, raw[:12000], now(), SCHEMA_VERSION))
         return cursor.lastrowid
+
+    def create_optimization_attempt(self, scorecard_id: int, improver_model: str, defaults: dict[str, str], retry_of: Optional[int] = None) -> int:
+        scorecard = self.scorecard(scorecard_id)
+        if not scorecard or scorecard["status"] != "completed":
+            raise WorkflowError("Choose a completed Evaluation Lab scorecard.")
+        with closing(self.connect()) as db, db:
+            running = db.execute("SELECT id FROM optimization_proposals WHERE evaluation_id=? AND status='running'", (scorecard_id,)).fetchone()
+            if running:
+                raise WorkflowError("This optimization is already running.")
+            cursor = db.execute("INSERT INTO optimization_proposals(evaluation_id,improver_model,status,original_prompts_json,proposed_prompts_json,analysis,raw_response,created_at,architecture_version,retry_of) VALUES(?,?,?,?,?,?,?,?,?,?)", (scorecard_id, improver_model, "running", json.dumps(defaults), json.dumps(defaults), "Optimization is running.", "", now(), SCHEMA_VERSION, retry_of))
+        return cursor.lastrowid
+
+    def complete_optimization(self, proposal_id: int, raw: str, defaults: dict[str, str]) -> None:
+        proposal = self.proposal(proposal_id)
+        if not proposal or proposal["status"] != "running":
+            raise WorkflowError("Optimization attempt is not running.")
+        candidate_id = self.create_proposal(proposal["evaluation_id"], proposal["improver_model"], raw, defaults)
+        candidate = self.proposal(candidate_id)
+        with closing(self.connect()) as db, db:
+            db.execute("UPDATE optimization_proposals SET status='draft',proposed_prompts_json=?,analysis=?,raw_response=? WHERE id=?", (json.dumps(candidate["proposed_prompts"]), candidate["analysis"], raw[:12000], proposal_id))
+            db.execute("DELETE FROM optimization_proposals WHERE id=?", (candidate_id,))
+
+    def fail_optimization(self, proposal_id: int, error: str) -> None:
+        with closing(self.connect()) as db, db:
+            db.execute("UPDATE optimization_proposals SET status='failed',error=? WHERE id=? AND status='running'", (error[:500], proposal_id))
 
     def proposal(self, proposal_id: int) -> Optional[dict]:
         with closing(self.connect()) as db:

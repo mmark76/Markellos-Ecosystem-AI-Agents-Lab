@@ -49,3 +49,15 @@ class DepartmentWorkflowTests(unittest.TestCase):
         self.assertEqual(self.service.current_prompts(self.defaults)["Trainer"], "revised trainer")
         revision = next(row for row in self.service.revisions() if row["role"] == "Trainer")
         self.assertEqual(self.service.rollback("Trainer", revision["id"])["active_revision_id"], revision["id"])
+
+    def test_failed_optimization_is_persisted_and_can_be_retried(self):
+        session = self.completed_training()
+        scorecard = self.service.create_scorecard(session, "evaluator:1")
+        self.service.complete_scorecard(scorecard, "not json")
+        first = self.service.create_optimization_attempt(scorecard, "improver:1", self.defaults)
+        with self.assertRaises(WorkflowError):
+            self.service.create_optimization_attempt(scorecard, "improver:1", self.defaults)
+        self.service.fail_optimization(first, "local improver unavailable")
+        self.assertEqual(self.service.proposal(first)["status"], "failed")
+        retry = self.service.create_optimization_attempt(scorecard, "improver:1", self.defaults, retry_of=first)
+        self.assertEqual(self.service.proposal(retry)["retry_of"], first)
