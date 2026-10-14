@@ -45,6 +45,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /Verified historical releases are retained for reference and future agent studies\./);
   assert.match(styles, /\.release-history details/);
   assert.match(styles, /margin-right: clamp\(8rem, 15vw, 16rem\)/);
+  assert.match(styles, /@media \(min-width: 80rem\) \{\s*\.header-actions \{ margin-right: clamp\(15rem, 24vw, 26rem\); \}/);
   assert.match(styles, /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
   for (const release of previousDistributions) {
     const escapedVersion = release.version.replaceAll('.', '\\.');
