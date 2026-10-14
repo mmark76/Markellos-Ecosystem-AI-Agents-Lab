@@ -49,7 +49,9 @@ test('build truthfully presents the current public state of the Local Lab', () =
     const escapedVersion = release.version.replaceAll('.', '\\.');
     assert.match(html, new RegExp(`data-zip-version="v${escapedVersion}"`));
     assert.match(html, new RegExp(release.url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-    assert.match(html, new RegExp(release.sha256));
+    assert.match(html, new RegExp(`data-zip-sha256="${release.sha256}"`));
+    assert.match(html, new RegExp(`<code title="SHA-256: ${release.sha256}">${release.sha256.slice(0, 7)}</code>`));
+    assert.doesNotMatch(html, new RegExp(`<code>${release.sha256}</code>`));
   }
   assert.doesNotMatch(html, /id="zip-update"/);
   assert.match(html, /Trainer → Student → Evaluator → Improver/);
