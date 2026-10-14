@@ -99,7 +99,9 @@ class EcosystemShellTests(unittest.TestCase):
         data = (STATIC / "model-guidance-data.js").read_text(encoding="utf-8")
         script = (STATIC / "model-guidance.js").read_text(encoding="utf-8")
         for role, size in (("Trainer", "8B–14B"), ("Student", "3B–8B"),
-                           ("Evaluator", "7B–14B"), ("Improver", "14B–32B")):
+                           ("Evaluator", "7B–14B"), ("Improver", "14B–32B"),
+                           ("Planner", "7B\u201314B"), ("Researcher", "7B\u201314B"),
+                           ("Reviewer", "7B\u201314B")):
             with self.subTest(role=role):
                 self.assertIn(f'data-guidance-role="{role}"', html)
                 self.assertIn(size, data)
