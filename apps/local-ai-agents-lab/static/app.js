@@ -7,8 +7,8 @@ let stagePoll = null;
 const provider = 'ollama';
 const responseLanguage = 'en';
 const easyStartModel = 'qwen2.5:0.5b';
-const modelPreference = {Trainer:'agents-lab-trainer-model',Student:'agents-lab-student-model',Evaluator:'agents-lab-evaluator-model',Improver:'agents-lab-improver-model',Collaboration:'agents-lab-model'};
-const selectors = {Trainer:'trainer-model',Student:'student-model',Evaluator:'evaluator-model',Improver:'improver-model',Collaboration:'model'};
+const modelPreference = {Trainer:'agents-lab-trainer-model',Student:'agents-lab-student-model',Evaluator:'agents-lab-evaluator-model',Improver:'agents-lab-improver-model',Planner:'agents-lab-planner-model',Researcher:'agents-lab-researcher-model',Reviewer:'agents-lab-reviewer-model',Collaboration:'agents-lab-model'};
+const selectors = {Trainer:'trainer-model',Student:'student-model',Evaluator:'evaluator-model',Improver:'improver-model',Planner:'planner-model',Researcher:'researcher-model',Reviewer:'reviewer-model'};
 let statusData = null, statusError = false, hintError = '';
 const stageNames = {Trainer:'LEARN - Trainer',Student:'PRACTICE - Student',Evaluator:'EVALUATE - Evaluator',Improver:'IMPROVE - Improver'};
 function agentName(name) { return name; }
@@ -26,7 +26,7 @@ function setStatus() {
 }
 function updateUI() {
   $('training-model-selects').hidden=room!=='training'; $('collaboration-model-select').hidden=room==='training';
-  $('room-title').textContent=room==='training'?'Agent Training':'Agent Collaboration';
+  $('room-title').textContent=room==='training'?'Training Room':'Conference Room';
   $('room-description').textContent=room==='training'?'Learn → Practice → Evaluate → Improve':'Planner → Researcher → Reviewer · Shared history';
   $('prompt-label').textContent=room==='training'?'Training Topic':'Discussion Topic';
   $('prompt').placeholder=room==='training'?'e.g. Teach your AI agent how to...':'e.g. Explore the causes and effects of climate change...';
@@ -79,7 +79,37 @@ async function refreshStatus() {
 function switchRoom(next){if(running||!['training','conference'].includes(next))return;room=next;hintError='';updateUI();refreshHistory();}
 Object.entries(selectors).forEach(([agent,id])=>$(id).addEventListener('change',event=>localStorage.setItem(modelPreference[agent],event.target.value)));
 document.querySelectorAll('[data-room]').forEach(button=>button.addEventListener('click',()=>switchRoom(button.dataset.room)));
-$('composer').addEventListener('submit',async event=>{event.preventDefault();if(running)return;const prompt=$('prompt').value.trim(),model=$('model').value,trainerModel=$('trainer-model').value,studentModel=$('student-model').value,evaluatorModel=$('evaluator-model').value,improverModel=$('improver-model').value;if(!prompt||(room==='training'&&(!trainerModel||!studentModel||!evaluatorModel||!improverModel))||(room==='conference'&&!model))return;running=true;hintError='';$('send').disabled=true;updateUI();try{const request=room==='training'?{room,provider,trainer_model:trainerModel,student_model:studentModel,evaluator_model:evaluatorModel,improver_model:improverModel,prompt,language:responseLanguage}:{room,provider,model,prompt,language:responseLanguage};const response=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(request)});const payload=await response.json();if(!response.ok)throw new Error(payload.error||'Session failed');$('prompt').value='';if(room==='training'){activeTrainingSession=payload.session_id;await refreshTrainingSession();stagePoll=setInterval(refreshTrainingSession,1000);return;}}catch(error){hintError=error.message;}finally{if(!activeTrainingSession){running=false;await refreshHistory();await refreshStatus();updateUI();}}});
+$('composer').addEventListener('submit',async event=>{
+  event.preventDefault();
+  if(running)return;
+  const prompt=$('prompt').value.trim();
+  const assignments=room==='training'
+    ? {trainer_model:$('trainer-model').value,student_model:$('student-model').value,evaluator_model:$('evaluator-model').value,improver_model:$('improver-model').value}
+    : {planner_model:$('planner-model').value,researcher_model:$('researcher-model').value,reviewer_model:$('reviewer-model').value};
+  if(!prompt||Object.values(assignments).some(model=>!model))return;
+  running=true;hintError='';$('send').disabled=true;updateUI();
+  try{
+    const request={room,provider,...assignments,prompt,language:responseLanguage};
+    const response=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(request)});
+    const payload=await response.json();
+    if(!response.ok)throw new Error(payload.error||'Session failed');
+    $('prompt').value='';
+    if(room==='training'){
+      activeTrainingSession=payload.session_id;
+      await refreshTrainingSession();
+      stagePoll=setInterval(refreshTrainingSession,1000);
+      return;
+    }
+  }catch(error){hintError=error.message;}
+  finally{
+    if(!activeTrainingSession){
+      running=false;
+      await refreshHistory();
+      await refreshStatus();
+      updateUI();
+    }
+  }
+});
 $('cancel-training').addEventListener('click',async()=>{if(!activeTrainingSession)return;try{const response=await fetch('/api/training-sessions/'+activeTrainingSession+'/cancel',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});const payload=await response.json();if(!response.ok)throw new Error(payload.error||'Unable to cancel this session.');hintError='Cancellation requested. The current model call is allowed to finish safely.';}catch(error){hintError=error.message;}updateUI();});
 $('clear-conversation').addEventListener('click',async()=>{if(running||!confirm('Clear this room\'s conversation? This cannot be undone.'))return;$('clear-conversation').disabled=true;try{const response=await fetch('/api/history/clear',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({room})});const payload=await response.json();if(!response.ok)throw new Error(payload.error||'Unable to clear this conversation.');$('prompt').value='';hintError='Conversation cleared. A new session is ready.';renderTrainingStages(null);await refreshHistory();}catch(error){hintError=error.message;}finally{updateUI();}});
 updateUI();refreshHistory();refreshStatus();

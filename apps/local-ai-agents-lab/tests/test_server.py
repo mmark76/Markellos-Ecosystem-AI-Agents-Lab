@@ -107,6 +107,14 @@ class CampusTests(unittest.TestCase):
         self.assertTrue({"evaluator_model", "improver_model", "status"}.issubset(columns))
         campus.DB_PATH = current_db
 
+    def test_conference_messages_persist_individual_models_without_changing_training(self):
+        self.assertEqual(campus.FLOW["conference"], ["Planner", "Researcher", "Reviewer"])
+        for agent, model in (("Planner", "planner:1"), ("Researcher", "researcher:1"), ("Reviewer", "reviewer:1")):
+            campus.add_message("conference", agent, "response", model=model)
+        self.assertEqual([entry["model"] for entry in campus.history("conference")],
+                         ["planner:1", "researcher:1", "reviewer:1"])
+        self.assertEqual(campus.history("training"), [])
+
     def test_ollama_unavailable_is_reported_without_fallback(self):
         with patch.object(campus.OPENER, "open", side_effect=URLError("offline")):
             self.assertFalse(campus.provider_status("ollama")["available"])
@@ -128,6 +136,45 @@ class HttpIntegrationTests(unittest.TestCase):
                     self.assertIn(expected, response.read().decode("utf-8"))
         finally:
             server.shutdown(); server.server_close(); thread.join(timeout=4); campus.PORT = original_port
+
+    def test_http_conference_routes_three_distinct_models_in_order(self):
+        from http.server import ThreadingHTTPServer
+        from urllib.request import Request, build_opener, ProxyHandler
+        original_db, original_port = campus.DB_PATH, campus.PORT
+        with tempfile.TemporaryDirectory() as temp:
+            campus.DB_PATH = Path(temp) / "data" / "campus.sqlite3"
+            campus.initialize()
+            server = ThreadingHTTPServer(("127.0.0.1", 0), campus.Handler)
+            campus.PORT = server.server_address[1]
+            thread = Thread(target=server.serve_forever, daemon=True)
+            thread.start()
+            origin = f"http://127.0.0.1:{campus.PORT}"
+            opener = build_opener(ProxyHandler({}))
+            calls = []
+            def answer(provider, model, role, transcript, language):
+                calls.append((role, model, [item["agent"] for item in transcript]))
+                return role + " response"
+            try:
+                with patch.object(campus, "local_models", return_value=["p:1", "r:1", "v:1"]), patch.object(campus, "provider_chat", side_effect=answer):
+                    request = Request(origin + "/api/run", data=json.dumps({
+                        "room": "conference", "provider": "ollama",
+                        "planner_model": "p:1", "researcher_model": "r:1", "reviewer_model": "v:1",
+                        "prompt": "Discuss a topic"}).encode(), headers={"Origin": origin, "Content-Type": "application/json"}, method="POST")
+                    with opener.open(request) as response:
+                        result = json.load(response)
+                        self.assertEqual(response.status, 200)
+                    self.assertEqual([(c[0], c[1]) for c in calls],
+                                     [("Planner", "p:1"), ("Researcher", "r:1"), ("Reviewer", "v:1")])
+                    self.assertEqual(calls[-1][2], ["You", "Planner", "Researcher"])
+                    self.assertEqual([x["model"] for x in result["messages"]], ["p:1", "r:1", "v:1"])
+                    with opener.open(origin + "/api/history/conference") as response:
+                        saved = json.load(response)["messages"]
+                    self.assertEqual([x["model"] for x in saved[1:]], ["p:1", "r:1", "v:1"])
+            finally:
+                server.shutdown()
+                server.server_close()
+                thread.join(timeout=4)
+                campus.DB_PATH, campus.PORT = original_db, original_port
 
     def test_http_session_routes_four_models_and_publishes_stage_state(self):
         from http.server import ThreadingHTTPServer
