@@ -16,7 +16,7 @@ class EcosystemShellTests(unittest.TestCase):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         app = (STATIC / "app.js").read_text(encoding="utf-8")
         for name in ('data-room="training"', 'data-room="conference"',
-                     'id="settings-toggle"', 'id="model"',
+                     'id="settings-toggle"', 'id="planner-model"', 'id="researcher-model"', 'id="reviewer-model"',
                      'id="trainer-model"', 'id="student-model"', 'id="evaluator-model"', 'id="improver-model"',
                      'id="composer"'):
             with self.subTest(name=name):
@@ -63,11 +63,22 @@ class EcosystemShellTests(unittest.TestCase):
             with self.subTest(selector=selector): self.assertIn(selector, html)
         for key in ('agents-lab-trainer-model', 'agents-lab-student-model', 'agents-lab-evaluator-model', 'agents-lab-improver-model', 'agents-lab-model'):
             with self.subTest(key=key): self.assertIn(key, app)
-        self.assertIn('trainer_model:trainerModel', app)
-        self.assertIn('student_model:studentModel', app)
-        self.assertIn('evaluator_model:evaluatorModel', app)
-        self.assertIn('improver_model:improverModel', app)
+        self.assertIn('trainer_model:', app)
+        self.assertIn('student_model:', app)
+        self.assertIn('evaluator_model:', app)
+        self.assertIn('improver_model:', app)
         self.assertIn("model.className='model-name'", app)
+
+    def test_conference_has_independent_models_and_training_room_label(self):
+        html = (STATIC / "index.html").read_text(encoding="utf-8")
+        app = (STATIC / "app.js").read_text(encoding="utf-8")
+        self.assertIn('id="nav-training">Training Room</span>', html)
+        self.assertIn("room==='training'?'Training Room':'Conference Room'", app)
+        for role in ("Planner", "Researcher", "Reviewer"):
+            self.assertIn(f'<label for="{role.lower()}-model">{role} Model</label>', html)
+            self.assertIn(f"agents-lab-{role.lower()}-model", app)
+            self.assertIn(f"{role.lower()}_model:", app)
+        self.assertNotIn('id="model"', html)
 
     def test_agent_responses_have_local_copy_and_user_initiated_share_actions(self):
         app = (STATIC / "app.js").read_text(encoding="utf-8")

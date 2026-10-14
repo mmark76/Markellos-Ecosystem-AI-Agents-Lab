@@ -75,6 +75,8 @@ def initialize():
         columns = {row[1] for row in db.execute("PRAGMA table_info(messages)")}
         if "session_id" not in columns:
             db.execute("ALTER TABLE messages ADD COLUMN session_id INTEGER")
+        if "model" not in columns:
+            db.execute("ALTER TABLE messages ADD COLUMN model TEXT")
         db.execute("UPDATE messages SET room='training' WHERE room=?", (LEGACY_TRAINING_ROOM,))
         db.execute("""CREATE TABLE IF NOT EXISTS training_sessions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -115,11 +117,11 @@ def initialize():
         db.execute("CREATE INDEX IF NOT EXISTS idx_training_stages_session ON training_stages(session_id,execution_order)")
 
 
-def add_message(room: str, agent: str, content: str, session_id: Optional[int] = None):
+def add_message(room: str, agent: str, content: str, session_id: Optional[int] = None, model: Optional[str] = None):
     with closing(connect()) as db, db:
         db.execute(
-            "INSERT INTO messages(room,agent,content,created_at,session_id) VALUES(?,?,?,?,?)",
-            (room, agent, content[:12000], utc_now(), session_id),
+            "INSERT INTO messages(room,agent,content,created_at,session_id,model) VALUES(?,?,?,?,?,?)",
+            (room, agent, content[:12000], utc_now(), session_id, model),
         )
 
 
@@ -144,11 +146,11 @@ def history(room: str, limit: int = 80) -> list[dict]:
     with closing(connect()) as db, db:
         rows = db.execute(
             "SELECT messages.id,messages.agent,messages.content,messages.created_at,messages.session_id,"
-            " CASE messages.agent WHEN 'Trainer' THEN training_sessions.trainer_model"
+            " COALESCE(messages.model, CASE messages.agent WHEN 'Trainer' THEN training_sessions.trainer_model"
             " WHEN 'Student' THEN training_sessions.student_model"
             " WHEN 'Evaluator' THEN training_sessions.evaluator_model"
-            " WHEN 'Improver' THEN training_sessions.improver_model END AS model"
-            " FROM (SELECT id,agent,content,created_at,session_id FROM messages WHERE room=?"
+            " WHEN 'Improver' THEN training_sessions.improver_model END) AS model"
+            " FROM (SELECT id,agent,content,created_at,session_id,model FROM messages WHERE room=?"
             " ORDER BY id DESC LIMIT ?) AS messages"
             " LEFT JOIN training_sessions ON training_sessions.id=messages.session_id"
             " ORDER BY messages.id ASC", (room, limit)
@@ -479,6 +481,9 @@ class Handler(BaseHTTPRequestHandler):
             student_model = body.get("student_model", model)
             evaluator_model = body.get("evaluator_model", model)
             improver_model = body.get("improver_model", model)
+            planner_model = body.get("planner_model", model)
+            researcher_model = body.get("researcher_model", model)
+            reviewer_model = body.get("reviewer_model", model)
             raw_prompt = body.get("prompt", "")
             language = body.get("language", "en")
             if language not in ("en", "el"):
@@ -491,6 +496,9 @@ class Handler(BaseHTTPRequestHandler):
             if room == "training" and not all(isinstance(value, str) and value for value in
                                                 (trainer_model, student_model, evaluator_model, improver_model)):
                 raise ValueError("Select a model for Trainer, Student, Evaluator, and Improver.")
+            if room == "conference" and not all(isinstance(value, str) and value for value in
+                                                  (planner_model, researcher_model, reviewer_model)):
+                raise ValueError("Select a model for Planner, Researcher, and Reviewer.")
             PROVIDERS.get(provider)
         except (ValueError, TypeError, json.JSONDecodeError) as err:
             self._json({"error": str(err)}, 400)
@@ -503,7 +511,8 @@ class Handler(BaseHTTPRequestHandler):
             available_models = local_models(provider)
             assigned_models = ({"Trainer": trainer_model, "Student": student_model,
                                 "Evaluator": evaluator_model, "Improver": improver_model}
-                               if room == "training" else {agent: model for agent in FLOW[room]})
+                               if room == "training" else {"Planner": planner_model, "Researcher": researcher_model,
+                                                          "Reviewer": reviewer_model})
             missing = [f"{agent} model ({assigned_models[agent]})" for agent in FLOW[room]
                        if assigned_models[agent] not in available_models]
             if missing:
@@ -524,7 +533,7 @@ class Handler(BaseHTTPRequestHandler):
             completed = []
             for agent in FLOW[room]:
                 answer = provider_chat(provider, assigned_models[agent], agent, transcript, language)
-                add_message(room, agent, answer)
+                add_message(room, agent, answer, model=assigned_models[agent])
                 item = {"agent": agent, "content": answer, "created_at": utc_now(), "model": assigned_models[agent]}
                 completed.append(item)
                 transcript.append(item)
