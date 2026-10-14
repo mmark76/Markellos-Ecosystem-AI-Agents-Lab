@@ -1,6 +1,6 @@
 # Markellos Ecosystem AI Training Lab
 
-Version: v1.1.6 · Private local starter
+Version: v1.1.7 · Private local starter
 
 Local Windows application with two workspaces:
 
