@@ -25,12 +25,12 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn("Reviewer", app)
         self.assertNotIn('Architect → Developer → Reviewer', app)
 
-    def test_agent_collaboration_remains_visible_but_is_temporarily_unavailable(self):
+    def test_conference_room_navigation_is_available(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         app = (STATIC / "app.js").read_text(encoding="utf-8")
-        self.assertIn('data-room="conference" type="button" disabled', html)
-        self.assertIn('Agent Collaboration', html)
-        self.assertIn('Under Construction', html)
+        self.assertIn('class="nav" data-room="conference" type="button"', html)
+        self.assertIn('Conference Room', html)
+        self.assertNotIn('nav-collaboration-status', html)
         self.assertIn("'conference'", app)
 
     def test_training_topic_and_conversation_scroll_together(self):
