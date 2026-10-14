@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-046
+
+```text
+Change ID: AI-LAB-CC-046
+Requested by: Repository maintainer
+Date: 2026-10-14
+Description: Establish the first additive Evaluation Lab module: validated contracts, Evaluation Lab-owned SQLite tables, immutable read-only completed Training Room snapshots, provenance-qualified findings, and regression coverage.
+Reason: Begin v2.0.0 modular development without changing the stable Conference Room or Training Room workflows, UI, API, prompts, data, or release artifacts.
+Affected objective IDs: AI-LAB-OBJ-015
+Architecture impact: Adds an independent `evaluation_lab` package with a one-way read dependency on the existing Training Room SQLite schema; no existing module imports it.
+Security and privacy impact: Maintains the local-only database boundary; Evaluation Lab writes only its own tables and preserves evidence provenance for model-generated findings.
+Data impact: Adds idempotent Evaluation Lab tables and indexes in the existing SQLite database. Historical Training Room tables are read-only to the new module.
+Testing impact: Adds temporary-database contract, persistence, source-record preservation, immutable-snapshot, provenance, scorecard-atomicity, and lifecycle-transition tests; existing Local Lab and package regressions remain required.
+Cost and schedule impact: No external service, dependency, deployment, package, or release change.
+Decision: APPROVED (SCOPE INCREASE)
+Approved by: Direct user request
+Target release: Unreleased v2.0.0 development branch; no package or deployment action in this phase
+```
+
 ## Approved change record — AI-LAB-CC-045
 
 ```text
