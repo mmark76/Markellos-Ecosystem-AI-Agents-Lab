@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-047
+
+```text
+Change ID: AI-LAB-CC-047
+Requested by: Repository maintainer
+Date: 2026-10-14
+Description: Add the independent Evaluation Lab Phase 2 execution engine, fixed-loopback Ollama adapter, immutable-snapshot prompt builder, strict structured-response parser, and atomic assessment persistence.
+Reason: Enable local evaluation of recorded Training Room outputs without re-executing, modifying, or coupling to the existing Training Room workflow.
+Affected objective IDs: AI-LAB-OBJ-016
+Architecture impact: Adds one-way Evaluation Lab execution modules only. Existing server routes, UI, prompts, packaging, Training Room, and Conference Room do not import or depend on these modules.
+Security and privacy impact: Uses only the existing fixed 127.0.0.1 Ollama provider; configured model selection is never substituted; requests/responses are bounded; recorded outputs are explicitly untrusted data; no credentials, cloud endpoint, installation, or telemetry is added.
+Data impact: Evaluation results, including qualified scorecards and findings, are committed atomically in existing Evaluation Lab tables. Historical Training Room records remain read-only.
+Testing impact: Adds mocked local-model execution, structured parsing, timeout, failure, interruption, duplicate-run, provenance, atomicity, and source-isolation regression coverage.
+Cost and schedule impact: Local Evaluator inference consumes local device resources only; no package, service, deployment, or release change.
+Decision: APPROVED (SCOPE INCREASE)
+Approved by: Direct user request
+Target release: Unreleased v2.0.0 development branch; no API, UI, package, or deployment action in this phase
+```
+
 ## Approved change record — AI-LAB-CC-046
 
 ```text

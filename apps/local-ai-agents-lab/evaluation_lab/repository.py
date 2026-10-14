@@ -210,7 +210,18 @@ class EvaluationRepository:
         return self._required_run(run_id)
 
     def record_scorecard(self, scorecard: EvaluationScorecard) -> EvaluationScorecard:
-        """Atomically persist model output and transition a running run to completed."""
+        """Persist a scorecard-only assessment for backwards-compatible Phase 1 callers."""
+        self.record_assessment(scorecard, ())
+        return scorecard
+
+    def record_assessment(
+        self, scorecard: EvaluationScorecard, findings: tuple[EvaluationFinding, ...]
+    ) -> EvaluationScorecard:
+        """Atomically persist a validated assessment and complete its running Evaluation Run."""
+        if any(not isinstance(finding, EvaluationFinding) for finding in findings):
+            raise EvaluationRepositoryError("findings must contain EvaluationFinding records.")
+        if any(finding.evaluation_run_id != scorecard.evaluation_run_id for finding in findings):
+            raise EvaluationRepositoryError("Every finding must belong to the scorecard's Evaluation Lab run.")
         with closing(self.connect()) as db, db:
             run = db.execute(
                 "SELECT status,input_snapshot_json FROM evaluation_lab_runs WHERE id=?", (scorecard.evaluation_run_id,)
@@ -225,13 +236,6 @@ class EvaluationRepository:
                 raise EvaluationRepositoryError("The Evaluation Lab run has an invalid immutable snapshot.") from error
             if scorecard.criteria != snapshot.criteria:
                 raise EvaluationRepositoryError("Scorecard criteria must exactly match the immutable run snapshot criteria.")
-            result = db.execute(
-                "UPDATE evaluation_lab_runs SET status='completed',completed_at=? "
-                "WHERE id=? AND status='running'",
-                (self._utc_now(), scorecard.evaluation_run_id),
-            )
-            if result.rowcount != 1:
-                raise EvaluationRepositoryError("Only a running Evaluation Lab run can receive a scorecard.")
             db.execute(
                 "INSERT INTO evaluation_lab_scorecards(evaluation_run_id,criteria_json,scores_json,summary,raw_assessment,created_at) "
                 "VALUES(?,?,?,?,?,?)",
@@ -244,6 +248,28 @@ class EvaluationRepository:
                     self._utc_now(),
                 ),
             )
+            for finding in findings:
+                if finding.evidence_classification == "verifiable_record":
+                    self._validate_verifiable_reference(finding.evidence_reference, snapshot)
+                db.execute(
+                    "INSERT INTO evaluation_lab_findings(evaluation_run_id,description,supporting_evidence,evidence_classification,evidence_reference,created_at) "
+                    "VALUES(?,?,?,?,?,?)",
+                    (
+                        finding.evaluation_run_id,
+                        finding.description,
+                        finding.supporting_evidence,
+                        finding.evidence_classification,
+                        finding.evidence_reference,
+                        self._utc_now(),
+                    ),
+                )
+            result = db.execute(
+                "UPDATE evaluation_lab_runs SET status='completed',completed_at=? "
+                "WHERE id=? AND status='running'",
+                (self._utc_now(), scorecard.evaluation_run_id),
+            )
+            if result.rowcount != 1:
+                raise EvaluationRepositoryError("Only a running Evaluation Lab run can receive a scorecard.")
         return scorecard
 
     def get_scorecard(self, run_id: int) -> Optional[EvaluationScorecard]:

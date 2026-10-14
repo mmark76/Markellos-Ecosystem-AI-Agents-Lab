@@ -26,6 +26,7 @@
 | AI-LAB-SCOPE-014 | Add consented Google Analytics 4 to the public Cloudflare Pages landing page only, including page/navigation and ZIP-download measurement, withdrawal controls, and accurate privacy information. | High | Repository maintainer | Approved by direct user request on 2026-10-13 |
 | AI-LAB-SCOPE-015 | Retain and provide the public Windows ZIP archive from v1.0.0 onward in a compact, collapsed release-history control for future agent studies. | Medium | Repository maintainer | Approved by direct user request on 2026-10-14 |
 | AI-LAB-SCOPE-016 | Establish the additive, independent Evaluation Lab persistence foundation for read-only evaluation of completed Training Room records. | High | Repository maintainer | Approved by direct user request on 2026-10-14 |
+| AI-LAB-SCOPE-017 | Add an independent, fixed-loopback local Evaluator execution engine for persisted Evaluation Lab runs without changing Training Room behavior. | High | Repository maintainer | Approved by direct user request on 2026-10-14 |
 
 ## Out of scope
 

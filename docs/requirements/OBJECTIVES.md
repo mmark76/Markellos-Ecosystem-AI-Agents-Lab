@@ -19,5 +19,6 @@ Objectives are finite, owned, and traceable to scope, acceptance criteria, imple
 | AI-LAB-OBJ-013 | Help users compare suitable local-model sizes, capabilities, and general hardware considerations for Trainer, Student, Evaluator, and Improver without restricting their selections. | AI-LAB-SCOPE-013 | Medium | Yes | Repository maintainer | AI-LAB-AC-015 | APPROVED |
 | AI-LAB-OBJ-014 | Measure public landing-page traffic and ZIP-download interactions with GA4 only after explicit visitor consent, while preserving the Local Lab boundary. | AI-LAB-SCOPE-014 | High | Yes | Repository maintainer | AI-LAB-AC-016 | APPROVED |
 | AI-LAB-OBJ-015 | Establish an independent Evaluation Lab data-contract and persistence boundary that can safely snapshot completed Training Room sessions without changing legacy records or behavior. | AI-LAB-SCOPE-016 | High | Yes | Repository maintainer | AI-LAB-AC-017 | APPROVED |
+| AI-LAB-OBJ-016 | Execute one persisted Evaluation Lab run with its explicitly selected local Evaluator model, validate structured qualified assessments, and atomically persist the result without changing Training Room records. | AI-LAB-SCOPE-017 | High | Yes | Repository maintainer | AI-LAB-AC-018 | APPROVED |
 
 Applicable `ENG-*`, Shield, and Infrastructure requirements are recorded through their dedicated adoption records rather than duplicated here.
