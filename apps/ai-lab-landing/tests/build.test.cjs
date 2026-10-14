@@ -28,7 +28,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /<img class="brand-mark" src="\.\/ai-training-lab-mark\.png" alt="AI Training Lab">/);
   assert.match(html, /class="beta-badge">BETA<\/span>/);
   assert.match(styles, /\.beta-badge/);
-  assert.deepEqual(distribution.releases.map(({ version }) => version), ['1.1.3', '1.1.2', '1.1.1', '1.1.0', '1.0.0']);
+  assert.deepEqual(distribution.releases.map(({ version }) => version), ['1.1.5', '1.1.4', '1.1.3', '1.1.2', '1.1.1', '1.1.0', '1.0.0']);
   for (const release of distribution.releases) {
     assert.match(release.version, /^\d+\.\d+\.\d+$/);
     assert.match(release.url, new RegExp(`/releases/v${release.version.replaceAll('.', '\\.')}/AI-Agents-Lab-Windows\\.zip$`));
@@ -41,7 +41,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, new RegExp(`Download AI Training Lab for Windows \\(v${escapedDistributionVersion}\\)`));
   assert.match(html, new RegExp(currentDistribution.url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.match(html, /Release archive/);
-  assert.match(html, /4 earlier Windows ZIPs/);
+  assert.match(html, /6 earlier Windows ZIPs/);
   assert.match(html, /Verified historical releases are retained for reference and future agent studies\./);
   assert.match(styles, /\.release-history details/);
   assert.match(styles, /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
