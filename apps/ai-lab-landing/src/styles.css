@@ -85,3 +85,8 @@ html[data-color-mode="light"] { color-scheme: light; --color-background:#f4f7fb;
 html[data-color-mode="light"] .dashboard-card { box-shadow: var(--shadow-sm); }
 html[data-color-mode="light"] .shell-notice { background:#e8f0fb; color:#1f3550; }
 html[data-color-mode="light"] .secondary-button { background:#ffffff; color:#172033; }
+
+/* Keep desktop utility controls visually anchored inside the header. */
+@media (min-width: 64rem) {
+  .header-actions { margin-right: clamp(2rem, 7vw, 8rem); }
+}
