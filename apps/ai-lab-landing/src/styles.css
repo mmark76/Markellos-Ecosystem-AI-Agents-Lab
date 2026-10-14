@@ -91,7 +91,7 @@ html[data-color-mode="light"] .secondary-button { background:#ffffff; color:#172
   .header-actions { margin-right: clamp(8rem, 15vw, 16rem); }
 }
 
-/* More pronounced inward alignment on wide desktop viewports. */
+/* Align the rightmost header control with the second card in the 3-column grid. */
 @media (min-width: 80rem) {
-  .header-actions { margin-right: clamp(15rem, 24vw, 26rem); }
+  .header-actions { margin-right: calc((100% + var(--space-5)) / 3); }
 }
