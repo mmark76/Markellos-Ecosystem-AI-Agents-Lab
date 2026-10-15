@@ -99,9 +99,11 @@ html[data-color-mode="light"] .secondary-button { background:#ffffff; color:#172
 .launch-helper{margin-top:var(--space-3);color:var(--color-text-muted);font-size:var(--font-size-sm)}
 
 
-/* Distinct launch action: light green in both themes, independent of the download accent. */
+/* Distinct launch action: royal blue in both themes, independent of the download accent. */
 #launch-local-lab,html[data-color-mode="light"] #launch-local-lab{
-  background:#b7edc4;color:#173c27;border-color:#79c791;
+  background:#2563eb;color:#ffffff;border-color:#2563eb;
 }
-#launch-local-lab:hover{background:#9fe5b1;border-color:#62b97f;filter:none}
-#launch-local-lab:focus-visible{outline:3px solid #b7edc4;outline-offset:3px}
+#launch-local-lab:hover,html[data-color-mode="light"] #launch-local-lab:hover{
+  background:#1d4ed8;border-color:#1d4ed8;filter:none;
+}
+#launch-local-lab:focus-visible{outline:3px solid #93c5fd;outline-offset:3px}
