@@ -67,6 +67,8 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /Start in three simple steps/);
   assert.match(html, /Start AI Training Lab\.bat/);
   assert.match(html, /id="launch-local-lab" class="secondary-button" href="markellos-ai-training-lab:\/\/open"/);
+  assert.match(html, /Launch Local Lab after download and extract zip<\/a>/);
+  assert.doesNotMatch(html, /Launch Local Lab <span aria-hidden="true">\?<\/span>/);
   assert.match(html, /Launch Local Lab works after the first Easy Start setup/);
   assert.doesNotMatch(html, /\{\{LEGACY_DOWNLOAD_BUTTON\}\}/);
   assert.match(html, /Starter AI Model/);
