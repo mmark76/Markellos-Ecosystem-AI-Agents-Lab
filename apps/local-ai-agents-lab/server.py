@@ -375,6 +375,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._json({"error": "Unknown training session"}, 404)
             return
         pages = {"/": ("index.html", "text/html; charset=utf-8"),
+                 "/fine-tuning-guide": ("fine-tuning-guide.html", "text/html; charset=utf-8"),
+                 "/static/fine-tuning-guide.css": ("fine-tuning-guide.css", "text/css; charset=utf-8"),
                  "/static/style.css": ("style.css", "text/css; charset=utf-8"),
                  "/static/evaluation.css": ("evaluation.css", "text/css; charset=utf-8"),
                  "/static/app.js": ("app.js", "text/javascript; charset=utf-8"),

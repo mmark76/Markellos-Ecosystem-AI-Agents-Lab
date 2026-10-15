@@ -155,3 +155,18 @@ test('Dashboard launcher is a fixed per-user protocol using the existing Windows
   assert.doesNotMatch(handler,/param\(\s*\[.*string\].*url/i);
   assert.match(packager,/'scripts\/launch-from-dashboard\.ps1'/);
 });
+
+
+test('beginner fine-tuning guide is bundled while training remains locked',()=>{
+  const root=path.resolve(__dirname,'..');
+  const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
+  const page=fs.readFileSync(path.join(root,'static','fine-tuning-guide.html'),'utf8');
+  const html=fs.readFileSync(path.join(root,'static','index.html'),'utf8');
+  const server=fs.readFileSync(path.join(root,'server.py'),'utf8');
+  assert.match(packager,/'static\/fine-tuning-guide.html'/);
+  assert.match(packager,/'static\/fine-tuning-guide.css'/);
+  assert.match(server,/"\/fine-tuning-guide": \("fine-tuning-guide.html", "text\/html; charset=utf-8"\)/);
+  assert.match(html,/href="\/fine-tuning-guide" target="_blank" rel="noopener noreferrer"/);
+  assert.match(html,/Under Construction/);
+  assert.match(page,/Fine-Tuning versus the Learning Lab/);
+});

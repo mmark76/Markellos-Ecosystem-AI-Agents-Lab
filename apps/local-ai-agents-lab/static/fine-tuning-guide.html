@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en" data-accent="white">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Understanding Model Fine-Tuning | AI Training Lab</title>
+  <link rel="stylesheet" href="/static/ecosystem-tokens.css">
+  <link rel="stylesheet" href="/static/fine-tuning-guide.css">
+</head>
+<body>
+<main class="guide">
+  <p class="eyebrow">AI Training Lab ? Beginner's guide</p>
+  <h1>Understanding Model Fine-Tuning</h1>
+  <p class="lead">Fine-tuning means taking an AI model that has already learned many things and teaching it further with carefully selected examples. You are adapting an existing model, not creating one from nothing.</p>
+  <p class="notice"><strong>Feature status:</strong> Model Fine-Tuning is under construction and cannot be started in this release. This page explains the idea; it does not install or train anything.</p>
+
+  <h2>A simple example</h2>
+  <p>Imagine you have an AI model that can discuss many subjects. You want it to become more useful for explaining chess positions. You prepare suitable examples of positions, explanations, and desired responses. Fine-tuning uses those examples to adjust the model. Afterwards, it <em>might</em> give more useful chess explanations, but improvement is not guaranteed: you must test it.</p>
+
+  <h2>The four choices in a fine-tuning setup</h2>
+  <ol>
+    <li><h3>Which AI model? (Model)</h3><p>Choose the already trained model you want to adapt. A compatible model must be available locally.</p></li>
+    <li><h3>Which examples? (Dataset)</h3><p>Choose the information and examples the model will learn from. A common file format is <strong>JSON Lines (.jsonl)</strong>, containing one structured example per line. Good-quality examples matter more than simply adding many.</p></li>
+    <li><h3>How should it learn? (Training Method)</h3><p><strong>Supervised Fine-Tuning (SFT)</strong> trains with examples of the responses you want. <strong>Low-Rank Adaptation (LoRA)</strong> is a resource-saving way to update a relatively small set of trainable parameters. These are not opposites: SFT can use LoRA.</p></li>
+    <li><h3>Which computer resources? (Compute Device)</h3><p><strong>CPU (Central Processing Unit)</strong> uses your computer's main processor and is often slower. <strong>GPU (Graphics Processing Unit)</strong> can speed up training; <strong>CUDA</strong> refers to supported NVIDIA GPU acceleration. <strong>Auto</strong> means the software selects an available supported device.</p></li>
+  </ol>
+
+  <h2>Fine-Tuning versus the Learning Lab</h2>
+  <div class="comparison"><section><h3>Learning Lab (Agent Collaboration)</h3><p>AI agents exchange answers and feedback during a session. The original model's learned parameters do not change.</p></section><section><h3>Fine-Tuning (Model Adaptation)</h3><p>Training adjusts parameters or adapters using a dataset. You can save the resulting adapted model for later use.</p></section></div>
+
+  <h2>Other names you may encounter</h2>
+  <p><strong>Ollama (Local Inference Runtime)</strong> runs models to produce answers. <strong>PyTorch (Machine Learning Framework)</strong> performs numerical training. <strong>Transformers (Model Library)</strong> supports compatible pretrained models. <strong>PEFT (Parameter-Efficient Fine-Tuning)</strong> groups approaches such as LoRA, while <strong>TRL (Transformer Reinforcement Learning Library)</strong> provides tools that include supervised fine-tuning. These are technologies behind the process, not extra steps you must complete just to use the Learning Lab.</p>
+
+  <h2>What should you expect?</h2>
+  <p>Training can take time, memory, and disk space. The adapted model may improve on your chosen examples, stay the same, or become worse on some tasks. Evaluate it on separate examples before deciding whether fine-tuning helped.</p>
+  <p><a class="back" href="/" aria-label="Return to AI Training Lab">? Return to AI Training Lab</a></p>
+</main>
+</body>
+</html>

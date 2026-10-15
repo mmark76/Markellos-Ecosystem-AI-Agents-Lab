@@ -286,7 +286,7 @@ class EcosystemShellTests(unittest.TestCase):
         app = (STATIC / "app.js").read_text(encoding="utf-8")
         self.assertIn('placeholder="e.g. Teach your AI agent how to..."', html)
         self.assertIn("'e.g. Teach your AI agent how to...'", app)
-        for name in ('Advanced: Train a model (optional)', 'This option is temporarily locked.',
+        for name in ('Advanced: Model Fine-Tuning (optional)', 'This option is temporarily locked.',
                      'confirmed training-worker compatibility issue', 'Under Construction'):
             with self.subTest(name=name): self.assertIn(name, html)
         self.assertIn('<section class="training-workspace training-unavailable"', html)
@@ -296,6 +296,16 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertNotIn('Review and start training', html)
         self.assertIn('class="nav-status training-status">Under Construction</span>', html)
         self.assertIn('.training-workspace.training-unavailable', (STATIC / "style.css").read_text(encoding="utf-8"))
+        self.assertIn('href="/fine-tuning-guide"', html)
+        self.assertIn('target="_blank" rel="noopener noreferrer"', html)
+        guide = (STATIC / "fine-tuning-guide.html").read_text(encoding="utf-8")
+        for label in ("Which AI model? (Model)", "Which examples? (Dataset)",
+                      "How should it learn? (Training Method)",
+                      "Which computer resources? (Compute Device)",
+                      "Supervised Fine-Tuning (SFT)", "Low-Rank Adaptation (LoRA)"):
+            with self.subTest(label=label):
+                self.assertIn(label, guide)
+
 
     def test_local_model_status_does_not_imply_internet_connectivity(self):
         app = (STATIC / "app.js").read_text(encoding="utf-8")
