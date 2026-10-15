@@ -41,6 +41,8 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, new RegExp(`Download v${escapedDistributionVersion}`));
   assert.match(html, /id="zip-download-v118" class="secondary-button" data-zip-version="v1\.1\.8"[^>]*>Download v1\.1\.8<\/a>/);
   assert.match(styles, /\.hero-actions\{display:flex;flex-wrap:wrap;gap:var\(--space-3\);margin-top:var\(--space-5\)\}/);
+  assert.match(styles, /#launch-local-lab,html\[data-color-mode="light"\] #launch-local-lab/);
+  assert.match(styles, /background:#b7edc4;color:#173c27;border-color:#79c791/);
   assert.match(html, new RegExp(currentDistribution.url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.match(html, /Release archive/);
   assert.match(html, /12 earlier Windows ZIPs/);
