@@ -1,5 +1,61 @@
 # Change Control
 
+## Approved change record ? AI-LAB-CC-048
+
+```text
+Change ID: AI-LAB-CC-048
+Requested by: Repository maintainer
+Date: 2026-10-15
+Description: Add independent Evaluation Lab API/UI integration to the local application using completed Training Room snapshot inputs and Phase 2 execution contracts.
+Reason: Enable explicit local evaluation and inspection of model-qualified scorecards and findings without coupling or writing to legacy rooms.
+Affected objective IDs: AI-LAB-OBJ-017
+Architecture impact: Add EvaluationHTTPService module, narrow same-origin API dispatch in server.py, new standalone Evaluation Lab JS/CSS and navigation UI.
+Security and privacy impact: Fixed loopback host/Origin checks preserved, bounded request validation, only configured installed Ollama model, no external provider or telemetry.
+Data impact: Additive Evaluation Lab tables initialized after legacy schema migrations. Only Evaluation Lab tables receive new run/results; completed Training Room records are read-only.
+Testing impact: Mocked HTTP integration, real engine through a mocked local adapter, full Python/Node regression and foundation checks; manual local browser UI review remains pending.
+Decision: APPROVED (SCOPE INCREASE)
+Approved by: Direct user request
+Target release: Unreleased v2.0.0 development branch; no package, merge or deployment in this phase.
+```
+
+## Approved change record — AI-LAB-CC-047
+
+```text
+Change ID: AI-LAB-CC-047
+Requested by: Repository maintainer
+Date: 2026-10-14
+Description: Add the independent Evaluation Lab Phase 2 execution engine, fixed-loopback Ollama adapter, immutable-snapshot prompt builder, strict structured-response parser, and atomic assessment persistence.
+Reason: Enable local evaluation of recorded Training Room outputs without re-executing, modifying, or coupling to the existing Training Room workflow.
+Affected objective IDs: AI-LAB-OBJ-016
+Architecture impact: Adds one-way Evaluation Lab execution modules only. Existing server routes, UI, prompts, packaging, Training Room, and Conference Room do not import or depend on these modules.
+Security and privacy impact: Uses only the existing fixed 127.0.0.1 Ollama provider; configured model selection is never substituted; requests/responses are bounded; recorded outputs are explicitly untrusted data; no credentials, cloud endpoint, installation, or telemetry is added.
+Data impact: Evaluation results, including qualified scorecards and findings, are committed atomically in existing Evaluation Lab tables. Historical Training Room records remain read-only.
+Testing impact: Adds mocked local-model execution, structured parsing, timeout, failure, interruption, duplicate-run, provenance, atomicity, and source-isolation regression coverage.
+Cost and schedule impact: Local Evaluator inference consumes local device resources only; no package, service, deployment, or release change.
+Decision: APPROVED (SCOPE INCREASE)
+Approved by: Direct user request
+Target release: Unreleased v2.0.0 development branch; no API, UI, package, or deployment action in this phase
+```
+
+## Approved change record — AI-LAB-CC-046
+
+```text
+Change ID: AI-LAB-CC-046
+Requested by: Repository maintainer
+Date: 2026-10-14
+Description: Establish the first additive Evaluation Lab module: validated contracts, Evaluation Lab-owned SQLite tables, immutable read-only completed Training Room snapshots, provenance-qualified findings, and regression coverage.
+Reason: Begin v2.0.0 modular development without changing the stable Conference Room or Training Room workflows, UI, API, prompts, data, or release artifacts.
+Affected objective IDs: AI-LAB-OBJ-015
+Architecture impact: Adds an independent `evaluation_lab` package with a one-way read dependency on the existing Training Room SQLite schema; no existing module imports it.
+Security and privacy impact: Maintains the local-only database boundary; Evaluation Lab writes only its own tables and preserves evidence provenance for model-generated findings.
+Data impact: Adds idempotent Evaluation Lab tables and indexes in the existing SQLite database. Historical Training Room tables are read-only to the new module.
+Testing impact: Adds temporary-database contract, persistence, source-record preservation, immutable-snapshot, provenance, scorecard-atomicity, and lifecycle-transition tests; existing Local Lab and package regressions remain required.
+Cost and schedule impact: No external service, dependency, deployment, package, or release change.
+Decision: APPROVED (SCOPE INCREASE)
+Approved by: Direct user request
+Target release: Unreleased v2.0.0 development branch; no package or deployment action in this phase
+```
+
 ## Approved change record — AI-LAB-CC-045
 
 ```text

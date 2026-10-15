@@ -101,6 +101,27 @@ test('Model Guidance modules are included in the Windows release',()=>{
   assert.match(html,/\/static\/model-guidance-data\.js/);
   assert.match(html,/\/static\/model-guidance\.js/);
 });
+test('Evaluation Lab Python dependencies and browser assets are included in Windows packaging',()=>{
+  const root=path.resolve(__dirname,'..');
+  const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
+  const html=fs.readFileSync(path.join(root,'static','index.html'),'utf8');
+  const server=fs.readFileSync(path.join(root,'server.py'),'utf8');
+  const required=[
+    'evaluation_lab/__init__.py','evaluation_lab/contracts.py',
+    'evaluation_lab/repository.py','evaluation_lab/execution.py',
+    'evaluation_lab/model_adapter.py','evaluation_lab/prompt.py',
+    'evaluation_lab/response.py','evaluation_lab/http_api.py',
+    'static/evaluation.js','static/evaluation.css'
+  ];
+  for (const file of required) {
+    assert.ok(fs.readFileSync(path.join(root,file),'utf8').trim(),file+' must exist');
+    assert.ok(packager.includes("'"+file+"'"),file+' is absent from release manifest');
+  }
+  for (const asset of ['evaluation.js','evaluation.css']) {
+    assert.ok(html.includes('/static/'+asset),'HTML must reference '+asset);
+    assert.ok(server.includes('"/static/'+asset+'"'),'Local server must serve '+asset);
+  }
+});
 test('packaged UI identifies the ZIP version rather than a build identifier',()=>{
   const root=path.resolve(__dirname,'..');
   const html=fs.readFileSync(path.join(root,'static','index.html'),'utf8');

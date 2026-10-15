@@ -7,7 +7,9 @@
   <title>Markellos Ecosystem AI Training Lab · Local</title>
   <link rel="stylesheet" href="/static/ecosystem-tokens.css">
   <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/evaluation.css">
   <script defer src="/static/app.js"></script>
+  <script defer src="/static/evaluation.js"></script>
   <script defer src="/static/settings.js"></script>
   <script defer src="/static/ecosystem-shell.js"></script>
   <script defer src="/static/model-guidance-data.js"></script>
@@ -24,6 +26,7 @@
       <div class="label">WORKSPACE</div>
       <button class="nav selected" data-room="training">▣ &nbsp; <span id="nav-training">Training Room</span></button>
       <button class="nav" data-room="conference" type="button">▤ &nbsp; <span id="nav-conference">Conference Room</span></button>
+      <button class="nav" type="button" id="nav-evaluation">Evaluation Lab</button>
       <div class="label section-gap">PHASE 1 · SANDBOX</div>
       <p class="tip" id="phase-tip"></p>
       <div class="sidebar-footer" id="sidebar-note"></div>
@@ -90,6 +93,23 @@
       <section class="model-guidance-hardware" aria-labelledby="model-guidance-hardware-title"><h3 id="model-guidance-hardware-title">Hardware guidance</h3><p>System RAM, available GPU VRAM, CPU performance, quantization, context length, and the individual model's memory requirements all affect compatibility and speed. Parameter count alone cannot determine memory needs or execution performance.</p><p class="compatibility-status"><strong>Hardware Compatibility: Not Verified</strong></p></section>
       <p id="model-guidance-disclaimer" class="model-guidance-disclaimer">Recommended model sizes are indicative starting points, not strict requirements. Larger models are not necessarily better. Model architecture, specialization, quantization and task-specific performance also influence suitability.</p>
     </dialog>
+    <section id="evaluation-lab" class="evaluation-lab" aria-labelledby="evaluation-title" hidden>
+      <h2 id="evaluation-title">Evaluate a completed Training Room session</h2>
+      <p>Only completed session records are evaluated. Original agent responses remain unchanged. Scores are qualified model assessments.</p>
+      <form id="evaluation-form" class="evaluation-form">
+        <label for="evaluation-session">Completed session</label><select id="evaluation-session" required></select>
+        <label for="evaluation-model">Local Evaluator model</label><select id="evaluation-model" required></select>
+        <label for="evaluation-criteria">Criteria (one per line, up to eight)</label>
+        <textarea id="evaluation-criteria" rows="4" maxlength="640" required>Faithfulness
+Completeness</textarea>
+        <button type="submit" id="evaluation-start">Start Evaluation</button>
+      </form>
+      <p id="evaluation-feedback" role="status" aria-live="polite"></p>
+      <h3>Evaluation runs</h3>
+      <div id="evaluation-runs" class="evaluation-runs"></div>
+      <h3>Selected assessment</h3>
+      <div id="evaluation-details" class="evaluation-details" aria-live="polite">Select a run to inspect scores, findings, and provenance.</div>
+    </section>
     <form id="composer" class="composer">
       <label for="prompt" id="prompt-label">Training Topic</label>
       <textarea id="prompt" rows="3" maxlength="2500" required placeholder="e.g. Teach your AI agent how to..."></textarea>

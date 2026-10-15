@@ -1,0 +1,17 @@
+
+/* Evaluation Lab: additive workspace, independent of existing rooms. */
+[hidden]{display:none!important}
+.evaluation-lab{display:grid;gap:12px;padding:18px;border:1px solid var(--border);border-radius:12px;background:var(--surface);color:var(--fg)}
+.evaluation-lab h2,.evaluation-lab h3,.evaluation-lab h4{margin:2px 0}
+.evaluation-lab p{margin:0;color:var(--subtle);font-size:13px;line-height:1.5}
+.evaluation-form{display:grid;gap:9px;max-width:650px}
+.evaluation-form label{font-size:13px;font-weight:600}
+.evaluation-form :is(select,textarea){width:100%;min-height:42px;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--field);color:var(--fg);font:inherit}
+.evaluation-form button{width:max-content;min-height:43px;padding:9px 15px;border:0;border-radius:8px;background:var(--accent);color:var(--accent-fg);cursor:pointer;font:inherit}
+.evaluation-form button:disabled{opacity:.55;cursor:not-allowed}
+.evaluation-runs{display:grid;gap:6px}
+.evaluation-run{border:1px solid var(--border);border-radius:7px;background:var(--field);color:var(--fg);padding:10px;text-align:left;cursor:pointer}
+.evaluation-run:hover{border-color:var(--accent)}
+.evaluation-details{display:grid;gap:9px;border:1px solid var(--border);border-radius:8px;background:var(--field);padding:12px;overflow-wrap:anywhere}
+.evaluation-details article{display:grid;gap:5px;padding:10px;border-top:1px solid var(--border)}
+.evaluation-details small{color:var(--subtle)}
