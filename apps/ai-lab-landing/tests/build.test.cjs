@@ -75,7 +75,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(guide, /Easy Start creates an AI Training Lab shortcut on the Windows Desktop/);
 
   assert.match(html, /asks separately before installing Python, Ollama, or the initial local model/);
-  assert.match(html, /You do not need a GitHub account/);
+  assert.doesNotMatch(html, /You do not need a GitHub account/);
   assert.doesNotMatch(html, /Verify and extract the ZIP|disable_ollama_cloud|ollama pull qwen3:4b/);
   assert.doesNotMatch(html, /card-label">SUPPORTED PROVIDER|<h2>Ollama only<\/h2>|LM Studio and vLLM are not supported/);
   assert.doesNotMatch(html, /NOT YET OPERATIONAL|Advanced model fine-tuning|NOT IMPLEMENTED|Manual update check in the Local App/);
@@ -98,8 +98,14 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(guide, /Start in three steps/);
   assert.match(guide, /Start AI Training Lab\.bat/);
   assert.match(guide, /asks separately before installing Python, Ollama, or the first local AI model/);
-  assert.match(guide, /You do not need a GitHub account/);
-  assert.match(guide, /Conference Room is available from v1.1.6/);
+  assert.doesNotMatch(guide, /You do not need a GitHub account/);
+  assert.match(guide, /Conference Room - available/);
+  assert.match(guide, /Training Lab - available/);
+  assert.match(guide, /Evaluation Lab - available/);
+  assert.match(guide, /Advisory Lab - Under Construction/);
+  assert.match(guide, /Optimization Lab - Under Construction/);
+  assert.match(guide, /What is Fine-Tuning\? A simple guide/);
+  assert.doesNotMatch(guide, /Conference Room is not yet available/);
   assert.match(guide, /Quick Start \(Windows\)/);
   assert.match(guide, /Which Windows \.bat file should I use/);
   assert.match(guide, /Start AI Training Lab\.bat/);
@@ -108,7 +114,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(guide, /start-windows\.bat/);
   assert.match(guide, /setup-training-windows\.bat/);
   assert.match(guide, /Technical Documentation/);
-  assert.match(guide, /Advanced model fine-tuning/);
+  assert.match(guide, /Advanced: Model Fine-Tuning/);
   assert.match(guide, /README\.md/);
   assert.match(guide, /After the initial setup and local model downloads/);
   assert.doesNotMatch(html, /Read the current-state guide/);
