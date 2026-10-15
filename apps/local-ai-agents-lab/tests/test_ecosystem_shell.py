@@ -33,6 +33,22 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertNotIn('nav-collaboration-status', html)
         self.assertIn("'conference'", app)
 
+    def test_five_room_sidebar_order_and_unavailable_labs(self):
+        html = (STATIC / "index.html").read_text(encoding="utf-8")
+        css = (STATIC / "style.css").read_text(encoding="utf-8")
+        nav = html.split('<div class="label">WORKSPACE</div>')[1].split('<div class="label section-gap">')[0]
+        names = ("Conference Room", "Training Lab", "Evaluation Lab", "Advisory Lab", "Optimization Lab")
+        indices = [nav.index(">"+name+"</span>") for name in names]
+        self.assertEqual(indices, sorted(indices))
+        self.assertEqual(nav.count('class="workspace-nav-icon"'), 5)
+        self.assertEqual(nav.count('<svg viewBox="0 0 24 24"'), 5)
+        self.assertEqual(nav.count('class="workspace-nav-unavailable"'), 2)
+        for name in names[-2:]:
+            self.assertIn('aria-label="'+name+', Under Construction"', nav)
+        self.assertIn(".workspace-nav-copy small", css)
+        self.assertNotIn('data-room="advisory"', nav)
+        self.assertNotIn('data-room="optimization"', nav)
+
     def test_training_topic_and_conversation_scroll_together(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         css = (STATIC / "style.css").read_text(encoding="utf-8")
@@ -72,8 +88,8 @@ class EcosystemShellTests(unittest.TestCase):
     def test_conference_has_independent_models_and_training_room_label(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         app = (STATIC / "app.js").read_text(encoding="utf-8")
-        self.assertIn('id="nav-training">Training Room</span>', html)
-        self.assertIn("room==='training'?'Training Room':'Conference Room'", app)
+        self.assertIn('id="nav-training">Training Lab</span>', html)
+        self.assertIn("room==='training'?'Training Lab':'Conference Room'", app)
         for role in ("Planner", "Researcher", "Reviewer"):
             self.assertIn(f'<label for="{role.lower()}-model">{role} Model</label>', html)
             self.assertIn(f"agents-lab-{role.lower()}-model", app)

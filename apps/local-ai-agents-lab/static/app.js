@@ -26,7 +26,7 @@ function setStatus() {
 }
 function updateUI() {
   $('training-model-selects').hidden=room!=='training'; $('collaboration-model-select').hidden=room==='training';
-  $('room-title').textContent=room==='training'?'Training Room':'Conference Room';
+  $('room-title').textContent=room==='training'?'Training Lab':'Conference Room';
   $('room-description').textContent=room==='training'?'Learn → Practice → Evaluate → Improve':'Planner → Researcher → Reviewer · Shared history';
   $('prompt-label').textContent=room==='training'?'Training Topic':'Discussion Topic';
   $('prompt').placeholder=room==='training'?'e.g. Teach your AI agent how to...':'e.g. Explore the causes and effects of climate change...';
