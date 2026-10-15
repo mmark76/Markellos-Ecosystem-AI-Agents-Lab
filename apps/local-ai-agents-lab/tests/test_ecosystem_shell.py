@@ -305,6 +305,7 @@ class EcosystemShellTests(unittest.TestCase):
                       "Supervised Fine-Tuning (SFT)", "Low-Rank Adaptation (LoRA)"):
             with self.subTest(label=label):
                 self.assertIn(label, guide)
+        self.assertIn("does not provide full-parameter fine-tuning", guide)
 
 
     def test_local_model_status_does_not_imply_internet_connectivity(self):

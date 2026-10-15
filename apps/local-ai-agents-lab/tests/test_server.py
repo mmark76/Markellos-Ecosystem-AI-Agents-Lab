@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 from threading import Event, Thread
 from unittest.mock import patch
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 
 SPEC = importlib.util.spec_from_file_location("campus_server", Path(__file__).resolve().parents[1] / "server.py")
 campus = importlib.util.module_from_spec(SPEC)
@@ -121,6 +121,24 @@ class CampusTests(unittest.TestCase):
 
 
 class HttpIntegrationTests(unittest.TestCase):
+    def test_http_training_job_start_is_locked_before_service_execution(self):
+        from http.server import ThreadingHTTPServer
+        from urllib.request import Request, build_opener, ProxyHandler
+        original_port = campus.PORT
+        server = ThreadingHTTPServer(("127.0.0.1", 0), campus.Handler); campus.PORT = server.server_address[1]
+        thread = Thread(target=server.serve_forever, daemon=True); thread.start()
+        try:
+            origin = f"http://127.0.0.1:{campus.PORT}"
+            request = Request(origin + "/api/training/jobs", data=b'{"method":"lora"}', headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
+            with patch.object(campus.TRAINING, 'start') as start, self.assertRaises(HTTPError) as raised:
+                build_opener(ProxyHandler({})).open(request)
+            self.assertEqual(raised.exception.code, 423)
+            self.assertIn('locked', json.load(raised.exception)['error'])
+            raised.exception.close()
+            start.assert_not_called()
+        finally:
+            server.shutdown(); server.server_close(); thread.join(timeout=4); campus.PORT = original_port
+
     def test_model_guidance_static_assets_are_served_locally(self):
         from http.server import ThreadingHTTPServer
         from urllib.request import build_opener, ProxyHandler

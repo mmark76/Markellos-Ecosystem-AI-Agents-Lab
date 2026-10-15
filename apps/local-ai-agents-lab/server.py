@@ -34,7 +34,7 @@ LEGACY_TRAINING_ROOM = "uni" "versity"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from providers import InferenceProviders, ProviderError
-from training import TrainingError, TrainingService
+from training import TrainingError, TrainingLockedError, TrainingService
 from model_install import ModelInstallError, ModelInstallBusy, OllamaModelInstaller
 from evaluation_lab.http_api import EvaluationAPIError, EvaluationHTTPService
 from evaluation_lab.repository import EvaluationRepository, EvaluationRepositoryError
@@ -488,11 +488,16 @@ class Handler(BaseHTTPRequestHandler):
                 self._json({"error": str(err)}, 400)
             return
         if self.path == "/api/training/jobs":
+            if not TRAINING.enabled:
+                self._json({"error": "Fine-tuning is locked in this release and cannot be started."}, 423)
+                return
             try:
                 size = int(self.headers.get("Content-Length", "0"))
                 if size < 2 or size > 4000:
                     raise TrainingError("Invalid training request size.")
                 self._json(TRAINING.start(json.loads(self.rfile.read(size))), 202)
+            except TrainingLockedError as err:
+                self._json({"error": str(err)}, 423)
             except (TrainingError, ValueError, TypeError, json.JSONDecodeError) as err:
                 self._json({"error": str(err)}, 400)
             return

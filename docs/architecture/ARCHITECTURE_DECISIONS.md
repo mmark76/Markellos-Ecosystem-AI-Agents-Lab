@@ -44,10 +44,19 @@ require a separate approved architecture and security scope.
 
 Training uses a separate `training/.venv` and a fixed worker script. The server
 validates selected model and JSONL dataset names against owned local folders,
-then starts at most one worker. CUDA is a PyTorch execution choice, not an
-inference provider; an explicit CUDA request fails when unsupported. This keeps
-the lightweight server, inference adapters, and SQLite conversation history free
-of ML dependencies and training side effects.
+then starts at most one worker when the feature is explicitly approved and
+enabled. CUDA is a PyTorch execution choice, not an inference provider; an
+explicit CUDA request fails when unsupported. This keeps the lightweight
+server, inference adapters, and SQLite conversation history free of ML
+dependencies and training side effects.
+
+Phase 1 retains a hard disabled-by-default service and HTTP-route gate, so no
+training configuration or worker subprocess can start in the released app.
+Read-only status remains available without probing the isolated runtime. The
+worker uses TRL `SFTConfig` for dataset and sequence-length settings and passes
+`LoraConfig` to `SFTTrainer`; its only prepared method is supervised LoRA
+adapter training, not full-parameter fine-tuning. Future activation requires a
+separate approval and controlled integration verification.
 
 ## AI-LAB-ADR-005 — Keep update discovery separate from update installation
 
