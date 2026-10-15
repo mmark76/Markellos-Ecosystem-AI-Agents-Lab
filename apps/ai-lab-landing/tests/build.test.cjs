@@ -28,7 +28,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /<img class="brand-mark" src="\.\/ai-training-lab-mark\.png" alt="AI Training Lab">/);
   assert.match(html, /class="beta-badge">BETA<\/span>/);
   assert.match(styles, /\.beta-badge/);
-  assert.deepEqual(distribution.releases.map(({ version }) => version), ['1.1.8', '1.1.7', '1.1.6', '1.1.5', '1.1.4', '1.1.3', '1.1.2', '1.1.1', '1.1.0', '1.0.0']);
+  assert.deepEqual(distribution.releases.map(({ version }) => version), ['2.0.0', '1.1.8', '1.1.7', '1.1.6', '1.1.5', '1.1.4', '1.1.3', '1.1.2', '1.1.1', '1.1.0', '1.0.0']);
   for (const release of distribution.releases) {
     assert.match(release.version, /^\d+\.\d+\.\d+$/);
     assert.match(release.url, new RegExp(`/releases/v${release.version.replaceAll('.', '\\.')}/AI-Agents-Lab-Windows\\.zip$`));
@@ -38,10 +38,12 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.doesNotMatch(html, /available without GitHub sign-in/);
   assert.doesNotMatch(html, /Download access note|private GitHub repository.*authorized GitHub access/);
   assert.match(html, new RegExp(`id="zip-download" class="primary-button" data-zip-version="v${escapedDistributionVersion}" data-zip-sha256="${currentDistribution.sha256}"`));
-  assert.match(html, new RegExp(`Download AI Training Lab for Windows \\(v${escapedDistributionVersion}\\)`));
+  assert.match(html, new RegExp(`Download v${escapedDistributionVersion}`));
+  assert.match(html, /id="zip-download-v118" class="secondary-button" data-zip-version="v1\.1\.8"[^>]*>Download v1\.1\.8<\/a>/);
+  assert.match(styles, /\.hero-actions\{display:flex;flex-wrap:wrap;gap:var\(--space-3\);margin-top:var\(--space-5\)\}/);
   assert.match(html, new RegExp(currentDistribution.url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.match(html, /Release archive/);
-  assert.match(html, /9 earlier Windows ZIPs/);
+  assert.match(html, /10 earlier Windows ZIPs/);
   assert.match(html, /Verified historical releases are retained for reference and future agent studies\./);
   assert.match(styles, /\.release-history details/);
   assert.match(styles, /margin-right: clamp\(8rem, 15vw, 16rem\)/);
