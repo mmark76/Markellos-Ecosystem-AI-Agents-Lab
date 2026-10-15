@@ -64,6 +64,12 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /Agent Collaboration \/ Conference Room/);
   assert.match(html, /Start in three simple steps/);
   assert.match(html, /Start AI Training Lab\.bat/);
+  assert.match(html, /id="launch-local-lab" class="secondary-button" href="markellos-ai-training-lab:\/\/open"/);
+  assert.match(html, /Launch Local Lab works after the first Easy Start setup/);
+  assert.doesNotMatch(html, /\{\{LEGACY_DOWNLOAD_BUTTON\}\}/);
+  assert.match(html, /Starter AI Model/);
+  assert.match(guide, /Easy Start creates an AI Training Lab shortcut on the Windows Desktop/);
+
   assert.match(html, /asks separately before installing Python, Ollama, or the initial local model/);
   assert.match(html, /You do not need a GitHub account/);
   assert.doesNotMatch(html, /Verify and extract the ZIP|disable_ollama_cloud|ollama pull qwen3:4b/);

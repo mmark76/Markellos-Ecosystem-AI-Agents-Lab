@@ -29,3 +29,18 @@ $shortcut.WorkingDirectory = $root
 $shortcut.IconLocation = "$icon,0"
 $shortcut.Description = 'Set up and open the local Markellos AI Training Lab.'
 $shortcut.Save()
+
+# Register an app-owned, fixed local launch handler for the public dashboard.
+# Per-user only: no administrator privileges and no URL-supplied arguments.
+$handler = Join-Path $root 'scripts\launch-from-dashboard.ps1'
+if (Test-Path -LiteralPath $handler -PathType Leaf) {
+    $protocolKey = 'HKCU:\Software\Classes\markellos-ai-training-lab'
+    $commandKey = Join-Path $protocolKey 'shell\open\command'
+    New-Item -Path $protocolKey -Force | Out-Null
+    Set-Item -Path $protocolKey -Value 'URL:AI Training Lab Protocol'
+    New-ItemProperty -Path $protocolKey -Name 'URL Protocol' -Value '' -PropertyType String -Force | Out-Null
+    New-Item -Path $commandKey -Force | Out-Null
+    $quotedHandler = '"' + $handler + '"'
+    $launchCommand = 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File ' + $quotedHandler
+    Set-Item -Path $commandKey -Value $launchCommand
+}

@@ -95,3 +95,5 @@ html[data-color-mode="light"] .secondary-button { background:#ffffff; color:#172
 @media (min-width: 80rem) {
   .header-actions { margin-right: calc((100% + var(--space-5)) / 3); }
 }
+
+.launch-helper{margin-top:var(--space-3);color:var(--color-text-muted);font-size:var(--font-size-sm)}

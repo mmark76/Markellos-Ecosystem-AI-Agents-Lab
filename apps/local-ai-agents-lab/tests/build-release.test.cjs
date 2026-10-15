@@ -140,3 +140,18 @@ test('a VERSION bump on main automatically creates the matching release ZIP',()=
   assert.match(workflow,/--target "\$GITHUB_SHA"/);
   assert.match(workflow,/AI-Agents-Lab-Windows\.zip/);
 });
+
+
+test('Dashboard launcher is a fixed per-user protocol using the existing Windows starter',()=>{
+  const root=path.resolve(__dirname,'..');
+  const register=fs.readFileSync(path.join(root,'scripts','create-desktop-shortcut.ps1'),'utf8');
+  const handler=fs.readFileSync(path.join(root,'scripts','launch-from-dashboard.ps1'),'utf8');
+  const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
+  assert.match(register,/HKCU:\\Software\\Classes\\markellos-ai-training-lab/);
+  assert.match(register,/URL Protocol/);
+  assert.match(register,/launch-from-dashboard\.ps1/);
+  assert.match(handler,/Start AI Training Lab\.bat/);
+  assert.match(handler,/http:\/\/127\.0\.0\.1:8765\//);
+  assert.doesNotMatch(handler,/param\(\s*\[.*string\].*url/i);
+  assert.match(packager,/'scripts\/launch-from-dashboard\.ps1'/);
+});
