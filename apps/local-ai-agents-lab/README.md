@@ -1,6 +1,6 @@
 # Markellos Ecosystem AI Training Lab
 
-Version: v1.1.9 · Private local starter
+Version: v2.0.0 · Private local starter
 
 Local Windows application with two workspaces:
 
@@ -16,6 +16,8 @@ The **Learning Lab** uses the internal API id `training`. Existing local history
 ## Easy Start for Windows
 
 For a first-time setup, extract the ZIP and double-click **`Start AI Training Lab.bat`**. Easy Start checks the computer, then starts the Lab when everything is ready.
+
+After the initial setup, start the Lab from its Desktop shortcut or the public dashboard's Launch Local Lab button. The browser may request confirmation before opening the installed local app.
 
 It asks for a separate, explicit approval before it can:
 
