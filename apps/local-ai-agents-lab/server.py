@@ -36,6 +36,8 @@ if str(ROOT) not in sys.path:
 from providers import InferenceProviders, ProviderError
 from training import TrainingError, TrainingService
 from model_install import ModelInstallError, ModelInstallBusy, OllamaModelInstaller
+from evaluation_lab.http_api import EvaluationAPIError, EvaluationHTTPService
+from evaluation_lab.repository import EvaluationRepository, EvaluationRepositoryError
 
 PROVIDERS = InferenceProviders()
 TRAINING = TrainingService(ROOT)
@@ -115,6 +117,9 @@ def initialize():
         db.execute("CREATE INDEX IF NOT EXISTS idx_room_id ON messages(room,id)")
         db.execute("CREATE INDEX IF NOT EXISTS idx_messages_session_id ON messages(session_id)")
         db.execute("CREATE INDEX IF NOT EXISTS idx_training_stages_session ON training_stages(session_id,execution_order)")
+
+    # The Evaluation Lab owns only additive tables; legacy migrations run first.
+    EvaluationRepository(DB_PATH).initialize()
 
 
 def add_message(room: str, agent: str, content: str, session_id: Optional[int] = None, model: Optional[str] = None):
@@ -296,6 +301,9 @@ def provider_status(provider: str) -> dict:
                 "models": [], "error": f"{info.label} is not running locally."}
 
 
+EVALUATION = EvaluationHTTPService(lambda: DB_PATH, RUN_LOCK, lambda: local_models('ollama'))
+
+
 class Handler(BaseHTTPRequestHandler):
     server_version = "LocalCampus/0.1"
 
@@ -326,6 +334,14 @@ class Handler(BaseHTTPRequestHandler):
             status = provider_status("ollama")
             self._json({"ollama": status["available"], "models": status["models"],
                         "storage": "local SQLite", "cloud": False, "provider": status})
+            return
+        if self.path.startswith("/api/evaluation/"):
+            try:
+                self._json(EVALUATION.get(self.path))
+            except EvaluationAPIError as err:
+                self._json({"error": str(err)}, err.status)
+            except (sqlite3.DatabaseError, EvaluationRepositoryError) as err:
+                self._json({"error": "Evaluation Lab data is unavailable."}, 500)
             return
         if self.path == "/api/models/install/status":
             self._json(MODEL_INSTALLER.status())
@@ -360,6 +376,7 @@ class Handler(BaseHTTPRequestHandler):
             return
         pages = {"/": ("index.html", "text/html; charset=utf-8"),
                  "/static/style.css": ("style.css", "text/css; charset=utf-8"),
+                 "/static/evaluation.css": ("evaluation.css", "text/css; charset=utf-8"),
                  "/static/app.js": ("app.js", "text/javascript; charset=utf-8"),
                  "/static/settings.js": ("settings.js", "text/javascript; charset=utf-8"),
                  "/static/ecosystem-shell.js": ("ecosystem-shell.js", "text/javascript; charset=utf-8"),
@@ -368,7 +385,8 @@ class Handler(BaseHTTPRequestHandler):
                  "/static/ecosystem-tokens.css": ("ecosystem-tokens.css", "text/css; charset=utf-8"),
                  "/static/training.js": ("training.js", "text/javascript; charset=utf-8"),
                  "/static/model-install.js": ("model-install.js", "text/javascript; charset=utf-8"),
-                 "/static/panel-layout.js": ("panel-layout.js", "text/javascript; charset=utf-8")}
+                 "/static/panel-layout.js": ("panel-layout.js", "text/javascript; charset=utf-8"),
+                 "/static/evaluation.js": ("evaluation.js", "text/javascript; charset=utf-8")}
         resource = pages.get(self.path)
         if not resource:
             self._json({"error": "Not found"}, 404)
@@ -387,6 +405,18 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not self._host_valid() or not self._origin_valid():
             self._json({"error": "Cross-origin writes blocked"}, 403)
+            return
+        if self.path == "/api/evaluation/runs":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if not 2 <= size <= 4096:
+                    raise EvaluationAPIError("Invalid Evaluation Lab request size.")
+                payload = json.loads(self.rfile.read(size))
+                self._json(EVALUATION.start(payload), 202)
+            except EvaluationAPIError as err:
+                self._json({"error": str(err)}, err.status)
+            except (ValueError, TypeError, json.JSONDecodeError) as err:
+                self._json({"error": "Invalid Evaluation Lab request."}, 400)
             return
         if self.path == "/api/history/clear":
             try:

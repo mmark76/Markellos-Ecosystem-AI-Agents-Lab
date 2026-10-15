@@ -408,11 +408,16 @@ class EvaluationRepositoryTests(unittest.TestCase):
         self.assertIsNone(self.repository.get_scorecard(run.run_id))
         self.assertEqual(self.repository.list_findings(run.run_id), [])
 
+    def _adapter_messages(self):
+        from evaluation_lab_contracts_under_test.prompt import build_evaluation_messages
+        snapshot = self.repository.snapshot_completed_training_session(1, self.criteria)
+        return build_evaluation_messages(snapshot)
+
     def test_ollama_adapter_uses_configured_timeout_without_model_substitution(self) -> None:
         opener = TimeoutOpener()
         adapter = OllamaEvaluatorAdapter(LocalProvider(), opener, timeout_seconds=7)
         with self.assertRaises(EvaluationModelError):
-            adapter.evaluate("configured-evaluator:1", [{"role": "user", "content": "test"}])
+            adapter.evaluate("configured-evaluator:1", self._adapter_messages())
         self.assertEqual(opener.calls[0][1]["timeout"], 7)
 
     def test_invalid_ollama_array_response_fails_run_without_persisting_results(self) -> None:
@@ -439,10 +444,10 @@ class EvaluationRepositoryTests(unittest.TestCase):
             with self.subTest(payload=payload):
                 adapter = OllamaEvaluatorAdapter(LocalProvider(), ResponseOpener(payload))
                 with self.assertRaises(EvaluationModelError):
-                    adapter.evaluate("configured-evaluator:1", [{"role": "user", "content": "test"}])
+                    adapter.evaluate("configured-evaluator:1", self._adapter_messages())
         oversized = OllamaEvaluatorAdapter(LocalProvider(), ResponseOpener(b"{}"), max_response_bytes=1)
         with self.assertRaisesRegex(EvaluationModelError, "size limit"):
-            oversized.evaluate("configured-evaluator:1", [{"role": "user", "content": "test"}])
+            oversized.evaluate("configured-evaluator:1", self._adapter_messages())
         for invalid_size in (0, -1, True, "2"):
             with self.subTest(invalid_size=invalid_size), self.assertRaises(ValueError):
                 OllamaEvaluatorAdapter(LocalProvider(), ResponseOpener(b"{}"), max_response_bytes=invalid_size)

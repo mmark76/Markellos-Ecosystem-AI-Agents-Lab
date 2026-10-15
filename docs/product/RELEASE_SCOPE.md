@@ -27,6 +27,7 @@
 | AI-LAB-SCOPE-015 | Retain and provide the public Windows ZIP archive from v1.0.0 onward in a compact, collapsed release-history control for future agent studies. | Medium | Repository maintainer | Approved by direct user request on 2026-10-14 |
 | AI-LAB-SCOPE-016 | Establish the additive, independent Evaluation Lab persistence foundation for read-only evaluation of completed Training Room records. | High | Repository maintainer | Approved by direct user request on 2026-10-14 |
 | AI-LAB-SCOPE-017 | Add an independent, fixed-loopback local Evaluator execution engine for persisted Evaluation Lab runs without changing Training Room behavior. | High | Repository maintainer | Approved by direct user request on 2026-10-14 |
+| AI-LAB-SCOPE-018 | Integrate the independent Evaluation Lab into the local application with bounded same-origin HTTP routes, explicit run initiation, read-only Training Room session selection, and qualified scorecard/findings UI. | High | Repository maintainer | Approved by direct user request on 2026-10-15 |
 
 ## Out of scope
 

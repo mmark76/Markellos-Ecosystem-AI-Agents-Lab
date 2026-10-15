@@ -13,6 +13,59 @@ class EvaluationModelError(ValueError):
     """A selected local Evaluator model could not produce a usable response."""
 
 
+def _structured_format(messages: list[dict[str, str]]) -> dict:
+    """Bind the Ollama JSON Schema to the server-generated snapshot criteria."""
+    prefix = "Evaluate this immutable recorded Training Room snapshot:\n"
+    if not messages or not isinstance(messages[-1].get("content"), str):
+        raise EvaluationModelError("A structured Evaluation Lab snapshot is required.")
+    content = messages[-1]["content"]
+    if not content.startswith(prefix):
+        raise EvaluationModelError("A structured Evaluation Lab snapshot is required.")
+    try:
+        snapshot = json.loads(content[len(prefix):])
+        criteria = snapshot["criteria"]
+        if not isinstance(criteria, list) or not criteria or any(
+            not isinstance(item, str) or not item.strip() for item in criteria
+        ) or len(set(criteria)) != len(criteria):
+            raise ValueError("Invalid snapshot criteria.")
+    except (TypeError, KeyError, ValueError, json.JSONDecodeError) as error:
+        raise EvaluationModelError("The Evaluation Lab snapshot criteria are invalid.") from error
+    try:
+        orders = [item["execution_order"] for item in snapshot["recorded_outputs"]]
+        if any(not isinstance(n, int) or isinstance(n, bool) or n < 1 for n in orders):
+            raise ValueError("Invalid recorded output order.")
+    except (KeyError, TypeError, ValueError) as error:
+        raise EvaluationModelError("The Evaluation Lab recorded outputs are invalid.") from error
+    references = ["snapshot:original_request"] + [f"snapshot:output:{n}" for n in orders]
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["scores", "summary", "findings"],
+        "properties": {
+            "scores": {
+                "type": "object", "additionalProperties": False, "required": criteria,
+                "properties": {name: {"type": "integer", "minimum": 0, "maximum": 100} for name in criteria},
+            },
+            "summary": {"type": "string"},
+            "findings": {
+                "type": "array", "items": {
+                    "type": "object", "additionalProperties": False,
+                    "required": ["description", "supporting_evidence", "evidence_classification", "evidence_reference"],
+                    "properties": {
+                        "description": {"type": "string"},
+                        "supporting_evidence": {"type": "string"},
+                        "evidence_classification": {
+                            "type": "string",
+                            "enum": ["verifiable_record", "model_judgment", "unverified"],
+                        },
+                        "evidence_reference": {"type": "string", "enum": references},
+                    },
+                },
+            },
+        },
+    }
+
+
 class OllamaEvaluatorAdapter:
     """Calls only the existing fixed local Ollama endpoint with a bounded timeout."""
 
@@ -43,7 +96,7 @@ class OllamaEvaluatorAdapter:
             request = Request(
                 provider.base_url + "/api/chat",
                 data=json.dumps(
-                    {"model": model, "messages": messages, "stream": False, "think": False, "options": {"num_predict": 1800}}
+                    {"model": model, "messages": messages, "stream": False, "think": False, "format": _structured_format(messages), "options": {"num_predict": 1800}}
                 ).encode("utf-8"),
                 headers={"Content-Type": "application/json"},
                 method="POST",

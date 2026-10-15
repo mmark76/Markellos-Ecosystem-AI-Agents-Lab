@@ -1,5 +1,23 @@
 # Change Control
 
+## Approved change record ? AI-LAB-CC-048
+
+```text
+Change ID: AI-LAB-CC-048
+Requested by: Repository maintainer
+Date: 2026-10-15
+Description: Add independent Evaluation Lab API/UI integration to the local application using completed Training Room snapshot inputs and Phase 2 execution contracts.
+Reason: Enable explicit local evaluation and inspection of model-qualified scorecards and findings without coupling or writing to legacy rooms.
+Affected objective IDs: AI-LAB-OBJ-017
+Architecture impact: Add EvaluationHTTPService module, narrow same-origin API dispatch in server.py, new standalone Evaluation Lab JS/CSS and navigation UI.
+Security and privacy impact: Fixed loopback host/Origin checks preserved, bounded request validation, only configured installed Ollama model, no external provider or telemetry.
+Data impact: Additive Evaluation Lab tables initialized after legacy schema migrations. Only Evaluation Lab tables receive new run/results; completed Training Room records are read-only.
+Testing impact: Mocked HTTP integration, real engine through a mocked local adapter, full Python/Node regression and foundation checks; manual local browser UI review remains pending.
+Decision: APPROVED (SCOPE INCREASE)
+Approved by: Direct user request
+Target release: Unreleased v2.0.0 development branch; no package, merge or deployment in this phase.
+```
+
 ## Approved change record — AI-LAB-CC-047
 
 ```text
