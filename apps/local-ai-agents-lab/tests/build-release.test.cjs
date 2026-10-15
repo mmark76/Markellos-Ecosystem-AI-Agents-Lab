@@ -30,11 +30,14 @@ test('Windows training wizard is packaged and opt-in',()=>{
   const root=path.resolve(__dirname,'..');
   const launcher=fs.readFileSync(path.join(root,'setup-training-windows.bat'),'utf8');
   const wizard=fs.readFileSync(path.join(root,'scripts','setup-training.ps1'),'utf8');
+  const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
   assert.match(launcher,/setup-training\.ps1/);
   assert.match(wizard,/\$null = & py "-\$version" --version/);
   assert.match(wizard,/CPU, \[2\] NVIDIA CUDA/);
   assert.match(wizard,/Install these CPU training libraries now/);
   assert.match(wizard,/No CPU fallback/);
+  assert.match(packager,/'training\/job_contract\.py'/);
+  assert.match(packager,/'training\/readiness\.py'/);
 });
 test('packaged README is English only',()=>{
   const root=path.resolve(__dirname,'..');

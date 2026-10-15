@@ -84,3 +84,20 @@ remain a manual, user-controlled upgrade procedure.
 The public Cloudflare Pages landing page may use GA4 property `G-ZEPZK1T1YQ` to measure aggregate website use only after a visitor explicitly accepts analytics. The first-party dashboard script stores that choice locally, uses Consent Mode v2 consent signals, and dynamically loads Google's tag only after consent. It sends one manual page view per location and one `zip_download` event per Windows ZIP click. Rejecting or withdrawing consent disables future events.
 
 Consequences: the CSP permits only the Google tag and analytics collection origins required after consent. No tag is included unconditionally, no sensitive or Local Lab data is sent, and no Local Lab source, build, or deployment setting changes.
+
+## AI-LAB-ADR-007 — Keep remote GPU execution provider-neutral and file-based
+
+- Status: Accepted
+- Date: 2026-10-15
+- Related requirements: AI-LAB-OBJ-006, AI-LAB-AC-008, AI-LAB-SEC-006, AI-LAB-SEC-007
+
+The shared LoRA worker accepts a validated local job file and writes a local
+status file plus adapter artifact. A small readiness probe collects host
+evidence without installing packages, loading a model, or contacting a
+provider. The released Local Lab continues to lock all training initiation.
+
+Consequences: GPU infrastructure can be selected independently of the Windows
+Lab and without a RunPod, cloud SDK, public route, or credential in the
+repository. A future executor is responsible for explicitly approved transport,
+authentication, artifact staging, timeout, cost, and teardown controls. This
+decision does not implement remote execution or activate training.

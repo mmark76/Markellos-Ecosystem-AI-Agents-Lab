@@ -14,6 +14,12 @@ SPEC.loader.exec_module(training)
 WORKER_SPEC = importlib.util.spec_from_file_location('training_worker', Path(__file__).resolve().parents[1] / 'training' / 'training_worker.py')
 worker = importlib.util.module_from_spec(WORKER_SPEC)
 WORKER_SPEC.loader.exec_module(worker)
+CONTRACT_SPEC = importlib.util.spec_from_file_location('training_job_contract', Path(__file__).resolve().parents[1] / 'training' / 'job_contract.py')
+job_contract = importlib.util.module_from_spec(CONTRACT_SPEC)
+CONTRACT_SPEC.loader.exec_module(job_contract)
+READINESS_SPEC = importlib.util.spec_from_file_location('training_readiness', Path(__file__).resolve().parents[1] / 'training' / 'readiness.py')
+readiness = importlib.util.module_from_spec(READINESS_SPEC)
+READINESS_SPEC.loader.exec_module(readiness)
 
 class TrainingServiceTests(unittest.TestCase):
     def setUp(self):
@@ -78,7 +84,10 @@ class TrainingWorkerCompatibilityTests(unittest.TestCase):
             def save_pretrained(self, path): captured['tokenizer_saved_to'] = str(path)
 
         class FakeModel:
-            def save_pretrained(self, path): captured['model_saved_to'] = str(path)
+            def save_pretrained(self, path):
+                Path(path).mkdir(parents=True, exist_ok=True)
+                (Path(path) / 'adapter_config.json').write_text('{}', encoding='utf-8')
+                captured['model_saved_to'] = str(path)
 
         class FakeSFTConfig:
             def __init__(self, **kwargs): captured['args'] = kwargs
@@ -101,7 +110,7 @@ class TrainingWorkerCompatibilityTests(unittest.TestCase):
             fake_transformers = types.SimpleNamespace(AutoTokenizer=types.SimpleNamespace(from_pretrained=lambda *args, **kwargs: FakeTokenizer()), AutoModelForCausalLM=types.SimpleNamespace(from_pretrained=lambda *args, **kwargs: FakeModel()))
             fake_trl = types.SimpleNamespace(SFTConfig=FakeSFTConfig, SFTTrainer=FakeSFTTrainer)
             with patch.dict(sys.modules, {'torch':fake_torch, 'datasets':fake_datasets, 'peft':fake_peft, 'transformers':fake_transformers, 'trl':fake_trl}):
-                worker.main(config_path)
+                result = worker.main(config_path)
 
         self.assertEqual(captured['args']['max_length'], 512)
         self.assertEqual(captured['args']['dataset_text_field'], 'text')
@@ -112,5 +121,60 @@ class TrainingWorkerCompatibilityTests(unittest.TestCase):
         self.assertNotIn('dataset_text_field', captured['trainer'])
         self.assertNotIn('max_seq_length', captured['trainer'])
         self.assertTrue(captured['trained'])
+        self.assertEqual(result, 0)
+
+    def test_worker_reports_failure_and_nonzero_status_for_missing_local_model(self):
+        class FailingTokenizer:
+            @staticmethod
+            def from_pretrained(*args, **kwargs): raise OSError('model not found')
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); dataset = root / 'examples.jsonl'; dataset.write_text('{"text":"hello"}\n', encoding='utf-8')
+            output = root / 'output'; output.mkdir(); status_path = root / 'status.json'; config_path = root / 'config.json'
+            config_path.write_text(json.dumps({'device':'cpu','datasetPath':str(dataset),'modelPath':str(root / 'missing'),'outputPath':str(output),'statusPath':str(status_path)}), encoding='utf-8')
+            fake_torch = types.SimpleNamespace(cuda=types.SimpleNamespace(is_available=lambda: False))
+            fake_modules = {'torch':fake_torch, 'datasets':types.SimpleNamespace(Dataset=None), 'peft':types.SimpleNamespace(LoraConfig=None, TaskType=None), 'transformers':types.SimpleNamespace(AutoTokenizer=FailingTokenizer, AutoModelForCausalLM=None), 'trl':types.SimpleNamespace(SFTConfig=None, SFTTrainer=None)}
+            with patch.dict(sys.modules, fake_modules): result = worker.main(config_path)
+            payload = json.loads(status_path.read_text(encoding='utf-8'))
+        self.assertEqual(result, 1); self.assertEqual(payload['state'], 'failed'); self.assertIn('model not found', payload['message'])
+
+    def test_invalid_contract_writes_safe_failure_when_status_path_is_present(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); status_path = root / 'status.json'; config_path = root / 'config.json'
+            config_path.write_text(json.dumps({'statusPath':str(status_path), 'method':'sft'}), encoding='utf-8')
+            result = worker.main(config_path)
+            payload = json.loads(status_path.read_text(encoding='utf-8'))
+        self.assertEqual(result, 1); self.assertEqual(payload['state'], 'failed'); self.assertIn('requires a non-empty modelPath', payload['message'])
+
+
+class RemoteReadinessTests(unittest.TestCase):
+    def test_contract_rejects_full_parameter_method_and_invalid_limits(self):
+        raw = {'modelPath':'model','datasetPath':'data.jsonl','outputPath':'output','statusPath':'status.json','method':'sft'}
+        with self.assertRaisesRegex(job_contract.JobContractError, 'LoRA adapter'): job_contract.normalize_job(raw)
+        raw['method'] = 'lora'; raw['maxLength'] = 4097
+        with self.assertRaisesRegex(job_contract.JobContractError, 'maxLength'): job_contract.normalize_job(raw)
+
+    def test_readiness_reports_mocked_cuda_host_as_ready(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); model = root / 'model'; model.mkdir(); (model / 'config.json').write_text('{}', encoding='utf-8')
+            dataset = root / 'data.jsonl'; dataset.write_text('{"text":"synthetic"}\n', encoding='utf-8'); output = root / 'output'; output.mkdir()
+            fake_torch = types.SimpleNamespace(__version__='2.7.1', cuda=types.SimpleNamespace(is_available=lambda: True, device_count=lambda: 1, get_device_name=lambda index: 'Mock NVIDIA', get_device_properties=lambda index: types.SimpleNamespace(total_memory=8 * 1024 * 1024 * 1024)))
+            modules = {'torch':fake_torch, 'transformers':types.SimpleNamespace(__version__='4.53.0'), 'peft':types.SimpleNamespace(__version__='0.15.2'), 'trl':types.SimpleNamespace(__version__='0.19.1'), 'accelerate':types.SimpleNamespace(__version__='1.8.1'), 'datasets':types.SimpleNamespace(__version__='3.6.0')}
+            with patch.object(readiness.importlib, 'import_module', side_effect=lambda name: modules[name]):
+                report = readiness.readiness_report({'jobId':'gpu-smoke-1','modelPath':str(model),'datasetPath':str(dataset),'outputPath':str(output),'statusPath':str(root / 'status.json'),'method':'lora','device':'cuda'})
+        self.assertEqual(report['state'], 'READY'); self.assertTrue(report['cuda']['available']); self.assertEqual(report['cuda']['devices'][0]['memoryMiB'], 8192)
+
+    def test_readiness_reports_missing_packages_and_cuda_without_writing(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); model = root / 'model'; model.mkdir(); (model / 'config.json').write_text('{}', encoding='utf-8')
+            dataset = root / 'data.jsonl'; dataset.write_text('{"text":"synthetic"}\n', encoding='utf-8'); output = root / 'output'; output.mkdir()
+            with patch.object(readiness.importlib, 'import_module', side_effect=ImportError):
+                report = readiness.readiness_report({'modelPath':str(model),'datasetPath':str(dataset),'outputPath':str(output),'statusPath':str(root / 'status.json'),'device':'cuda'})
+            self.assertFalse((root / 'status.json').exists())
+        self.assertEqual(report['state'], 'NEEDS SETUP'); self.assertIn('CUDA was requested but is unavailable.', report['issues'])
+
+    def test_readiness_reports_unreadable_host_as_not_verified(self):
+        with patch.object(readiness.shutil, 'disk_usage', side_effect=OSError('mount unavailable')):
+            report = readiness.readiness_report({'modelPath':'model','datasetPath':'data.jsonl','outputPath':'output','statusPath':'status.json'})
+        self.assertEqual(report['state'], 'NOT VERIFIED'); self.assertIn('mount unavailable', report['error'])
 
 if __name__ == '__main__': unittest.main()

@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-049
+
+```text
+Change ID: AI-LAB-CC-049
+Requested by: Repository maintainer
+Date: 2026-10-15
+Description: Prepare a provider-independent remote NVIDIA GPU LoRA smoke-test contract, host readiness probe, worker reliability evidence, and procedure while retaining the production training lock.
+Reason: Verify the shared worker on an explicitly approved future GPU host without binding the training engine to the Windows laptop or a cloud provider.
+Affected objective IDs: AI-LAB-OBJ-006
+Architecture impact: Adds file-based job-contract and readiness modules used by the directly executable worker; no remote executor, provider integration, public endpoint, or Local Lab activation is added.
+Security and privacy impact: No credentials, remote commands, uploads, paid resources, or network execution are introduced; the HTTP 423 lock remains required.
+Data impact: Future synthetic datasets, staged models, and adapter outputs remain external to Git and SQLite histories.
+Testing impact: Add mocked contract/readiness/failure lifecycle tests and retain locked-route plus existing Local Lab regressions; real CUDA verification remains pending.
+Cost and schedule impact: No cloud resources are started. A later smoke test requires explicit approval for a GPU host, dependency installation, model source/license, artifact staging, and execution.
+Decision: APPROVED (PREPARATION ONLY)
+Approved by: Direct user request
+Target release: Developer preparation only; no production release activation
+```
+
 ## Approved change record ? AI-LAB-CC-048
 
 ```text
