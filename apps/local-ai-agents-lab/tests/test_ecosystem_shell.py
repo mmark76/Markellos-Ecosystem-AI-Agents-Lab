@@ -281,21 +281,25 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn("confirm(", js)
         self.assertNotIn("$('provider')", js)
 
-    def test_advanced_model_training_is_visible_but_locked(self):
+    def test_personal_provider_planning_is_visible_but_training_is_locked(self):
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         app = (STATIC / "app.js").read_text(encoding="utf-8")
+        planner = (STATIC / "personal-provider.js").read_text(encoding="utf-8")
         self.assertIn('placeholder="e.g. Teach your AI agent how to..."', html)
         self.assertIn("'e.g. Teach your AI agent how to...'", app)
-        for name in ('Advanced: Model Fine-Tuning (optional)', 'This option is temporarily locked.',
-                     'confirmed training-worker compatibility issue', 'Under Construction'):
+        for name in ('Advanced: Personal Fine-Tuning Provider', 'Under Construction',
+                     'No provider account is connected. Training remains locked.',
+                     'I will use my own provider account and accept its charges.'):
             with self.subTest(name=name): self.assertIn(name, html)
-        self.assertIn('<section class="training-workspace training-unavailable"', html)
+        self.assertIn('<section class="training-workspace personal-provider-workspace"', html)
         self.assertNotIn('<details class="training-workspace"', html)
         self.assertNotIn('/static/training.js', html)
         self.assertNotIn('id="training-form"', html)
         self.assertNotIn('Review and start training', html)
         self.assertIn('class="nav-status training-status">Under Construction</span>', html)
-        self.assertIn('.training-workspace.training-unavailable', (STATIC / "style.css").read_text(encoding="utf-8"))
+        self.assertIn('/static/personal-provider.js', html)
+        self.assertIn('/api/training/provider-plan', planner)
+        self.assertNotIn('apiKey', planner)
         self.assertIn('href="/fine-tuning-guide"', html)
         self.assertIn('target="_blank" rel="noopener noreferrer"', html)
         guide = (STATIC / "fine-tuning-guide.html").read_text(encoding="utf-8")

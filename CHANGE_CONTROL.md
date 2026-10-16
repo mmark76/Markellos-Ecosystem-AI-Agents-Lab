@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-050
+
+```text
+Change ID: AI-LAB-CC-050
+Requested by: Repository maintainer
+Date: 2026-10-16
+Description: Add a local, user-owned provider planning surface for advanced LoRA fine-tuning, with RunPod as the first allow-listed provider identifier.
+Reason: Let each Local Lab user plan their own provider account, budget, runtime, and data-transfer acknowledgement without using a shared Markellos GPU account.
+Affected objective IDs: AI-LAB-OBJ-018
+Architecture impact: Adds an isolated provider-plan contract and bounded same-origin local endpoints. The existing worker, local Ollama inference, SQLite histories, and locked training-job route remain independent.
+Security and privacy impact: Credentials, provider URLs, network calls, remote commands, uploads, paid provisioning, and remote execution are prohibited in this phase. User plan data is validated in memory only.
+Data impact: No SQLite schema or durable user data changes.
+Testing impact: Add contract and loopback request validation tests; retain the HTTP 423 regression proving that training cannot start.
+Cost and schedule impact: No provider connection, paid resource, model/dataset transfer, or charge can be created by this phase.
+Decision: APPROVED (PHASE 3A FOUNDATION)
+Approved by: Direct user request
+Target release: Unreleased Local Lab development branch; no package, merge, deployment, or release action in this phase.
+```
+
 ## Approved change record — AI-LAB-CC-049
 
 ```text

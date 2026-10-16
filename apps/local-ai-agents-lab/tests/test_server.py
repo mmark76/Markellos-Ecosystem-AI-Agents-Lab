@@ -139,6 +139,35 @@ class HttpIntegrationTests(unittest.TestCase):
         finally:
             server.shutdown(); server.server_close(); thread.join(timeout=4); campus.PORT = original_port
 
+    def test_http_personal_provider_plan_is_local_only_and_rejects_credentials(self):
+        from http.server import ThreadingHTTPServer
+        from urllib.request import Request, build_opener, ProxyHandler
+        original_port = campus.PORT
+        server = ThreadingHTTPServer(("127.0.0.1", 0), campus.Handler); campus.PORT = server.server_address[1]
+        thread = Thread(target=server.serve_forever, daemon=True); thread.start()
+        try:
+            origin = f"http://127.0.0.1:{campus.PORT}"
+            opener = build_opener(ProxyHandler({}))
+            with opener.open(origin + "/api/training/provider-options") as response:
+                options = json.load(response)
+            self.assertEqual(options["credentials"], "not-collected")
+            self.assertEqual(options["execution"], "not-available")
+            self.assertEqual(options["providers"][0]["id"], "runpod")
+            body = {"provider":"runpod","region":"europe","maxBudgetUsd":5,"maxRuntimeMinutes":60,"confirmOwnAccount":True,"confirmDataTransfer":True}
+            request = Request(origin + "/api/training/provider-plan", data=json.dumps(body).encode(), headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
+            with opener.open(request) as response:
+                plan = json.load(response)
+            self.assertEqual(plan["state"], "PLAN_REVIEWED")
+            self.assertIn("No credential", plan["credentials"])
+            invalid = {**body, "apiKey":"rejected"}
+            request = Request(origin + "/api/training/provider-plan", data=json.dumps(invalid).encode(), headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
+            with self.assertRaises(HTTPError) as raised:
+                opener.open(request)
+            self.assertEqual(raised.exception.code, 400)
+            raised.exception.close()
+        finally:
+            server.shutdown(); server.server_close(); thread.join(timeout=4); campus.PORT = original_port
+
     def test_model_guidance_static_assets_are_served_locally(self):
         from http.server import ThreadingHTTPServer
         from urllib.request import build_opener, ProxyHandler

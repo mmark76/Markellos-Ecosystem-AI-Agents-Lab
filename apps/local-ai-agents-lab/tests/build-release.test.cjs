@@ -160,7 +160,7 @@ test('Dashboard launcher is a fixed per-user protocol using the existing Windows
 });
 
 
-test('beginner fine-tuning guide is bundled while training remains locked',()=>{
+test('beginner fine-tuning guide and personal provider planner are bundled while training remains locked',()=>{
   const root=path.resolve(__dirname,'..');
   const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
   const page=fs.readFileSync(path.join(root,'static','fine-tuning-guide.html'),'utf8');
@@ -168,8 +168,13 @@ test('beginner fine-tuning guide is bundled while training remains locked',()=>{
   const server=fs.readFileSync(path.join(root,'server.py'),'utf8');
   assert.match(packager,/'static\/fine-tuning-guide.html'/);
   assert.match(packager,/'static\/fine-tuning-guide.css'/);
+  assert.match(packager,/'personal_provider.py'/);
+  assert.match(packager,/'static\/personal-provider.js'/);
   assert.match(server,/"\/fine-tuning-guide": \("fine-tuning-guide.html", "text\/html; charset=utf-8"\)/);
+  assert.match(server,/"\/api\/training\/provider-plan"/);
   assert.match(html,/href="\/fine-tuning-guide" target="_blank" rel="noopener noreferrer"/);
+  assert.match(html,/id="personal-provider-plan"/);
+  assert.match(html,/Training remains locked\./);
   assert.match(html,/Under Construction/);
   assert.match(page,/Fine-Tuning versus the Learning Lab/);
 });

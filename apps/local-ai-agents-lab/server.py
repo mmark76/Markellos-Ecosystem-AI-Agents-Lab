@@ -35,6 +35,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from providers import InferenceProviders, ProviderError
 from training import TrainingError, TrainingLockedError, TrainingService
+from personal_provider import PersonalProviderPlanError, build_provider_plan, provider_options
 from model_install import ModelInstallError, ModelInstallBusy, OllamaModelInstaller
 from evaluation_lab.http_api import EvaluationAPIError, EvaluationHTTPService
 from evaluation_lab.repository import EvaluationRepository, EvaluationRepositoryError
@@ -335,6 +336,9 @@ class Handler(BaseHTTPRequestHandler):
             self._json({"ollama": status["available"], "models": status["models"],
                         "storage": "local SQLite", "cloud": False, "provider": status})
             return
+        if self.path == "/api/training/provider-options":
+            self._json(provider_options())
+            return
         if self.path.startswith("/api/evaluation/"):
             try:
                 self._json(EVALUATION.get(self.path))
@@ -386,6 +390,7 @@ class Handler(BaseHTTPRequestHandler):
                  "/static/model-guidance.js": ("model-guidance.js", "text/javascript; charset=utf-8"),
                  "/static/ecosystem-tokens.css": ("ecosystem-tokens.css", "text/css; charset=utf-8"),
                  "/static/training.js": ("training.js", "text/javascript; charset=utf-8"),
+                 "/static/personal-provider.js": ("personal-provider.js", "text/javascript; charset=utf-8"),
                  "/static/model-install.js": ("model-install.js", "text/javascript; charset=utf-8"),
                  "/static/panel-layout.js": ("panel-layout.js", "text/javascript; charset=utf-8"),
                  "/static/evaluation.js": ("evaluation.js", "text/javascript; charset=utf-8")}
@@ -471,6 +476,15 @@ class Handler(BaseHTTPRequestHandler):
                     raise TrainingError("Select one supported local training directory.")
                 self._json(TRAINING.open_directory(body["directory"]))
             except (TrainingError, ValueError, TypeError, json.JSONDecodeError) as err:
+                self._json({"error": str(err)}, 400)
+            return
+        if self.path == "/api/training/provider-plan":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if not 2 <= size <= 1024:
+                    raise PersonalProviderPlanError("Invalid personal provider plan size.")
+                self._json(build_provider_plan(json.loads(self.rfile.read(size))))
+            except (PersonalProviderPlanError, ValueError, TypeError, json.JSONDecodeError) as err:
                 self._json({"error": str(err)}, 400)
             return
         if self.path.startswith("/api/training-sessions/") and self.path.endswith("/cancel"):
