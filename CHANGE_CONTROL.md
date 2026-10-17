@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-059
+
+```text
+Change ID: AI-LAB-CC-059
+Requested by: Repository maintainer
+Date: 2026-10-17
+Description: Publish AI Lab v2.0.8, retaining the newly merged optional Sign in with ChatGPT connection bridge, and make its verified Windows ZIP the current public R2/Pages download.
+Reason: Direct user request to release and deploy the merged feature.
+Affected objective IDs: AI-LAB-OBJ-003, AI-LAB-OBJ-022
+Architecture impact: Packages the existing loopback Lab and updates only the versioned public ZIP manifest; no public application API or Local Lab hosting is introduced.
+Security and privacy impact: The release ZIP excludes local data and credentials. The optional ChatGPT connection remains browser-approved, local to the Windows user, and contains no inference path.
+Data impact: Creates an immutable v2.0.8 GitHub release asset and R2 archive object, retaining previous versioned releases.
+Testing impact: Run Local Lab, release-package, landing build, checksum, anonymous download, and deployment verification before declaring the release complete.
+Cost and schedule impact: No provider resource, model, prompt, API inference, training job, or charge is created by publication.
+Decision: APPROVED (RELEASE AND DEPLOYMENT)
+Approved by: Direct user request
+Target release: AI Lab v2.0.8
+```
+
 ## Approved change record — AI-LAB-CC-058
 
 ```text
