@@ -52,6 +52,14 @@ class CredentialVaultTests(unittest.TestCase):
             with self.assertRaisesRegex(credential_vault.CredentialVaultError, "Unsupported"):
                 vault.status("../../outside")
 
+    def test_openai_connection_uses_a_separate_protected_file(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "credentials"
+            vault = credential_vault.CredentialVault(root, FakeProtector())
+            vault.store("openai-chatgpt", "opaque-connection-record")
+            self.assertEqual(vault.load("openai-chatgpt"), "opaque-connection-record")
+            self.assertTrue((root / "openai-chatgpt.connection.dpapi").is_file())
+
 
 if __name__ == "__main__":
     unittest.main()

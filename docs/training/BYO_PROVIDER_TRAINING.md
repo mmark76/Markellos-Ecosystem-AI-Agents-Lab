@@ -24,10 +24,11 @@ unfinished feature.
 - RunPod API tokens and SSH public keys are credentials that provide a direct
   connection to the user's own account or an already-running server. By
   themselves, they cannot create a server, start a job, or create a charge.
-- The visible **Open OpenAI API Platform** link is the analogous direct route
-  for a user's own OpenAI API account. The Lab does not accept, store, or use
-  OpenAI API keys, and it cannot make OpenAI API requests or charges. Any
-  OpenAI API use is managed directly in the user's OpenAI API Platform account.
+- The visible **Open OpenAI API Platform** link remains a direct route for a
+  user's own OpenAI API account. The Lab does not accept, store, or use OpenAI
+  API keys. Separately, AI-LAB-SCOPE-023 permits an optional browser-approved
+  ChatGPT connection; it is not an API-key field, does not invoke inference,
+  and cannot create a charge merely by connecting.
 - This phase accepts no API key, SSH key, password, endpoint URL, dataset,
   model download, or remote command.
 - The plan endpoint is same-origin and host-checked. It performs only in-memory
@@ -85,3 +86,20 @@ No provider adapter may accept an arbitrary URL, shell command, or credential
 from the UI. A future provider adapter must use an allow-listed provider API,
 show a final cost/data-transfer confirmation, and preserve the existing local
 inference and SQLite boundaries.
+
+## Optional Sign in with ChatGPT — connection only
+
+`AI-LAB-SCOPE-023` adds a local account-connectivity bridge distinct from the
+RunPod provider path. The user explicitly selects **Continue with ChatGPT**;
+the Lab opens the browser for OpenAI approval using a loopback OAuth/OpenID
+Connect callback, state, nonce, and PKCE. The returned identity is verified
+against OpenAI's public signing keys before an opaque connection record is
+protected for the current Windows user with DPAPI.
+
+- The Lab never accepts an OpenAI API key in this flow.
+- The user must separately approve installation of the pinned verification
+  component in the extracted Lab folder. Easy Start never installs it.
+- The flow does not send prompts, invoke a model, request an OpenAI API
+  response, or create a charge. There is no inference route in this scope.
+- Status is non-secret and local removal deletes the protected connection
+  record. The Lab never returns refresh or access tokens to the browser.

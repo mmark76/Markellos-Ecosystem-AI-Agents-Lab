@@ -121,6 +121,21 @@ data-transfer confirmation. The selected EUR/USD value is a personal planning
 limit only. RunPod catalog prices remain in USD, and the Lab does not perform
 an exchange-rate conversion or enforce a provider-side spending cap.
 
+## Optional Sign in with ChatGPT — connection only
+
+The Personal Provider panel also offers an optional **Continue with ChatGPT**
+button. It is a browser-mediated account connection, not an OpenAI API-key
+field. The Lab does not accept, store, or use OpenAI API keys. Before the first
+connection, the user must separately approve installation of the pinned
+identity-verification component in a virtual environment inside the extracted
+Lab folder. It validates the OpenAI identity response and stores the resulting
+connection record with Windows DPAPI for the current Windows user.
+
+Connecting opens the user's browser for approval. It does not send a prompt,
+call a model, create a paid API request, or create a charge. The released
+feature has no OpenAI inference route. Users can disconnect the stored
+connection locally from the same panel.
+
 ## Advanced model training — locked
 
 Optional parameter fine-tuning is **not operational in this release**. Phase 1
@@ -151,8 +166,10 @@ environment.
 ## Privacy and boundaries
 
 - The web server binds **only** to `127.0.0.1:8765`.
-- The application connects only to Ollama at its fixed loopback address. It has
-  no cloud API keys, tracking, CDN, external library, or online inference feature.
+- The application connects only to Ollama at its fixed loopback address for
+  inference. Its optional ChatGPT connection reaches only OpenAI's fixed
+  authorization, token, and public key endpoints after an explicit user click;
+  it has no OpenAI inference route, cloud API key, tracking, or CDN.
 - Names containing `cloud` are filtered, but this is **not sufficient on its
   own**. For genuinely local Ollama operation, enable `disable_ollama_cloud`
   as described above and use downloaded local models only.
@@ -176,7 +193,9 @@ SQLite keeps the two workspaces with separate histories.
 
 ## Technical notes
 
-- Python standard library only: HTTP server, SQLite, and local provider HTTP APIs.
+- Python standard library for the normal local server. The optional ChatGPT
+  connection installs one pinned identity-verification dependency only after a
+  separate user approval; it is not part of Easy Start.
 - The Lab does not install Python packages, services, scheduled tasks, Git
   hooks, or files outside the application folder.
 - Experimental MVP; not a certified security or agent-evaluation system.

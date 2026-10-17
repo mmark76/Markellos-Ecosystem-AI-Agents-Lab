@@ -16,6 +16,7 @@
   <script defer src="/static/model-guidance.js"></script>
   <script defer src="/static/model-install.js"></script>
   <script defer src="/static/personal-provider.js"></script>
+  <script defer src="/static/openai-connection.js"></script>
   <script defer src="/static/panel-layout.js"></script>
 </head>
 <body>
@@ -150,8 +151,16 @@ Completeness</textarea>
         <p>Connect and review your own provider account. The provider bills you directly; this Lab does not hold a shared GPU account or payment method.</p>
         <p class="personal-provider-console-boundary"><strong>RunPod API tokens and SSH public keys are credentials that only enable a direct connection to your own RunPod account or an already-running server. By themselves, they cannot create a server, start a job, or charge your account. Use the official RunPod Console to connect to and manage your own RunPod servers; the Lab cannot create a provider resource or charge your account.</strong></p>
         <p><a id="open-runpod-console" class="fine-tuning-guide-link" href="https://console.runpod.io/" target="_blank" rel="noopener noreferrer">Open RunPod Console ↗</a></p>
-        <p class="personal-provider-console-boundary"><strong>An OpenAI API key is also a connection credential. This Lab does not accept, store, or use OpenAI API keys, and it cannot make OpenAI API requests or charges. OpenAI API usage is managed directly in your own OpenAI API Platform account.</strong></p>
+        <p class="personal-provider-console-boundary"><strong>OpenAI API keys are not accepted, stored, or used by this Lab. Instead, you may optionally connect with ChatGPT through your browser. This user-approved connection does not use an API key. Connecting alone does not send prompts, make an AI request, or create a charge.</strong></p>
         <p><a id="open-openai-platform" class="fine-tuning-guide-link" href="https://platform.openai.com/" target="_blank" rel="noopener noreferrer">Open OpenAI API Platform ↗</a></p>
+        <section id="openai-chatgpt-connection" class="personal-provider-connection" aria-labelledby="openai-chatgpt-connection-title">
+          <h4 id="openai-chatgpt-connection-title">Optional: Sign in with ChatGPT</h4>
+          <p>Use your browser to approve a direct connection to your own ChatGPT account. The resulting connection record is protected locally for this Windows user. The Lab never displays it, and it does not perform inference or use a paid API call when you connect.</p>
+          <button type="button" id="openai-chatgpt-connect">Continue with ChatGPT</button>
+          <button type="button" id="openai-chatgpt-setup" hidden>Set up optional connection component</button>
+          <button type="button" id="openai-chatgpt-remove" class="personal-credential-remove" hidden>Disconnect ChatGPT locally</button>
+          <p id="openai-chatgpt-status" class="training-status" role="status" aria-live="polite">Checking local ChatGPT connection status…</p>
+        </section>
         <form id="personal-provider-plan">
           <label for="personal-provider">Provider</label>
           <select id="personal-provider" name="provider"><option value="runpod">RunPod · first supported provider</option></select>

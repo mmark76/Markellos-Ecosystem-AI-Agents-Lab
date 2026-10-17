@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 from contextlib import closing
 import sqlite3
@@ -14,6 +15,7 @@ import re
 from typing import Optional
 from urllib.error import HTTPError, URLError
 from urllib.request import ProxyHandler, build_opener
+from urllib.parse import parse_qs, urlsplit
 
 HOST = "127.0.0.1"
 PORT = 8765
@@ -38,6 +40,7 @@ from training import TrainingError, TrainingLockedError, TrainingService
 from credential_vault import CredentialVault, CredentialVaultError
 from personal_provider import PersonalProviderConnectionError, PersonalProviderCredentialError, PersonalProviderPlanError, build_provider_plan, connection_check_request, credential_removal_request, credential_store_request, provider_options
 from runpod_readonly import RunpodReadOnlyError, RunpodReadOnlyService
+from openai_connection import OpenAIConnectionError, OpenAIConnectionService, OpenAIConnectionSetupRequired
 from model_install import ModelInstallError, ModelInstallBusy, OllamaModelInstaller
 from evaluation_lab.http_api import EvaluationAPIError, EvaluationHTTPService
 from evaluation_lab.repository import EvaluationRepository, EvaluationRepositoryError
@@ -47,6 +50,7 @@ TRAINING = TrainingService(ROOT)
 MODEL_INSTALLER = OllamaModelInstaller(OPENER)
 CREDENTIAL_VAULT = CredentialVault()
 RUNPOD_CONNECTION = RunpodReadOnlyService(CREDENTIAL_VAULT)
+OPENAI_CONNECTION = OpenAIConnectionService(CREDENTIAL_VAULT, ROOT)
 
 LABS = {
     "conference": {"name": "Conference Room", "workflow": "Strategist → Analyst → Engineer",
@@ -332,8 +336,8 @@ class Handler(BaseHTTPRequestHandler):
     server_version = "LocalCampus/0.1"
 
     def log_message(self, fmt, *args):
-        # Deliberately avoid request body logging.
-        print("[HTTP]", fmt % args)
+        # Deliberately avoid request bodies and OAuth callback query strings.
+        print("[HTTP]", self.command, self.path.split("?", 1)[0])
 
     def _headers(self, code=200, content_type="application/json; charset=utf-8"):
         self.send_response(code)
@@ -350,9 +354,23 @@ class Handler(BaseHTTPRequestHandler):
         self._headers(code)
         self.wfile.write(encoded)
 
+    def _html(self, content, code=200):
+        self._headers(code, "text/html; charset=utf-8")
+        self.wfile.write(content.encode("utf-8"))
+
     def do_GET(self):
         if not self._host_valid():
             self._json({"error": "Invalid Host"}, 403)
+            return
+        parsed = urlsplit(self.path)
+        if parsed.path == "/auth/callback":
+            try:
+                query = {name: values[0] for name, values in parse_qs(parsed.query, strict_parsing=True).items()
+                         if len(values) == 1}
+                OPENAI_CONNECTION.complete(query)
+                self._html("<!doctype html><title>Connected</title><main><h1>ChatGPT connected</h1><p>You may close this tab and return to the Local Lab.</p></main>")
+            except (OpenAIConnectionError, ValueError) as err:
+                self._html(f"<!doctype html><title>Connection not completed</title><main><h1>ChatGPT connection not completed</h1><p>{str(err)}</p><p>You may close this tab and return to the Local Lab.</p></main>", 400)
             return
         if self.path == "/api/status":
             status = provider_status("ollama")
@@ -366,6 +384,12 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 self._json(CREDENTIAL_VAULT.status("runpod"))
             except CredentialVaultError as err:
+                self._json({"error": str(err)}, 503)
+            return
+        if self.path == "/api/openai/connection":
+            try:
+                self._json(OPENAI_CONNECTION.status())
+            except OpenAIConnectionError as err:
                 self._json({"error": str(err)}, 503)
             return
         if self.path.startswith("/api/evaluation/"):
@@ -420,6 +444,7 @@ class Handler(BaseHTTPRequestHandler):
                  "/static/ecosystem-tokens.css": ("ecosystem-tokens.css", "text/css; charset=utf-8"),
                  "/static/training.js": ("training.js", "text/javascript; charset=utf-8"),
                  "/static/personal-provider.js": ("personal-provider.js", "text/javascript; charset=utf-8"),
+                 "/static/openai-connection.js": ("openai-connection.js", "text/javascript; charset=utf-8"),
                  "/static/model-install.js": ("model-install.js", "text/javascript; charset=utf-8"),
                  "/static/panel-layout.js": ("panel-layout.js", "text/javascript; charset=utf-8"),
                  "/static/evaluation.js": ("evaluation.js", "text/javascript; charset=utf-8")}
@@ -441,6 +466,30 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not self._host_valid() or not self._origin_valid():
             self._json({"error": "Cross-origin writes blocked"}, 403)
+            return
+        if self.path == "/api/openai/connection":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if not 2 <= size <= 96 or json.loads(self.rfile.read(size)) != {"confirmConnection": True}:
+                    raise OpenAIConnectionError("Confirm the ChatGPT connection request.")
+                self._json(OPENAI_CONNECTION.start(PORT), 202)
+            except OpenAIConnectionSetupRequired as err:
+                self._json({"error": str(err), "setupRequired": True}, 409)
+            except (OpenAIConnectionError, ValueError, TypeError, json.JSONDecodeError) as err:
+                self._json({"error": str(err)}, 400)
+            return
+        if self.path == "/api/openai/connection/setup":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if not 2 <= size <= 96 or json.loads(self.rfile.read(size)) != {"confirmSetup": True}:
+                    raise OpenAIConnectionError("Confirm the optional connection setup request.")
+                script = ROOT / "scripts" / "setup-openai-connection.ps1"
+                if not script.is_file():
+                    raise OpenAIConnectionError("The optional connection setup script is unavailable.")
+                subprocess.Popen(["powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(script), "-LabRoot", str(ROOT)], creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0))
+                self._json({"state": "SETUP_OPENED"}, 202)
+            except (OpenAIConnectionError, ValueError, TypeError, json.JSONDecodeError, OSError) as err:
+                self._json({"error": str(err)}, 400)
             return
         if self.path == "/api/evaluation/runs":
             try:
@@ -635,6 +684,15 @@ class Handler(BaseHTTPRequestHandler):
     def do_DELETE(self):
         if not self._host_valid() or not self._origin_valid():
             self._json({"error": "Cross-origin writes blocked"}, 403)
+            return
+        if self.path == "/api/openai/connection":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if not 2 <= size <= 96 or json.loads(self.rfile.read(size)) != {"confirmRemoval": True}:
+                    raise OpenAIConnectionError("Confirm local ChatGPT connection removal.")
+                self._json(OPENAI_CONNECTION.remove())
+            except (OpenAIConnectionError, ValueError, TypeError, json.JSONDecodeError) as err:
+                self._json({"error": str(err)}, 400)
             return
         if self.path != "/api/training/provider-credentials":
             self._json({"error": "Unknown endpoint"}, 404)

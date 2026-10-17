@@ -1,0 +1,215 @@
+"""Bounded, local Sign in with ChatGPT connection; it never invokes inference."""
+from __future__ import annotations
+
+import base64
+import hashlib
+import json
+import os
+import secrets
+import time
+import webbrowser
+from pathlib import Path
+from threading import Lock
+from typing import Any, Callable
+from urllib.parse import urlencode
+from urllib.request import ProxyHandler, Request, build_opener
+
+from credential_vault import CredentialVault, CredentialVaultError
+
+AUTHORIZATION_ENDPOINT = "https://auth.openai.com/api/accounts/authorize"
+TOKEN_ENDPOINT = "https://auth.openai.com/api/accounts/oauth/token"
+JWKS_URI = "https://auth.openai.com/.well-known/jwks.json"
+ISSUER = "https://auth.openai.com"
+RESOURCE = "https://api.openai.com/v1"
+SCOPES = ("openid", "profile", "email", "offline_access", "resource.invoke", "chatgpt.tokens.use.direct")
+DYNAMIC_CLIENT_ID = "dynamic_agent_client"
+CALLBACK_PATH = "/auth/callback"
+ATTEMPT_TTL_SECONDS = 600
+
+
+class OpenAIConnectionError(ValueError):
+    """A safe-to-display local connection error."""
+
+
+class OpenAIConnectionSetupRequired(OpenAIConnectionError):
+    """The explicit crypto/OIDC component has not been installed yet."""
+
+
+def _urlsafe_random(size: int = 32) -> str:
+    return base64.urlsafe_b64encode(os.urandom(size)).rstrip(b"=").decode("ascii")
+
+
+def _challenge(verifier: str) -> str:
+    return base64.urlsafe_b64encode(hashlib.sha256(verifier.encode("ascii")).digest()).rstrip(b"=").decode("ascii")
+
+
+class OpenAIConnectionService:
+    """Owns the browser approval transaction and opaque locally protected record."""
+
+    def __init__(self, vault: CredentialVault, root: Path, *, browser_open: Callable[[str], bool] = webbrowser.open,
+                 token_exchange: Callable[[dict[str, str]], dict[str, Any]] | None = None,
+                 identity_validator: Callable[[str, str, str], dict[str, Any]] | None = None):
+        self._vault = vault
+        self._root = Path(root)
+        self._browser_open = browser_open
+        self._token_exchange = token_exchange or self._exchange_tokens
+        self._identity_validator = identity_validator or self._validate_identity_token
+        self._lock = Lock()
+        self._attempt: dict[str, Any] | None = None
+
+    @property
+    def _registration_path(self) -> Path:
+        return self._root / "data" / "openai-chatgpt-registration.json"
+
+    def status(self) -> dict[str, Any]:
+        try:
+            raw = self._vault.load("openai-chatgpt")
+        except CredentialVaultError as err:
+            raise OpenAIConnectionError("The saved ChatGPT connection could not be read. Disconnect it locally and reconnect.") from err
+        if not raw:
+            return {"provider": "openai-chatgpt", "connected": False, "scope": "current-windows-user"}
+        try:
+            record = json.loads(raw)
+            if not isinstance(record, dict) or not isinstance(record.get("subject"), str):
+                raise ValueError("invalid record")
+        except (TypeError, ValueError, json.JSONDecodeError) as err:
+            raise OpenAIConnectionError("The saved ChatGPT connection is invalid. Disconnect it locally and reconnect.") from err
+        return {
+            "provider": "openai-chatgpt",
+            "connected": True,
+            "scope": "current-windows-user",
+            "planUsageAuthorized": bool(record.get("planUsageAuthorized")),
+        }
+
+    def start(self, callback_port: int) -> dict[str, Any]:
+        if not 1024 <= callback_port <= 65535:
+            raise OpenAIConnectionError("The local callback port is invalid.")
+        self._require_crypto()
+        with self._lock:
+            if self._attempt and self._attempt["expiresAt"] > time.time():
+                raise OpenAIConnectionError("A ChatGPT connection approval is already open in your browser.")
+            client_id = self._client_id()
+            attempt = {
+                "state": _urlsafe_random(), "nonce": _urlsafe_random(), "verifier": _urlsafe_random(48),
+                "clientId": client_id, "expiresAt": time.time() + ATTEMPT_TTL_SECONDS,
+                "redirectUri": f"http://127.0.0.1:{callback_port}{CALLBACK_PATH}",
+            }
+            self._attempt = attempt
+        query = {
+            "response_type": "code", "client_id": client_id, "redirect_uri": attempt["redirectUri"],
+            "scope": " ".join(SCOPES), "resource": RESOURCE, "state": attempt["state"],
+            "nonce": attempt["nonce"], "code_challenge": _challenge(attempt["verifier"]),
+            "code_challenge_method": "S256",
+        }
+        if client_id == DYNAMIC_CLIENT_ID:
+            query["agent_name_hint"] = "Markellos Ecosystem AI Lab"
+        url = AUTHORIZATION_ENDPOINT + "?" + urlencode(query)
+        if not self._browser_open(url):
+            with self._lock:
+                self._attempt = None
+            raise OpenAIConnectionError("The browser could not be opened for ChatGPT approval.")
+        return {"state": "AUTHORIZATION_STARTED", "expiresInSeconds": ATTEMPT_TTL_SECONDS}
+
+    def complete(self, query: dict[str, str]) -> dict[str, Any]:
+        with self._lock:
+            attempt = self._attempt
+            self._attempt = None
+        if not attempt or attempt["expiresAt"] <= time.time():
+            raise OpenAIConnectionError("This ChatGPT approval has expired. Start the connection again.")
+        if query.get("error"):
+            raise OpenAIConnectionError("ChatGPT approval was not completed.")
+        if not secrets.compare_digest(query.get("state", ""), attempt["state"]):
+            raise OpenAIConnectionError("The ChatGPT approval state did not match this local request.")
+        code = query.get("code")
+        issued_client_id = query.get("client_id")
+        if not isinstance(code, str) or not code or not isinstance(issued_client_id, str) or not issued_client_id:
+            raise OpenAIConnectionError("The ChatGPT approval response was incomplete.")
+        if attempt["clientId"] != DYNAMIC_CLIENT_ID and not secrets.compare_digest(issued_client_id, attempt["clientId"]):
+            raise OpenAIConnectionError("The ChatGPT approval response used an unexpected client identifier.")
+        if attempt["clientId"] == DYNAMIC_CLIENT_ID and not issued_client_id.startswith("oaiapp_"):
+            raise OpenAIConnectionError("The ChatGPT approval response did not issue a valid client identifier.")
+        tokens = self._token_exchange({
+            "grant_type": "authorization_code", "code": code, "client_id": issued_client_id,
+            "redirect_uri": attempt["redirectUri"], "code_verifier": attempt["verifier"],
+        })
+        if not isinstance(tokens, dict) or not isinstance(tokens.get("id_token"), str) or not isinstance(tokens.get("refresh_token"), str):
+            raise OpenAIConnectionError("ChatGPT did not return a complete connection response.")
+        identity = self._identity_validator(tokens["id_token"], issued_client_id, attempt["nonce"])
+        if not isinstance(identity, dict) or not isinstance(identity.get("sub"), str) or not identity["sub"]:
+            raise OpenAIConnectionError("ChatGPT did not return a valid account identity.")
+        scope = tokens.get("scope", "")
+        scopes = set(scope.split()) if isinstance(scope, str) else set()
+        record = {
+            "subject": identity["sub"], "clientId": issued_client_id,
+            "refreshToken": tokens["refresh_token"], "accessToken": tokens.get("access_token", ""),
+            "planUsageAuthorized": "chatgpt.tokens.use.direct" in scopes,
+        }
+        try:
+            self._vault.store("openai-chatgpt", json.dumps(record, separators=(",", ":")))
+            self._save_client_id(issued_client_id)
+        except (CredentialVaultError, OSError) as err:
+            try:
+                self._vault.remove("openai-chatgpt")
+            except CredentialVaultError:
+                pass
+            raise OpenAIConnectionError("The ChatGPT connection could not be protected for this Windows user.") from err
+        return self.status()
+
+    def remove(self) -> dict[str, Any]:
+        with self._lock:
+            self._attempt = None
+        try:
+            removed = self._vault.remove("openai-chatgpt")
+        except CredentialVaultError as err:
+            raise OpenAIConnectionError("The ChatGPT connection could not be removed locally.") from err
+        return {"provider": "openai-chatgpt", "state": "REMOVED_LOCALLY", "removed": removed}
+
+    def _client_id(self) -> str:
+        try:
+            data = json.loads(self._registration_path.read_text(encoding="utf-8"))
+            client_id = data.get("clientId")
+            if isinstance(client_id, str) and client_id.startswith("oaiapp_"):
+                return client_id
+        except (OSError, ValueError, json.JSONDecodeError):
+            pass
+        return DYNAMIC_CLIENT_ID
+
+    def _save_client_id(self, client_id: str) -> None:
+        self._registration_path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = self._registration_path.with_suffix(".tmp")
+        temporary.write_text(json.dumps({"clientId": client_id}, separators=(",", ":")), encoding="utf-8")
+        temporary.replace(self._registration_path)
+
+    @staticmethod
+    def _require_crypto() -> None:
+        try:
+            import jwt  # noqa: F401
+        except ImportError as err:
+            raise OpenAIConnectionSetupRequired("Install the optional ChatGPT connection component before continuing.") from err
+
+    @staticmethod
+    def _exchange_tokens(form: dict[str, str]) -> dict[str, Any]:
+        payload = urlencode(form).encode("utf-8")
+        request = Request(TOKEN_ENDPOINT, data=payload, method="POST", headers={"Content-Type": "application/x-www-form-urlencoded"})
+        try:
+            with build_opener(ProxyHandler({})).open(request, timeout=15) as response:
+                body = json.loads(response.read().decode("utf-8"))
+        except Exception as err:
+            raise OpenAIConnectionError("ChatGPT could not complete the connection exchange.") from err
+        if not isinstance(body, dict):
+            raise OpenAIConnectionError("ChatGPT returned an invalid connection response.")
+        return body
+
+    @staticmethod
+    def _validate_identity_token(id_token: str, client_id: str, nonce: str) -> dict[str, Any]:
+        OpenAIConnectionService._require_crypto()
+        import jwt
+        try:
+            signing_key = jwt.PyJWKClient(JWKS_URI, timeout=10).get_signing_key_from_jwt(id_token)
+            claims = jwt.decode(id_token, signing_key.key, algorithms=["RS256"], audience=client_id,
+                                issuer=ISSUER, options={"require": ["exp", "iat", "sub", "nonce"]}, leeway=5)
+        except Exception as err:
+            raise OpenAIConnectionError("ChatGPT identity verification failed.") from err
+        if not isinstance(claims, dict) or not isinstance(claims.get("nonce"), str) or not secrets.compare_digest(claims["nonce"], nonce):
+            raise OpenAIConnectionError("ChatGPT identity verification did not match this local request.")
+        return claims
