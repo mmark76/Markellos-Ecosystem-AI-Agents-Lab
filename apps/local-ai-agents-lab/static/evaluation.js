@@ -2,7 +2,6 @@
 (() => {
   const byId = id => document.getElementById(id);
   const panel = byId('evaluation-lab');
-  const nav = byId('nav-evaluation');
   const feedback = byId('evaluation-feedback');
   let active = false;
   let selectedRun = null;
@@ -101,38 +100,12 @@
     }
   }
 
-  function showEvaluation() {
-    if (active) return;
-    const submit = byId('send');
-    if (submit.textContent === 'Running...') {
-      feedback.textContent = 'Finish the current Training Room session before changing workspaces.';
-      return;
-    }
-    active = true;
-    nav.classList.add('selected');
-    document.querySelectorAll('[data-room]').forEach(button => button.classList.remove('selected'));
-    byId('room-title').textContent = 'Evaluation Lab';
-    byId('room-description').textContent = 'Assess completed Training Room records with local models';
-    panel.hidden = false;
-    byId('composer').hidden = true;
-    document.querySelector('.chat-panel').hidden = true;
-    byId('right-panel').hidden = true;
-    refresh();
-  }
-
-  function leaveEvaluation() {
-    if (!active) return;
-    active = false;
-    nav.classList.remove('selected');
-    panel.hidden = true;
-    byId('composer').hidden = false;
-    document.querySelector('.chat-panel').hidden = false;
-    byId('right-panel').hidden = false;
-    if (poll) { clearInterval(poll); poll = null; }
-  }
-
-  nav.addEventListener('click', showEvaluation);
-  document.querySelectorAll('[data-room]').forEach(button => button.addEventListener('click', leaveEvaluation));
+  document.addEventListener('lab-room-change', event => {
+    active = event.detail.room === 'evaluation';
+    panel.hidden = !active;
+    if (active) refresh();
+    if (!active && poll) { clearInterval(poll); poll = null; }
+  });
   byId('evaluation-form').addEventListener('submit', async event => {
     event.preventDefault();
     if (pending) return;

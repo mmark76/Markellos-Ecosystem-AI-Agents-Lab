@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-049
+
+```text
+Change ID: AI-LAB-CC-049
+Requested by: Repository maintainer
+Date: 2026-10-16
+Description: Activate all five approved AI Training Lab workspaces and align them to fifteen Lab-scoped roles.
+Reason: Direct user approval to make Conference, Training, Evaluation, Advisory, and Optimization workflows operational.
+Affected objective IDs: AI-LAB-OBJ-018
+Architecture impact: Shared local orchestration gains five explicit Lab definitions and Lab-scoped prompt keys. Existing Evaluation record review remains additive.
+Security and privacy impact: Fixed-loopback Ollama, same-origin local HTTP, local SQLite, and no filesystem, terminal, arbitrary network, or cloud capability remain required.
+Data impact: Legacy Training Trainer rows remain readable as Tutor; existing records are not rewritten.
+Testing impact: Add five-Lab role, prompt, navigation, compatibility, and local routing regression coverage.
+Cost and schedule impact: Each active local workflow can consume selected local-model compute; no cloud service or deployment is added.
+Decision: APPROVED (SCOPE INCREASE)
+Approved by: Direct user request
+Target release: Unreleased local development branch; no package, merge, or deployment action in this phase.
+```
+
 ## Approved change record ? AI-LAB-CC-048
 
 ```text

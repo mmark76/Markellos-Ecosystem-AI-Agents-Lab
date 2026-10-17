@@ -9,5 +9,5 @@
   $('model-guidance-close').addEventListener('click',()=>dialog.close());
   dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close();});
   dialog.addEventListener('close',()=>{if(trigger)trigger.focus();trigger=null;});
-  render('Trainer');
+  render('Tutor');
 })();
