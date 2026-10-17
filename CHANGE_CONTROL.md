@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-057
+
+```text
+Change ID: AI-LAB-CC-057
+Requested by: User
+Date: 2026-10-17
+Description: Add direct official RunPod Console and OpenAI API Platform links with explicit connection-credential and no-charge boundaries to the personal-provider workspace.
+Reason: A user who has completed the read-only RunPod connection check needs a clear route to connect to and manage their own RunPod servers, and to reach their own OpenAI API account, without mistaking the Lab for a provisioning or billing surface.
+Affected objective IDs: AI-LAB-OBJ-021
+Architecture impact: Static local presentation only; the fixed read-only adapter, loopback routes, training lock, and provider contract are unchanged.
+Security and privacy impact: The links target only https://console.runpod.io/ and https://platform.openai.com/ and open after an explicit user click with noopener protection. The UI explains that API tokens and SSH public keys are connection credentials only; no token, provider request, mutation, upload, data transfer, or credential handling is added.
+Data impact: None.
+Testing impact: Add static shell and release-package assertions for the official link and no-charge copy; retain complete Local Lab regressions.
+Cost and schedule impact: The Lab cannot create provider resources or charges. Any resource selected in the external RunPod Console belongs directly to the user's account.
+Decision: APPROVED (CLARIFICATION)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
 ## Approved change record — AI-LAB-CC-056
 
 ```text

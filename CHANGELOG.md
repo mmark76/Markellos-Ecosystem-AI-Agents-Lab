@@ -4,6 +4,13 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 
 ## [Unreleased]
 
+## [2.0.7] - 2026-10-17
+
+### Fixed
+
+- Added direct official RunPod Console and OpenAI API Platform links with explicit connection-credential and no-charge boundaries. RunPod API tokens and SSH public keys remain user-controlled connection credentials; the Lab cannot create a provider resource or charge an account.
+- Improved the contrast of the local token-removal control with a solid error background and white text.
+
 ## [2.0.6] - 2026-10-17
 
 ### Fixed

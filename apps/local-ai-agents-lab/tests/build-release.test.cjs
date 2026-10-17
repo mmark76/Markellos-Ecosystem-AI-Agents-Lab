@@ -187,6 +187,15 @@ test('beginner fine-tuning guide and personal provider planner are bundled while
   assert.match(html,/id="personal-provider-plan"/);
   assert.match(html,/Your provider account/);
   assert.match(html,/No paid job is started automatically\./);
+  assert.match(html,/RunPod API tokens and SSH public keys are credentials that only enable a direct connection to your own RunPod account or an already-running server\./);
+  assert.match(html,/By themselves, they cannot create a server, start a job, or charge your account\./);
+  assert.match(html,/Use the official RunPod Console to connect to and manage your own RunPod servers;/);
+  assert.match(html,/the Lab cannot create a provider resource or charge your account\./);
+  assert.match(html,/id="open-runpod-console"[^>]*href="https:\/\/console\.runpod\.io\/"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/);
+  assert.match(html,/An OpenAI API key is also a connection credential\./);
+  assert.match(html,/This Lab does not accept, store, or use OpenAI API keys, and it cannot make OpenAI API requests or charges\./);
+  assert.match(html,/OpenAI API usage is managed directly in your own OpenAI API Platform account\./);
+  assert.match(html,/id="open-openai-platform"[^>]*href="https:\/\/platform\.openai\.com\/"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/);
   assert.doesNotMatch(html,/Under Construction/);
   assert.match(page,/Fine-Tuning versus the Learning Lab/);
 });
