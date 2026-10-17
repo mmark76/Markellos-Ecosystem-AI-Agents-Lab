@@ -5,10 +5,18 @@ from pathlib import Path
 from threading import Lock
 
 class TrainingError(ValueError): pass
+class TrainingLockedError(TrainingError): pass
+
+# This release intentionally has no activation switch. Phase 2 requires a
+# separately approved design and verification before this may become true.
+FINE_TUNING_ENABLED = False
+FINE_TUNING_LOCK_MESSAGE = 'Fine-tuning is locked in this release and cannot be started.'
 
 class TrainingService:
     def __init__(self, root: Path):
         self.root=root; self.datasets=root/'training-data'; self.models=root/'models'; self.outputs=root/'training-output'; self.runtime=root/'training'/'.venv'; self.jobs={}; self.process=None; self.lock=Lock()
+    @property
+    def enabled(self): return FINE_TUNING_ENABLED
     def python(self): return self.runtime / ('Scripts/python.exe' if os.name=='nt' else 'bin/python')
     def directories(self):
         self.models.mkdir(parents=True, exist_ok=True); self.datasets.mkdir(parents=True, exist_ok=True)
@@ -22,7 +30,10 @@ class TrainingService:
         except OSError as err: raise TrainingError(f'Could not open the local folder: {err}') from err
         return {'directory':name,'path':str(directory.resolve())}
     def availability(self):
-        result={'available':False,'python':str(self.python()),'error':'Training environment is not installed.','torch':None,'cuda':{'available':False,'devices':[]}}
+        result={'available':False,'enabled':self.enabled,'python':str(self.python()),'error':'Training environment is not installed.','torch':None,'cuda':{'available':False,'devices':[]}}
+        if not self.enabled:
+            result['error']=FINE_TUNING_LOCK_MESSAGE
+            return result
         if not self.python().is_file(): return result
         code="import torch,json;print(json.dumps({'torch':torch.__version__,'cuda':torch.cuda.is_available(),'devices':[{'name':torch.cuda.get_device_name(i),'memoryMiB':round(torch.cuda.get_device_properties(i).total_memory/1048576)} for i in range(torch.cuda.device_count())] if torch.cuda.is_available() else []}))"
         try:
@@ -45,12 +56,13 @@ class TrainingService:
         if not isinstance(raw,dict): raise TrainingError('Invalid training configuration.')
         dataset,model,method,device=(raw.get(k) for k in ('dataset','model','method','device'))
         if model not in self.models_list(): raise TrainingError('Select a local compatible model from models.')
-        if method not in {'lora','sft'} or device not in {'auto','cpu','cuda'}: raise TrainingError('Invalid training method or compute device.')
+        if method != 'lora' or device not in {'auto','cpu','cuda'}: raise TrainingError('Only the prepared LoRA adapter configuration is available for local training.')
         rows=self.validate_dataset(dataset); capability=self.availability()
         if not capability['available']: raise TrainingError(capability['error'])
         if device=='cuda' and not capability['cuda']['available']: raise TrainingError('CUDA GPU was selected, but PyTorch does not report a supported CUDA device.')
         return {'dataset':dataset,'model':model,'method':method,'device':device,'rows':rows}
     def start(self,raw):
+        if not self.enabled: raise TrainingLockedError(FINE_TUNING_LOCK_MESSAGE)
         config=self.config(raw)
         with self.lock:
             if self.process and self.process.poll() is None: raise TrainingError('Another training job is already running.')

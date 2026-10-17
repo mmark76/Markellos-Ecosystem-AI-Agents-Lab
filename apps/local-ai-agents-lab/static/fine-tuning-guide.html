@@ -21,7 +21,7 @@
   <ol>
     <li><h3>Which AI model? (Model)</h3><p>Choose the already trained model you want to adapt. A compatible model must be available locally.</p></li>
     <li><h3>Which examples? (Dataset)</h3><p>Choose the information and examples the model will learn from. A common file format is <strong>JSON Lines (.jsonl)</strong>, containing one structured example per line. Good-quality examples matter more than simply adding many.</p></li>
-    <li><h3>How should it learn? (Training Method)</h3><p><strong>Supervised Fine-Tuning (SFT)</strong> trains with examples of the responses you want. <strong>Low-Rank Adaptation (LoRA)</strong> is a resource-saving way to update a relatively small set of trainable parameters. These are not opposites: SFT can use LoRA.</p></li>
+    <li><h3>How should it learn? (Training Method)</h3><p><strong>Supervised Fine-Tuning (SFT)</strong> trains with examples of the responses you want. <strong>Low-Rank Adaptation (LoRA)</strong> is a resource-saving way to train a small adapter instead of all of the base model's parameters. These are not opposites: SFT can use LoRA. The prepared configuration uses supervised LoRA adapter training; it does not provide full-parameter fine-tuning.</p></li>
     <li><h3>Which computer resources? (Compute Device)</h3><p><strong>CPU (Central Processing Unit)</strong> uses your computer's main processor and is often slower. <strong>GPU (Graphics Processing Unit)</strong> can speed up training; <strong>CUDA</strong> refers to supported NVIDIA GPU acceleration. <strong>Auto</strong> means the software selects an available supported device.</p></li>
   </ol>
 

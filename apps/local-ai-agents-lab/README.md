@@ -1,6 +1,6 @@
 # Markellos Ecosystem AI Lab
 
-Version: v2.0.4 · Private local starter
+Version: v2.0.5 · Private local starter
 
 Local Windows application with five active workspaces:
 
@@ -104,12 +104,14 @@ until the new installation works.
 
 ## Advanced model training — locked
 
-Optional parameter fine-tuning is **not operational in this release** because
-of a confirmed training-worker compatibility issue. The released Local App
-locks this option and the normal Easy Start flow does not install training
-packages, CUDA components, models, or datasets. Do not use the retained
-developer-only training scripts until a future release explicitly verifies and
-enables this feature.
+Optional parameter fine-tuning is **not operational in this release**. Phase 1
+corrects the retained worker for the pinned TRL API and prepares supervised
+LoRA adapter training only; it does not enable full-parameter fine-tuning. The
+released Local App locks the API before it can create a training subprocess,
+while retaining read-only diagnostics. The normal Easy Start flow does not
+install training packages, CUDA components, models, or datasets. Do not use the
+retained developer-only training scripts until a future release explicitly
+verifies and enables this feature.
 
 ## Required Ollama configuration for fully local operation
 

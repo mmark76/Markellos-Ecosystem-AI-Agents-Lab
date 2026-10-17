@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 from threading import Event, Thread
 from unittest.mock import patch
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 
 SPEC = importlib.util.spec_from_file_location("campus_server", Path(__file__).resolve().parents[1] / "server.py")
 campus = importlib.util.module_from_spec(SPEC)
@@ -120,6 +120,114 @@ class CampusTests(unittest.TestCase):
 
 
 class HttpIntegrationTests(unittest.TestCase):
+    def test_http_training_job_start_is_locked_before_service_execution(self):
+        from http.server import ThreadingHTTPServer
+        from urllib.request import Request, build_opener, ProxyHandler
+        original_port = campus.PORT
+        server = ThreadingHTTPServer(("127.0.0.1", 0), campus.Handler); campus.PORT = server.server_address[1]
+        thread = Thread(target=server.serve_forever, daemon=True); thread.start()
+        try:
+            origin = f"http://127.0.0.1:{campus.PORT}"
+            request = Request(origin + "/api/training/jobs", data=b'{"method":"lora"}', headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
+            with patch.object(campus.TRAINING, 'start') as start, self.assertRaises(HTTPError) as raised:
+                build_opener(ProxyHandler({})).open(request)
+            self.assertEqual(raised.exception.code, 423)
+            self.assertIn('locked', json.load(raised.exception)['error'])
+            raised.exception.close()
+            start.assert_not_called()
+        finally:
+            server.shutdown(); server.server_close(); thread.join(timeout=4); campus.PORT = original_port
+
+    def test_http_personal_provider_plan_is_local_only_and_rejects_credentials(self):
+        from http.server import ThreadingHTTPServer
+        from urllib.request import Request, build_opener, ProxyHandler
+        original_port = campus.PORT
+        server = ThreadingHTTPServer(("127.0.0.1", 0), campus.Handler); campus.PORT = server.server_address[1]
+        thread = Thread(target=server.serve_forever, daemon=True); thread.start()
+        try:
+            origin = f"http://127.0.0.1:{campus.PORT}"
+            opener = build_opener(ProxyHandler({}))
+            with opener.open(origin + "/api/training/provider-options") as response:
+                options = json.load(response)
+                self.assertEqual(options["credentials"], "optional-local-vault")
+            self.assertEqual(options["execution"], "not-available")
+            self.assertEqual(options["providers"][0]["id"], "runpod")
+            body = {"provider":"runpod","region":"europe","maxBudgetUsd":5,"maxRuntimeMinutes":60,"confirmOwnAccount":True,"confirmDataTransfer":True}
+            request = Request(origin + "/api/training/provider-plan", data=json.dumps(body).encode(), headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
+            with opener.open(request) as response:
+                plan = json.load(response)
+            self.assertEqual(plan["state"], "PLAN_REVIEWED")
+            self.assertIn("No credential", plan["credentials"])
+            invalid = {**body, "apiKey":"rejected"}
+            request = Request(origin + "/api/training/provider-plan", data=json.dumps(invalid).encode(), headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
+            with self.assertRaises(HTTPError) as raised:
+                opener.open(request)
+            self.assertEqual(raised.exception.code, 400)
+            raised.exception.close()
+        finally:
+            server.shutdown(); server.server_close(); thread.join(timeout=4); campus.PORT = original_port
+
+    def test_http_personal_provider_credentials_are_local_only_and_removable(self):
+        from http.server import ThreadingHTTPServer
+        from urllib.request import Request, build_opener, ProxyHandler
+        original_port, original_vault = campus.PORT, campus.CREDENTIAL_VAULT
+
+        class FakeProtector:
+            def protect(self, value): return b"encrypted:" + value[::-1]
+            def unprotect(self, value): return value[len(b"encrypted:"):][::-1]
+
+        with tempfile.TemporaryDirectory() as temporary:
+            campus.CREDENTIAL_VAULT = campus.CredentialVault(Path(temporary) / "credentials", FakeProtector())
+            server = ThreadingHTTPServer(("127.0.0.1", 0), campus.Handler); campus.PORT = server.server_address[1]
+            thread = Thread(target=server.serve_forever, daemon=True); thread.start()
+            try:
+                origin = f"http://127.0.0.1:{campus.PORT}"
+                opener = build_opener(ProxyHandler({}))
+                body = {"provider":"runpod","apiKey":"runpod-test-token-1234567890","confirmOwnAccount":True,"confirmCredentialStorage":True}
+                request = Request(origin + "/api/training/provider-credentials", data=json.dumps(body).encode(), headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
+                with opener.open(request) as response:
+                    stored = json.load(response)
+                self.assertEqual(stored["state"], "STORED_LOCALLY")
+                self.assertNotIn(body["apiKey"], json.dumps(stored))
+                with opener.open(origin + "/api/training/provider-credential-status") as response:
+                    self.assertTrue(json.load(response)["stored"])
+                remove = Request(origin + "/api/training/provider-credentials", data=b'{"provider":"runpod","confirmCredentialRemoval":true}', headers={"Origin":origin,"Content-Type":"application/json"}, method="DELETE")
+                with opener.open(remove) as response:
+                    self.assertTrue(json.load(response)["removed"])
+                with opener.open(origin + "/api/training/provider-credential-status") as response:
+                    self.assertFalse(json.load(response)["stored"])
+            finally:
+                server.shutdown(); server.server_close(); thread.join(timeout=4); campus.PORT = original_port; campus.CREDENTIAL_VAULT = original_vault
+
+    def test_http_personal_provider_connection_is_explicit_and_read_only(self):
+        from http.server import ThreadingHTTPServer
+        from urllib.request import Request, build_opener, ProxyHandler
+        original_port, original_connection = campus.PORT, campus.RUNPOD_CONNECTION
+
+        class FakeReadOnlyConnection:
+            def __init__(self): self.calls = []
+            def check(self, provider):
+                self.calls.append(provider)
+                return {"state":"READ_ONLY_CONNECTED","provider":provider,"account":"authenticated",
+                        "gpus":[{"id":"NVIDIA A40","name":"A40","memoryGb":48,"availability":"High","hourlyPriceUsd":0.59}],
+                        "execution":"No Pod, upload, provisioning, model download, or training job was started."}
+
+        connection = FakeReadOnlyConnection()
+        campus.RUNPOD_CONNECTION = connection
+        server = ThreadingHTTPServer(("127.0.0.1", 0), campus.Handler); campus.PORT = server.server_address[1]
+        thread = Thread(target=server.serve_forever, daemon=True); thread.start()
+        try:
+            origin = f"http://127.0.0.1:{campus.PORT}"
+            request = Request(origin + "/api/training/provider-connection", data=b'{"provider":"runpod","confirmReadOnlyConnection":true}', headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
+            with build_opener(ProxyHandler({})).open(request) as response:
+                result = json.load(response)
+            self.assertEqual(result["state"], "READ_ONLY_CONNECTED")
+            self.assertEqual(result["account"], "authenticated")
+            self.assertEqual(result["gpus"][0]["hourlyPriceUsd"], 0.59)
+            self.assertEqual(connection.calls, ["runpod"])
+        finally:
+            server.shutdown(); server.server_close(); thread.join(timeout=4); campus.PORT = original_port; campus.RUNPOD_CONNECTION = original_connection
+
     def test_model_guidance_static_assets_are_served_locally(self):
         from http.server import ThreadingHTTPServer
         from urllib.request import build_opener, ProxyHandler

@@ -49,6 +49,30 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn('/static/ecosystem-tokens.css', self.html)
         self.assertIn('var(--font-sans', self.css)
 
+    def test_personal_provider_surface_is_visible_but_training_remains_locked(self):
+        planner = (STATIC / "personal-provider.js").read_text(encoding="utf-8")
+        for label in (
+            "Advanced: Personal Fine-Tuning Provider",
+            "Under Construction",
+            "No provider account is connected. Training remains locked.",
+            "I will use my own provider account and accept its charges.",
+            "Read-only RunPod connection check",
+            "Check RunPod connection",
+        ):
+            with self.subTest(label=label):
+                self.assertIn(label, self.html)
+        self.assertIn('/static/personal-provider.js', self.html)
+        for path in (
+            '/api/training/provider-plan',
+            '/api/training/provider-credentials',
+            '/api/training/provider-connection',
+        ):
+            with self.subTest(path=path):
+                self.assertIn(path, planner)
+        self.assertNotIn('localStorage', planner)
+        self.assertNotIn('console.', planner)
+        self.assertNotIn('api.runpod.io', planner)
+
     def test_legacy_roles_are_not_present_in_active_browser_workflow(self):
         for retired in ("Planner", "Researcher", "Reviewer", "Trainer"):
             self.assertNotIn(retired, self.app)

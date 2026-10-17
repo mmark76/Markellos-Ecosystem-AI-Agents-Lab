@@ -34,7 +34,10 @@ LEGACY_TRAINING_ROOM = "uni" "versity"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from providers import InferenceProviders, ProviderError
-from training import TrainingError, TrainingService
+from training import TrainingError, TrainingLockedError, TrainingService
+from credential_vault import CredentialVault, CredentialVaultError
+from personal_provider import PersonalProviderConnectionError, PersonalProviderCredentialError, PersonalProviderPlanError, build_provider_plan, connection_check_request, credential_removal_request, credential_store_request, provider_options
+from runpod_readonly import RunpodReadOnlyError, RunpodReadOnlyService
 from model_install import ModelInstallError, ModelInstallBusy, OllamaModelInstaller
 from evaluation_lab.http_api import EvaluationAPIError, EvaluationHTTPService
 from evaluation_lab.repository import EvaluationRepository, EvaluationRepositoryError
@@ -42,6 +45,8 @@ from evaluation_lab.repository import EvaluationRepository, EvaluationRepository
 PROVIDERS = InferenceProviders()
 TRAINING = TrainingService(ROOT)
 MODEL_INSTALLER = OllamaModelInstaller(OPENER)
+CREDENTIAL_VAULT = CredentialVault()
+RUNPOD_CONNECTION = RunpodReadOnlyService(CREDENTIAL_VAULT)
 
 LABS = {
     "conference": {"name": "Conference Room", "workflow": "Strategist → Analyst → Engineer",
@@ -354,6 +359,15 @@ class Handler(BaseHTTPRequestHandler):
             self._json({"ollama": status["available"], "models": status["models"],
                         "storage": "local SQLite", "cloud": False, "provider": status})
             return
+        if self.path == "/api/training/provider-options":
+            self._json(provider_options())
+            return
+        if self.path == "/api/training/provider-credential-status":
+            try:
+                self._json(CREDENTIAL_VAULT.status("runpod"))
+            except CredentialVaultError as err:
+                self._json({"error": str(err)}, 503)
+            return
         if self.path.startswith("/api/evaluation/"):
             try:
                 self._json(EVALUATION.get(self.path))
@@ -405,6 +419,7 @@ class Handler(BaseHTTPRequestHandler):
                  "/static/model-guidance.js": ("model-guidance.js", "text/javascript; charset=utf-8"),
                  "/static/ecosystem-tokens.css": ("ecosystem-tokens.css", "text/css; charset=utf-8"),
                  "/static/training.js": ("training.js", "text/javascript; charset=utf-8"),
+                 "/static/personal-provider.js": ("personal-provider.js", "text/javascript; charset=utf-8"),
                  "/static/model-install.js": ("model-install.js", "text/javascript; charset=utf-8"),
                  "/static/panel-layout.js": ("panel-layout.js", "text/javascript; charset=utf-8"),
                  "/static/evaluation.js": ("evaluation.js", "text/javascript; charset=utf-8")}
@@ -492,6 +507,38 @@ class Handler(BaseHTTPRequestHandler):
             except (TrainingError, ValueError, TypeError, json.JSONDecodeError) as err:
                 self._json({"error": str(err)}, 400)
             return
+        if self.path == "/api/training/provider-plan":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if not 2 <= size <= 1024:
+                    raise PersonalProviderPlanError("Invalid personal provider plan size.")
+                self._json(build_provider_plan(json.loads(self.rfile.read(size))))
+            except (PersonalProviderPlanError, ValueError, TypeError, json.JSONDecodeError) as err:
+                self._json({"error": str(err)}, 400)
+            return
+        if self.path == "/api/training/provider-credentials":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if not 2 <= size <= 1024:
+                    raise PersonalProviderCredentialError("Invalid provider credential request size.")
+                request = credential_store_request(json.loads(self.rfile.read(size)))
+                CREDENTIAL_VAULT.store(request["provider"], request["apiKey"])
+                self._json({"state": "STORED_LOCALLY", "provider": request["provider"], "scope": "current-windows-user", "execution": "No provider connection, upload, provisioning, or training job was started."})
+            except (CredentialVaultError, PersonalProviderCredentialError, ValueError, TypeError, json.JSONDecodeError) as err:
+                self._json({"error": str(err)}, 400)
+            return
+        if self.path == "/api/training/provider-connection":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if not 2 <= size <= 256:
+                    raise PersonalProviderConnectionError("Invalid provider connection request size.")
+                provider = connection_check_request(json.loads(self.rfile.read(size)))
+                self._json(RUNPOD_CONNECTION.check(provider))
+            except (PersonalProviderConnectionError, ValueError, TypeError, json.JSONDecodeError) as err:
+                self._json({"error": str(err)}, 400)
+            except RunpodReadOnlyError as err:
+                self._json({"error": str(err)}, 502)
+            return
         if self.path.startswith("/api/training-sessions/") and self.path.endswith("/cancel"):
             try:
                 session_id = int(self.path.split("/")[-2])
@@ -507,11 +554,16 @@ class Handler(BaseHTTPRequestHandler):
                 self._json({"error": str(err)}, 400)
             return
         if self.path == "/api/training/jobs":
+            if not TRAINING.enabled:
+                self._json({"error": "Fine-tuning is locked in this release and cannot be started."}, 423)
+                return
             try:
                 size = int(self.headers.get("Content-Length", "0"))
                 if size < 2 or size > 4000:
                     raise TrainingError("Invalid training request size.")
                 self._json(TRAINING.start(json.loads(self.rfile.read(size))), 202)
+            except TrainingLockedError as err:
+                self._json({"error": str(err)}, 423)
             except (TrainingError, ValueError, TypeError, json.JSONDecodeError) as err:
                 self._json({"error": str(err)}, 400)
             return
@@ -579,6 +631,23 @@ class Handler(BaseHTTPRequestHandler):
         finally:
             if not session_owns_lock:
                 RUN_LOCK.release()
+
+    def do_DELETE(self):
+        if not self._host_valid() or not self._origin_valid():
+            self._json({"error": "Cross-origin writes blocked"}, 403)
+            return
+        if self.path != "/api/training/provider-credentials":
+            self._json({"error": "Unknown endpoint"}, 404)
+            return
+        try:
+            size = int(self.headers.get("Content-Length", "0"))
+            if not 2 <= size <= 256:
+                raise PersonalProviderCredentialError("Invalid provider credential removal request size.")
+            provider = credential_removal_request(json.loads(self.rfile.read(size)))
+            removed = CREDENTIAL_VAULT.remove(provider)
+            self._json({"state": "REMOVED_LOCALLY", "provider": provider, "removed": removed})
+        except (CredentialVaultError, PersonalProviderCredentialError, ValueError, TypeError, json.JSONDecodeError) as err:
+            self._json({"error": str(err)}, 400)
 
 
 def main():

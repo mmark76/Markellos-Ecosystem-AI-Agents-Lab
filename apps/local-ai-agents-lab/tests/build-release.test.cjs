@@ -38,11 +38,14 @@ test('Windows training wizard is packaged and opt-in',()=>{
   const root=path.resolve(__dirname,'..');
   const launcher=fs.readFileSync(path.join(root,'setup-training-windows.bat'),'utf8');
   const wizard=fs.readFileSync(path.join(root,'scripts','setup-training.ps1'),'utf8');
+  const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
   assert.match(launcher,/setup-training\.ps1/);
   assert.match(wizard,/\$null = & py "-\$version" --version/);
   assert.match(wizard,/CPU, \[2\] NVIDIA CUDA/);
   assert.match(wizard,/Install these CPU training libraries now/);
   assert.match(wizard,/No CPU fallback/);
+  assert.match(packager,/'training\/job_contract\.py'/);
+  assert.match(packager,/'training\/readiness\.py'/);
 });
 test('packaged README is English only',()=>{
   const root=path.resolve(__dirname,'..');
@@ -165,7 +168,7 @@ test('Dashboard launcher is a fixed per-user protocol using the existing Windows
 });
 
 
-test('beginner fine-tuning guide is bundled while training remains locked',()=>{
+test('beginner fine-tuning guide and personal provider planner are bundled while training remains locked',()=>{
   const root=path.resolve(__dirname,'..');
   const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
   const page=fs.readFileSync(path.join(root,'static','fine-tuning-guide.html'),'utf8');
@@ -173,8 +176,16 @@ test('beginner fine-tuning guide is bundled while training remains locked',()=>{
   const server=fs.readFileSync(path.join(root,'server.py'),'utf8');
   assert.match(packager,/'static\/fine-tuning-guide.html'/);
   assert.match(packager,/'static\/fine-tuning-guide.css'/);
+  assert.match(packager,/'personal_provider.py'/);
+  assert.match(packager,/'credential_vault.py'/);
+  assert.match(packager,/'runpod_readonly.py'/);
+  assert.match(packager,/'static\/personal-provider.js'/);
   assert.match(server,/"\/fine-tuning-guide": \("fine-tuning-guide.html", "text\/html; charset=utf-8"\)/);
+  assert.match(server,/"\/api\/training\/provider-plan"/);
+  assert.match(server,/"\/api\/training\/provider-credentials"/);
   assert.match(html,/href="\/fine-tuning-guide" target="_blank" rel="noopener noreferrer"/);
+  assert.match(html,/id="personal-provider-plan"/);
+  assert.match(html,/Training remains locked\./);
   assert.match(html,/Under Construction/);
   assert.match(page,/Fine-Tuning versus the Learning Lab/);
 });
