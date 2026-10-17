@@ -1,0 +1,30 @@
+name: Verify v2.0.10 R2 ZIP before publication
+
+on:
+  push:
+    branches:
+      - chore/publish-v2.0.10-r2-distribution
+
+permissions:
+  contents: read
+
+jobs:
+  verify-r2-zip:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify anonymous download, ZIP length and SHA-256
+        shell: bash
+        env:
+          ZIP_URL: https://pub-33c16df521b3460a8d4b1a6927656318.r2.dev/releases/v2.0.10/AI-Agents-Lab-Windows.zip
+          EXPECTED_SHA256: ce8fd393476f5287a4377c7ddb2f334c3136271231c92e60303c231883086a63
+          EXPECTED_BYTES: '1425909'
+        run: |
+          set -euo pipefail
+          zip_file="$(mktemp)"
+          trap 'rm -f "$zip_file"' EXIT
+          curl --fail --location --silent --show-error --connect-timeout 15 --max-time 120 --retry 1 "$ZIP_URL" --output "$zip_file"
+          actual_bytes="$(wc -c < "$zip_file" | tr -d '[:space:]')"
+          test "$actual_bytes" = "$EXPECTED_BYTES" || { echo "Wrong artifact size: $actual_bytes"; exit 1; }
+          printf '%s  %s\n' "$EXPECTED_SHA256" "$zip_file" | sha256sum --check
+          file "$zip_file" | grep -qi 'Zip archive' || { echo 'Downloaded file is not a ZIP'; exit 1; }
+          echo 'R2 ZIP verified against immutable GitHub Release v2.0.10.'
