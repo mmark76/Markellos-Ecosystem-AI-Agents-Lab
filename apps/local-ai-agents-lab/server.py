@@ -1,4 +1,4 @@
-"""Private local Markellos Ecosystem AI Training Lab + Conference Room starter."""
+"""Private local AI Training Lab with five bounded, local-only Lab workflows."""
 from __future__ import annotations
 
 import json
@@ -24,7 +24,7 @@ OPENER = build_opener(ProxyHandler({}))  # No environment proxy; loopback only.
 RUN_LOCK = Lock()
 SESSION_CANCELS: dict[int, Event] = {}
 SESSION_CANCELS_LOCK = Lock()
-ROOMS = {"training", "conference"}
+ROOMS = {"conference", "training", "evaluation", "advisory", "optimization"}
 # The original room identifier is reconstructed only to migrate existing local
 # SQLite history once. New requests and records use the approved `training` ID.
 LEGACY_TRAINING_ROOM = "uni" "versity"
@@ -43,15 +43,34 @@ PROVIDERS = InferenceProviders()
 TRAINING = TrainingService(ROOT)
 MODEL_INSTALLER = OllamaModelInstaller(OPENER)
 
-PROMPT_ROLES = ("Trainer", "Student", "Evaluator", "Improver", "Planner", "Researcher", "Reviewer")
+LABS = {
+    "conference": {"name": "Conference Room", "workflow": "Strategist → Analyst → Engineer",
+                   "roles": ("Strategist", "Analyst", "Engineer")},
+    "training": {"name": "Training Lab", "workflow": "Tutor → Student → Evaluator → Improver",
+                 "roles": ("Tutor", "Student", "Evaluator", "Improver")},
+    "evaluation": {"name": "Evaluation Lab", "workflow": "Assessment → Scoring → Benchmarking",
+                   "roles": ("Assessor", "Scorer", "Benchmarker")},
+    "advisory": {"name": "Advisory Lab", "workflow": "Analysis → Recommendations",
+                 "roles": ("Analyst", "Advisor")},
+    "optimization": {"name": "Optimization Lab", "workflow": "Diagnose → Optimize → Validate",
+                     "roles": ("Diagnostician", "Optimizer", "Validator")},
+}
+FLOW = {room: list(spec["roles"]) for room, spec in LABS.items()}
+PROMPT_ROLES = tuple(f"{room}:{role}" for room, spec in LABS.items() for role in spec["roles"])
 PROMPTS = {
-    role: (ROOT / "prompts" / f"{role.lower()}.txt").read_text(encoding="utf-8").strip()
-    for role in PROMPT_ROLES
+    role_id: (ROOT / "prompts" / f"{room}-{role.lower()}.txt").read_text(encoding="utf-8").strip()
+    for room, spec in LABS.items() for role in spec["roles"]
+    for role_id in (f"{room}:{role}",)
 }
-FLOW = {
-    "training": ["Trainer", "Student", "Evaluator", "Improver"],
-    "conference": ["Planner", "Researcher", "Reviewer"],
-}
+
+def agent_id(room: str, role: str) -> str:
+    """Keep internal role identities Lab-scoped while preserving readable UI labels."""
+    return f"{room}:{role}"
+
+def display_role(room: str, role: str) -> str:
+    """Read legacy persisted role names without retaining them in active flows."""
+    legacy = {"training": {"Trainer": "Tutor"}, "conference": {"Planner": "Strategist", "Researcher": "Analyst", "Reviewer": "Engineer"}}
+    return legacy.get(room, {}).get(role, role.split(":", 1)[-1])
 
 
 def utc_now() -> str:
@@ -135,7 +154,7 @@ def create_training_session(provider: str, assignments: dict[str, str]) -> int:
     with closing(connect()) as db, db:
         result = db.execute(
             "INSERT INTO training_sessions(provider,trainer_model,student_model,evaluator_model,improver_model,created_at,status,started_at) VALUES(?,?,?,?,?,?,?,?)",
-            (provider, assignments["Trainer"], assignments["Student"], assignments["Evaluator"],
+            (provider, assignments["Tutor"], assignments["Student"], assignments["Evaluator"],
              assignments["Improver"], utc_now(), "running", utc_now()),
         )
         session_id = result.lastrowid
@@ -151,7 +170,7 @@ def history(room: str, limit: int = 80) -> list[dict]:
     with closing(connect()) as db, db:
         rows = db.execute(
             "SELECT messages.id,messages.agent,messages.content,messages.created_at,messages.session_id,"
-            " COALESCE(messages.model, CASE messages.agent WHEN 'Trainer' THEN training_sessions.trainer_model"
+            " COALESCE(messages.model, CASE messages.agent WHEN 'Trainer' THEN training_sessions.trainer_model WHEN 'Tutor' THEN training_sessions.trainer_model"
             " WHEN 'Student' THEN training_sessions.student_model"
             " WHEN 'Evaluator' THEN training_sessions.evaluator_model"
             " WHEN 'Improver' THEN training_sessions.improver_model END) AS model"
@@ -160,7 +179,7 @@ def history(room: str, limit: int = 80) -> list[dict]:
             " LEFT JOIN training_sessions ON training_sessions.id=messages.session_id"
             " ORDER BY messages.id ASC", (room, limit)
         ).fetchall()
-    return [dict(row) for row in rows]
+    return [{**dict(row), "agent": display_role(room, row["agent"])} for row in rows]
 
 
 def training_session(session_id: int) -> Optional[dict]:
@@ -176,7 +195,7 @@ def training_session(session_id: int) -> Optional[dict]:
             (session_id,),
         ).fetchall()
     data = dict(session)
-    data["stages"] = [dict(stage) for stage in stages]
+    data["stages"] = [{**dict(stage), "agent_role": display_role("training", stage["agent_role"])} for stage in stages]
     return data
 
 
@@ -241,7 +260,7 @@ def run_training_session(session_id: int, prompt: str, assignments: dict[str, st
             update_stage(session_id, agent, "Running")
             started = perf_counter()
             try:
-                answer = provider_chat("ollama", assignments[agent], agent, transcript, "en")
+                answer = provider_chat("ollama", assignments[agent], "training", agent, transcript, "en")
                 duration_ms = int((perf_counter() - started) * 1000)
                 add_message("training", agent, answer, session_id)
                 score, result = evaluation_fields(answer) if agent == "Evaluator" else (None, None)
@@ -277,8 +296,8 @@ def local_models(provider: str = "ollama") -> list[str]:
     return PROVIDERS.models(provider, OPENER)
 
 
-def provider_chat(provider: str, model: str, agent: str, transcript: list[dict], language: str = "en") -> str:
-    system = PROMPTS[agent] + (" Do not execute commands. Reply exclusively in " + ("Greek" if language == "el" else "English") + ", maintaining standard technical terms. /no_think")
+def provider_chat(provider: str, model: str, room: str, agent: str, transcript: list[dict], language: str = "en") -> str:
+    system = PROMPTS[agent_id(room, agent)] + (" Do not execute commands, access files, use a terminal, or access the network. Reply exclusively in " + ("Greek" if language == "el" else "English") + ", maintaining standard technical terms. /no_think")
     dialog = [{"role": "system", "content": system}]
     for row in transcript[-12:]:
         who = row["agent"]
@@ -508,14 +527,7 @@ class Handler(BaseHTTPRequestHandler):
                 raise ValueError("Invalid request")
             room = body.get("room", "")
             provider = body.get("provider", "ollama")
-            model = body.get("model", "")
-            trainer_model = body.get("trainer_model", model)
-            student_model = body.get("student_model", model)
-            evaluator_model = body.get("evaluator_model", model)
-            improver_model = body.get("improver_model", model)
-            planner_model = body.get("planner_model", model)
-            researcher_model = body.get("researcher_model", model)
-            reviewer_model = body.get("reviewer_model", model)
+            assignments = body.get("models", {})
             raw_prompt = body.get("prompt", "")
             language = body.get("language", "en")
             if language not in ("en", "el"):
@@ -523,14 +535,10 @@ class Handler(BaseHTTPRequestHandler):
             if not isinstance(raw_prompt, str):
                 raise ValueError("Invalid prompt")
             prompt = raw_prompt.strip()
-            if room not in ROOMS or provider != "ollama" or not isinstance(model, str) or not 1 <= len(prompt) <= 2500:
-                raise ValueError("Select a room, model, and topic of up to 2,500 characters.")
-            if room == "training" and not all(isinstance(value, str) and value for value in
-                                                (trainer_model, student_model, evaluator_model, improver_model)):
-                raise ValueError("Select a model for Trainer, Student, Evaluator, and Improver.")
-            if room == "conference" and not all(isinstance(value, str) and value for value in
-                                                  (planner_model, researcher_model, reviewer_model)):
-                raise ValueError("Select a model for Planner, Researcher, and Reviewer.")
+            if room not in ROOMS or provider != "ollama" or not 1 <= len(prompt) <= 2500:
+                raise ValueError("Select a Lab and a topic of up to 2,500 characters.")
+            if not isinstance(assignments, dict) or set(assignments) != set(FLOW[room]) or not all(isinstance(value, str) and value for value in assignments.values()):
+                raise ValueError("Select one installed local model for every Lab agent.")
             PROVIDERS.get(provider)
         except (ValueError, TypeError, json.JSONDecodeError) as err:
             self._json({"error": str(err)}, 400)
@@ -541,21 +549,17 @@ class Handler(BaseHTTPRequestHandler):
         session_owns_lock = False
         try:
             available_models = local_models(provider)
-            assigned_models = ({"Trainer": trainer_model, "Student": student_model,
-                                "Evaluator": evaluator_model, "Improver": improver_model}
-                               if room == "training" else {"Planner": planner_model, "Researcher": researcher_model,
-                                                          "Reviewer": reviewer_model})
-            missing = [f"{agent} model ({assigned_models[agent]})" for agent in FLOW[room]
-                       if assigned_models[agent] not in available_models]
+            missing = [f"{agent} model ({assignments[agent]})" for agent in FLOW[room]
+                       if assignments[agent] not in available_models]
             if missing:
                 self._json({"error": "Unavailable local " + ", ".join(missing) + ". Refresh the model list and choose an available model."}, 400)
                 return
             if room == "training":
-                session_id = create_training_session(provider, assigned_models)
+                session_id = create_training_session(provider, assignments)
                 cancel = Event()
                 with SESSION_CANCELS_LOCK:
                     SESSION_CANCELS[session_id] = cancel
-                Thread(target=run_training_session, args=(session_id, prompt, assigned_models, cancel),
+                Thread(target=run_training_session, args=(session_id, prompt, assignments, cancel),
                        name=f"training-session-{session_id}", daemon=True).start()
                 session_owns_lock = True
                 self._json({"room": room, "session_id": session_id, "status": "running"}, 202)
@@ -564,9 +568,9 @@ class Handler(BaseHTTPRequestHandler):
             transcript = history(room, 14)
             completed = []
             for agent in FLOW[room]:
-                answer = provider_chat(provider, assigned_models[agent], agent, transcript, language)
-                add_message(room, agent, answer, model=assigned_models[agent])
-                item = {"agent": agent, "content": answer, "created_at": utc_now(), "model": assigned_models[agent]}
+                answer = provider_chat(provider, assignments[agent], room, agent, transcript, language)
+                add_message(room, agent, answer, model=assignments[agent])
+                item = {"agent": agent, "content": answer, "created_at": utc_now(), "model": assignments[agent]}
                 completed.append(item)
                 transcript.append(item)
             self._json({"messages": completed, "room": room, "session_id": None})

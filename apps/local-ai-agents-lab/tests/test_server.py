@@ -30,28 +30,27 @@ class CampusTests(unittest.TestCase):
         self.tmp.cleanup()
 
     def assignments(self):
-        return {"Trainer": "trainer:1", "Student": "student:1", "Evaluator": "evaluator:1", "Improver": "improver:1"}
+        return {"Tutor": "tutor:1", "Student": "student:1", "Evaluator": "evaluator:1", "Improver": "improver:1"}
 
     def test_training_flow_has_four_named_roles(self):
-        self.assertEqual(campus.FLOW["training"], ["Trainer", "Student", "Evaluator", "Improver"])
-        self.assertTrue(all(role in campus.PROMPTS for role in campus.FLOW["training"]))
+        self.assertEqual(campus.FLOW["training"], ["Tutor", "Student", "Evaluator", "Improver"])
+        self.assertTrue(all(campus.agent_id("training", role) in campus.PROMPTS for role in campus.FLOW["training"]))
 
-    def test_all_seven_agent_prompts_load_from_role_files(self):
-        expected = ("Trainer", "Student", "Evaluator", "Improver", "Planner", "Researcher", "Reviewer")
-        self.assertEqual(campus.PROMPT_ROLES, expected)
-        self.assertEqual(set(campus.PROMPTS), set(expected))
-        for role in expected:
-            prompt_file = campus.ROOT / "prompts" / (role.lower() + ".txt")
-            with self.subTest(role=role):
+    def test_all_fifteen_agent_prompts_load_from_scoped_role_files(self):
+        self.assertEqual(len(campus.PROMPT_ROLES), 15)
+        self.assertEqual(set(campus.PROMPTS), set(campus.PROMPT_ROLES))
+        for role_id in campus.PROMPT_ROLES:
+            prompt_file = campus.ROOT / "prompts" / (role_id.replace(":", "-").lower() + ".txt")
+            with self.subTest(role_id=role_id):
                 self.assertTrue(prompt_file.is_file())
-                self.assertEqual(campus.PROMPTS[role], prompt_file.read_text(encoding="utf-8").strip())
-                self.assertTrue(campus.PROMPTS[role])
+                self.assertEqual(campus.PROMPTS[role_id], prompt_file.read_text(encoding="utf-8").strip())
+                self.assertTrue(campus.PROMPTS[role_id])
 
     def test_four_stage_cycle_is_strictly_serial_and_persists_every_result(self):
         session_id = campus.create_training_session("ollama", self.assignments())
         calls, unloads, active = [], [], [0]
 
-        def answer(provider, model, role, transcript, language):
+        def answer(provider, model, room, role, transcript, language):
             self.assertEqual(active[0], 0, "inference requests overlapped")
             active[0] += 1
             calls.append((model, role, [item["agent"] for item in transcript]))
@@ -64,13 +63,13 @@ class CampusTests(unittest.TestCase):
         record = campus.training_session(session_id)
         self.assertEqual(record["status"], "completed")
         self.assertEqual([stage["status"] for stage in record["stages"]], ["Completed"] * 4)
-        self.assertEqual([call[0] for call in calls], ["trainer:1", "student:1", "evaluator:1", "improver:1"])
-        self.assertEqual(unloads, ["trainer:1", "student:1", "evaluator:1", "improver:1"])
-        self.assertEqual(calls[1][2], ["You", "Trainer"])
-        self.assertEqual(calls[3][2], ["You", "Trainer", "Student", "Evaluator"])
+        self.assertEqual([call[0] for call in calls], ["tutor:1", "student:1", "evaluator:1", "improver:1"])
+        self.assertEqual(unloads, ["tutor:1", "student:1", "evaluator:1", "improver:1"])
+        self.assertEqual(calls[1][2], ["You", "Tutor"])
+        self.assertEqual(calls[3][2], ["You", "Tutor", "Student", "Evaluator"])
         self.assertEqual(record["stages"][2]["evaluation_score"], 87)
         self.assertEqual(record["stages"][2]["evaluation_result"], "Needs Improvement")
-        self.assertEqual([message["agent"] for message in campus.history("training")], ["You", "Trainer", "Student", "Evaluator", "Improver"])
+        self.assertEqual([message["agent"] for message in campus.history("training")], ["You", "Tutor", "Student", "Evaluator", "Improver"])
 
     def test_failed_stage_preserves_completed_responses_and_does_not_complete_session(self):
         session_id = campus.create_training_session("ollama", self.assignments())
@@ -80,7 +79,7 @@ class CampusTests(unittest.TestCase):
         record = campus.training_session(session_id)
         self.assertEqual(record["status"], "failed")
         self.assertEqual([stage["status"] for stage in record["stages"]], ["Completed", "Failed", "Cancelled", "Cancelled"])
-        self.assertEqual([message["agent"] for message in campus.history("training")], ["You", "Trainer"])
+        self.assertEqual([message["agent"] for message in campus.history("training")], ["You", "Tutor"])
 
     def test_cancelled_session_does_not_start_inference(self):
         session_id = campus.create_training_session("ollama", self.assignments())
@@ -108,11 +107,11 @@ class CampusTests(unittest.TestCase):
         campus.DB_PATH = current_db
 
     def test_conference_messages_persist_individual_models_without_changing_training(self):
-        self.assertEqual(campus.FLOW["conference"], ["Planner", "Researcher", "Reviewer"])
-        for agent, model in (("Planner", "planner:1"), ("Researcher", "researcher:1"), ("Reviewer", "reviewer:1")):
+        self.assertEqual(campus.FLOW["conference"], ["Strategist", "Analyst", "Engineer"])
+        for agent, model in (("Strategist", "strategist:1"), ("Analyst", "analyst:1"), ("Engineer", "engineer:1")):
             campus.add_message("conference", agent, "response", model=model)
         self.assertEqual([entry["model"] for entry in campus.history("conference")],
-                         ["planner:1", "researcher:1", "reviewer:1"])
+                         ["strategist:1", "analyst:1", "engineer:1"])
         self.assertEqual(campus.history("training"), [])
 
     def test_ollama_unavailable_is_reported_without_fallback(self):
@@ -151,25 +150,24 @@ class HttpIntegrationTests(unittest.TestCase):
             origin = f"http://127.0.0.1:{campus.PORT}"
             opener = build_opener(ProxyHandler({}))
             calls = []
-            def answer(provider, model, role, transcript, language):
+            def answer(provider, model, room, role, transcript, language):
                 calls.append((role, model, [item["agent"] for item in transcript]))
                 return role + " response"
             try:
-                with patch.object(campus, "local_models", return_value=["p:1", "r:1", "v:1"]), patch.object(campus, "provider_chat", side_effect=answer):
+                with patch.object(campus, "local_models", return_value=["s:1", "a:1", "e:1"]), patch.object(campus, "provider_chat", side_effect=answer):
                     request = Request(origin + "/api/run", data=json.dumps({
-                        "room": "conference", "provider": "ollama",
-                        "planner_model": "p:1", "researcher_model": "r:1", "reviewer_model": "v:1",
+                        "room": "conference", "provider": "ollama", "models": {"Strategist": "s:1", "Analyst": "a:1", "Engineer": "e:1"},
                         "prompt": "Discuss a topic"}).encode(), headers={"Origin": origin, "Content-Type": "application/json"}, method="POST")
                     with opener.open(request) as response:
                         result = json.load(response)
                         self.assertEqual(response.status, 200)
                     self.assertEqual([(c[0], c[1]) for c in calls],
-                                     [("Planner", "p:1"), ("Researcher", "r:1"), ("Reviewer", "v:1")])
-                    self.assertEqual(calls[-1][2], ["You", "Planner", "Researcher"])
-                    self.assertEqual([x["model"] for x in result["messages"]], ["p:1", "r:1", "v:1"])
+                                     [("Strategist", "s:1"), ("Analyst", "a:1"), ("Engineer", "e:1")])
+                    self.assertEqual(calls[-1][2], ["You", "Strategist", "Analyst"])
+                    self.assertEqual([x["model"] for x in result["messages"]], ["s:1", "a:1", "e:1"])
                     with opener.open(origin + "/api/history/conference") as response:
                         saved = json.load(response)["messages"]
-                    self.assertEqual([x["model"] for x in saved[1:]], ["p:1", "r:1", "v:1"])
+                    self.assertEqual([x["model"] for x in saved[1:]], ["s:1", "a:1", "e:1"])
             finally:
                 server.shutdown()
                 server.server_close()
@@ -185,8 +183,8 @@ class HttpIntegrationTests(unittest.TestCase):
             server = ThreadingHTTPServer(("127.0.0.1", 0), campus.Handler); campus.PORT = server.server_address[1]
             thread = Thread(target=server.serve_forever, daemon=True); thread.start(); origin = f"http://127.0.0.1:{campus.PORT}"; opener = build_opener(ProxyHandler({}))
             try:
-                with patch.object(campus, "local_models", return_value=["trainer:1", "student:1", "evaluator:1", "improver:1"]), patch.object(campus, "provider_chat", side_effect=lambda provider, model, role, transcript, language: "Score: 100\nResult: Pass" if role == "Evaluator" else role), patch.object(campus.PROVIDERS, "unload") as unload:
-                    request = Request(origin+"/api/run", data=json.dumps({"room":"training","provider":"ollama","trainer_model":"trainer:1","student_model":"student:1","evaluator_model":"evaluator:1","improver_model":"improver:1","prompt":"Topic"}).encode(), headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
+                with patch.object(campus, "local_models", return_value=["tutor:1", "student:1", "evaluator:1", "improver:1"]), patch.object(campus, "provider_chat", side_effect=lambda provider, model, room, role, transcript, language: "Score: 100\nResult: Pass" if role == "Evaluator" else role), patch.object(campus.PROVIDERS, "unload") as unload:
+                    request = Request(origin+"/api/run", data=json.dumps({"room":"training","provider":"ollama","models":{"Tutor":"tutor:1","Student":"student:1","Evaluator":"evaluator:1","Improver":"improver:1"},"prompt":"Topic"}).encode(), headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
                     with opener.open(request) as response: started = json.load(response)
                     self.assertEqual(response.status, 202); self.assertIn("session_id", started)
                     for _ in range(40):
@@ -194,7 +192,7 @@ class HttpIntegrationTests(unittest.TestCase):
                         if session["status"] == "completed": break
                         time.sleep(.05)
                     self.assertEqual(session["status"], "completed")
-                    self.assertEqual([stage["assigned_model"] for stage in session["stages"]], ["trainer:1", "student:1", "evaluator:1", "improver:1"])
+                    self.assertEqual([stage["assigned_model"] for stage in session["stages"]], ["tutor:1", "student:1", "evaluator:1", "improver:1"])
                     self.assertEqual(unload.call_count, 4)
             finally:
                 server.shutdown(); server.server_close(); thread.join(timeout=4); campus.DB_PATH, campus.PORT = original_db, original_port

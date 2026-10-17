@@ -6,6 +6,7 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 
 ### Changed
 
+- Activated all five AI Training Lab workspaces with fifteen Lab-scoped roles: Conference Room (Strategist → Analyst → Engineer), Training Lab (Tutor → Student → Evaluator → Improver), Evaluation Lab (Assessment → Scoring → Benchmarking), Advisory Lab (Analysis → Recommendations), and Optimization Lab (Diagnose → Optimize → Validate). Preserved local-only Ollama routing, existing evaluation-record review, and readable legacy Training history.
 - Retained the public Windows ZIP archive from v1.0.0 onward in a compact, collapsed dashboard control for future agent studies.
 - Preserved each Training Lab response panel's manual vertical scroll position while session polling refreshes stage status.
 - Standardized every public, packaged, and internal project reference on Markellos Ecosystem AI Agents Lab; migrated legacy local training-room history to the `training` identifier and renamed the shortcut plus its icon asset.
