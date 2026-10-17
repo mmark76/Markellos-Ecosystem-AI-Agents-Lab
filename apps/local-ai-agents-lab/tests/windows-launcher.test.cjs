@@ -3,6 +3,7 @@
 const {execFileSync}=require('node:child_process');
 const fs=require('node:fs');
 const os=require('node:os');
+const net=require('node:net');
 const path=require('node:path');
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
@@ -115,5 +116,31 @@ test('server identity policy recognizes Labs and rejects unrelated Python proces
       assert.match(result,/policy:ok/);
     }finally{
       fs.rmSync(root,{recursive:true,force:true});
+    }
+  });
+
+
+test('preflight refuses to terminate a real unrelated TCP listener',
+  {skip:process.platform!=='win32'},async()=>{
+    const listener=net.createServer();
+    await new Promise((resolve,reject)=>{
+      listener.once('error',reject);
+      listener.listen(8765,'127.0.0.1',resolve);
+    });
+    try{
+      const script=path.join(sourceRoot,'scripts','prepare-local-server.ps1');
+      let failure;
+      try{
+        execFileSync('powershell.exe',[
+          '-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',
+          script,'-LabRoot',sourceRoot
+        ],{encoding:'utf8',timeout:30000});
+      }catch(error){ failure=error; }
+      assert.ok(failure,'Expected the preflight to reject an unrelated process');
+      assert.equal(failure.status,1);
+      assert.match(failure.stdout,/cannot be verified as an AI Lab server/i);
+      assert.equal(listener.listening,true,'Preflight must not stop the unrelated listener');
+    }finally{
+      await new Promise(resolve=>listener.close(resolve));
     }
   });
