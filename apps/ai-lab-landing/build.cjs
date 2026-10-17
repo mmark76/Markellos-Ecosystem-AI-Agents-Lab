@@ -39,8 +39,11 @@ const [currentRelease, ...previousReleases] = releaseHistory;
 const commit = git(['rev-parse', '--short=7', 'HEAD']);
 const buildId = `v${releaseVersion}_${cyprusTimestamp(new Date())}_${commit}`;
 const indexPath = join(output, 'index.html');
-const legacy = currentRelease.version === '1.1.8' ? null : releaseHistory.find(entry => entry.version === '1.1.8');
-const legacyButton = legacy ? '<a id="zip-download-v118" class="secondary-button" data-zip-version="v1.1.8" data-zip-sha256="'+legacy.sha256+'" href="'+legacy.url+'">Download v1.1.8</a>' : '';
+const milestoneButton=(version,scope)=>{
+  const release=currentRelease.version===version?null:releaseHistory.find(entry=>entry.version===version);
+  return release?'<a id="zip-download-v'+version.replaceAll('.','')+'" class="secondary-button release-download" data-zip-version="v'+version+'" data-zip-sha256="'+release.sha256+'" href="'+release.url+'"><span>Download v'+version+'</span><small>'+scope+'</small></a>':'';
+};
+const legacyButton=[milestoneButton('2.0.4','Local only'),milestoneButton('1.1.8','Local only')].join('');
 const releaseLinks = previousReleases.map(({ version, url, sha256 }) => `<li><a data-zip-version="v${version}" data-zip-sha256="${sha256}" href="${url}">v${version}</a><code title="SHA-256: ${sha256}">${sha256.slice(0, 7)}</code></li>`).join('');
 writeFileSync(indexPath, readFileSync(indexPath, 'utf8').replaceAll('{{BUILD_ID}}', buildId).replaceAll('{{RELEASE_VERSION}}', `v${currentRelease.version}`).replaceAll('{{DISTRIBUTION_URL}}', currentRelease.url).replaceAll('{{RELEASE_SHA256}}', currentRelease.sha256).replaceAll('{{LEGACY_DOWNLOAD_BUTTON}}', legacyButton).replaceAll('{{ARCHIVE_COUNT}}', String(previousReleases.length)).replaceAll('{{RELEASE_HISTORY}}', releaseLinks));
 console.log(`Built ${output} (${buildId})`);

@@ -13,7 +13,7 @@ class EcosystemShellTests(unittest.TestCase):
         self.css = (STATIC / "style.css").read_text(encoding="utf-8")
 
     def test_five_active_lab_navigation_has_no_unavailable_room(self):
-        navigation = self.html.split('<div class="label">WORKSPACE</div>', 1)[1].split('<div class="label section-gap">', 1)[0]
+        navigation = self.html.split('<div class="room-navigation"', 1)[1].split('</div>', 1)[0]
         rooms = ("conference", "training", "evaluation", "advisory", "optimization")
         names = ("Conference Room", "Training Lab", "Evaluation Lab", "Advisory Lab", "Optimization Lab")
         for room, name in zip(rooms, names):
@@ -53,7 +53,7 @@ class EcosystemShellTests(unittest.TestCase):
         planner = (STATIC / "personal-provider.js").read_text(encoding="utf-8")
         chatgpt = (STATIC / "openai-connection.js").read_text(encoding="utf-8")
         for label in (
-            "Advanced: Personal Fine-Tuning Provider",
+            "Personal Fine-Tuning Provider",
             "Your provider account",
             "Personal spending currency",
             "EUR (€)",
@@ -102,6 +102,26 @@ class EcosystemShellTests(unittest.TestCase):
                 self.assertIn(path, chatgpt)
         self.assertNotIn('localStorage', chatgpt)
         self.assertNotIn('console.', chatgpt)
+
+    def test_connections_open_in_separate_modals_and_rooms_remain_with_agents(self):
+        dialogs = (STATIC / "connection-dialogs.js").read_text(encoding="utf-8")
+        for item in (
+            'id="open-connections-hub"',
+            'id="connections-hub-dialog"',
+            'id="open-chatgpt-connection"',
+            'id="open-personal-provider"',
+            'id="chatgpt-connection-dialog"',
+            'id="personal-provider-dialog"',
+            '<div class="room-navigation"',
+            'Rooms &amp; agents',
+        ):
+            with self.subTest(item=item):
+                self.assertIn(item, self.html)
+        self.assertIn("dialog.showModal()", dialogs)
+        self.assertIn("dialog.close()", dialogs)
+        self.assertIn("a[href=\"/fine-tuning-guide\"]", dialogs)
+        self.assertIn("guide) providerSection.querySelector('h3')?.after(guide)", dialogs)
+        self.assertIn("connectionsHub?.open", dialogs)
 
     def test_legacy_roles_are_not_present_in_active_browser_workflow(self):
         for retired in ("Planner", "Researcher", "Reviewer", "Trainer"):

@@ -39,7 +39,7 @@ class FiveLabArchitectureTests(unittest.TestCase):
         for room in server.LABS:
             self.assertIn(f'data-room="{room}"', html)
             self.assertIn(f"{room}: {{", app)
-        navigation = html.split('<div class="label">WORKSPACE</div>', 1)[1].split('<div class="label section-gap">', 1)[0]
+        navigation = html.split('<div class="room-navigation"', 1)[1].split('</div>', 1)[0]
         self.assertNotIn("Under Construction", navigation)
         self.assertIn("room-model-selects", html)
         self.assertIn("models,prompt", app)

@@ -23,7 +23,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, new RegExp(`v${escapedReleaseVersion}_\\d{8}_\\d{4}_[0-9a-f]{7}`));
   assert.doesNotMatch(html, /\{\{BUILD_ID\}\}|\{\{RELEASE_VERSION\}\}/);
   assert.match(html, /styles\.css\?v=v\d+\.\d+\.\d+_\d{8}_\d{4}_[a-f0-9]{7}/);
-  assert.match(html, new RegExp(`CURRENT RELEASE · v${escapedDistributionVersion} · LOCAL ONLY`));
+  assert.match(html, new RegExp(`CURRENT RELEASE · v${escapedDistributionVersion} · LOCAL \\+ OPTIONAL INTERNET CONNECTIONS`));
   assert.match(html, new RegExp(`<h1 id="page-title">AI Lab v${escapedDistributionVersion}<\\/h1>`));
   assert.match(html, /<img class="brand-mark" src="\.\/ai-training-lab-mark\.png" alt="AI Lab">/);
   assert.match(html, /class="beta-badge">BETA<\/span>/);
@@ -37,9 +37,10 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, new RegExp(`Public BETA download:<\\/strong> The v${escapedDistributionVersion} Windows ZIP is available\\.`));
   assert.doesNotMatch(html, /available without GitHub sign-in/);
   assert.doesNotMatch(html, /Download access note|private GitHub repository.*authorized GitHub access/);
-  assert.match(html, new RegExp(`id="zip-download" class="primary-button" data-zip-version="v${escapedDistributionVersion}" data-zip-sha256="${currentDistribution.sha256}"`));
-  assert.match(html, new RegExp(`Download v${escapedDistributionVersion}`));
-  assert.match(html, /id="zip-download-v118" class="secondary-button" data-zip-version="v1\.1\.8"[^>]*>Download v1\.1\.8<\/a>/);
+  assert.match(html, new RegExp(`id="zip-download" class="primary-button release-download" data-zip-version="v${escapedDistributionVersion}" data-zip-sha256="${currentDistribution.sha256}"`));
+  assert.match(html, new RegExp(`Download v${escapedDistributionVersion} <span aria-hidden="true">↓<\/span><\/span><small>Local \\+ optional internet connections<\/small>`));
+  assert.match(html, /id="zip-download-v204" class="secondary-button release-download" data-zip-version="v2\.0\.4"[^>]*><span>Download v2\.0\.4<\/span><small>Local only<\/small><\/a>/);
+  assert.match(html, /id="zip-download-v118" class="secondary-button release-download" data-zip-version="v1\.1\.8"[^>]*><span>Download v1\.1\.8<\/span><small>Local only<\/small><\/a>/);
   assert.match(styles, /\.hero-actions\{display:flex;flex-wrap:wrap;gap:var\(--space-3\);margin-top:var\(--space-5\)\}/);
   assert.match(styles, /#launch-local-lab,html\[data-color-mode="light"\] #launch-local-lab/);
   assert.match(styles, /background:#2563eb;color:#ffffff;border-color:#2563eb/);

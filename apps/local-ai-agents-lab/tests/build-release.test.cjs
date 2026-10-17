@@ -105,6 +105,8 @@ test('three-panel interaction script is included in the Windows release',()=>{
   const server=fs.readFileSync(path.join(root,'server.py'),'utf8');
   assert.match(packager,/'static\/panel-layout\.js'/);
   assert.match(server,/"\/static\/panel-layout\.js"/);
+  assert.match(packager,/'static\/connection-dialogs\.js'/);
+  assert.match(fs.readFileSync(path.join(root,'static','index.html'),'utf8'),/\/static\/connection-dialogs\.js/);
 });
 test('Model Guidance modules are included in the Windows release',()=>{
   const root=path.resolve(__dirname,'..');
