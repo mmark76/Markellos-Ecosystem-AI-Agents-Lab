@@ -4,6 +4,12 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 
 ## [Unreleased]
 
+## [2.0.6] - 2026-10-17
+
+### Fixed
+
+- Added an explicit EUR or USD selector to the Personal Fine-Tuning Provider spending-plan control. The selected currency is a personal planning label; RunPod prices remain shown in USD and the Lab does not convert currencies or set a provider-side cap.
+
 ## [2.0.3] - 2026-10-17
 
 ### Changed
