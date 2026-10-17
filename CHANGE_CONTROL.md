@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-051
+
+```text
+Change ID: AI-LAB-CC-051
+Requested by: Repository maintainer
+Date: 2026-10-17
+Description: Add Windows-DPAPI-protected local custody, non-secret status, and explicit removal for one user-owned RunPod access token.
+Reason: Prepare a user-managed provider connection without a shared Markellos account or repository-held secret.
+Affected objective IDs: AI-LAB-OBJ-019
+Architecture impact: Adds a dedicated credential-vault infrastructure module and bounded loopback save/status/remove routes. No provider adapter, remote executor, worker change, or SQLite schema change is added.
+Security and privacy impact: The token is never returned or logged; it is encrypted for the current Windows user and stored outside Git. Same-user process compromise remains a documented residual risk. No provider request or paid action is possible.
+Data impact: One optional encrypted credential blob in the current user's Local App Data directory, retained until the user explicitly removes it. It is excluded from backups and Git.
+Testing impact: Add synthetic Windows-DPAPI, fake-vault, request-validation, loopback save/status/remove, static UI, and locked-route regressions.
+Cost and schedule impact: No provider request, transfer, Pod, model, dataset, job, or charge can be created.
+Decision: APPROVED (PHASE 3B LOCAL CREDENTIAL CUSTODY ONLY)
+Approved by: Direct user request
+Target release: Unreleased Local Lab development branch; no package, merge, deployment, release, or provider activation in this phase.
+```
+
 ## Approved change record — AI-LAB-CC-050
 
 ```text

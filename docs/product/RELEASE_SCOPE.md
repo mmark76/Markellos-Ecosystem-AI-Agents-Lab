@@ -29,6 +29,7 @@
 | AI-LAB-SCOPE-017 | Add an independent, fixed-loopback local Evaluator execution engine for persisted Evaluation Lab runs without changing Training Room behavior. | High | Repository maintainer | Approved by direct user request on 2026-10-14 |
 | AI-LAB-SCOPE-018 | Integrate the independent Evaluation Lab into the local application with bounded same-origin HTTP routes, explicit run initiation, read-only Training Room session selection, and qualified scorecard/findings UI. | High | Repository maintainer | Approved by direct user request on 2026-10-15 |
 | AI-LAB-SCOPE-019 | Add the first local, user-owned provider planning surface for remote LoRA fine-tuning. The user declares a provider, spend and runtime limits; Phase 3A neither collects credentials nor executes a remote job. | High | Repository maintainer | Approved by direct user request on 2026-10-16 |
+| AI-LAB-SCOPE-020 | Add explicit, Windows-user-scoped encrypted custody for a user-owned RunPod access token, with status and removal controls. Phase 3B stores no plan, starts no provider request, and performs no training. | High | Repository maintainer | Approved by direct user request on 2026-10-17 |
 
 ## Out of scope
 
@@ -39,7 +40,7 @@
 - Cloud model pulls, unmanaged model URLs, arbitrary network endpoints, and in-app downloads for non-Ollama engines; AI-LAB-SCOPE-008 permits only explicit owner-confirmed Ollama pulls through fixed loopback.
 - Automatic update downloads, installation, executable launch, release-channel selection, and arbitrary update URLs; AI-LAB-SCOPE-009 permits a manual check of one fixed official GitHub Releases endpoint only.
 - Silent dependency installation, unverified download URLs, driver or CUDA installation, arbitrary scripts, automatic model pulls, and any device change without the relevant Easy Start approval dialog.
-- Provider credentials, remote execution, paid provisioning, model/dataset transfers, and provider API calls remain out of scope for AI-LAB-SCOPE-019 Phase 3A. They require a separately approved security-reviewed Phase 3B.
+- Provider API calls, remote execution, paid provisioning, model/dataset transfers, and any credential use remain out of scope. AI-LAB-SCOPE-020 permits only Windows-user-scoped encrypted local custody of one allow-listed RunPod token; it does not authorize using that token.
 
 ## Foundation impact
 

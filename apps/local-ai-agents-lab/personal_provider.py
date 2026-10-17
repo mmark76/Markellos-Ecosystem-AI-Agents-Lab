@@ -1,8 +1,9 @@
 """Local-only validation for a user-owned remote training provider plan.
 
-This module deliberately has no credential, subprocess, filesystem, or network
-capability. It gives the local UI a small, testable boundary for collecting a
-user's declared limits before a later credential/executor phase is approved.
+This module has no subprocess, filesystem, or network capability. It gives the
+local UI small, testable request contracts for a provider plan and a separately
+scoped local credential vault. Its public response helpers never return
+credential material.
 """
 from __future__ import annotations
 
@@ -11,6 +12,10 @@ from decimal import Decimal, InvalidOperation
 
 class PersonalProviderPlanError(ValueError):
     """Raised when a personal-provider plan is incomplete or unsafe."""
+
+
+class PersonalProviderCredentialError(ValueError):
+    """Raised when a local credential request is incomplete or unsafe."""
 
 
 _PROVIDERS = {
@@ -31,7 +36,7 @@ def provider_options() -> dict:
         "providers": list(_PROVIDERS.values()),
         "regions": sorted(_REGIONS),
         "limits": {"minimumBudgetUsd": 1, "maximumBudgetUsd": int(_MAX_BUDGET_USD), "minimumRuntimeMinutes": 15, "maximumRuntimeMinutes": 720},
-        "credentials": "not-collected",
+        "credentials": "optional-local-vault",
         "execution": "not-available",
     }
 
@@ -75,7 +80,41 @@ def build_provider_plan(raw: object) -> dict:
         "provider": {"id": details["id"], "label": details["label"], "region": region},
         "limits": {"maxBudgetUsd": int(budget), "maxRuntimeMinutes": runtime},
         "billing": "The provider charges your own account directly.",
-        "credentials": "No credential was requested, stored, or returned.",
+        "credentials": "No credential was requested, stored, or returned by this plan review.",
         "execution": "No provider connection, upload, provisioning, or training job was started.",
-        "nextStep": "Credential storage and the approved remote executor remain a separate security-reviewed phase.",
+        "nextStep": "A separately approved local credential-vault action is available; provider execution remains unavailable.",
     }
+
+
+def _credential_token(value: object) -> str:
+    if not isinstance(value, str) or not 16 <= len(value) <= 512 or value != value.strip() or any(character.isspace() or ord(character) < 32 for character in value):
+        raise PersonalProviderCredentialError("Enter a valid provider access token without spaces or line breaks.")
+    return value
+
+
+def credential_store_request(raw: object) -> dict:
+    """Validate an exact local-vault request without persisting the token."""
+    if not isinstance(raw, dict):
+        raise PersonalProviderCredentialError("Provider credential request must be a JSON object.")
+    expected = {"provider", "apiKey", "confirmOwnAccount", "confirmCredentialStorage"}
+    if set(raw) != expected:
+        raise PersonalProviderCredentialError("Provider credential request contains unsupported fields.")
+    provider = raw["provider"]
+    if provider not in _PROVIDERS:
+        raise PersonalProviderCredentialError("Select a supported personal provider.")
+    if raw["confirmOwnAccount"] is not True:
+        raise PersonalProviderCredentialError("Confirm that the provider account and charges are your responsibility.")
+    if raw["confirmCredentialStorage"] is not True:
+        raise PersonalProviderCredentialError("Confirm local encrypted storage for this Windows user.")
+    return {"provider": provider, "apiKey": _credential_token(raw["apiKey"])}
+
+
+def credential_removal_request(raw: object) -> str:
+    """Validate an explicit removal request for an allow-listed provider."""
+    if not isinstance(raw, dict) or set(raw) != {"provider", "confirmCredentialRemoval"}:
+        raise PersonalProviderCredentialError("Provider credential removal request contains unsupported fields.")
+    if raw["provider"] not in _PROVIDERS:
+        raise PersonalProviderCredentialError("Select a supported personal provider.")
+    if raw["confirmCredentialRemoval"] is not True:
+        raise PersonalProviderCredentialError("Confirm removal of the locally stored provider credential.")
+    return raw["provider"]

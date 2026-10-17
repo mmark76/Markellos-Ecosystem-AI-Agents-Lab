@@ -147,7 +147,7 @@ Completeness</textarea>
       </details>
       <section class="training-workspace personal-provider-workspace" aria-labelledby="training-title">
         <h3 id="training-title">Advanced: Personal Fine-Tuning Provider<span class="nav-status training-status">Under Construction</span></h3>
-        <p>Plan training with your own provider account. The provider bills you directly; this Lab does not hold a shared GPU account, payment method, or provider credential.</p>
+        <p>Plan training with your own provider account. The provider bills you directly; this Lab does not hold a shared GPU account or payment method.</p>
         <form id="personal-provider-plan">
           <label for="personal-provider">Provider</label>
           <select id="personal-provider" name="provider"><option value="runpod">RunPod · first supported provider</option></select>
@@ -157,12 +157,25 @@ Completeness</textarea>
           <input id="personal-budget" name="maxBudgetUsd" type="number" min="1" max="100" step="1" value="5" required>
           <label for="personal-runtime">Maximum runtime (minutes)</label>
           <input id="personal-runtime" name="maxRuntimeMinutes" type="number" min="15" max="720" step="1" value="60" required>
-          <label class="personal-provider-check"><input name="confirmOwnAccount" type="checkbox" required> I will use my own provider account and accept its charges.</label>
+          <label class="personal-provider-check"><input id="personal-own-account" name="confirmOwnAccount" type="checkbox" required> I will use my own provider account and accept its charges.</label>
           <label class="personal-provider-check"><input name="confirmDataTransfer" type="checkbox" required> I understand selected training data would go directly to my provider, not to a Markellos server.</label>
           <button type="submit">Review personal provider plan</button>
         </form>
         <p id="personal-provider-status" class="training-status" role="status" aria-live="polite">No provider account is connected. Training remains locked.</p>
         <pre id="personal-provider-output" class="personal-provider-output" hidden></pre>
+        <details class="personal-credential-workspace">
+          <summary>Optional: save a RunPod access token for this Windows user</summary>
+          <p>Your token is encrypted locally with Windows protection. It is not sent to RunPod now, is never shown again by the Lab, and does not unlock training.</p>
+          <form id="personal-provider-credentials">
+            <label for="personal-api-key">RunPod access token</label>
+            <input id="personal-api-key" name="apiKey" type="password" minlength="16" maxlength="512" autocomplete="off" spellcheck="false" required aria-describedby="personal-api-key-help">
+            <p id="personal-api-key-help">Use only a token from your own RunPod account. Do not use a password, SSH private key, or a shared token.</p>
+            <label class="personal-provider-check"><input id="personal-credential-storage" name="confirmCredentialStorage" type="checkbox" required> Store this token encrypted for my current Windows user.</label>
+            <button type="submit" id="personal-credential-save">Save token locally</button>
+          </form>
+          <p id="personal-credential-status" class="training-status" role="status" aria-live="polite">Checking local credential status…</p>
+          <button type="button" id="personal-credential-remove" class="personal-credential-remove" hidden>Remove locally stored token</button>
+        </details>
         <p><a class="fine-tuning-guide-link" href="/fine-tuning-guide" target="_blank" rel="noopener noreferrer">What is Fine-Tuning? A simple guide ?</a></p>
       </section>
     </div>

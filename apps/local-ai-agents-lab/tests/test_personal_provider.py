@@ -40,6 +40,27 @@ class PersonalProviderPlanTests(unittest.TestCase):
         with self.assertRaisesRegex(personal_provider.PersonalProviderPlanError, "supported personal provider"):
             personal_provider.build_provider_plan(invalid)
 
+    def test_options_describe_the_separate_local_credential_vault(self):
+        self.assertEqual(personal_provider.provider_options()["credentials"], "optional-local-vault")
+
+    def test_credential_requests_require_exact_fields_and_never_echo_a_token(self):
+        request = {
+            "provider": "runpod", "apiKey": "runpod-test-token-1234567890",
+            "confirmOwnAccount": True, "confirmCredentialStorage": True,
+        }
+        validated = personal_provider.credential_store_request(request)
+        self.assertEqual(validated["provider"], "runpod")
+        self.assertEqual(validated["apiKey"], request["apiKey"])
+        with self.assertRaisesRegex(personal_provider.PersonalProviderCredentialError, "unsupported fields"):
+            personal_provider.credential_store_request({**request, "endpoint": "https://example.invalid"})
+        with self.assertRaisesRegex(personal_provider.PersonalProviderCredentialError, "spaces"):
+            personal_provider.credential_store_request({**request, "apiKey": "token with a space 123456"})
+
+    def test_credential_removal_requires_explicit_confirmation(self):
+        with self.assertRaisesRegex(personal_provider.PersonalProviderCredentialError, "Confirm removal"):
+            personal_provider.credential_removal_request({"provider": "runpod", "confirmCredentialRemoval": False})
+        self.assertEqual(personal_provider.credential_removal_request({"provider": "runpod", "confirmCredentialRemoval": True}), "runpod")
+
 
 if __name__ == "__main__":
     unittest.main()

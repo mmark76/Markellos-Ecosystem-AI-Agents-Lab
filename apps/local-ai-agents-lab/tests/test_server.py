@@ -150,7 +150,7 @@ class HttpIntegrationTests(unittest.TestCase):
             opener = build_opener(ProxyHandler({}))
             with opener.open(origin + "/api/training/provider-options") as response:
                 options = json.load(response)
-            self.assertEqual(options["credentials"], "not-collected")
+                self.assertEqual(options["credentials"], "optional-local-vault")
             self.assertEqual(options["execution"], "not-available")
             self.assertEqual(options["providers"][0]["id"], "runpod")
             body = {"provider":"runpod","region":"europe","maxBudgetUsd":5,"maxRuntimeMinutes":60,"confirmOwnAccount":True,"confirmDataTransfer":True}
@@ -167,6 +167,38 @@ class HttpIntegrationTests(unittest.TestCase):
             raised.exception.close()
         finally:
             server.shutdown(); server.server_close(); thread.join(timeout=4); campus.PORT = original_port
+
+    def test_http_personal_provider_credentials_are_local_only_and_removable(self):
+        from http.server import ThreadingHTTPServer
+        from urllib.request import Request, build_opener, ProxyHandler
+        original_port, original_vault = campus.PORT, campus.CREDENTIAL_VAULT
+
+        class FakeProtector:
+            def protect(self, value): return b"encrypted:" + value[::-1]
+            def unprotect(self, value): return value[len(b"encrypted:"):][::-1]
+
+        with tempfile.TemporaryDirectory() as temporary:
+            campus.CREDENTIAL_VAULT = campus.CredentialVault(Path(temporary) / "credentials", FakeProtector())
+            server = ThreadingHTTPServer(("127.0.0.1", 0), campus.Handler); campus.PORT = server.server_address[1]
+            thread = Thread(target=server.serve_forever, daemon=True); thread.start()
+            try:
+                origin = f"http://127.0.0.1:{campus.PORT}"
+                opener = build_opener(ProxyHandler({}))
+                body = {"provider":"runpod","apiKey":"runpod-test-token-1234567890","confirmOwnAccount":True,"confirmCredentialStorage":True}
+                request = Request(origin + "/api/training/provider-credentials", data=json.dumps(body).encode(), headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
+                with opener.open(request) as response:
+                    stored = json.load(response)
+                self.assertEqual(stored["state"], "STORED_LOCALLY")
+                self.assertNotIn(body["apiKey"], json.dumps(stored))
+                with opener.open(origin + "/api/training/provider-credential-status") as response:
+                    self.assertTrue(json.load(response)["stored"])
+                remove = Request(origin + "/api/training/provider-credentials", data=b'{"provider":"runpod","confirmCredentialRemoval":true}', headers={"Origin":origin,"Content-Type":"application/json"}, method="DELETE")
+                with opener.open(remove) as response:
+                    self.assertTrue(json.load(response)["removed"])
+                with opener.open(origin + "/api/training/provider-credential-status") as response:
+                    self.assertFalse(json.load(response)["stored"])
+            finally:
+                server.shutdown(); server.server_close(); thread.join(timeout=4); campus.PORT = original_port; campus.CREDENTIAL_VAULT = original_vault
 
     def test_model_guidance_static_assets_are_served_locally(self):
         from http.server import ThreadingHTTPServer

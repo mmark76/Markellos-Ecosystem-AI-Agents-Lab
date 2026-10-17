@@ -35,7 +35,8 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from providers import InferenceProviders, ProviderError
 from training import TrainingError, TrainingLockedError, TrainingService
-from personal_provider import PersonalProviderPlanError, build_provider_plan, provider_options
+from credential_vault import CredentialVault, CredentialVaultError
+from personal_provider import PersonalProviderCredentialError, PersonalProviderPlanError, build_provider_plan, credential_removal_request, credential_store_request, provider_options
 from model_install import ModelInstallError, ModelInstallBusy, OllamaModelInstaller
 from evaluation_lab.http_api import EvaluationAPIError, EvaluationHTTPService
 from evaluation_lab.repository import EvaluationRepository, EvaluationRepositoryError
@@ -43,6 +44,7 @@ from evaluation_lab.repository import EvaluationRepository, EvaluationRepository
 PROVIDERS = InferenceProviders()
 TRAINING = TrainingService(ROOT)
 MODEL_INSTALLER = OllamaModelInstaller(OPENER)
+CREDENTIAL_VAULT = CredentialVault()
 
 PROMPT_ROLES = ("Trainer", "Student", "Evaluator", "Improver", "Planner", "Researcher", "Reviewer")
 PROMPTS = {
@@ -339,6 +341,12 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == "/api/training/provider-options":
             self._json(provider_options())
             return
+        if self.path == "/api/training/provider-credential-status":
+            try:
+                self._json(CREDENTIAL_VAULT.status("runpod"))
+            except CredentialVaultError as err:
+                self._json({"error": str(err)}, 503)
+            return
         if self.path.startswith("/api/evaluation/"):
             try:
                 self._json(EVALUATION.get(self.path))
@@ -487,6 +495,17 @@ class Handler(BaseHTTPRequestHandler):
             except (PersonalProviderPlanError, ValueError, TypeError, json.JSONDecodeError) as err:
                 self._json({"error": str(err)}, 400)
             return
+        if self.path == "/api/training/provider-credentials":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if not 2 <= size <= 1024:
+                    raise PersonalProviderCredentialError("Invalid provider credential request size.")
+                request = credential_store_request(json.loads(self.rfile.read(size)))
+                CREDENTIAL_VAULT.store(request["provider"], request["apiKey"])
+                self._json({"state": "STORED_LOCALLY", "provider": request["provider"], "scope": "current-windows-user", "execution": "No provider connection, upload, provisioning, or training job was started."})
+            except (CredentialVaultError, PersonalProviderCredentialError, ValueError, TypeError, json.JSONDecodeError) as err:
+                self._json({"error": str(err)}, 400)
+            return
         if self.path.startswith("/api/training-sessions/") and self.path.endswith("/cancel"):
             try:
                 session_id = int(self.path.split("/")[-2])
@@ -594,6 +613,23 @@ class Handler(BaseHTTPRequestHandler):
         finally:
             if not session_owns_lock:
                 RUN_LOCK.release()
+
+    def do_DELETE(self):
+        if not self._host_valid() or not self._origin_valid():
+            self._json({"error": "Cross-origin writes blocked"}, 403)
+            return
+        if self.path != "/api/training/provider-credentials":
+            self._json({"error": "Unknown endpoint"}, 404)
+            return
+        try:
+            size = int(self.headers.get("Content-Length", "0"))
+            if not 2 <= size <= 256:
+                raise PersonalProviderCredentialError("Invalid provider credential removal request size.")
+            provider = credential_removal_request(json.loads(self.rfile.read(size)))
+            removed = CREDENTIAL_VAULT.remove(provider)
+            self._json({"state": "REMOVED_LOCALLY", "provider": provider, "removed": removed})
+        except (CredentialVaultError, PersonalProviderCredentialError, ValueError, TypeError, json.JSONDecodeError) as err:
+            self._json({"error": str(err)}, 400)
 
 
 def main():
