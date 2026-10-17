@@ -30,6 +30,13 @@ function writeFixture(root){
     '[System.IO.File]::WriteAllLines((Join-Path $PSScriptRoot "..\\easy-start-paths.txt"), @($LabRoot, $normalized), $encoding)',
     'exit 0'
   ].join('\r\n')+'\r\n',{encoding:'utf8'});
+  fs.writeFileSync(path.join(root,'scripts','prepare-local-server.ps1'),[
+    'param([string]$LabRoot)',
+    '$normalized = [System.IO.Path]::GetFullPath($LabRoot)',
+    '$encoding = [System.Text.UTF8Encoding]::new($false)',
+    '[System.IO.File]::WriteAllLines((Join-Path $PSScriptRoot "..\\preflight-paths.txt"), @($LabRoot, $normalized), $encoding)',
+    'exit 0'
+  ].join('\r\n')+'\r\n',{encoding:'utf8'});
   fs.writeFileSync(path.join(root,'scripts','create-desktop-shortcut.ps1'),[
     'param([string]$LabRoot)',
     '$normalized = [System.IO.Path]::GetFullPath($LabRoot)',
@@ -58,13 +65,16 @@ test('Windows launchers pass a non-trailing LabRoot to PowerShell and preserve i
           timeout:15000
         });
         const expected=fs.realpathSync.native(root);
+        const preflight=readPaths(root,'preflight-paths.txt');
+        assert.match(preflight[0],/\\\.$/);
+        assert.equal(preflight[1],expected);
         const easyStart=readPaths(root,'easy-start-paths.txt');
         const shortcut=readPaths(root,'shortcut-paths.txt');
         assert.match(easyStart[0],/\\\.$/);
         assert.equal(easyStart[1],expected);
         assert.match(shortcut[0],/\\\.$/);
         assert.equal(shortcut[1],expected);
-        assert.match(fs.readFileSync(path.join(root,'python-invocation.txt'),'utf8'),/-3 server\.py/);
+        assert.ok(fs.readFileSync(path.join(root,'python-invocation.txt'),'utf8').includes(path.join(root,'server.py')));
       }
     } finally {
       fs.rmSync(workspace,{recursive:true,force:true});
