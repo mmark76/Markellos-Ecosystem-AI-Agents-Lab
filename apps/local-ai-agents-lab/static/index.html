@@ -153,8 +153,11 @@ Completeness</textarea>
           <select id="personal-provider" name="provider"><option value="runpod">RunPod · first supported provider</option></select>
           <label for="personal-region">Region preference</label>
           <select id="personal-region" name="region"><option value="any">Any region</option><option value="europe">Europe</option><option value="north-america">North America</option></select>
-          <label for="personal-budget">Your maximum spending limit (USD)</label>
-          <input id="personal-budget" name="maxBudgetUsd" type="number" min="1" max="100" step="1" value="5" required>
+          <label for="personal-currency">Personal spending currency</label>
+          <select id="personal-currency" name="currency"><option value="EUR">EUR (€)</option><option value="USD">USD ($)</option></select>
+          <label for="personal-budget">Your maximum spending limit</label>
+          <input id="personal-budget" name="maxBudget" type="number" min="1" max="100" step="1" value="5" required aria-describedby="personal-budget-help">
+          <p id="personal-budget-help">This is your planning limit in the currency selected above. RunPod's listed GPU prices are shown in USD; no currency conversion is performed.</p>
           <label for="personal-runtime">Maximum runtime (minutes)</label>
           <input id="personal-runtime" name="maxRuntimeMinutes" type="number" min="15" max="720" step="1" value="60" required>
           <label class="personal-provider-check"><input id="personal-own-account" name="confirmOwnAccount" type="checkbox" required> I will use my own provider account and accept its charges.</label>

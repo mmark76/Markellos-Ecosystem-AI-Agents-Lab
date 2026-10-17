@@ -10,6 +10,9 @@ const credentialSave = document.getElementById('personal-credential-save');
 const credentialRemove = document.getElementById('personal-credential-remove');
 const credentialStorage = document.getElementById('personal-credential-storage');
 const ownAccount = document.getElementById('personal-own-account');
+const currencyFormatter = currency => new Intl.NumberFormat(currency === 'EUR' ? 'en-IE' : 'en-US', {
+  style: 'currency', currency, maximumFractionDigits: 0,
+});
 const providerConnection = document.getElementById('personal-provider-connection');
 const providerConnect = document.getElementById('personal-provider-connect');
 const providerConnectionStatus = document.getElementById('personal-provider-connection-status');
@@ -58,7 +61,8 @@ providerPlan.addEventListener('submit', async event => {
   const payload = {
     provider: form.get('provider'),
     region: form.get('region'),
-    maxBudgetUsd: Number(form.get('maxBudgetUsd')),
+    currency: form.get('currency'),
+    maxBudget: Number(form.get('maxBudget')),
     maxRuntimeMinutes: Number(form.get('maxRuntimeMinutes')),
     confirmOwnAccount: form.get('confirmOwnAccount') === 'on',
     confirmDataTransfer: form.get('confirmDataTransfer') === 'on',
@@ -67,7 +71,8 @@ providerPlan.addEventListener('submit', async event => {
     const plan = await providerPlanFetch('/api/training/provider-plan', {
       method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload),
     });
-    providerPlanOutput.textContent = `${plan.provider.label} · ${plan.limits.maxRuntimeMinutes} minutes · up to $${plan.limits.maxBudgetUsd}\n${plan.billing}\n${plan.credentials}\n${plan.execution}\n${plan.nextStep}`;
+    const budget = currencyFormatter(plan.limits.currency).format(plan.limits.maxBudget);
+    providerPlanOutput.textContent = `${plan.provider.label} · ${plan.limits.maxRuntimeMinutes} minutes · up to ${budget}\n${plan.billing}\n${plan.currencyNote}\n${plan.credentials}\n${plan.execution}\n${plan.nextStep}`;
     providerPlanOutput.hidden = false;
     providerPlanMessage('Personal provider plan reviewed. You may now connect your own RunPod account; no charge was created.');
   } catch (error) {

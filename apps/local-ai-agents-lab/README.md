@@ -108,7 +108,7 @@ until the new installation works.
 ## Personal provider connection — active; remote training — locked
 
 The Advanced **Personal Fine-Tuning Provider** area is active for a user to
-set a personal spending/time plan, store a RunPod token encrypted for their
+set a personal spending/time plan in EUR or USD, store a RunPod token encrypted for their
 current Windows account, and explicitly check that account's current GPU
 availability and listed prices. The token stays on the user's computer until
 the explicit check, which contacts only RunPod's fixed API. Markellos does not
@@ -117,7 +117,9 @@ hold a shared GPU account, wallet, payment method, or copy of the token.
 The connection check is read-only: it cannot create a Pod, upload a model or
 dataset, start training, or charge the provider account. Those actions need a
 separate, reviewed remote-execution workflow with a final per-job cost and
-data-transfer confirmation.
+data-transfer confirmation. The selected EUR/USD value is a personal planning
+limit only. RunPod catalog prices remain in USD, and the Lab does not perform
+an exchange-rate conversion or enforce a provider-side spending cap.
 
 ## Advanced model training — locked
 

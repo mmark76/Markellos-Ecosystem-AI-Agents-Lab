@@ -5,7 +5,7 @@
 `AI-LAB-SCOPE-020` introduces a local, user-owned provider planning surface in
 the private Windows AI Lab. It is the first step toward a user-managed
 remote LoRA workflow: the user selects a provider, region preference, maximum
-runtime, and maximum spend before any remote execution is possible.
+runtime, and maximum spend (EUR or USD) before any remote execution is possible.
 
 The first provider identifier is `runpod`. The internal plan contract is
 provider-neutral so a later reviewed adapter can support another provider. The
@@ -21,6 +21,9 @@ unfinished feature.
   model download, or remote command.
 - The plan endpoint is same-origin and host-checked. It performs only in-memory
   validation; it makes no network request, write, subprocess, or paid action.
+- The currency selection is a personal planning label. RunPod catalog prices are
+  returned in USD; the Lab neither fetches exchange rates nor claims to enforce
+  a provider-side spending cap.
 - `/api/training/jobs` remains locked with HTTP 423 before subprocess creation.
 
 ## Phase 3B — local token custody only

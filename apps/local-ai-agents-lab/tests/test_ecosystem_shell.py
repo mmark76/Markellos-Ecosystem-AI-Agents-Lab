@@ -54,6 +54,10 @@ class EcosystemShellTests(unittest.TestCase):
         for label in (
             "Advanced: Personal Fine-Tuning Provider",
             "Your provider account",
+            "Personal spending currency",
+            "EUR (€)",
+            "USD ($)",
+            "RunPod's listed GPU prices are shown in USD; no currency conversion is performed.",
             "Set a plan, then connect your own provider account. No paid job is started automatically.",
             "I will use my own provider account and accept its charges.",
             "Check your RunPod account",

@@ -13,7 +13,7 @@ SPEC.loader.exec_module(personal_provider)
 class PersonalProviderPlanTests(unittest.TestCase):
     def valid(self):
         return {
-            "provider": "runpod", "region": "europe", "maxBudgetUsd": 5,
+            "provider": "runpod", "region": "europe", "currency": "EUR", "maxBudget": 5,
             "maxRuntimeMinutes": 60, "confirmOwnAccount": True, "confirmDataTransfer": True,
         }
 
@@ -21,6 +21,8 @@ class PersonalProviderPlanTests(unittest.TestCase):
         plan = personal_provider.build_provider_plan(self.valid())
         self.assertEqual(plan["state"], "PLAN_REVIEWED")
         self.assertEqual(plan["provider"]["id"], "runpod")
+        self.assertEqual(plan["limits"]["currency"], "EUR")
+        self.assertEqual(plan["limits"]["maxBudget"], 5)
         self.assertIn("your own account", plan["billing"])
         self.assertIn("No credential", plan["credentials"])
         self.assertIn("No provider connection", plan["execution"])
@@ -33,16 +35,26 @@ class PersonalProviderPlanTests(unittest.TestCase):
             personal_provider.build_provider_plan(invalid)
 
     def test_plan_rejects_unsafe_limits_and_unknown_provider(self):
-        invalid = self.valid(); invalid["maxBudgetUsd"] = 101
-        with self.assertRaisesRegex(personal_provider.PersonalProviderPlanError, r"from \$1 to \$100"):
+        invalid = self.valid(); invalid["maxBudget"] = 101
+        with self.assertRaisesRegex(personal_provider.PersonalProviderPlanError, "from 1 to 100"):
+            personal_provider.build_provider_plan(invalid)
+        invalid = self.valid(); invalid["currency"] = "GBP"
+        with self.assertRaisesRegex(personal_provider.PersonalProviderPlanError, "EUR or USD"):
             personal_provider.build_provider_plan(invalid)
         invalid = self.valid(); invalid["provider"] = "https://example.invalid"
         with self.assertRaisesRegex(personal_provider.PersonalProviderPlanError, "supported personal provider"):
             personal_provider.build_provider_plan(invalid)
 
+    def test_plan_preserves_a_usd_budget_without_converting_it(self):
+        request = self.valid(); request["currency"] = "USD"; request["maxBudget"] = 12
+        plan = personal_provider.build_provider_plan(request)
+        self.assertEqual(plan["limits"], {"maxBudget": 12, "currency": "USD", "maxRuntimeMinutes": 60})
+        self.assertIn("no exchange-rate conversion", plan["currencyNote"])
+
     def test_options_describe_the_separate_local_credential_vault(self):
         self.assertEqual(personal_provider.provider_options()["credentials"], "optional-local-vault")
         self.assertEqual(personal_provider.provider_options()["execution"], "connection-ready")
+        self.assertEqual(personal_provider.provider_options()["limits"]["currencies"], ["EUR", "USD"])
 
     def test_credential_requests_require_exact_fields_and_never_echo_a_token(self):
         request = {
