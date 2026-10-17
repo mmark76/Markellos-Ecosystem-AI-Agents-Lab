@@ -185,7 +185,8 @@ test('beginner fine-tuning guide and personal provider planner are bundled while
   assert.match(server,/"\/api\/training\/provider-credentials"/);
   assert.match(html,/href="\/fine-tuning-guide" target="_blank" rel="noopener noreferrer"/);
   assert.match(html,/id="personal-provider-plan"/);
-  assert.match(html,/Training remains locked\./);
-  assert.match(html,/Under Construction/);
+  assert.match(html,/Your provider account/);
+  assert.match(html,/No paid job is started automatically\./);
+  assert.doesNotMatch(html,/Under Construction/);
   assert.match(page,/Fine-Tuning versus the Learning Lab/);
 });

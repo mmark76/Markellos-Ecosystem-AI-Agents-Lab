@@ -150,13 +150,14 @@ class HttpIntegrationTests(unittest.TestCase):
             with opener.open(origin + "/api/training/provider-options") as response:
                 options = json.load(response)
                 self.assertEqual(options["credentials"], "optional-local-vault")
-            self.assertEqual(options["execution"], "not-available")
+            self.assertEqual(options["execution"], "connection-ready")
             self.assertEqual(options["providers"][0]["id"], "runpod")
-            body = {"provider":"runpod","region":"europe","maxBudgetUsd":5,"maxRuntimeMinutes":60,"confirmOwnAccount":True,"confirmDataTransfer":True}
+            body = {"provider":"runpod","region":"europe","currency":"EUR","maxBudget":5,"maxRuntimeMinutes":60,"confirmOwnAccount":True,"confirmDataTransfer":True}
             request = Request(origin + "/api/training/provider-plan", data=json.dumps(body).encode(), headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
             with opener.open(request) as response:
                 plan = json.load(response)
             self.assertEqual(plan["state"], "PLAN_REVIEWED")
+            self.assertEqual(plan["limits"]["currency"], "EUR")
             self.assertIn("No credential", plan["credentials"])
             invalid = {**body, "apiKey":"rejected"}
             request = Request(origin + "/api/training/provider-plan", data=json.dumps(invalid).encode(), headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")

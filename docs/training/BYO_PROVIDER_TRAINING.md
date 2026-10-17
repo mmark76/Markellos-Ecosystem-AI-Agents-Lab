@@ -1,14 +1,17 @@
-# Personal Provider Fine-Tuning — Phases 3A, 3B, and 3C-A
+# Personal Provider Fine-Tuning — Active Connection, Phases 3A, 3B, and 3C-A
 
 ## Scope
 
 `AI-LAB-SCOPE-020` introduces a local, user-owned provider planning surface in
 the private Windows AI Lab. It is the first step toward a user-managed
 remote LoRA workflow: the user selects a provider, region preference, maximum
-runtime, and maximum spend before any remote execution is possible.
+runtime, and maximum spend (EUR or USD) before any remote execution is possible.
 
 The first provider identifier is `runpod`. The internal plan contract is
-provider-neutral so a later reviewed adapter can support another provider.
+provider-neutral so a later reviewed adapter can support another provider. The
+Personal Provider area is active for plan review, encrypted local token custody,
+and an explicit read-only RunPod connection check; it is not labelled as an
+unfinished feature.
 
 ## Privacy, billing, and trust boundary
 
@@ -18,6 +21,9 @@ provider-neutral so a later reviewed adapter can support another provider.
   model download, or remote command.
 - The plan endpoint is same-origin and host-checked. It performs only in-memory
   validation; it makes no network request, write, subprocess, or paid action.
+- The currency selection is a personal planning label. RunPod catalog prices are
+  returned in USD; the Lab neither fetches exchange rates nor claims to enforce
+  a provider-side spending cap.
 - `/api/training/jobs` remains locked with HTTP 423 before subprocess creation.
 
 ## Phase 3B — local token custody only
@@ -56,12 +62,13 @@ URL, returned to the browser, written to SQLite, or logged.
   training action and it does not create a charge.
 - `/api/training/jobs` remains locked with HTTP 423.
 
-## Explicitly deferred
+## Active connection boundary and explicitly deferred execution
 
 All provider actions other than the Phase 3C-A read-only check require a new
 explicit approval: exact cost quotation/selection, model/dataset transfer,
 provisioning, remote job status, cancellation, artifact retrieval, teardown,
-and any mutation remain deferred.
+and any mutation remain deferred. Saving a token or verifying an account never
+starts a paid resource.
 
 No provider adapter may accept an arbitrary URL, shell command, or credential
 from the UI. A future provider adapter must use an allow-listed provider API,

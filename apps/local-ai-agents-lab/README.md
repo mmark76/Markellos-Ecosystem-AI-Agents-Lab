@@ -55,9 +55,12 @@ model selector refreshes and selects the downloaded model. Only one download can
 run at a time; it may continue when the tab closes as long as the Lab stays running.
 
 This is an explicit internet download by the local Ollama daemon to its own
-model storage. **The Lab itself remains bound to loopback** and never receives
-a remote provider URL, token, filesystem path, shell command, or cloud-inference
-configuration. No packages or models are downloaded automatically. Check the
+model storage. **The Lab itself remains bound to loopback** and never accepts
+a remote provider URL, filesystem path, shell command, or cloud-inference
+configuration for Ollama. The separate Personal Provider control can retain a
+user-supplied, Windows-DPAPI-protected RunPod token for an explicit account
+connection check only; it is not an Ollama inference credential. No packages
+or models are downloaded automatically. Check the
 model's license, hardware requirements, network costs, and free disk space
 before confirming: weights can consume many GB. Do not install cloud-hosted
 models; the Lab filters them from local inference. If the model is unavailable
@@ -101,6 +104,22 @@ To update, first stop the Lab, back up `data/campus.sqlite3`, extract the new
 ZIP into a new folder, move the database only while both servers are stopped if
 you want to keep the history, and start the new version. Keep the old folder
 until the new installation works.
+
+## Personal provider connection — active; remote training — locked
+
+The Advanced **Personal Fine-Tuning Provider** area is active for a user to
+set a personal spending/time plan in EUR or USD, store a RunPod token encrypted for their
+current Windows account, and explicitly check that account's current GPU
+availability and listed prices. The token stays on the user's computer until
+the explicit check, which contacts only RunPod's fixed API. Markellos does not
+hold a shared GPU account, wallet, payment method, or copy of the token.
+
+The connection check is read-only: it cannot create a Pod, upload a model or
+dataset, start training, or charge the provider account. Those actions need a
+separate, reviewed remote-execution workflow with a final per-job cost and
+data-transfer confirmation. The selected EUR/USD value is a personal planning
+limit only. RunPod catalog prices remain in USD, and the Lab does not perform
+an exchange-rate conversion or enforce a provider-side spending cap.
 
 ## Advanced model training — locked
 
