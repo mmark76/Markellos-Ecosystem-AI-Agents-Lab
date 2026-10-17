@@ -33,7 +33,7 @@
 | AI-LAB-SCOPE-021 | Add explicit, Windows-user-scoped encrypted custody for a user-owned RunPod access token, with status and removal controls. Phase 3B stores no plan, starts no provider request, and performs no training. | High | Repository maintainer | Approved by direct user request on 2026-10-17 |
 | AI-LAB-SCOPE-022 | Add one explicit read-only RunPod connection control that validates the locally protected token and reads a fixed GPU catalog/pricing query. It cannot create or manage provider resources. | High | Repository maintainer | Approved by direct user request on 2026-10-17 |
 | AI-LAB-SCOPE-023 | Add an optional, user-approved Sign in with ChatGPT bridge for the local Windows Lab. It must not accept API keys, initiate model inference, or create a charge merely by connecting. | High | Repository maintainer | Approved by direct user request on 2026-10-17 |
-| AI-LAB-SCOPE-024 | Add an optional external ChatGPT advisor that works in parallel with local agents only after the user explicitly selects and confirms one review packet. It must never read or synchronize local-room conversations automatically; disconnecting removes the local connection and returns the Lab to local-only operation. | High | Repository maintainer | Approved by direct user request on 2026-10-17 |
+| AI-LAB-SCOPE-024 | Add an optional external ChatGPT advisor that works in parallel with local agents only after the user explicitly submits and confirms one question. It must never read or synchronize local-room conversations automatically; disconnecting removes the local connection and returns the Lab to local-only operation. | High | Repository maintainer | Refined by direct user request on 2026-10-17 |
 
 ## Out of scope
 
@@ -45,7 +45,7 @@
 - Automatic update downloads, installation, executable launch, release-channel selection, and arbitrary update URLs; AI-LAB-SCOPE-009 permits a manual check of one fixed official GitHub Releases endpoint only.
 - Silent dependency installation, unverified download URLs, driver or CUDA installation, arbitrary scripts, automatic model pulls, and any device change without the relevant Easy Start approval dialog.
 - Provider API calls, remote execution, paid provisioning, model/dataset transfers, and credential use remain out of scope except AI-LAB-SCOPE-022's explicit, fixed, read-only RunPod account/GPU-catalog check. It cannot create, alter, or charge provider resources.
-- OpenAI API keys, automatic cloud prompts, automatic cloud inference, remote training, and background conversation synchronization remain out of scope. AI-LAB-SCOPE-023 permits browser-mediated OAuth/OpenID Connect custody; AI-LAB-SCOPE-024 permits only an explicitly confirmed, user-selected external-advisor packet through the signed-in ChatGPT account.
+- OpenAI API keys, automatic cloud prompts, automatic cloud inference, remote training, and background conversation synchronization remain out of scope. AI-LAB-SCOPE-023 permits browser-mediated OAuth/OpenID Connect custody; AI-LAB-SCOPE-024 permits only an explicitly confirmed question through the signed-in ChatGPT account.
 
 ## Foundation impact
 

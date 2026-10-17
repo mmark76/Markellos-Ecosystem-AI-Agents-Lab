@@ -68,11 +68,14 @@ class EcosystemShellTests(unittest.TestCase):
             "OpenAI API keys are not accepted, stored, or used by this Lab.",
             "This user-approved connection does not use an API key.",
             "Connecting alone does not send prompts, make an AI request, or create a charge.",
-            "Optional: Sign in with ChatGPT",
-            "Continue with ChatGPT",
-            "External ChatGPT advisor",
-            "Privacy status: while this connection remains active, the Lab is not exclusively local",
-            "Only the material selected below leaves this device for OpenAI.",
+            "ChatGPT Advisor",
+            "Connect with ChatGPT",
+            "Connect and ask one question",
+            "Only the question you submit is sent to ChatGPT.",
+            "Your Question",
+            "Ask ChatGPT",
+            "ChatGPT Answer",
+            "Copy Answer",
             "Check your RunPod account",
             "Check RunPod connection",
         ):
@@ -97,11 +100,21 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertNotIn('localStorage', planner)
         self.assertNotIn('console.', planner)
         self.assertNotIn('api.runpod.io', planner)
-        for path in ('/api/openai/connection', '/api/openai/connection/setup', '/api/openai/models', '/api/openai/review'):
+        for path in ('/api/openai/connection', '/api/openai/connection/setup', '/api/openai/review'):
             with self.subTest(path=path):
                 self.assertIn(path, chatgpt)
         self.assertNotIn('localStorage', chatgpt)
         self.assertNotIn('console.', chatgpt)
+        self.assertIn("window.addEventListener('focus', refreshChatgptStatus)", chatgpt)
+        self.assertIn("visibilitychange", chatgpt)
+        self.assertIn("ask.disabled = true", chatgpt)
+        self.assertIn("navigator.clipboard.writeText", chatgpt)
+        self.assertIn("document.createElement", chatgpt)
+        self.assertNotIn("innerHTML", chatgpt)
+        self.assertNotIn('/api/openai/models', chatgpt)
+        for obsolete in ('openai-review-room', 'openai-review-mode', 'openai-review-content', 'openai-review-model'):
+            with self.subTest(obsolete=obsolete):
+                self.assertNotIn(obsolete, self.html + chatgpt)
 
     def test_connections_open_in_separate_modals_and_rooms_remain_with_agents(self):
         dialogs = (STATIC / "connection-dialogs.js").read_text(encoding="utf-8")
