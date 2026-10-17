@@ -28,7 +28,8 @@ function Get-LabServerIdentity {
                    $body.Contains('ThreadingHTTPServer') -and
                    $body.Contains('PORT = 8765'))) { return $unknown }
         $expected = [IO.Path]::GetFullPath((Join-Path $CurrentRoot 'server.py'))
-        $kind = if ([string]::Equals($script, $expected, [StringComparison]::OrdinalIgnoreCase)) { 'CURRENT_LAB' } else { 'OLDER_LAB' }
+        $actual = [IO.Path]::GetFullPath($script)
+        $kind = if ([string]::Equals($actual, $expected, [StringComparison]::OrdinalIgnoreCase)) { 'CURRENT_LAB' } else { 'OLDER_LAB' }
         return [PSCustomObject]@{ Kind = $kind; ScriptPath = $script }
     }
 
