@@ -4,6 +4,8 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 
 ## [Unreleased]
 
+## [2.0.3] - 2026-10-17
+
 ### Changed
 
 - Activated all five AI Training Lab workspaces with fifteen Lab-scoped roles: Conference Room (Strategist → Analyst → Engineer), Training Lab (Tutor → Student → Evaluator → Improver), Evaluation Lab (Assessment → Scoring → Benchmarking), Advisory Lab (Analysis → Recommendations), and Optimization Lab (Diagnose → Optimize → Validate). Preserved local-only Ollama routing, existing evaluation-record review, and readable legacy Training history.
