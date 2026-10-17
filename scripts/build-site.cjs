@@ -3,6 +3,7 @@ const { execFileSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const root = path.resolve(__dirname, '..');
+const SITE_FILE_MAX_BUFFER = 16 * 1024 * 1024;
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
 const [ref, destination] = process.argv.slice(2);
 if (!ref || !destination) throw new Error('Usage: node scripts/build-site.cjs <commit> <new-output-directory>');
@@ -17,7 +18,7 @@ fs.mkdirSync(output, { recursive: true });
 for (const file of files) {
   const target = path.join(output, file);
   fs.mkdirSync(path.dirname(target), { recursive: true });
-  fs.writeFileSync(target, execFileSync('git', ['show', `${sha}:${file}`], { cwd: root }));
+  fs.writeFileSync(target, execFileSync('git', ['show', `${sha}:${file}`], { cwd: root, maxBuffer: SITE_FILE_MAX_BUFFER }));
 }
 const version = git('show', `${sha}:TEMPLATE_VERSION`);
 const timestamp = git('show', '-s', '--format=%cI', sha);

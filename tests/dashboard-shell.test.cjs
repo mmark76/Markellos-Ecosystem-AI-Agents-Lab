@@ -15,6 +15,7 @@ const templateVersion = readFileSync(join(repositoryRoot, 'TEMPLATE_VERSION'), '
 const tokenJson = JSON.parse(readFileSync(join(repositoryRoot, 'design-system', 'tokens', 'tokens.json'), 'utf8'));
 const tokenCss = readFileSync(join(repositoryRoot, 'design-system', 'tokens', 'tokens.css'), 'utf8');
 const designSystemDoc = readFileSync(join(repositoryRoot, 'docs', 'design', 'UI_UX_DESIGN_SYSTEM.md'), 'utf8');
+const siteBuilder = readFileSync(join(repositoryRoot, 'scripts', 'build-site.cjs'), 'utf8');
 
 function metaContent(name) {
   return html.match(new RegExp(`<meta name="${name}" content="([^"]*)">`))?.[1] ?? '';
@@ -44,6 +45,11 @@ test('a populated build ID uses a real repository SHA and canonical format', () 
   assert.match(buildId, shell.BUILD_ID_PATTERN);
   assert.match(buildId, /^v[0-9]+\.[0-9]+\.[0-9]+_[0-9]{8}_[0-9]{4}_[0-9a-f]{7}$/);
   assert.ok(buildId.endsWith(`_${commit}`));
+});
+
+test('site builder can package binary assets larger than Node default output buffers', () => {
+  assert.match(siteBuilder, /SITE_FILE_MAX_BUFFER = 16 \* 1024 \* 1024/);
+  assert.match(siteBuilder, /maxBuffer: SITE_FILE_MAX_BUFFER/);
 });
 
 test('missing or invalid build metadata produces an explicit non-fabricated template ID', () => {
