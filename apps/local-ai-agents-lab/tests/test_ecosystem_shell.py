@@ -60,12 +60,23 @@ class EcosystemShellTests(unittest.TestCase):
             "RunPod's listed GPU prices are shown in USD; no currency conversion is performed.",
             "Set a plan, then connect your own provider account. No paid job is started automatically.",
             "I will use my own provider account and accept its charges.",
+            "RunPod API tokens and SSH public keys are credentials that only enable a direct connection to your own RunPod account or an already-running server.",
+            "By themselves, they cannot create a server, start a job, or charge your account.",
+            "Use the official RunPod Console to connect to and manage your own RunPod servers;",
+            "the Lab cannot create a provider resource or charge your account.",
+            "An OpenAI API key is also a connection credential.",
+            "This Lab does not accept, store, or use OpenAI API keys, and it cannot make OpenAI API requests or charges.",
+            "OpenAI API usage is managed directly in your own OpenAI API Platform account.",
             "Check your RunPod account",
             "Check RunPod connection",
         ):
             with self.subTest(label=label):
                 self.assertIn(label, self.html)
         self.assertIn('/static/personal-provider.js', self.html)
+        self.assertIn('id="open-runpod-console"', self.html)
+        self.assertIn('href="https://console.runpod.io/" target="_blank" rel="noopener noreferrer"', self.html)
+        self.assertIn('id="open-openai-platform"', self.html)
+        self.assertIn('href="https://platform.openai.com/" target="_blank" rel="noopener noreferrer"', self.html)
         for path in (
             '/api/training/provider-plan',
             '/api/training/provider-credentials',

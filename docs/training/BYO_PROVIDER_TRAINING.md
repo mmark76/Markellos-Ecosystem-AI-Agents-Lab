@@ -17,6 +17,17 @@ unfinished feature.
 
 - The Lab remains a loopback-only local application.
 - Provider charges belong directly to the user's own provider account.
+- The visible **Open RunPod Console** link opens only the official RunPod Console
+  in a new browser tab after an explicit user click. It gives the user a direct
+  route to connect to and manage their own RunPod servers there; the Lab cannot
+  create a provider resource or charge an account.
+- RunPod API tokens and SSH public keys are credentials that provide a direct
+  connection to the user's own account or an already-running server. By
+  themselves, they cannot create a server, start a job, or create a charge.
+- The visible **Open OpenAI API Platform** link is the analogous direct route
+  for a user's own OpenAI API account. The Lab does not accept, store, or use
+  OpenAI API keys, and it cannot make OpenAI API requests or charges. Any
+  OpenAI API use is managed directly in the user's OpenAI API Platform account.
 - This phase accepts no API key, SSH key, password, endpoint URL, dataset,
   model download, or remote command.
 - The plan endpoint is same-origin and host-checked. It performs only in-memory
