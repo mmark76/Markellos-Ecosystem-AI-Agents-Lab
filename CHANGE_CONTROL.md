@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-070
+
+```text
+Change ID: AI-LAB-CC-070
+Requested by: User
+Date: 2026-10-17
+Description: Merge the reviewed ChatGPT Advisor simplification and publish AI Lab v2.0.14 as the next immutable Windows ZIP and public landing deployment.
+Reason: The user explicitly authorized merge, release, and deployment after PR #142 passed its required checks.
+Affected objective IDs: AI-LAB-OBJ-003, AI-LAB-OBJ-022, AI-LAB-OBJ-023
+Architecture impact: No new route, provider, infrastructure design, or local-data contract. The release contains the reviewed one-question Advisor and connection-state reliability changes only.
+Security and privacy impact: Retains browser OAuth, current-Windows-user DPAPI custody, question-only explicit outbound consent, and no API-key or local-data fallback. The public ZIP excludes local data and credentials.
+Data impact: Create immutable v2.0.14 GitHub/R2 ZIP artifacts while retaining prior archive entries; no local application data, settings, credentials, or SQLite records are modified.
+Testing impact: Merge only after PR checks are green; build/verify exact ZIP, verify public R2 object and checksum, then deploy and check the static landing.
+Cost and schedule impact: No release action performs a ChatGPT inference, provider mutation, training job, or paid resource creation.
+Decision: APPROVED (MERGE, RELEASE, AND DEPLOYMENT)
+Approved by: Direct user request
+Target release: AI Lab v2.0.14
+```
+
 ## Approved change record — AI-LAB-CC-069
 
 ```text
