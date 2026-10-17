@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-058
+
+```text
+Change ID: AI-LAB-CC-058
+Requested by: Repository maintainer
+Date: 2026-10-17
+Description: Add an optional browser-mediated Sign in with ChatGPT connection bridge, together with revised UI text that distinguishes it from OpenAI API-key access.
+Reason: A user wants a direct, explicit account-connectivity bridge without pasting an API key or starting inference.
+Affected objective IDs: AI-LAB-OBJ-022
+Architecture impact: Adds a bounded local OAuth/OpenID Connect callback flow at loopback and one encrypted connection record for the current Windows user. It does not add an inference or OpenAI API request route.
+Security and privacy impact: Requires state, nonce, PKCE, issuer/audience/signature validation, no token exposure in UI/logs, and Windows DPAPI custody. Setup is explicit and separate; no dependency is installed silently.
+Data impact: Stores only the encrypted connection record and stable dynamic-registration metadata locally; no prompts, model outputs, or API keys are stored.
+Testing impact: Add mocked OAuth/OIDC, loopback HTTP, static UI, and package coverage. A live sign-in requires separate explicit user approval.
+Cost and schedule impact: Connecting alone cannot create a charge; inference and paid OpenAI API calls are excluded.
+Decision: APPROVED
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
 ## Approved change record — AI-LAB-CC-057
 
 ```text

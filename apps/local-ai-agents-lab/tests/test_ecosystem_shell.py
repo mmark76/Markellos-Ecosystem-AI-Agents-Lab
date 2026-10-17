@@ -51,6 +51,7 @@ class EcosystemShellTests(unittest.TestCase):
 
     def test_personal_provider_surface_is_visible_but_training_remains_locked(self):
         planner = (STATIC / "personal-provider.js").read_text(encoding="utf-8")
+        chatgpt = (STATIC / "openai-connection.js").read_text(encoding="utf-8")
         for label in (
             "Advanced: Personal Fine-Tuning Provider",
             "Your provider account",
@@ -64,15 +65,18 @@ class EcosystemShellTests(unittest.TestCase):
             "By themselves, they cannot create a server, start a job, or charge your account.",
             "Use the official RunPod Console to connect to and manage your own RunPod servers;",
             "the Lab cannot create a provider resource or charge your account.",
-            "An OpenAI API key is also a connection credential.",
-            "This Lab does not accept, store, or use OpenAI API keys, and it cannot make OpenAI API requests or charges.",
-            "OpenAI API usage is managed directly in your own OpenAI API Platform account.",
+            "OpenAI API keys are not accepted, stored, or used by this Lab.",
+            "This user-approved connection does not use an API key.",
+            "Connecting alone does not send prompts, make an AI request, or create a charge.",
+            "Optional: Sign in with ChatGPT",
+            "Continue with ChatGPT",
             "Check your RunPod account",
             "Check RunPod connection",
         ):
             with self.subTest(label=label):
                 self.assertIn(label, self.html)
         self.assertIn('/static/personal-provider.js', self.html)
+        self.assertIn('/static/openai-connection.js', self.html)
         self.assertIn('id="open-runpod-console"', self.html)
         self.assertIn('href="https://console.runpod.io/" target="_blank" rel="noopener noreferrer"', self.html)
         self.assertIn('id="open-openai-platform"', self.html)
@@ -90,6 +94,11 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertNotIn('localStorage', planner)
         self.assertNotIn('console.', planner)
         self.assertNotIn('api.runpod.io', planner)
+        for path in ('/api/openai/connection', '/api/openai/connection/setup'):
+            with self.subTest(path=path):
+                self.assertIn(path, chatgpt)
+        self.assertNotIn('localStorage', chatgpt)
+        self.assertNotIn('console.', chatgpt)
 
     def test_legacy_roles_are_not_present_in_active_browser_workflow(self):
         for retired in ("Planner", "Researcher", "Reviewer", "Trainer"):

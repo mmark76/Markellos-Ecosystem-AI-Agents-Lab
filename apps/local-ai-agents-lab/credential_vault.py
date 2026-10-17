@@ -67,7 +67,7 @@ class WindowsDpapi:
 class CredentialVault:
     """Persist provider-specific DPAPI blobs without storing metadata or tokens."""
 
-    _FILENAMES = {"runpod": "runpod.token.dpapi"}
+    _FILENAMES = {"runpod": "runpod.token.dpapi", "openai-chatgpt": "openai-chatgpt.connection.dpapi"}
 
     def __init__(self, root: Path | None = None, protector: object | None = None):
         local_app_data = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"))

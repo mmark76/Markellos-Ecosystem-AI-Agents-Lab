@@ -168,6 +168,38 @@ class HttpIntegrationTests(unittest.TestCase):
         finally:
             server.shutdown(); server.server_close(); thread.join(timeout=4); campus.PORT = original_port
 
+    def test_http_chatgpt_connection_is_explicit_and_never_returns_a_token(self):
+        from http.server import ThreadingHTTPServer
+        from urllib.request import Request, build_opener, ProxyHandler
+        original_port, original_connection = campus.PORT, campus.OPENAI_CONNECTION
+
+        class FakeConnection:
+            def __init__(self): self.calls = []
+            def status(self): return {"provider":"openai-chatgpt","connected":False,"scope":"current-windows-user"}
+            def start(self, port): self.calls.append(("start", port)); return {"state":"AUTHORIZATION_STARTED","expiresInSeconds":600}
+            def remove(self): self.calls.append(("remove",)); return {"state":"REMOVED_LOCALLY","removed":True}
+
+        fake = FakeConnection()
+        server = ThreadingHTTPServer(("127.0.0.1", 0), campus.Handler); campus.PORT = server.server_address[1]
+        thread = Thread(target=server.serve_forever, daemon=True); thread.start()
+        try:
+            origin = f"http://127.0.0.1:{campus.PORT}"
+            campus.OPENAI_CONNECTION = fake
+            opener = build_opener(ProxyHandler({}))
+            with opener.open(origin + "/api/openai/connection") as response:
+                self.assertFalse(json.load(response)["connected"])
+            connect = Request(origin + "/api/openai/connection", data=b'{"confirmConnection":true}', headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
+            with opener.open(connect) as response:
+                result = json.load(response)
+            self.assertEqual(result["state"], "AUTHORIZATION_STARTED")
+            self.assertEqual(fake.calls, [("start", campus.PORT)])
+            remove = Request(origin + "/api/openai/connection", data=b'{"confirmRemoval":true}', headers={"Origin":origin,"Content-Type":"application/json"}, method="DELETE")
+            with opener.open(remove) as response:
+                self.assertTrue(json.load(response)["removed"])
+            self.assertNotIn("token", json.dumps(result).lower())
+        finally:
+            server.shutdown(); server.server_close(); thread.join(timeout=4); campus.PORT = original_port; campus.OPENAI_CONNECTION = original_connection
+
     def test_http_personal_provider_credentials_are_local_only_and_removable(self):
         from http.server import ThreadingHTTPServer
         from urllib.request import Request, build_opener, ProxyHandler

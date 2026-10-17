@@ -178,8 +178,12 @@ test('beginner fine-tuning guide and personal provider planner are bundled while
   assert.match(packager,/'static\/fine-tuning-guide.css'/);
   assert.match(packager,/'personal_provider.py'/);
   assert.match(packager,/'credential_vault.py'/);
+  assert.match(packager,/'openai_connection.py'/);
+  assert.match(packager,/'openai-connection-requirements.txt'/);
+  assert.match(packager,/'scripts\/setup-openai-connection\.ps1'/);
   assert.match(packager,/'runpod_readonly.py'/);
   assert.match(packager,/'static\/personal-provider.js'/);
+  assert.match(packager,/'static\/openai-connection.js'/);
   assert.match(server,/"\/fine-tuning-guide": \("fine-tuning-guide.html", "text\/html; charset=utf-8"\)/);
   assert.match(server,/"\/api\/training\/provider-plan"/);
   assert.match(server,/"\/api\/training\/provider-credentials"/);
@@ -192,9 +196,11 @@ test('beginner fine-tuning guide and personal provider planner are bundled while
   assert.match(html,/Use the official RunPod Console to connect to and manage your own RunPod servers;/);
   assert.match(html,/the Lab cannot create a provider resource or charge your account\./);
   assert.match(html,/id="open-runpod-console"[^>]*href="https:\/\/console\.runpod\.io\/"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/);
-  assert.match(html,/An OpenAI API key is also a connection credential\./);
-  assert.match(html,/This Lab does not accept, store, or use OpenAI API keys, and it cannot make OpenAI API requests or charges\./);
-  assert.match(html,/OpenAI API usage is managed directly in your own OpenAI API Platform account\./);
+  assert.match(html,/OpenAI API keys are not accepted, stored, or used by this Lab\./);
+  assert.match(html,/This user-approved connection does not use an API key\./);
+  assert.match(html,/Connecting alone does not send prompts, make an AI request, or create a charge\./);
+  assert.match(html,/Optional: Sign in with ChatGPT/);
+  assert.match(html,/Continue with ChatGPT/);
   assert.match(html,/id="open-openai-platform"[^>]*href="https:\/\/platform\.openai\.com\/"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/);
   assert.doesNotMatch(html,/Under Construction/);
   assert.match(page,/Fine-Tuning versus the Learning Lab/);
