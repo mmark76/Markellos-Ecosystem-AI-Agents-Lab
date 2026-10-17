@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-069
+
+```text
+Change ID: AI-LAB-CC-069
+Requested by: User
+Date: 2026-10-17
+Description: Simplify the optional ChatGPT Advisor to one explicit question and one answer, repair local connection-state synchronization, and improve safe Responses-stream failure handling.
+Reason: The existing reviewer packet UI obscures a simple question-and-answer workflow, and connection state can remain stale until a hard browser refresh.
+Affected objective IDs: AI-LAB-OBJ-022, AI-LAB-OBJ-023
+Architecture impact: Retain the fixed loopback OAuth/OIDC callback and DPAPI current-user custody. Remove room, pasted-content, notes, and model-picker paths from the advisor request. Select the first provider-visible account model only during the explicit Ask action. Refresh connection state on focus, page-show, and visibility return; no polling is added.
+Security and privacy impact: The Ask action is the validated per-request consent and transmits only its question. No local history, room, file, agent output, credential, or API key is sent automatically. Status differentiates missing and unreadable records; disconnect remains idempotent.
+Data impact: No SQLite, local room, or credential schema change. Advisor answers remain browser-only and are not persisted into room history.
+Testing impact: Add/adjust synthetic vault, OAuth, catalog, streaming, HTTP failure, loopback request, and static UI regression coverage. Live account inference remains separately authorized and unverified by mocks.
+Cost and schedule impact: Connecting remains non-inference. Each explicit Ask may use the user account's eligible ChatGPT plan and may be limited or unavailable; no API-key billing fallback is introduced.
+Decision: APPROVED (REVIEWABLE IMPLEMENTATION ONLY — NO VERSION, MERGE, RELEASE, ZIP, DEPLOYMENT, OR INFRASTRUCTURE CHANGE)
+Approved by: Direct user request
+Target release: None; separate approval required
+```
+
 ## Approved change record — AI-LAB-CC-068
 
 ```text

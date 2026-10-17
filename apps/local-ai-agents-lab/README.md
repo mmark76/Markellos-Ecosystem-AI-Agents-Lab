@@ -139,9 +139,9 @@ data-transfer confirmation. The selected EUR/USD value is a personal planning
 limit only. RunPod catalog prices remain in USD, and the Lab does not perform
 an exchange-rate conversion or enforce a provider-side spending cap.
 
-## Optional Sign in with ChatGPT — explicit external advisor
+## Optional ChatGPT Advisor — one explicit question
 
-The Personal Provider panel also offers an optional **Continue with ChatGPT**
+The Connections panel also offers an optional **Connect with ChatGPT**
 button. It is a browser-mediated account connection, not an OpenAI API-key
 field. The Lab does not accept, store, or use OpenAI API keys. Before the first
 connection, the user must separately approve installation of the pinned
@@ -150,19 +150,20 @@ Lab folder. It validates the OpenAI identity response and stores the resulting
 connection record with Windows DPAPI for the current Windows user.
 
 Connecting opens the user's browser for approval. It does not by itself send a
-prompt or call a model. Once connected, the External ChatGPT advisor panel is
-an **online** text chat: it can list models for the signed-in account and, only
-after a separate confirmation, submit one question plus exactly one of these
-user-selected inputs: a selected room's current discussion, pasted text, or
-notes written for the review. It never reads a room automatically, synchronizes
-history in the background, or adds the external answer to local room history.
-While the connection is active the Lab is not exclusively local, even before a
-review is sent; the user can disconnect at any time to restore local-only
-operation.
+prompt or call a model. Once connected, the Advisor accepts one explicit
+question and shows its completed answer below it. The Ask action is the
+per-request consent: it sends only that question, not a room, pasted material,
+notes, local history, files, or agent output. The Lab chooses the first visible
+model in the account-specific provider catalog internally; it never exposes a
+manual model picker or silently retries another model. The Advisor never reads
+a room automatically, synchronizes history in the background, or adds an
+external answer to local room history. While the connection is active the Lab
+is not exclusively local; the user can disconnect at any time to restore
+local-only operation.
 
 The local agents continue to use loopback Ollama independently. Their work
-remains local unless the user explicitly sends a room snapshot or text to the
-external advisor. Disconnect deletes the encrypted connection, dynamic client
+remains local unless the user deliberately asks the external advisor a
+question. Disconnect deletes the encrypted connection, dynamic client
 registration, and local host profile; after disconnection the Lab has no
 ChatGPT connection and returns to local-only operation.
 

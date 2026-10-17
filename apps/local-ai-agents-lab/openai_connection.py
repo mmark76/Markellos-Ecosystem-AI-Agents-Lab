@@ -12,6 +12,7 @@ import webbrowser
 from pathlib import Path
 from threading import Lock
 from typing import Any, Callable
+from urllib.error import HTTPError
 from urllib.parse import urlencode
 from urllib.request import ProxyHandler, Request, build_opener
 
@@ -70,21 +71,48 @@ class OpenAIConnectionService:
         try:
             raw = self._vault.load("openai-chatgpt")
         except CredentialVaultError as err:
-            raise OpenAIConnectionError("The saved ChatGPT connection could not be read. Disconnect it locally and reconnect.") from err
+            if not self._credential_is_stored():
+                return self._disconnected_status()
+            return {
+                **self._disconnected_status(),
+                "connectionState": "unreadable",
+                "removalAvailable": True,
+                "message": "The saved ChatGPT connection could not be read. Disconnect it locally and reconnect.",
+            }
         if not raw:
-            return {"provider": "openai-chatgpt", "connected": False, "scope": "current-windows-user"}
+            return self._disconnected_status()
         try:
             record = json.loads(raw)
             if not isinstance(record, dict) or not isinstance(record.get("subject"), str):
                 raise ValueError("invalid record")
-        except (TypeError, ValueError, json.JSONDecodeError) as err:
-            raise OpenAIConnectionError("The saved ChatGPT connection is invalid. Disconnect it locally and reconnect.") from err
+        except (TypeError, ValueError, json.JSONDecodeError):
+            return {
+                **self._disconnected_status(),
+                "connectionState": "unreadable",
+                "removalAvailable": True,
+                "message": "The saved ChatGPT connection is invalid. Disconnect it locally and reconnect.",
+            }
         return {
             "provider": "openai-chatgpt",
             "connected": True,
+            "connectionState": "connected",
             "scope": "current-windows-user",
             "planUsageAuthorized": bool(record.get("planUsageAuthorized")),
         }
+
+    @staticmethod
+    def _disconnected_status() -> dict[str, Any]:
+        return {"provider": "openai-chatgpt", "connected": False, "connectionState": "disconnected",
+                "scope": "current-windows-user", "planUsageAuthorized": False}
+
+    def _credential_is_stored(self) -> bool:
+        try:
+            status = self._vault.status("openai-chatgpt")
+            return bool(isinstance(status, dict) and status.get("stored"))
+        except (AttributeError, CredentialVaultError):
+            # A vault implementation that cannot report its state must not turn
+            # a missing credential into a successful connection.
+            return True
 
     def start(self, callback_port: int) -> dict[str, Any]:
         if not 1024 <= callback_port <= 65535:
@@ -175,24 +203,28 @@ class OpenAIConnectionService:
             raise OpenAIConnectionError("The ChatGPT connection could not be removed locally.") from err
         return {"provider": "openai-chatgpt", "state": "REMOVED_LOCALLY", "removed": removed}
 
-    def cloud_review(self, *, model: str, question: str, shared_content: str) -> dict[str, Any]:
-        """Send one user-approved review packet; it never reads local history itself."""
+    def ask_advisor(self, *, question: str) -> dict[str, Any]:
+        """Send only one explicitly submitted question to the external advisor."""
+        models = self._available_models()
+        if not models:
+            raise OpenAIConnectionError("No ChatGPT text model is available for this account. Reconnect or try again later.")
+        # The documented account catalog is already ordered by the provider.
+        # Selecting the first visible entry is deterministic and avoids hidden
+        # model choices or retries that could make an additional request.
+        return self._request_response(model=models[0]["slug"], question=question)
+
+    def _request_response(self, *, model: str, question: str) -> dict[str, Any]:
         if not isinstance(model, str) or not model or len(model) > 160:
-            raise OpenAIConnectionError("Choose an available ChatGPT model.")
+            raise OpenAIConnectionError("No usable ChatGPT model is available for this account.")
         if not isinstance(question, str) or not question.strip() or len(question) > 12_000:
-            raise OpenAIConnectionError("Provide a review question of up to 12,000 characters.")
-        if not isinstance(shared_content, str) or len(shared_content) > 60_000:
-            raise OpenAIConnectionError("The selected review content is too large.")
+            raise OpenAIConnectionError("Provide a question of up to 12,000 characters.")
         record = self._connection_record()
         if not record.get("planUsageAuthorized"):
-            raise OpenAIConnectionError("ChatGPT plan usage is not authorized. Reconnect and approve plan usage before requesting a review.")
+            raise OpenAIConnectionError("ChatGPT plan usage is not authorized. Reconnect and approve plan usage before asking a question.")
         access_token = self._access_token(record)
-        review_packet = question.strip()
-        if shared_content.strip():
-            review_packet += "\n\nUser-approved material for review:\n" + shared_content.strip()
         request = Request(
             "https://api.openai.com/v1/responses",
-            data=json.dumps({"model": model, "input": [{"role": "user", "content": review_packet}],
+            data=json.dumps({"model": model, "input": [{"role": "user", "content": question.strip()}],
                              "store": False, "stream": True}).encode("utf-8"),
             method="POST", headers={"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"},
         )
@@ -212,20 +244,26 @@ class OpenAIConnectionService:
                     elif event.get("type") == "response.completed":
                         completed = True
                     elif event.get("type") == "response.failed":
-                        raise OpenAIConnectionError("The external ChatGPT review did not complete.")
+                        raise self._stream_failure(event, "The ChatGPT response failed before completion.")
+                    elif event.get("type") == "response.incomplete":
+                        raise self._stream_failure(event, "The ChatGPT response was incomplete. Your question was not answered fully.")
         except OpenAIConnectionError:
             raise
+        except HTTPError as err:
+            raise self._http_failure(err) from err
         except Exception as err:
-            raise OpenAIConnectionError("The external ChatGPT review could not be completed. Your connection may need to be renewed.") from err
+            raise OpenAIConnectionError("ChatGPT could not complete the question. Check the connection and try again.") from err
         if not completed:
-            raise OpenAIConnectionError("The external ChatGPT review ended before completion.")
-        return {"provider": "openai-chatgpt", "model": model, "review": "".join(text)}
+            raise OpenAIConnectionError("The ChatGPT response ended before completion. Please try the question again.")
+        if not text:
+            raise OpenAIConnectionError("ChatGPT completed the request without an answer. Please try again.")
+        return {"provider": "openai-chatgpt", "answer": "".join(text)}
 
-    def models(self) -> dict[str, Any]:
-        """List only the signed-in account's displayable models after an explicit UI request."""
+    def _available_models(self) -> list[dict[str, str]]:
+        """Return the provider-ordered visible account catalog for one Ask action."""
         record = self._connection_record()
         if not record.get("planUsageAuthorized"):
-            raise OpenAIConnectionError("ChatGPT plan usage is not authorized. Reconnect and approve plan usage before listing models.")
+            raise OpenAIConnectionError("ChatGPT plan usage is not authorized. Reconnect and approve plan usage before asking a question.")
         access_token = self._access_token(record)
         request = Request(
             "https://api.openai.com/v1/models", method="GET",
@@ -234,8 +272,10 @@ class OpenAIConnectionService:
         try:
             with build_opener(ProxyHandler({})).open(request, timeout=15) as response:
                 body = json.loads(response.read().decode("utf-8"))
+        except HTTPError as err:
+            raise self._http_failure(err) from err
         except Exception as err:
-            raise OpenAIConnectionError("The available ChatGPT models could not be loaded. Your connection may need to be renewed.") from err
+            raise OpenAIConnectionError("ChatGPT models could not be loaded. Check the connection and try again.") from err
         catalog = body.get("models") if isinstance(body, dict) else None
         if not isinstance(catalog, list):
             raise OpenAIConnectionError("ChatGPT returned an invalid model catalog.")
@@ -245,7 +285,45 @@ class OpenAIConnectionService:
             if isinstance(item, dict) and item.get("visibility") == "list"
             and isinstance(item.get("slug"), str) and isinstance(item.get("display_name"), str)
         ]
-        return {"provider": "openai-chatgpt", "models": models}
+        return models
+
+    @staticmethod
+    def _stream_failure(event: dict[str, Any], fallback: str) -> OpenAIConnectionError:
+        response = event.get("response")
+        error = response.get("error") if isinstance(response, dict) else None
+        code = error.get("code") if isinstance(error, dict) else ""
+        if code == "subscription_sharing_usage_limit_exceeded":
+            return OpenAIConnectionError("ChatGPT plan usage is temporarily unavailable for this advisor. Try again later.")
+        if code == "subscription_sharing_user_not_eligible":
+            return OpenAIConnectionError("This ChatGPT account is not eligible to use plan usage with the advisor.")
+        if code == "subscription_sharing_unsupported_capability":
+            return OpenAIConnectionError("The available ChatGPT model cannot answer this request through the advisor.")
+        return OpenAIConnectionError(fallback)
+
+    @staticmethod
+    def _http_failure(error: HTTPError) -> OpenAIConnectionError:
+        code = ""
+        try:
+            body = json.loads(error.read().decode("utf-8"))
+            detail = body.get("error", body) if isinstance(body, dict) else {}
+            code = detail.get("code", "") if isinstance(detail, dict) else ""
+        except (OSError, UnicodeDecodeError, ValueError, json.JSONDecodeError):
+            pass
+        finally:
+            error.close()
+        if code == "subscription_sharing_user_not_eligible":
+            return OpenAIConnectionError("This ChatGPT account is not eligible to use plan usage with the advisor.")
+        if code == "subscription_sharing_usage_limit_exceeded":
+            return OpenAIConnectionError("ChatGPT plan usage is temporarily unavailable for this advisor. Try again later.")
+        if code == "subscription_sharing_usage_unavailable" or error.code == 503:
+            return OpenAIConnectionError("ChatGPT plan usage is temporarily unavailable. Try again later.")
+        if code == "subscription_sharing_unsupported_capability":
+            return OpenAIConnectionError("The available ChatGPT model cannot answer this request through the advisor.")
+        if error.code == 401:
+            return OpenAIConnectionError("ChatGPT did not accept this connection. Disconnect, reconnect, and approve plan usage.")
+        if error.code == 403:
+            return OpenAIConnectionError("ChatGPT cannot serve this request for the selected account, policy, or region.")
+        return OpenAIConnectionError("ChatGPT could not complete the question. Check the connection and try again.")
 
     def _connection_record(self) -> dict[str, Any]:
         try:

@@ -178,8 +178,7 @@ class HttpIntegrationTests(unittest.TestCase):
             def status(self): return {"provider":"openai-chatgpt","connected":False,"scope":"current-windows-user"}
             def start(self, port): self.calls.append(("start", port)); return {"state":"AUTHORIZATION_STARTED","expiresInSeconds":600}
             def remove(self): self.calls.append(("remove",)); return {"state":"REMOVED_LOCALLY","removed":True}
-            def models(self): self.calls.append(("models",)); return {"models":[{"slug":"model-a","displayName":"Model A"}]}
-            def cloud_review(self, **kwargs): self.calls.append(("review", kwargs)); return {"model":kwargs["model"],"review":"External response"}
+            def ask_advisor(self, **kwargs): self.calls.append(("ask", kwargs)); return {"answer":"External response"}
 
         fake = FakeConnection()
         server = ThreadingHTTPServer(("127.0.0.1", 0), campus.Handler); campus.PORT = server.server_address[1]
@@ -195,13 +194,17 @@ class HttpIntegrationTests(unittest.TestCase):
                 result = json.load(response)
             self.assertEqual(result["state"], "AUTHORIZATION_STARTED")
             self.assertEqual(fake.calls, [("start", campus.PORT)])
-            with opener.open(origin + "/api/openai/models") as response:
-                self.assertEqual(json.load(response)["models"][0]["slug"], "model-a")
-            review_body = {"confirmExternalReview":True,"mode":"question","room":"training","question":"Review this","pastedText":"","notes":"","model":"model-a"}
+            review_body = {"confirmExternalReview":True,"question":"Review this"}
             review = Request(origin + "/api/openai/review", data=json.dumps(review_body).encode(), headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
             with opener.open(review) as response:
-                self.assertEqual(json.load(response)["review"], "External response")
-            self.assertEqual(fake.calls[-1], ("review", {"model":"model-a","question":"Review this","shared_content":""}))
+                self.assertEqual(json.load(response)["answer"], "External response")
+            self.assertEqual(fake.calls[-1], ("ask", {"question":"Review this"}))
+            forbidden = {"confirmExternalReview":True,"question":"Review this","room":"training"}
+            invalid = Request(origin + "/api/openai/review", data=json.dumps(forbidden).encode(), headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
+            with self.assertRaises(HTTPError) as raised:
+                opener.open(invalid)
+            self.assertEqual(raised.exception.code, 400)
+            raised.exception.close()
             remove = Request(origin + "/api/openai/connection", data=b'{"confirmRemoval":true}', headers={"Origin":origin,"Content-Type":"application/json"}, method="DELETE")
             with opener.open(remove) as response:
                 self.assertTrue(json.load(response)["removed"])

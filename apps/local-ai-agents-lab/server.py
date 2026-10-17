@@ -392,12 +392,6 @@ class Handler(BaseHTTPRequestHandler):
             except OpenAIConnectionError as err:
                 self._json({"error": str(err)}, 503)
             return
-        if self.path == "/api/openai/models":
-            try:
-                self._json(OPENAI_CONNECTION.models())
-            except OpenAIConnectionError as err:
-                self._json({"error": str(err)}, 503)
-            return
         if self.path.startswith("/api/evaluation/"):
             try:
                 self._json(EVALUATION.get(self.path))
@@ -505,29 +499,15 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == "/api/openai/review":
             try:
                 size = int(self.headers.get("Content-Length", "0"))
-                if not 2 <= size <= 80_000:
-                    raise OpenAIConnectionError("The external review request is too large.")
+                if not 2 <= size <= 12_100:
+                    raise OpenAIConnectionError("The ChatGPT question is too large.")
                 body = json.loads(self.rfile.read(size))
-                required = {"confirmExternalReview", "mode", "room", "question", "pastedText", "notes", "model"}
+                required = {"confirmExternalReview", "question"}
                 if not isinstance(body, dict) or set(body) != required or body["confirmExternalReview"] is not True:
-                    raise OpenAIConnectionError("Confirm the external ChatGPT review request.")
-                if body["mode"] not in {"question", "room", "pasted", "notes"} or body["room"] not in ROOMS:
-                    raise OpenAIConnectionError("Choose a valid sharing option and Local Lab room.")
-                if not all(isinstance(body[key], str) for key in ("question", "pastedText", "notes", "model")):
-                    raise OpenAIConnectionError("The external review request is invalid.")
-                if body["mode"] == "room":
-                    shared_content = "\n".join(
-                        f"{message['agent']}: {message['content']}" for message in history(body["room"])
-                    )
-                elif body["mode"] == "pasted":
-                    shared_content = body["pastedText"]
-                elif body["mode"] == "notes":
-                    shared_content = body["notes"]
-                else:
-                    shared_content = ""
-                self._json(OPENAI_CONNECTION.cloud_review(
-                    model=body["model"], question=body["question"], shared_content=shared_content,
-                ))
+                    raise OpenAIConnectionError("Confirm the ChatGPT question request.")
+                if not isinstance(body["question"], str):
+                    raise OpenAIConnectionError("The ChatGPT question is invalid.")
+                self._json(OPENAI_CONNECTION.ask_advisor(question=body["question"]))
             except (OpenAIConnectionError, ValueError, TypeError, json.JSONDecodeError) as err:
                 self._json({"error": str(err)}, 400)
             return

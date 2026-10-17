@@ -87,10 +87,10 @@ from the UI. A future provider adapter must use an allow-listed provider API,
 show a final cost/data-transfer confirmation, and preserve the existing local
 inference and SQLite boundaries.
 
-## Optional Sign in with ChatGPT — connection only
+## Optional ChatGPT Advisor — explicit question only
 
 `AI-LAB-SCOPE-023` adds a local account-connectivity bridge distinct from the
-RunPod provider path. The user explicitly selects **Continue with ChatGPT**;
+RunPod provider path. The user explicitly selects **Connect with ChatGPT**;
 the Lab opens the browser for OpenAI approval using a loopback OAuth/OpenID
 Connect callback, state, nonce, and PKCE. The returned identity is verified
 against OpenAI's public signing keys before an opaque connection record is
@@ -99,7 +99,8 @@ protected for the current Windows user with DPAPI.
 - The Lab never accepts an OpenAI API key in this flow.
 - The user must separately approve installation of the pinned verification
   component in the extracted Lab folder. Easy Start never installs it.
-- The flow does not send prompts, invoke a model, request an OpenAI API
-  response, or create a charge. There is no inference route in this scope.
+- Connecting does not send prompts, invoke a model, request an OpenAI API
+  response, or create a charge. A later Ask action is a separate, explicit
+  `AI-LAB-SCOPE-024` request and sends only the question entered by the user.
 - Status is non-secret and local removal deletes the protected connection
   record. The Lab never returns refresh or access tokens to the browser.

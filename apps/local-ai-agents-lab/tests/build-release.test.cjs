@@ -213,8 +213,15 @@ test('beginner fine-tuning guide and personal provider planner are bundled while
   assert.match(html,/OpenAI API keys are not accepted, stored, or used by this Lab\./);
   assert.match(html,/This user-approved connection does not use an API key\./);
   assert.match(html,/Connecting alone does not send prompts, make an AI request, or create a charge\./);
-  assert.match(html,/Optional: Sign in with ChatGPT/);
-  assert.match(html,/Continue with ChatGPT/);
+  assert.match(html,/ChatGPT Advisor/);
+  assert.match(html,/Connect with ChatGPT/);
+  assert.match(html,/Your Question/);
+  assert.match(html,/Ask ChatGPT/);
+  assert.match(html,/ChatGPT Answer/);
+  assert.doesNotMatch(html,/openai-review-room/);
+  assert.doesNotMatch(html,/openai-review-mode/);
+  assert.doesNotMatch(html,/openai-review-content/);
+  assert.doesNotMatch(html,/openai-review-model/);
   assert.match(html,/id="open-openai-platform"[^>]*href="https:\/\/platform\.openai\.com\/"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/);
   assert.doesNotMatch(html,/Under Construction/);
   assert.match(page,/Fine-Tuning versus the Learning Lab/);
