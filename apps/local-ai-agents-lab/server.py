@@ -392,6 +392,12 @@ class Handler(BaseHTTPRequestHandler):
             except OpenAIConnectionError as err:
                 self._json({"error": str(err)}, 503)
             return
+        if self.path == "/api/openai/models":
+            try:
+                self._json(OPENAI_CONNECTION.models())
+            except OpenAIConnectionError as err:
+                self._json({"error": str(err)}, 503)
+            return
         if self.path.startswith("/api/evaluation/"):
             try:
                 self._json(EVALUATION.get(self.path))
@@ -448,6 +454,10 @@ class Handler(BaseHTTPRequestHandler):
                  "/static/model-install.js": ("model-install.js", "text/javascript; charset=utf-8"),
                  "/static/panel-layout.js": ("panel-layout.js", "text/javascript; charset=utf-8"),
                  "/static/evaluation.js": ("evaluation.js", "text/javascript; charset=utf-8")}
+        if parsed.path == "/assets/chatgpt-advisor-avatar.png":
+            self._headers(200, "image/png")
+            self.wfile.write((ROOT / "assets" / "chatgpt-advisor-avatar.png").read_bytes())
+            return
         resource = pages.get(self.path)
         if not resource:
             self._json({"error": "Not found"}, 404)
@@ -489,6 +499,35 @@ class Handler(BaseHTTPRequestHandler):
                 subprocess.Popen(["powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(script), "-LabRoot", str(ROOT)], creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0))
                 self._json({"state": "SETUP_OPENED"}, 202)
             except (OpenAIConnectionError, ValueError, TypeError, json.JSONDecodeError, OSError) as err:
+                self._json({"error": str(err)}, 400)
+            return
+        if self.path == "/api/openai/review":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if not 2 <= size <= 80_000:
+                    raise OpenAIConnectionError("The external review request is too large.")
+                body = json.loads(self.rfile.read(size))
+                required = {"confirmExternalReview", "mode", "room", "question", "pastedText", "notes", "model"}
+                if not isinstance(body, dict) or set(body) != required or body["confirmExternalReview"] is not True:
+                    raise OpenAIConnectionError("Confirm the external ChatGPT review request.")
+                if body["mode"] not in {"question", "room", "pasted", "notes"} or body["room"] not in ROOMS:
+                    raise OpenAIConnectionError("Choose a valid sharing option and Local Lab room.")
+                if not all(isinstance(body[key], str) for key in ("question", "pastedText", "notes", "model")):
+                    raise OpenAIConnectionError("The external review request is invalid.")
+                if body["mode"] == "room":
+                    shared_content = "\n".join(
+                        f"{message['agent']}: {message['content']}" for message in history(body["room"])
+                    )
+                elif body["mode"] == "pasted":
+                    shared_content = body["pastedText"]
+                elif body["mode"] == "notes":
+                    shared_content = body["notes"]
+                else:
+                    shared_content = ""
+                self._json(OPENAI_CONNECTION.cloud_review(
+                    model=body["model"], question=body["question"], shared_content=shared_content,
+                ))
+            except (OpenAIConnectionError, ValueError, TypeError, json.JSONDecodeError) as err:
                 self._json({"error": str(err)}, 400)
             return
         if self.path == "/api/evaluation/runs":

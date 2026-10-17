@@ -70,6 +70,9 @@ class EcosystemShellTests(unittest.TestCase):
             "Connecting alone does not send prompts, make an AI request, or create a charge.",
             "Optional: Sign in with ChatGPT",
             "Continue with ChatGPT",
+            "External ChatGPT advisor",
+            "Privacy status: while this connection remains active, the Lab is not exclusively local",
+            "Only the material selected below leaves this device for OpenAI.",
             "Check your RunPod account",
             "Check RunPod connection",
         ):
@@ -94,7 +97,7 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertNotIn('localStorage', planner)
         self.assertNotIn('console.', planner)
         self.assertNotIn('api.runpod.io', planner)
-        for path in ('/api/openai/connection', '/api/openai/connection/setup'):
+        for path in ('/api/openai/connection', '/api/openai/connection/setup', '/api/openai/models', '/api/openai/review'):
             with self.subTest(path=path):
                 self.assertIn(path, chatgpt)
         self.assertNotIn('localStorage', chatgpt)

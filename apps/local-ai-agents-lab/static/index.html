@@ -155,11 +155,33 @@ Completeness</textarea>
         <p><a id="open-openai-platform" class="fine-tuning-guide-link" href="https://platform.openai.com/" target="_blank" rel="noopener noreferrer">Open OpenAI API Platform ↗</a></p>
         <section id="openai-chatgpt-connection" class="personal-provider-connection" aria-labelledby="openai-chatgpt-connection-title">
           <h4 id="openai-chatgpt-connection-title">Optional: Sign in with ChatGPT</h4>
-          <p>Use your browser to approve a direct connection to your own ChatGPT account. The resulting connection record is protected locally for this Windows user. The Lab never displays it, and it does not perform inference or use a paid API call when you connect.</p>
+            <p>Use your browser to approve a direct connection to your own ChatGPT account. The resulting connection record is protected locally for this Windows user. Connecting does not send a prompt or invoke a model. After connection, you may explicitly ask the external advisor for help with material you choose to share.</p>
           <button type="button" id="openai-chatgpt-connect">Continue with ChatGPT</button>
           <button type="button" id="openai-chatgpt-setup" hidden>Set up optional connection component</button>
           <button type="button" id="openai-chatgpt-remove" class="personal-credential-remove" hidden>Disconnect ChatGPT locally</button>
           <p id="openai-chatgpt-status" class="training-status" role="status" aria-live="polite">Checking local ChatGPT connection status…</p>
+          <section id="openai-external-review" hidden aria-labelledby="openai-external-review-title">
+            <div class="cloud-advisor-heading">
+              <img src="/assets/chatgpt-advisor-avatar.png" alt="External ChatGPT advisor avatar" width="96" height="96">
+              <div><h5 id="openai-external-review-title">External ChatGPT advisor</h5><p>Online text chat for explicit reviews. This advisor is separate from the local agents.</p></div>
+            </div>
+            <p><strong>Privacy status: while this connection remains active, the Lab is not exclusively local because it has an enabled OpenAI connection. No room content leaves the device until you explicitly submit one of the options below. Disconnect ChatGPT locally to return to local-only operation.</strong></p>
+            <p><strong>Only the material selected below leaves this device for OpenAI. Local agents keep working through local Ollama in parallel. Do not include private material unless you choose to share it.</strong></p>
+            <label for="openai-review-room">Local Lab room</label>
+            <select id="openai-review-room"><option value="training">Learning Lab</option><option value="conference">Conference Room</option><option value="evaluation">Evaluation Lab</option><option value="advisory">Advisory Lab</option><option value="optimization">Optimization Lab</option></select>
+            <label for="openai-review-mode">What should be shared?</label>
+            <select id="openai-review-mode"><option value="question">My question only</option><option value="room">The selected room's current discussion</option><option value="pasted">Discussion I paste below</option><option value="notes">Minutes or notes I write below</option></select>
+            <label for="openai-review-question">Question for the cloud agent</label>
+            <textarea id="openai-review-question" maxlength="12000"></textarea>
+            <label for="openai-review-content">Pasted discussion or notes</label>
+            <textarea id="openai-review-content" maxlength="60000"></textarea>
+            <label for="openai-review-model">ChatGPT model</label>
+            <select id="openai-review-model" disabled><option value="">Load models for this ChatGPT account</option></select>
+            <button type="button" id="openai-review-models">Load available models</button>
+            <button type="button" id="openai-review-submit">Send to External ChatGPT advisor</button>
+            <p id="openai-review-status" class="training-status" role="status" aria-live="polite"></p>
+            <pre id="openai-review-output" class="personal-provider-output" hidden></pre>
+          </section>
         </section>
         <form id="personal-provider-plan">
           <label for="personal-provider">Provider</label>

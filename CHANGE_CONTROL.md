@@ -1,5 +1,43 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-061
+
+```text
+Change ID: AI-LAB-CC-061
+Requested by: User
+Date: 2026-10-17
+Description: Publish AI Lab v2.0.9 with the explicit external ChatGPT advisor and corrected Sign in with ChatGPT exchange flow; deploy the corresponding verified Windows ZIP and public landing update.
+Reason: Direct user request to commit, push, deploy, and release the approved advisor scope.
+Affected objective IDs: AI-LAB-OBJ-003, AI-LAB-OBJ-022, AI-LAB-OBJ-023
+Architecture impact: Packages the loopback Lab with its optional explicit cloud-advisor path. The public landing remains a static guide and never hosts the Lab or proxies its requests.
+Security and privacy impact: The package excludes local data and credentials. The advisor remains user-confirmed per request, no automatic conversation export is introduced, and the release does not expose a public app API.
+Data impact: Creates immutable v2.0.9 GitHub and R2 release artifacts while retaining prior releases.
+Testing impact: Run the required local checks, verified package build, release workflow, artifact checksum, and post-deploy public checks before declaring external publication complete.
+Cost and schedule impact: Publication itself creates no model request. A user-initiated advisor review uses the user's own ChatGPT account and is subject to its plan limits.
+Decision: APPROVED (RELEASE AND DEPLOYMENT)
+Approved by: Direct user request
+Target release: AI Lab v2.0.9
+```
+
+## Approved change record — AI-LAB-CC-060
+
+```text
+Change ID: AI-LAB-CC-060
+Requested by: User
+Date: 2026-10-17
+Description: Extend the optional ChatGPT connection into an avatar-led external text-chat advisor for voluntary evaluation, guidance, and help across Local Lab rooms.
+Reason: The user wants local agents to remain local while a separate cloud agent can evaluate only the material the user chooses to share.
+Affected objective IDs: AI-LAB-OBJ-023
+Architecture impact: Adds a fixed OpenAI model-catalog route and streamed Responses route behind explicit same-origin user actions. The local Ollama paths and room persistence are unchanged.
+Security and privacy impact: The user chooses one sharing mode for each request: question only, selected room snapshot, pasted discussion, or written notes. No room is read automatically; no background synchronization occurs; selected content is sent only after confirmation. Disconnect removes local ChatGPT authorization and registration metadata.
+Data impact: The advisor output is rendered only in the browser panel and is not written into local room history. The user-supplied avatar is packaged as a local UI asset.
+Testing impact: Add OAuth token-exchange, model catalog, streamed response, same-origin request validation, static UI, and release-package coverage. A live sign-in or cloud review still requires separate explicit user approval.
+Cost and schedule impact: Connecting alone has no inference request. Each explicitly submitted advisor review uses the user's own ChatGPT account and may be subject to that account's plan limits.
+Decision: APPROVED (SCOPE INCREASE)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
 ## Approved change record — AI-LAB-CC-059
 
 ```text

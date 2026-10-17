@@ -1,6 +1,6 @@
 # Markellos Ecosystem AI Lab
 
-Version: v2.0.8 · Private local starter
+Version: v2.0.9 · Private local starter
 
 Local Windows application with five active workspaces:
 
@@ -121,7 +121,7 @@ data-transfer confirmation. The selected EUR/USD value is a personal planning
 limit only. RunPod catalog prices remain in USD, and the Lab does not perform
 an exchange-rate conversion or enforce a provider-side spending cap.
 
-## Optional Sign in with ChatGPT — connection only
+## Optional Sign in with ChatGPT — explicit external advisor
 
 The Personal Provider panel also offers an optional **Continue with ChatGPT**
 button. It is a browser-mediated account connection, not an OpenAI API-key
@@ -131,10 +131,22 @@ identity-verification component in a virtual environment inside the extracted
 Lab folder. It validates the OpenAI identity response and stores the resulting
 connection record with Windows DPAPI for the current Windows user.
 
-Connecting opens the user's browser for approval. It does not send a prompt,
-call a model, create a paid API request, or create a charge. The released
-feature has no OpenAI inference route. Users can disconnect the stored
-connection locally from the same panel.
+Connecting opens the user's browser for approval. It does not by itself send a
+prompt or call a model. Once connected, the External ChatGPT advisor panel is
+an **online** text chat: it can list models for the signed-in account and, only
+after a separate confirmation, submit one question plus exactly one of these
+user-selected inputs: a selected room's current discussion, pasted text, or
+notes written for the review. It never reads a room automatically, synchronizes
+history in the background, or adds the external answer to local room history.
+While the connection is active the Lab is not exclusively local, even before a
+review is sent; the user can disconnect at any time to restore local-only
+operation.
+
+The local agents continue to use loopback Ollama independently. Their work
+remains local unless the user explicitly sends a room snapshot or text to the
+external advisor. Disconnect deletes the encrypted connection, dynamic client
+registration, and local host profile; after disconnection the Lab has no
+ChatGPT connection and returns to local-only operation.
 
 ## Advanced model training — locked
 
@@ -167,9 +179,12 @@ environment.
 
 - The web server binds **only** to `127.0.0.1:8765`.
 - The application connects only to Ollama at its fixed loopback address for
-  inference. Its optional ChatGPT connection reaches only OpenAI's fixed
-  authorization, token, and public key endpoints after an explicit user click;
-  it has no OpenAI inference route, cloud API key, tracking, or CDN.
+  local-agent inference. If the user connects and explicitly uses the External
+  ChatGPT advisor, selected material is sent to OpenAI's fixed authorization,
+  token, public-key, model-catalog, and Responses endpoints. Advisor requests
+  use the connected ChatGPT account, `store: false`, and streaming; the Lab has
+  no OpenAI API-key field, tracking, CDN, automatic conversation sync, or
+  background cloud inference.
 - Names containing `cloud` are filtered, but this is **not sufficient on its
   own**. For genuinely local Ollama operation, enable `disable_ollama_cloud`
   as described above and use downloaded local models only.

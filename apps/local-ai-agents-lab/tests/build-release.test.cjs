@@ -67,6 +67,9 @@ test('Windows launcher packages the AI Lab desktop shortcut and valid icon',()=>
   assert.match(shortcut,/Markellos Ecosystem AI Lab\.lnk/);
   assert.match(shortcut,/assets\\ai-training-lab\.ico/);
   assert.match(packager,/'assets\/ai-training-lab\.ico'/);
+  assert.match(packager,/'assets\/chatgpt-advisor-avatar\.png'/);
+  assert.match(packager,/RELEASE_FILE_MAX_BUFFER=16\*1024\*1024/);
+  assert.match(packager,/maxBuffer:RELEASE_FILE_MAX_BUFFER/);
   assert.equal(icon.readUInt16LE(0),0);
   assert.equal(icon.readUInt16LE(2),1);
   assert.equal(icon.readUInt16LE(4),7);
