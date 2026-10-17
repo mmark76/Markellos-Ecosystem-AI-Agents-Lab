@@ -1,4 +1,4 @@
-"""Bounded, local Sign in with ChatGPT connection; it never invokes inference."""
+"""User-controlled ChatGPT connection and one-off external review requests."""
 from __future__ import annotations
 
 import base64
@@ -7,6 +7,7 @@ import json
 import os
 import secrets
 import time
+import uuid
 import webbrowser
 from pathlib import Path
 from threading import Lock
@@ -61,6 +62,10 @@ class OpenAIConnectionService:
     def _registration_path(self) -> Path:
         return self._root / "data" / "openai-chatgpt-registration.json"
 
+    @property
+    def _host_path(self) -> Path:
+        return self._root / "data" / "openai-chatgpt-host.json"
+
     def status(self) -> dict[str, Any]:
         try:
             raw = self._vault.load("openai-chatgpt")
@@ -93,6 +98,7 @@ class OpenAIConnectionService:
                 "state": _urlsafe_random(), "nonce": _urlsafe_random(), "verifier": _urlsafe_random(48),
                 "clientId": client_id, "expiresAt": time.time() + ATTEMPT_TTL_SECONDS,
                 "redirectUri": f"http://127.0.0.1:{callback_port}{CALLBACK_PATH}",
+                "hostId": self._host_id(),
             }
             self._attempt = attempt
         query = {
@@ -103,6 +109,7 @@ class OpenAIConnectionService:
         }
         if client_id == DYNAMIC_CLIENT_ID:
             query["agent_name_hint"] = "Markellos Ecosystem AI Lab"
+        query["ext_agent_host_id"] = attempt["hostId"]
         url = AUTHORIZATION_ENDPOINT + "?" + urlencode(query)
         if not self._browser_open(url):
             with self._lock:
@@ -131,6 +138,7 @@ class OpenAIConnectionService:
         tokens = self._token_exchange({
             "grant_type": "authorization_code", "code": code, "client_id": issued_client_id,
             "redirect_uri": attempt["redirectUri"], "code_verifier": attempt["verifier"],
+            "resource": RESOURCE,
         })
         if not isinstance(tokens, dict) or not isinstance(tokens.get("id_token"), str) or not isinstance(tokens.get("refresh_token"), str):
             raise OpenAIConnectionError("ChatGPT did not return a complete connection response.")
@@ -142,6 +150,7 @@ class OpenAIConnectionService:
         record = {
             "subject": identity["sub"], "clientId": issued_client_id,
             "refreshToken": tokens["refresh_token"], "accessToken": tokens.get("access_token", ""),
+            "accessTokenExpiresAt": self._access_expiry(tokens),
             "planUsageAuthorized": "chatgpt.tokens.use.direct" in scopes,
         }
         try:
@@ -160,9 +169,123 @@ class OpenAIConnectionService:
             self._attempt = None
         try:
             removed = self._vault.remove("openai-chatgpt")
-        except CredentialVaultError as err:
+            self._registration_path.unlink(missing_ok=True)
+            self._host_path.unlink(missing_ok=True)
+        except (CredentialVaultError, OSError) as err:
             raise OpenAIConnectionError("The ChatGPT connection could not be removed locally.") from err
         return {"provider": "openai-chatgpt", "state": "REMOVED_LOCALLY", "removed": removed}
+
+    def cloud_review(self, *, model: str, question: str, shared_content: str) -> dict[str, Any]:
+        """Send one user-approved review packet; it never reads local history itself."""
+        if not isinstance(model, str) or not model or len(model) > 160:
+            raise OpenAIConnectionError("Choose an available ChatGPT model.")
+        if not isinstance(question, str) or not question.strip() or len(question) > 12_000:
+            raise OpenAIConnectionError("Provide a review question of up to 12,000 characters.")
+        if not isinstance(shared_content, str) or len(shared_content) > 60_000:
+            raise OpenAIConnectionError("The selected review content is too large.")
+        record = self._connection_record()
+        if not record.get("planUsageAuthorized"):
+            raise OpenAIConnectionError("ChatGPT plan usage is not authorized. Reconnect and approve plan usage before requesting a review.")
+        access_token = self._access_token(record)
+        review_packet = question.strip()
+        if shared_content.strip():
+            review_packet += "\n\nUser-approved material for review:\n" + shared_content.strip()
+        request = Request(
+            "https://api.openai.com/v1/responses",
+            data=json.dumps({"model": model, "input": [{"role": "user", "content": review_packet}],
+                             "store": False, "stream": True}).encode("utf-8"),
+            method="POST", headers={"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"},
+        )
+        text, completed = [], False
+        try:
+            with build_opener(ProxyHandler({})).open(request, timeout=60) as response:
+                for raw_line in response:
+                    line = raw_line.decode("utf-8").strip()
+                    if not line.startswith("data:"):
+                        continue
+                    payload = line[5:].strip()
+                    if payload == "[DONE]":
+                        continue
+                    event = json.loads(payload)
+                    if event.get("type") == "response.output_text.delta" and isinstance(event.get("delta"), str):
+                        text.append(event["delta"])
+                    elif event.get("type") == "response.completed":
+                        completed = True
+                    elif event.get("type") == "response.failed":
+                        raise OpenAIConnectionError("The external ChatGPT review did not complete.")
+        except OpenAIConnectionError:
+            raise
+        except Exception as err:
+            raise OpenAIConnectionError("The external ChatGPT review could not be completed. Your connection may need to be renewed.") from err
+        if not completed:
+            raise OpenAIConnectionError("The external ChatGPT review ended before completion.")
+        return {"provider": "openai-chatgpt", "model": model, "review": "".join(text)}
+
+    def models(self) -> dict[str, Any]:
+        """List only the signed-in account's displayable models after an explicit UI request."""
+        record = self._connection_record()
+        if not record.get("planUsageAuthorized"):
+            raise OpenAIConnectionError("ChatGPT plan usage is not authorized. Reconnect and approve plan usage before listing models.")
+        access_token = self._access_token(record)
+        request = Request(
+            "https://api.openai.com/v1/models", method="GET",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+        try:
+            with build_opener(ProxyHandler({})).open(request, timeout=15) as response:
+                body = json.loads(response.read().decode("utf-8"))
+        except Exception as err:
+            raise OpenAIConnectionError("The available ChatGPT models could not be loaded. Your connection may need to be renewed.") from err
+        catalog = body.get("models") if isinstance(body, dict) else None
+        if not isinstance(catalog, list):
+            raise OpenAIConnectionError("ChatGPT returned an invalid model catalog.")
+        models = [
+            {"slug": item["slug"], "displayName": item["display_name"]}
+            for item in catalog
+            if isinstance(item, dict) and item.get("visibility") == "list"
+            and isinstance(item.get("slug"), str) and isinstance(item.get("display_name"), str)
+        ]
+        return {"provider": "openai-chatgpt", "models": models}
+
+    def _connection_record(self) -> dict[str, Any]:
+        try:
+            raw = self._vault.load("openai-chatgpt")
+            record = json.loads(raw) if raw else None
+        except (CredentialVaultError, TypeError, ValueError, json.JSONDecodeError) as err:
+            raise OpenAIConnectionError("The saved ChatGPT connection could not be read. Disconnect it locally and reconnect.") from err
+        if not isinstance(record, dict):
+            raise OpenAIConnectionError("No ChatGPT connection is stored for this Windows user.")
+        return record
+
+    def _access_token(self, record: dict[str, Any]) -> str:
+        access_token = record.get("accessToken")
+        expires_at = record.get("accessTokenExpiresAt")
+        if isinstance(access_token, str) and access_token and (not isinstance(expires_at, (int, float)) or time.time() < expires_at - 60):
+            return access_token
+        client_id, refresh_token = record.get("clientId"), record.get("refreshToken")
+        if not isinstance(client_id, str) or not client_id.startswith("oaiapp_") or not isinstance(refresh_token, str) or not refresh_token:
+            raise OpenAIConnectionError("ChatGPT authorization has expired. Reconnect and approve plan usage again.")
+        with self._lock:
+            refreshed = self._token_exchange({
+                "grant_type": "refresh_token", "client_id": client_id,
+                "refresh_token": refresh_token, "resource": RESOURCE,
+            })
+            if not isinstance(refreshed, dict) or not isinstance(refreshed.get("access_token"), str) or not refreshed["access_token"]:
+                raise OpenAIConnectionError("ChatGPT did not return a renewed connection token. Reconnect and approve plan usage again.")
+            record["accessToken"] = refreshed["access_token"]
+            if isinstance(refreshed.get("refresh_token"), str) and refreshed["refresh_token"]:
+                record["refreshToken"] = refreshed["refresh_token"]
+            record["accessTokenExpiresAt"] = self._access_expiry(refreshed)
+            try:
+                self._vault.store("openai-chatgpt", json.dumps(record, separators=(",", ":")))
+            except CredentialVaultError as err:
+                raise OpenAIConnectionError("The renewed ChatGPT connection could not be protected locally.") from err
+            return record["accessToken"]
+
+    @staticmethod
+    def _access_expiry(tokens: dict[str, Any]) -> float:
+        lifetime = tokens.get("expires_in")
+        return time.time() + lifetime if isinstance(lifetime, (int, float)) and lifetime > 0 else 0
 
     def _client_id(self) -> str:
         try:
@@ -179,6 +302,21 @@ class OpenAIConnectionService:
         temporary = self._registration_path.with_suffix(".tmp")
         temporary.write_text(json.dumps({"clientId": client_id}, separators=(",", ":")), encoding="utf-8")
         temporary.replace(self._registration_path)
+
+    def _host_id(self) -> str:
+        try:
+            data = json.loads(self._host_path.read_text(encoding="utf-8"))
+            host_id = data.get("hostId")
+            if isinstance(host_id, str) and host_id.startswith("urn:uuid:"):
+                return host_id
+        except (OSError, ValueError, json.JSONDecodeError):
+            pass
+        host_id = f"urn:uuid:{uuid.uuid4()}"
+        self._host_path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = self._host_path.with_suffix(".tmp")
+        temporary.write_text(json.dumps({"hostId": host_id}, separators=(",", ":")), encoding="utf-8")
+        temporary.replace(self._host_path)
+        return host_id
 
     @staticmethod
     def _require_crypto() -> None:
