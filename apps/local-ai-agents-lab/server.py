@@ -635,7 +635,7 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     initialize()
     server = ThreadingHTTPServer((HOST, PORT), Handler)
-    print(f"Markellos Ecosystem AI Training Lab — http://{HOST}:{PORT}/")
+    print(f"Markellos Ecosystem AI Lab — http://{HOST}:{PORT}/")
     print(f"Database: {DB_PATH}")
     print("Local operation only. Press Ctrl+C to stop.")
     try:

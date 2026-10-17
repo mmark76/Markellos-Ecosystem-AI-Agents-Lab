@@ -9,7 +9,7 @@ remains locked: its `POST /api/training/jobs` route returns HTTP 423 before it
 can construct a job or subprocess.
 
 ```text
-AI Training Lab interface (locked)
+AI Lab interface (locked)
             |
             X  no remote API or executor exists in this release
 

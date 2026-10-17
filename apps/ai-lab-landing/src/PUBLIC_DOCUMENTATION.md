@@ -1,4 +1,4 @@
-# AI Training Lab — public current-state documentation
+# AI Lab — public current-state documentation
 
 This public guide describes the released Local Lab as it is, without claiming future or unavailable functionality.
 

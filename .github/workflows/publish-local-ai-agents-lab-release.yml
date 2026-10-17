@@ -75,5 +75,5 @@ jobs:
           gh release create "${{ steps.version.outputs.tag }}" "$RUNNER_TEMP/AI-Agents-Lab-Windows.zip" \
             --repo "${{ github.repository }}" \
             --target "$GITHUB_SHA" \
-            --title "AI Training Lab ${{ steps.version.outputs.tag }}" \
+            --title "AI Lab ${{ steps.version.outputs.tag }}" \
             --generate-notes

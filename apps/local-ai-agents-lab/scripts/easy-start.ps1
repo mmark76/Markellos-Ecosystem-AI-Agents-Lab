@@ -148,7 +148,7 @@ function Start-EasySetup([string]$Root) {
     if ($initial.PythonVersion -and $initial.OllamaRunning -and $initial.DefaultModelReady) { return $true }
 
     $form = New-Object System.Windows.Forms.Form
-    $form.Text = 'AI Training Lab — Easy Start'
+    $form.Text = 'AI Lab — Easy Start'
     $form.StartPosition = 'CenterScreen'
     $form.ClientSize = New-Object System.Drawing.Size(580, 355)
     $form.FormBorderStyle = 'FixedDialog'
@@ -157,7 +157,7 @@ function Start-EasySetup([string]$Root) {
     $form.Font = New-Object System.Drawing.Font('Segoe UI', 10)
 
     $title = New-Object System.Windows.Forms.Label
-    $title.Text = 'Set up AI Training Lab'
+    $title.Text = 'Set up AI Lab'
     $title.Font = New-Object System.Drawing.Font('Segoe UI Semibold', 18)
     $title.Location = New-Object System.Drawing.Point(24, 20)
     $title.Size = New-Object System.Drawing.Size(530, 38)
@@ -189,7 +189,7 @@ function Start-EasySetup([string]$Root) {
     $form.Controls.Add($progress)
 
     $start = New-Object System.Windows.Forms.Button
-    $start.Text = 'Set Up & Start AI Training Lab'
+    $start.Text = 'Set Up & Start AI Lab'
     $start.Location = New-Object System.Drawing.Point(245, 298)
     $start.Size = New-Object System.Drawing.Size(220, 44)
     $start.DialogResult = [System.Windows.Forms.DialogResult]::None
@@ -230,7 +230,7 @@ function Start-EasySetup([string]$Root) {
                 if (-not (Require-Approval 'Download initial local model?' 'The local model qwen2.5:0.5b is missing. It is used for the first Trainer, Student, Evaluator, and Improver session. Download it through local Ollama now? This requires Internet access and disk space.')) { throw 'The initial model download was not approved. No model was downloaded.' }
                 Install-DefaultModel $setStatus $progress
             }
-            & $setStatus 'Setup is ready. Starting AI Training Lab…'
+            & $setStatus 'Setup is ready. Starting AI Lab…'
             $form.DialogResult = [System.Windows.Forms.DialogResult]::OK
             $form.Close()
         } catch {
@@ -247,6 +247,6 @@ try {
     exit 1
 } catch {
     Add-Type -AssemblyName System.Windows.Forms
-    [System.Windows.Forms.MessageBox]::Show($_.Exception.Message, 'AI Training Lab — Easy Start', 'OK', 'Error') | Out-Null
+    [System.Windows.Forms.MessageBox]::Show($_.Exception.Message, 'AI Lab — Easy Start', 'OK', 'Error') | Out-Null
     exit 1
 }

@@ -3,7 +3,7 @@
 ## Scope
 
 `AI-LAB-SCOPE-019` introduces a local, user-owned provider planning surface in
-the private Windows AI Training Lab. It is the first step toward a user-managed
+the private Windows AI Lab. It is the first step toward a user-managed
 remote LoRA workflow: the user selects a provider, region preference, maximum
 runtime, and maximum spend before any remote execution is possible.
 
