@@ -7,7 +7,7 @@ $localUrl = 'http://127.0.0.1:8765/'
 function Test-LocalLab {
     try {
         $response = Invoke-WebRequest -UseBasicParsing -Uri $localUrl -TimeoutSec 2
-        return $response.StatusCode -eq 200 -and $response.Content -match 'AI Training Lab'
+        return $response.StatusCode -eq 200 -and $response.Content -match 'AI Lab'
     } catch { return $false }
 }
 if (-not (Test-Path -LiteralPath $launcher -PathType Leaf)) { exit 1 }

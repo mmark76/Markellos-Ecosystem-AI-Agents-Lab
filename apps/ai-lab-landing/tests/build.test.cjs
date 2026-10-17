@@ -24,8 +24,8 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.doesNotMatch(html, /\{\{BUILD_ID\}\}|\{\{RELEASE_VERSION\}\}/);
   assert.match(html, /styles\.css\?v=v\d+\.\d+\.\d+_\d{8}_\d{4}_[a-f0-9]{7}/);
   assert.match(html, new RegExp(`CURRENT RELEASE · v${escapedDistributionVersion} · LOCAL ONLY`));
-  assert.match(html, new RegExp(`<h1 id="page-title">AI Training Lab v${escapedDistributionVersion}<\\/h1>`));
-  assert.match(html, /<img class="brand-mark" src="\.\/ai-training-lab-mark\.png" alt="AI Training Lab">/);
+  assert.match(html, new RegExp(`<h1 id="page-title">AI Lab v${escapedDistributionVersion}<\\/h1>`));
+  assert.match(html, /<img class="brand-mark" src="\.\/ai-training-lab-mark\.png" alt="AI Lab">/);
   assert.match(html, /class="beta-badge">BETA<\/span>/);
   assert.match(styles, /\.beta-badge/);
   assert.deepEqual(distribution.releases.map(({ version }) => version), ['2.0.2', '2.0.1', '2.0.0', '1.1.8', '1.1.7', '1.1.6', '1.1.5', '1.1.4', '1.1.3', '1.1.2', '1.1.1', '1.1.0', '1.0.0']);
@@ -77,7 +77,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /Launch Local Lab works after the first Easy Start setup/);
   assert.doesNotMatch(html, /\{\{LEGACY_DOWNLOAD_BUTTON\}\}/);
   assert.match(html, /Starter AI Model/);
-  assert.match(guide, /Easy Start creates an AI Training Lab shortcut on the Windows Desktop/);
+  assert.match(guide, /Easy Start creates an AI Lab shortcut on the Windows Desktop/);
 
   assert.match(html, /asks separately before installing Python, Ollama, or the initial local model/);
   assert.doesNotMatch(html, /You do not need a GitHub account/);
@@ -169,7 +169,7 @@ test('analytics stays unloaded until consent and sends only approved events afte
     addEventListener(type, handler) { listeners.set(type, handler); },
   };
   global.document = {
-    title: 'AI Training Lab', documentElement: { dataset: {}, style: { setProperty() {} } },
+    title: 'AI Lab', documentElement: { dataset: {}, style: { setProperty() {} } },
     addEventListener(type, handler) { if (type === 'DOMContentLoaded') handler(); },
     getElementById: id => elements[id] || null, querySelectorAll: () => [], querySelector: () => null,
     createElement, head: { append: script => scripts.push(script) },

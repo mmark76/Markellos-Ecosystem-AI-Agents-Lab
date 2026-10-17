@@ -49,19 +49,19 @@ test('packaged README is English only',()=>{
   const readme=fs.readFileSync(path.join(root,'README.md'),'utf8');
   const version=fs.readFileSync(path.join(root,'VERSION'),'utf8').trim();
   assert.doesNotMatch(readme,/[\u0370-\u03ff]/);
-  assert.match(readme,/^# Markellos Ecosystem AI Training Lab$/m);
+  assert.match(readme,/^# Markellos Ecosystem AI Lab$/m);
   assert.match(readme,new RegExp(`Version: v${version.replaceAll('.', '\\.')} · Private local starter`));
   assert.match(readme,/## Run the Lab on a laptop/);
   assert.match(readme,/## Privacy and boundaries/);
 });
-test('Windows launcher packages the AI Training Lab desktop shortcut and valid icon',()=>{
+test('Windows launcher packages the AI Lab desktop shortcut and valid icon',()=>{
   const root=path.resolve(__dirname,'..');
   const launcher=fs.readFileSync(path.join(root,'start-windows.bat'),'utf8');
   const shortcut=fs.readFileSync(path.join(root,'scripts','create-desktop-shortcut.ps1'),'utf8');
   const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
   assert.match(launcher,/create-desktop-shortcut\.ps1/);
   const icon=fs.readFileSync(path.join(root,'assets','ai-training-lab.ico'));
-  assert.match(shortcut,/Markellos Ecosystem AI Training Lab\.lnk/);
+  assert.match(shortcut,/Markellos Ecosystem AI Lab\.lnk/);
   assert.match(shortcut,/assets\\ai-training-lab\.ico/);
   assert.match(packager,/'assets\/ai-training-lab\.ico'/);
   assert.equal(icon.readUInt16LE(0),0);

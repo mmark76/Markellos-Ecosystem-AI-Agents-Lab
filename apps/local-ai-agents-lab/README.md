@@ -1,4 +1,4 @@
-# Markellos Ecosystem AI Training Lab
+# Markellos Ecosystem AI Lab
 
 Version: v2.0.3 · Private local starter
 
@@ -83,8 +83,8 @@ service.
 ### Desktop shortcut
 
 The first successful Easy Start run creates or refreshes a **Markellos Ecosystem
-AI Training Lab** shortcut on the current user's Desktop. It uses the
-included AI Training Lab icon and opens the extracted copy of the Lab. This
+AI Lab** shortcut on the current user's Desktop. It uses the
+included AI Lab icon and opens the extracted copy of the Lab. This
 shortcut points to **`Start AI Training Lab.bat`**, so it repeats the same safe
 readiness check. Shortcut creation itself is local only and makes no network request.
 

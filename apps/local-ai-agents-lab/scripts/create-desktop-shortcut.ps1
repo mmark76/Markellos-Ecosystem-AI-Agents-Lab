@@ -22,12 +22,12 @@ if (-not (Test-Path -LiteralPath $icon -PathType Leaf)) {
 
 $shell = New-Object -ComObject WScript.Shell
 $desktop = $shell.SpecialFolders('Desktop')
-$shortcutPath = Join-Path $desktop 'Markellos Ecosystem AI Training Lab.lnk'
+$shortcutPath = Join-Path $desktop 'Markellos Ecosystem AI Lab.lnk'
 $shortcut = $shell.CreateShortcut($shortcutPath)
 $shortcut.TargetPath = $launcher
 $shortcut.WorkingDirectory = $root
 $shortcut.IconLocation = "$icon,0"
-$shortcut.Description = 'Set up and open the local Markellos AI Training Lab.'
+$shortcut.Description = 'Set up and open the local Markellos AI Lab.'
 $shortcut.Save()
 
 # Register an app-owned, fixed local launch handler for the public dashboard.
@@ -37,7 +37,7 @@ if (Test-Path -LiteralPath $handler -PathType Leaf) {
     $protocolKey = 'HKCU:\Software\Classes\markellos-ai-training-lab'
     $commandKey = Join-Path $protocolKey 'shell\open\command'
     New-Item -Path $protocolKey -Force | Out-Null
-    Set-Item -Path $protocolKey -Value 'URL:AI Training Lab Protocol'
+    Set-Item -Path $protocolKey -Value 'URL:AI Lab Protocol'
     New-ItemProperty -Path $protocolKey -Name 'URL Protocol' -Value '' -PropertyType String -Force | Out-Null
     New-Item -Path $commandKey -Force | Out-Null
     $quotedHandler = '"' + $handler + '"'
