@@ -18,6 +18,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   execFileSync(process.execPath, ['build.cjs'], { cwd: app, stdio: 'pipe' });
   const html = readFileSync(join(output, 'index.html'), 'utf8');
   const guide = readFileSync(join(output, 'simple-guide.html'), 'utf8');
+  const description = readFileSync(join(output, 'app-description.html'), 'utf8');
   const script = readFileSync(join(output, 'dashboard.js'), 'utf8');
   const styles = readFileSync(join(output, 'styles.css'), 'utf8');
 
@@ -29,7 +30,8 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /<img class="brand-mark" src="\.\/ai-training-lab-mark\.png" alt="AI Lab">/);
   assert.match(html, /class="beta-badge">BETA<\/span>/);
   assert.match(styles, /\.beta-badge/);
-  assert.deepEqual(distribution.releases.map(({ version }) => version), ['2.0.11', '2.0.10', '2.0.9', '2.0.8', '2.0.7', '2.0.6', '2.0.5', '2.0.4', '2.0.2', '2.0.1', '2.0.0', '1.1.8', '1.1.7', '1.1.6', '1.1.5', '1.1.4', '1.1.3', '1.1.2', '1.1.1', '1.1.0', '1.0.0']);
+  assert.equal(currentDistribution.version, releaseVersion, 'the public ZIP must match the current Local Lab version');
+  assert.equal(new Set(distribution.releases.map(({ version }) => version)).size, distribution.releases.length);
   for (const release of distribution.releases) {
     assert.match(release.version, /^\d+\.\d+\.\d+$/);
     assert.match(release.url, new RegExp(`/releases/v${release.version.replaceAll('.', '\\.')}/AI-Agents-Lab-Windows\\.zip$`));
@@ -53,7 +55,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /<span>Refresh Local Server<\/span><small>Before launching the app<\/small><\/a>/);
   assert.match(html, new RegExp(currentDistribution.url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.match(html, /Release archive/);
-  assert.match(html, /20 earlier Windows ZIPs/);
+  assert.match(html, new RegExp(`${previousDistributions.length} earlier Windows ZIPs`));
   assert.match(html, /Verified historical releases are retained for reference and future agent studies\./);
   assert.match(styles, /\.release-history details/);
   assert.match(styles, /margin-right: clamp\(8rem, 15vw, 16rem\)/);
@@ -114,8 +116,11 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(guide, /Conference Room - available/);
   assert.match(guide, /Training Lab - available/);
   assert.match(guide, /Evaluation Lab - available/);
-  assert.match(guide, /Advisory Lab - Under Construction/);
-  assert.match(guide, /Optimization Lab - Under Construction/);
+  assert.match(guide, /Advisory Lab - available/);
+  assert.match(guide, /Optimization Lab - available/);
+  assert.match(guide, new RegExp(`Rooms and their current status \\(v${escapedDistributionVersion}\\)`));
+  assert.match(guide, /Tutor → Student → Evaluator → Improver/);
+  assert.doesNotMatch(guide, /Under Construction|v2\\.0\\.2/);
   assert.match(guide, /What is Fine-Tuning\? A simple guide/);
   assert.doesNotMatch(guide, /Conference Room is not yet available/);
   assert.match(guide, /Quick Start \(Windows\)/);
@@ -131,6 +136,16 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(guide, /After the initial setup and local model downloads/);
   assert.doesNotMatch(html, /Read the current-state guide/);
   assert.match(html, /href="\.\/simple-guide\.html"[^>]*>README \/ Installation Guide/);
+  assert.match(html, /README \/ Installation Guide <span aria-hidden="true">↗<\/span><\/a><a class="secondary-button" href="\.\/app-description\.html" target="_blank" rel="noopener noreferrer">Detailed App Description/);
+  assert.match(guide, /href="\.\/app-description\.html">Detailed App Description/);
+  assert.match(description, /Five workspaces, fifteen specialized agents/);
+  for (const role of ["Strategist → Analyst → Engineer", "Tutor → Student → Evaluator → Improver", "Assessor → Scorer → Benchmarker", "Analyst → Advisor", "Diagnostician → Optimizer → Validator"]) assert.ok(description.includes(role), `Missing agent workflow: ${role}`);
+  assert.match(description, /fine-tuning \(including LoRA training\) is <strong>not enabled<\/strong>/);
+  for (const page of [guide, description]) {
+    assert.match(page, new RegExp(`v${escapedDistributionVersion}`));
+    assert.match(page, new RegExp(`v${escapedReleaseVersion}_\\d{8}_\\d{4}_[0-9a-f]{7}`));
+    assert.doesNotMatch(page, /\{\{RELEASE_VERSION\}\}|\{\{BUILD_ID\}\}/);
+  }
   assert.doesNotMatch(script, /checkForZipUpdate|scheduleZipUpdateChecks|downloaded-zip-version/);
   assert.match(script, /const ANALYTICS_CONSENT_KEY = 'markellos\.ai-lab\.analytics-consent\.v1'/);
   assert.match(script, /const GA_MEASUREMENT_ID = 'G-ZEPZK1T1YQ'/);
@@ -144,7 +159,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(script, /window\.addEventListener\('hashchange',trackPageView\)/);
   assert.match(script, /window\[`ga-disable-\$\{GA_MEASUREMENT_ID\}`\]=true/);
   assert.match(script, /typeof module !== 'undefined'/);
-  for (const file of ['styles.css', 'tokens.css', 'dashboard.js', '_headers', 'README.md', 'simple-guide.html', 'ai-training-lab-mark.png']) assert.equal(existsSync(join(output, file)), true, `${file} is missing`);
+  for (const file of ['styles.css', 'tokens.css', 'dashboard.js', '_headers', 'README.md', 'simple-guide.html', 'app-description.html', 'ai-training-lab-mark.png']) assert.equal(existsSync(join(output, file)), true, `${file} is missing`);
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /public current-state documentation/);
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Quick Start \(Windows\)/);
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Understanding the three Windows \.bat files/);
