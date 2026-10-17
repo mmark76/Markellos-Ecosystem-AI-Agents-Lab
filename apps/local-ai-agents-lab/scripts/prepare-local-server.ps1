@@ -64,10 +64,10 @@ try {
 
     Add-Type -AssemblyName System.Windows.Forms
     if ($identity.Kind -eq 'LEGACY_CANDIDATE') {
-        $message = "PID $ownerPid is a Python server.py process using AI Lab's port 8765. An older launcher did not record its full script path, so ownership cannot be proven.\n\nCommand: $($owner.CommandLine)\n\nOnly approve if this is your earlier AI Training Lab. Any current agent run may be interrupted. Force-stop it and start this copy?"
+        $message = "PID $ownerPid is a Python server.py process using AI Lab's port 8765. An older launcher did not record its full script path, so ownership cannot be proven.`r`n`r`nCommand: $($owner.CommandLine)`r`n`r`nOnly approve if this is your earlier AI Training Lab. Any current agent run may be interrupted. Force-stop it and start this copy?"
     } else {
         $description = if ($identity.Kind -eq 'CURRENT_LAB') { 'this AI Training Lab installation' } else { 'an older AI Training Lab installation' }
-        $message = "PID $ownerPid belongs to $description.\n\nScript: $($identity.ScriptPath)\n\nReplacing the server interrupts any active agent run. Close it and start this copy?"
+        $message = "PID $ownerPid belongs to $description.`r`n`r`nScript: $($identity.ScriptPath)`r`n`r`nReplacing the server interrupts any active agent run. Close it and start this copy?"
     }
     $choice = [System.Windows.Forms.MessageBox]::Show(
         $message, 'AI Training Lab - Local server replacement',
