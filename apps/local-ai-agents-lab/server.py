@@ -453,6 +453,7 @@ class Handler(BaseHTTPRequestHandler):
                  "/static/openai-connection.js": ("openai-connection.js", "text/javascript; charset=utf-8"),
                  "/static/model-install.js": ("model-install.js", "text/javascript; charset=utf-8"),
                  "/static/panel-layout.js": ("panel-layout.js", "text/javascript; charset=utf-8"),
+                 "/static/connection-dialogs.js": ("connection-dialogs.js", "text/javascript; charset=utf-8"),
                  "/static/evaluation.js": ("evaluation.js", "text/javascript; charset=utf-8")}
         if parsed.path == "/assets/chatgpt-advisor-avatar.png":
             self._headers(200, "image/png")

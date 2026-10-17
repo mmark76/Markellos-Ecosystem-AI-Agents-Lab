@@ -279,7 +279,8 @@ class HttpIntegrationTests(unittest.TestCase):
         try:
             opener = build_opener(ProxyHandler({}))
             for asset, expected in (("/static/model-guidance-data.js", "ModelGuidanceData"),
-                                    ("/static/model-guidance.js", "dialog.showModal()")):
+                                    ("/static/model-guidance.js", "dialog.showModal()"),
+                                    ("/static/connection-dialogs.js", "connections-hub-dialog")):
                 with self.subTest(asset=asset), opener.open(f"http://127.0.0.1:{campus.PORT}{asset}") as response:
                     self.assertEqual(response.status, 200)
                     self.assertIn(expected, response.read().decode("utf-8"))

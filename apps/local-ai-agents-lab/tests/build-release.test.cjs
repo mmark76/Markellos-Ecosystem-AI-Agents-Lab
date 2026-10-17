@@ -108,6 +108,7 @@ test('three-panel interaction script is included in the Windows release',()=>{
   assert.match(server,/"\/static\/panel-layout\.js"/);
   assert.match(packager,/'static\/connection-dialogs\.js'/);
   assert.match(fs.readFileSync(path.join(root,'static','index.html'),'utf8'),/\/static\/connection-dialogs\.js/);
+  assert.match(server,/"\/static\/connection-dialogs\.js"/);
   assert.match(styles,/#open-connections-hub\{position:relative;min-height:68px/);
   assert.match(styles,/content:"Open ›"/);
 });
