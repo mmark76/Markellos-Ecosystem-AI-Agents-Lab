@@ -1,6 +1,11 @@
 {
   "releases": [
     {
+      "version": "2.0.4",
+      "url": "https://pub-33c16df521b3460a8d4b1a6927656318.r2.dev/releases/v2.0.4/AI-Agents-Lab-Windows.zip",
+      "sha256": "064bf64af33e97afbe0736dc016a344118cd1a4b5d03085e9694e78fb6e4475d"
+    },
+    {
       "version": "2.0.2",
       "url": "https://pub-33c16df521b3460a8d4b1a6927656318.r2.dev/releases/v2.0.2/AI-Agents-Lab-Windows.zip",
       "sha256": "220598a906d4a5ee232077f481c86a1c9497974053aae894438500ba3630a962"
