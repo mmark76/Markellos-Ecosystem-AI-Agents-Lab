@@ -19,6 +19,25 @@ Approved by: Direct user approval on 2026-10-18
 Target release: AI Lab v2.0.15
 ```
 
+## Approved change record — AI-LAB-CC-072
+
+```text
+Change ID: AI-LAB-CC-072
+Requested by: User
+Date: 2026-10-18
+Description: Lightly refine the public landing page's introductory action area by separating download, local-launch, and documentation controls into consistent visual groups.
+Reason: The current mixed button row appears visually disordered even though its content and behavior are correct.
+Affected objective IDs: AI-LAB-OBJ-002, AI-LAB-OBJ-003
+Architecture impact: Static landing-page markup and CSS grouping only. No URL, build, protocol, application, or deployment behavior changes.
+Security and privacy impact: No endpoint, analytics, storage, consent, download, local-launch, or browser-permission behavior changes.
+Data impact: None.
+Testing impact: Landing build regression covers the three action groups and their narrow-screen single-column layout.
+Cost and schedule impact: None.
+Decision: APPROVED (UI CLARITY)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```
+
 ## Approved change record — AI-LAB-CC-070
 
 ```text
