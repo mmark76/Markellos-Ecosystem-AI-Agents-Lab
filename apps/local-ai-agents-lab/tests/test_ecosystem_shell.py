@@ -104,6 +104,10 @@ class EcosystemShellTests(unittest.TestCase):
             with self.subTest(path=path):
                 self.assertIn(path, chatgpt)
         self.assertNotIn('localStorage', chatgpt)
+        self.assertIn("const advisorSessionKey = 'ai-lab:chatgpt-advisor:last-exchange';", chatgpt)
+        self.assertIn('sessionStorage.setItem(advisorSessionKey', chatgpt)
+        self.assertIn('sessionStorage.removeItem(advisorSessionKey)', chatgpt)
+        self.assertIn('Last answer restored for this browser tab.', chatgpt)
         self.assertNotIn('console.', chatgpt)
         self.assertIn("window.addEventListener('focus', refreshChatgptStatus)", chatgpt)
         self.assertIn("visibilitychange", chatgpt)
