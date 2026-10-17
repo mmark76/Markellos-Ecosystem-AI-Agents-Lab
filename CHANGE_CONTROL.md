@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-065
+
+```text
+Change ID: AI-LAB-CC-065
+Requested by: User
+Date: 2026-10-17
+Description: When the user starts a newly extracted Windows ZIP, offer a controlled replacement of the existing local AI Training Lab server on port 8765 without requiring an OS restart.
+Reason: A previous Lab process retained the local listener while TCP connections timed out; the user also reported a failure on another laptop.
+Affected objective IDs: AI-LAB-OBJ-003, AI-LAB-OBJ-023
+Architecture impact: Add one Windows-only pre-launch ownership and confirmation check. Pass an absolute server.py path in new launches. No public endpoint or cloud route is added.
+Security and privacy impact: Refuse to kill unrelated or unidentified processes. An older Python server.py process on the exact loopback listener remains an unverified legacy candidate and requires a clear explicit warning and confirmation. Any running agent operation can be interrupted. Preserve local data and credentials.
+Data impact: No changes to SQLite schema or persistent settings; no runtime directories are deleted.
+Testing impact: Windows path, process identity and regression tests; build and verify Windows ZIP; validate CI before release.
+Cost and schedule impact: Local-only behavior; no provider call, model usage, or deployment is initiated by the fix.
+Decision: APPROVED (LOCAL STARTUP SAFETY FIX)
+Approved by: Direct user request
+Target release: Next Windows ZIP version; not retroactive to already published v2.0.10
+```
+
 ## Approved change record — AI-LAB-CC-063
 
 ```text
