@@ -11,6 +11,13 @@ if /I not "%~1"=="--launch-server" (
   call "%~f0" --launch-server
   exit /b %errorlevel%
 )
+rem Verify an existing owner and confirm replacement before the new server binds port 8765.
+powershell.exe -NoProfile -ExecutionPolicy Bypass -STA -File "%~dp0scripts\prepare-local-server.ps1" -LabRoot "%~dp0."
+if errorlevel 1 (
+  echo The local server was not started. Review the message above.
+  pause
+  exit /b 1
+)
 rem Easy Start completed; create or refresh the local shortcut before opening the local server.
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\create-desktop-shortcut.ps1" -LabRoot "%~dp0." >nul 2>&1
 echo ==========================================
@@ -20,11 +27,11 @@ echo Close this window or press Ctrl+C to stop.
 echo ==========================================
 where py >nul 2>&1
 if exist "%~dp0.openai-connection-venv\Scripts\python.exe" (
-  "%~dp0.openai-connection-venv\Scripts\python.exe" server.py
+  "%~dp0.openai-connection-venv\Scripts\python.exe" "%~dp0server.py"
 ) else if %errorlevel%==0 (
-  py -3 server.py
+  py -3 "%~dp0server.py"
 ) else (
-  python server.py
+  python "%~dp0server.py"
 )
 pause
 endlocal
