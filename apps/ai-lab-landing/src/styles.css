@@ -108,3 +108,11 @@ html[data-color-mode="light"] .secondary-button { background:#ffffff; color:#172
   background:#1d4ed8;border-color:#1d4ed8;filter:none;
 }
 #launch-local-lab:focus-visible{outline:3px solid #93c5fd;outline-offset:3px}
+
+/* Server preparation is intentionally distinct from opening the local app. */
+#refresh-local-server{align-items:flex-start;flex-direction:column;gap:1px;padding-block:var(--space-2);border-color:#0f766e;color:#115e59}
+#refresh-local-server small{font-size:var(--font-size-xs);font-weight:var(--font-weight-regular);line-height:1.25}
+#refresh-local-server:hover{background:#ccfbf1;border-color:#0f766e;filter:none}
+html[data-color-mode="dark"] #refresh-local-server{background:#123c3a;border-color:#2dd4bf;color:#ecfeff}
+html[data-color-mode="dark"] #refresh-local-server:hover{background:#155e59;border-color:#5eead4}
+#refresh-local-server:focus-visible{outline:3px solid #5eead4;outline-offset:3px}

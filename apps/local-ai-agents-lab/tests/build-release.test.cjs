@@ -158,17 +158,22 @@ test('a VERSION bump on main automatically creates the matching release ZIP',()=
 });
 
 
-test('Dashboard launcher is a fixed per-user protocol using the existing Windows starter',()=>{
+test('Dashboard launcher uses fixed per-user protocols for opening and safely refreshing the existing Windows starter',()=>{
   const root=path.resolve(__dirname,'..');
   const register=fs.readFileSync(path.join(root,'scripts','create-desktop-shortcut.ps1'),'utf8');
   const handler=fs.readFileSync(path.join(root,'scripts','launch-from-dashboard.ps1'),'utf8');
   const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
-  assert.match(register,/HKCU:\\Software\\Classes\\markellos-ai-training-lab/);
+  assert.match(register,/HKCU:\\Software\\Classes\\' \+ \$registration\.Name/);
+  assert.match(register,/Name = 'markellos-ai-training-lab'/);
+  assert.match(register,/markellos-ai-training-lab-refresh/);
   assert.match(register,/URL Protocol/);
   assert.match(register,/launch-from-dashboard\.ps1/);
+  assert.match(register,/-Action ' \+ \$registration\.Action/);
   assert.match(handler,/Start AI Training Lab\.bat/);
   assert.match(handler,/http:\/\/127\.0\.0\.1:8765\//);
-  assert.doesNotMatch(handler,/param\(\s*\[.*string\].*url/i);
+  assert.match(handler,/ValidateSet\('Open', 'Refresh'\)/);
+  assert.match(handler,/\$Action -eq 'Refresh'/);
+  assert.doesNotMatch(handler,/ProtocolUri|Request\.Url|\$args/);
   assert.match(packager,/'scripts\/launch-from-dashboard\.ps1'/);
 });
 

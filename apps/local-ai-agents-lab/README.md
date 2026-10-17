@@ -1,6 +1,6 @@
 # Markellos Ecosystem AI Lab
 
-Version: v2.0.10 · Private local starter
+Version: v2.0.11 · Private local starter
 
 Local Windows application with five active workspaces:
 
@@ -20,7 +20,7 @@ The **Training Lab** uses the internal API id `training`. Existing local history
 
 For a first-time setup, extract the ZIP and double-click **`Start AI Training Lab.bat`**. Easy Start checks the computer, then starts the Lab when everything is ready.
 
-After the initial setup, start the Lab from its Desktop shortcut or the public dashboard's Launch Local Lab button. The browser may request confirmation before opening the installed local app.
+After the initial setup, start the Lab from its Desktop shortcut or the public dashboard's Launch Local Lab button. The dashboard also has **Refresh Local Server Before Launch**: it starts a clean local server without opening the app, so you can then choose Launch Local Lab. The browser may request confirmation before opening either installed local action.
 
 It asks for a separate, explicit approval before it can:
 
@@ -93,6 +93,13 @@ the new ZIP deletes local SQLite histories or credentials.
 Downloading a ZIP alone does not close a local server; the replacement check
 occurs when the new extracted ZIP's `Start AI Training Lab.bat` is executed.
 It does not change the existing fixed-loopback provider boundary.
+
+The dashboard's **Refresh Local Server Before Launch** action uses that same
+replacement check and starts the installed Lab copy without opening a browser
+tab. It has no URL-supplied arguments and is registered only for the current
+Windows user. If the existing listener is a verified Lab server, it still asks
+before interrupting active work; an unrelated or unverified listener is left
+untouched.
 
 ### Desktop shortcut
 

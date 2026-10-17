@@ -30,17 +30,22 @@ $shortcut.IconLocation = "$icon,0"
 $shortcut.Description = 'Set up and open the local Markellos AI Lab.'
 $shortcut.Save()
 
-# Register an app-owned, fixed local launch handler for the public dashboard.
+# Register app-owned, fixed local handlers for the public dashboard.
 # Per-user only: no administrator privileges and no URL-supplied arguments.
 $handler = Join-Path $root 'scripts\launch-from-dashboard.ps1'
 if (Test-Path -LiteralPath $handler -PathType Leaf) {
-    $protocolKey = 'HKCU:\Software\Classes\markellos-ai-training-lab'
-    $commandKey = Join-Path $protocolKey 'shell\open\command'
-    New-Item -Path $protocolKey -Force | Out-Null
-    Set-Item -Path $protocolKey -Value 'URL:AI Lab Protocol'
-    New-ItemProperty -Path $protocolKey -Name 'URL Protocol' -Value '' -PropertyType String -Force | Out-Null
-    New-Item -Path $commandKey -Force | Out-Null
     $quotedHandler = '"' + $handler + '"'
-    $launchCommand = 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File ' + $quotedHandler
-    Set-Item -Path $commandKey -Value $launchCommand
+    foreach ($registration in @(
+        @{ Name = 'markellos-ai-training-lab'; Description = 'URL:AI Lab Protocol'; Action = 'Open' },
+        @{ Name = 'markellos-ai-training-lab-refresh'; Description = 'URL:AI Lab Server Refresh Protocol'; Action = 'Refresh' }
+    )) {
+        $protocolKey = 'HKCU:\Software\Classes\' + $registration.Name
+        $commandKey = Join-Path $protocolKey 'shell\open\command'
+        New-Item -Path $protocolKey -Force | Out-Null
+        Set-Item -Path $protocolKey -Value $registration.Description
+        New-ItemProperty -Path $protocolKey -Name 'URL Protocol' -Value '' -PropertyType String -Force | Out-Null
+        New-Item -Path $commandKey -Force | Out-Null
+        $launchCommand = 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File ' + $quotedHandler + ' -Action ' + $registration.Action
+        Set-Item -Path $commandKey -Value $launchCommand
+    }
 }
