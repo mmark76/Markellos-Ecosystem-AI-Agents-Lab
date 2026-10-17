@@ -77,6 +77,9 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn('href="https://console.runpod.io/" target="_blank" rel="noopener noreferrer"', self.html)
         self.assertIn('id="open-openai-platform"', self.html)
         self.assertIn('href="https://platform.openai.com/" target="_blank" rel="noopener noreferrer"', self.html)
+        self.assertIn('.personal-credential-remove{', self.css)
+        self.assertIn('background:var(--color-error)!important', self.css)
+        self.assertIn('color:#fff!important', self.css)
         for path in (
             '/api/training/provider-plan',
             '/api/training/provider-credentials',
