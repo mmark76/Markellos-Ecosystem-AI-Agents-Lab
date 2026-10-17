@@ -28,7 +28,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /<img class="brand-mark" src="\.\/ai-training-lab-mark\.png" alt="AI Lab">/);
   assert.match(html, /class="beta-badge">BETA<\/span>/);
   assert.match(styles, /\.beta-badge/);
-  assert.deepEqual(distribution.releases.map(({ version }) => version), ['2.0.8', '2.0.7', '2.0.6', '2.0.5', '2.0.4', '2.0.2', '2.0.1', '2.0.0', '1.1.8', '1.1.7', '1.1.6', '1.1.5', '1.1.4', '1.1.3', '1.1.2', '1.1.1', '1.1.0', '1.0.0']);
+  assert.deepEqual(distribution.releases.map(({ version }) => version), ['2.0.9', '2.0.8', '2.0.7', '2.0.6', '2.0.5', '2.0.4', '2.0.2', '2.0.1', '2.0.0', '1.1.8', '1.1.7', '1.1.6', '1.1.5', '1.1.4', '1.1.3', '1.1.2', '1.1.1', '1.1.0', '1.0.0']);
   for (const release of distribution.releases) {
     assert.match(release.version, /^\d+\.\d+\.\d+$/);
     assert.match(release.url, new RegExp(`/releases/v${release.version.replaceAll('.', '\\.')}/AI-Agents-Lab-Windows\\.zip$`));
@@ -48,7 +48,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(styles, /#launch-local-lab:focus-visible\{outline:3px solid #93c5fd/);
   assert.match(html, new RegExp(currentDistribution.url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.match(html, /Release archive/);
-  assert.match(html, /17 earlier Windows ZIPs/);
+  assert.match(html, /18 earlier Windows ZIPs/);
   assert.match(html, /Verified historical releases are retained for reference and future agent studies\./);
   assert.match(styles, /\.release-history details/);
   assert.match(styles, /margin-right: clamp\(8rem, 15vw, 16rem\)/);
