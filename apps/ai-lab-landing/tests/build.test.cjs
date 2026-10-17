@@ -86,7 +86,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(guide, /Refresh Local Server/);
   assert.doesNotMatch(html, /\{\{LEGACY_DOWNLOAD_BUTTON\}\}/);
   assert.match(html, /Starter AI Model/);
-  assert.match(guide, /Easy Start creates an AI Lab shortcut on the Windows Desktop/);
+  assert.match(guide, /Easy Start creates or updates a Windows Desktop shortcut/);
 
   assert.match(html, /asks separately before installing Python, Ollama, or the initial local model/);
   assert.doesNotMatch(html, /You do not need a GitHub account/);
@@ -109,9 +109,25 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.doesNotMatch(html, /googletagmanager\.com\/gtag/);
   assert.doesNotMatch(html, /data-language|language-selector|language-button|Lab Assistant|assistant-button|assistant-dialog/);
   assert.match(guide, /Before you begin/);
-  assert.match(guide, /Start in three steps/);
+  assert.match(guide, /Install or update in five steps \(Windows\)/);
+  assert.doesNotMatch(guide, /Start in three steps/);
+  const stepHeading = '<h2 id="quick-start">Install or update in five steps (Windows)</h2>';
+  assert.ok(guide.indexOf(stepHeading) > guide.indexOf('<h1 id="guide-title">'));
+  assert.ok(guide.indexOf(stepHeading) < guide.indexOf('Detailed App Description'), 'five steps should appear before other guide links');
+  const fiveStepList = guide.slice(guide.indexOf('<ol>', guide.indexOf(stepHeading)), guide.indexOf('</ol>', guide.indexOf(stepHeading)) + 5);
+  assert.equal((fiveStepList.match(/<li>/g) || []).length, 5);
+  const stepNames = ['Download.', 'Stop &amp; Backup.', 'Extract.', 'Start AI Training Lab.bat.', 'Launch.'];
+  let previous = -1;
+  for (const step of stepNames) {
+    const index = fiveStepList.indexOf('<strong>' + step + '</strong>');
+    assert.ok(index > previous, 'Missing or out-of-order install step: ' + step);
+    previous = index;
+  }
+  assert.match(fiveStepList, /data\/campus\.sqlite3/);
+  assert.match(fiveStepList, /new extracted folder/);
+  assert.match(fiveStepList, /Refresh Local Server → Launch Local Lab/);
   assert.match(guide, /Start AI Training Lab\.bat/);
-  assert.match(guide, /asks separately before installing Python, Ollama, or the first local AI model/);
+  assert.match(guide, /asks separately before installing Python, Ollama, or the first local AI model when needed/);
   assert.doesNotMatch(guide, /You do not need a GitHub account/);
   assert.match(guide, /Conference Room - available/);
   assert.match(guide, /Training Lab - available/);
@@ -123,7 +139,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.doesNotMatch(guide, /Under Construction|v2\.0\.2/);
   assert.match(guide, /What is Fine-Tuning\? A simple guide/);
   assert.doesNotMatch(guide, /Conference Room is not yet available/);
-  assert.match(guide, /Quick Start \(Windows\)/);
+  assert.match(guide, /Install or update in five steps \(Windows\)/);
   assert.match(guide, /Which Windows \.bat file should I use/);
   assert.match(guide, /Start AI Training Lab\.bat/);
   assert.doesNotMatch(html, /Start AI Agents Lab\.bat/);
