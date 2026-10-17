@@ -99,7 +99,7 @@ test('server identity policy recognizes Labs and rejects unrelated Python proces
         'function Assert-Kind([string]$line, [string]$name, [string]$expected) {',
         '  $proc = [pscustomobject]@{ Name=$name; CommandLine=$line }',
         '  $result = Get-LabServerIdentity -Process $proc -CurrentRoot $root',
-        '  if ($result.Kind -ne $expected) { throw "Expected $expected but got $($result.Kind) for $line; currentRoot=$root; expectedPath=$(Join-Path $root 'server.py'); detectedScript=$($result.ScriptPath)" }',
+        '  if ($result.Kind -ne $expected) { throw "Expected $expected but got $($result.Kind) for $line; currentRoot=$root; expectedPath=$(Join-Path $root server.py); detectedScript=$($result.ScriptPath)" }',
         '}',
         'Assert-Kind ' + "('\"C:\\Python314\\python.exe\" \"' + '" + quote(path.join(root,'server.py')) + "' + '\"')" + " 'python.exe' 'CURRENT_LAB'",
         'Assert-Kind ' + "('\"C:\\Python314\\python.exe\" \"' + '" + quote(other) + "' + '\"')" + " 'python.exe' 'OLDER_LAB'",
