@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-050
+
+```text
+Change ID: AI-LAB-CC-050
+Requested by: Repository maintainer
+Date: 2026-10-17
+Description: Publish AI Training Lab v2.0.3, including the verified five-Lab architecture, as a GitHub Release with its Windows ZIP and deploy the current static landing artifact.
+Reason: Direct user request to change the version, create the GitHub Release/ZIP, and perform deployment.
+Affected objective IDs: AI-LAB-OBJ-003, AI-LAB-OBJ-018
+Architecture impact: No runtime architecture change; the release workflow packages the existing local-only Lab and the existing Pages workflow deploys the static landing artifact.
+Security and privacy impact: Existing release and public/local boundaries remain unchanged; the Local Lab, Ollama, and SQLite data are not deployed through Pages.
+Data impact: None; the Windows ZIP is a versioned distribution artifact and existing local data remains outside the package.
+Testing impact: Run the repository release, landing, Local Lab, syntax, and foundation validation checks before merge; verify the published GitHub Release and deployment status afterward.
+Cost and schedule impact: Creates one public GitHub Release asset and one Pages deployment using existing services.
+Decision: APPROVED (RELEASE PUBLICATION)
+Approved by: Direct user request
+Target release: AI Training Lab v2.0.3
+```
+
 ## Approved change record — AI-LAB-CC-049
 
 ```text
