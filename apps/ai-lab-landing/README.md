@@ -10,6 +10,12 @@ The landing page reports the current publicly downloadable state truthfully. Its
 
 The landing page uses GA4 property `G-ZEPZK1T1YQ` for page views, hash navigation, traffic-source and geographic reporting supplied by GA4, and the non-sensitive `zip_download` event. It does not load Google's tag or make a Google request before consent. Accepting analytics dynamically loads the tag once; Reject and withdrawal disable future analytics events. The implementation uses Consent Mode v2 signals, stores only the visitor's choice in local storage, and never sends Local Lab conversations, prompts, model data, or sensitive personal information.
 
+## Detailed application description
+
+The public dashboard places a **Detailed App Description** link immediately after **README / Installation Guide**. It opens `app-description.html`, which explains the five active workspaces, fifteen agent roles, Ollama model selection, local history, privacy, optional ChatGPT/RunPod connections, and the current fine-tuning limitations. The installation guide links to the same overview.
+
+The landing build injects the confirmed current release version and build identity into the dashboard, installation guide, and overview. It does not create or publish a Windows ZIP. The displayed download version comes only from the reviewed `release-distribution.json` entry, including the verified release URL and checksum. Do not claim a newly announced version until that distribution entry is available.
+
 ## Installation guidance
 
 The landing page links only to the official download pages for the required Windows prerequisites:

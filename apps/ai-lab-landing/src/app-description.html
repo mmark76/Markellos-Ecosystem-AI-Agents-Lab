@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en" data-color-mode="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="Explore the five AI Training Lab workspaces, fifteen agent roles, local models, evaluation, privacy, and optional connections.">
+  <title>Detailed App Description · AI Training Lab</title>
+  <link rel="stylesheet" href="./tokens.css">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="site-header"><div class="header-inner"><a class="brand-lockup" href="./" aria-label="AI Lab home"><span class="brand-mark" aria-hidden="true">AI</span><span class="brand-copy"><span class="project-label">MARKELLOS ECOSYSTEM</span><span class="project-name">AI Lab</span></span></a></div></header>
+  <main class="main-content">
+    <section class="simple-section guide" aria-labelledby="description-title">
+      <p class="eyebrow">APPLICATION OVERVIEW · {{RELEASE_VERSION}}</p>
+      <h1 id="description-title">Detailed App Description</h1>
+      <p class="hero-copy">AI Training Lab is a Windows-based environment for experimenting with AI agent collaboration, learning through feedback, assessment, and optimization. Its five active workspaces coordinate fifteen specialized agents in defined, sequential workflows.</p>
+      <p><a class="inline-link" href="./simple-guide.html">Installation Guide</a> · <a class="inline-link" href="./">Public Dashboard</a></p>
+      <h2>Five workspaces, fifteen specialized agents</h2>
+      <p>Every workspace has its own agent prompts, independently chosen installed Ollama models, and local conversation history. Different roles help examine the same task from different perspectives; their outputs are AI-generated proposals and assessments, not independently verified facts.</p>
+
+      <h2>1. Conference Room — Collaboration &amp; Problem Solving</h2>
+      <p><strong>Strategist → Analyst → Engineer.</strong> A shared problem passes through three distinct perspectives. The Strategist frames goals and options, the Analyst examines assumptions, evidence and trade-offs, and the Engineer develops a practical technical approach. The result is a structured discussion and proposed solution, not automatically executed work.</p>
+
+      <h2>2. Training Lab — Learning &amp; Improvement</h2>
+      <p><strong>Tutor → Student → Evaluator → Improver.</strong> The Tutor introduces a topic and guidance; the Student attempts the exercise; the Evaluator reviews the response; and the Improver identifies ways to strengthen it. Each stage is recorded before the next one begins, creating a traceable feedback cycle. This is in-session learning through prompts and context: it does <strong>not</strong> change model weights.</p>
+
+      <h2>3. Evaluation Lab — Assessment &amp; Benchmarking</h2>
+      <p><strong>Assessor → Scorer → Benchmarker.</strong> These roles support examination of outputs, scoring against chosen criteria, and comparison of findings. The Lab can also evaluate a completed Training Lab session with a separately selected local Evaluator model, preserving the original session and recording structured scores, findings and provenance. Model-generated ratings should not be treated as objective proof of performance or real-world improvement.</p>
+
+      <h2>4. Advisory Lab — Analysis &amp; Recommendations</h2>
+      <p><strong>Analyst → Advisor.</strong> The Analyst explores a question, its context, and possible approaches. The Advisor formulates recommendations and their rationale. Suggestions remain advisory: the agents do not make operational changes, execute commands, or approve decisions on the user's behalf.</p>
+
+      <h2>5. Optimization Lab — Performance &amp; Optimization</h2>
+      <p><strong>Diagnostician → Optimizer → Validator.</strong> The Diagnostician identifies weaknesses or bottlenecks; the Optimizer proposes a focused improvement; and the Validator examines the proposed result and how it could be checked. This workspace produces reversible, measurable recommendations. It does not autonomously modify software, configuration, or model parameters.</p>
+
+      <h2>Models, prompts, and session history</h2>
+      <p>AI inference runs through <strong>locally installed Ollama models</strong>, with a separate model assignment for each active agent. Users can select from their installed models, obtain model-selection guidance and, after explicit confirmation, download another local model through Ollama. Fifteen role-specific system prompts define agent responsibilities and can be edited in the local application files. Workspace histories are kept in a local SQLite database, including results from completed stages.</p>
+
+      <h2>Optional external services</h2>
+      <p>The standard agent workflows use local Ollama. Separately, users may choose to connect their own ChatGPT account for an <strong>external advisor</strong>. Only a question and any additional discussion, pasted text or notes explicitly selected and submitted by the user are sent to OpenAI; local rooms are not synchronized automatically. The application does not accept OpenAI API keys.</p>
+      <p>The optional personal RunPod connection can securely retain a token for the current Windows user and perform an explicitly requested, <strong>read-only</strong> account and GPU price/availability check. It does not create GPU instances, upload datasets, start paid jobs or enforce a provider-side budget. Actual model-weight fine-tuning (including LoRA training) is <strong>not enabled</strong> in this release.</p>
+
+      <h2>Local-first design and privacy</h2>
+      <p>The Lab is a private application running at <code>127.0.0.1:8765</code>; Ollama uses <code>127.0.0.1:11434</code>. The public website is documentation and a download entry point—not a hosted AI service, chat endpoint, or copy of the user's sessions. Basic local workflows can run offline once prerequisites and models are installed. For fully local operation, Ollama cloud features must also be disabled in Ollama's configuration. Session history is stored locally without application-level database encryption, so device or disk encryption may be appropriate.</p>
+      <p class="shell-notice"><strong>Current scope:</strong> This is an experimental AI laboratory, not an accredited training service or certified benchmarking platform. Agent assessments are informative, while parameter fine-tuning and remote training remain unavailable.</p>
+      <div class="hero-actions"><a class="secondary-button" href="./simple-guide.html">Read the Installation Guide</a><a class="secondary-button" href="./">Return to Dashboard</a></div>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="footer-inner"><p class="footer-line">© 2026 Markellos Markides. All rights reserved.</p><p class="footer-line build-id">{{BUILD_ID}}</p></div></footer>
+</body>
+</html>
