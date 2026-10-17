@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-055
+
+```text
+Change ID: AI-LAB-CC-055
+Requested by: Repository maintainer
+Date: 2026-10-17
+Description: Add one explicit, fixed-endpoint, read-only RunPod connection check for a user-owned credential.
+Reason: Let a Local Lab user verify their own account token and inspect the current GPU catalog before any future paid action is considered.
+Affected objective IDs: AI-LAB-OBJ-021
+Architecture impact: Adds a small provider adapter limited to a fixed HTTPS GraphQL query and a bounded same-origin connection route. No Pod mutation, remote executor, worker change, or SQLite schema change is added.
+Security and privacy impact: The bearer token remains in the local process, is not placed in a URL, log, response, or browser storage, and the adapter cannot send a mutation, upload data, or accept a provider URL. The user must explicitly click the connection control.
+Data impact: The read-only response is displayed in memory only and is not persisted. The existing encrypted token blob remains owner-controlled.
+Testing impact: Add mocked fixed-endpoint/bearer/query, provider-error, contract, loopback, static UI, packaging, and locked-route regressions.
+Cost and schedule impact: No Pod, volume, endpoint, data transfer, model download, job, or charge can be created.
+Decision: APPROVED (PHASE 3C-A READ-ONLY CONNECTION)
+Approved by: Direct user request
+Target release: AI Lab v2.0.5
+```
+
 ## Approved change record — AI-LAB-CC-051
 
 ```text
@@ -17,6 +36,25 @@ Cost and schedule impact: Uses the existing R2 object and Pages deployment only.
 Decision: APPROVED (RELEASE PUBLICATION)
 Approved by: Direct user request
 Target release: AI Lab v2.0.4
+```
+
+## Approved change record — AI-LAB-CC-054
+
+```text
+Change ID: AI-LAB-CC-054
+Requested by: Repository maintainer
+Date: 2026-10-17
+Description: Add Windows-DPAPI-protected local custody, non-secret status, and explicit removal for one user-owned RunPod access token.
+Reason: Prepare a user-managed provider connection without a shared Markellos account or repository-held secret.
+Affected objective IDs: AI-LAB-OBJ-020
+Architecture impact: Adds a dedicated credential-vault infrastructure module and bounded loopback save/status/remove routes. No provider adapter, remote executor, worker change, or SQLite schema change is added.
+Security and privacy impact: The token is never returned or logged; it is encrypted for the current Windows user and stored outside Git. Same-user process compromise remains a documented residual risk. No provider request or paid action is possible.
+Data impact: One optional encrypted credential blob in the current user's Local App Data directory, retained until the user explicitly removes it. It is excluded from backups and Git.
+Testing impact: Add synthetic Windows-DPAPI, fake-vault, request-validation, loopback save/status/remove, static UI, and locked-route regressions.
+Cost and schedule impact: No provider request, transfer, Pod, model, dataset, job, or charge can be created.
+Decision: APPROVED (PHASE 3B LOCAL CREDENTIAL CUSTODY ONLY)
+Approved by: Direct user request
+Target release: AI Lab v2.0.5
 ```
 
 ## Approved change record — AI-LAB-CC-050
@@ -38,6 +76,25 @@ Approved by: Direct user request
 Target release: AI Training Lab v2.0.3
 ```
 
+## Approved change record — AI-LAB-CC-053
+
+```text
+Change ID: AI-LAB-CC-053
+Requested by: Repository maintainer
+Date: 2026-10-16
+Description: Add a local, user-owned provider planning surface for advanced LoRA fine-tuning, with RunPod as the first allow-listed provider identifier.
+Reason: Let each Local Lab user plan their own provider account, budget, runtime, and data-transfer acknowledgement without using a shared Markellos GPU account.
+Affected objective IDs: AI-LAB-OBJ-019
+Architecture impact: Adds an isolated provider-plan contract and bounded same-origin local endpoints. The existing worker, local Ollama inference, SQLite histories, and locked training-job route remain independent.
+Security and privacy impact: Credentials, provider URLs, network calls, remote commands, uploads, paid provisioning, and remote execution are prohibited in this phase. User plan data is validated in memory only.
+Data impact: No SQLite schema or durable user data changes.
+Testing impact: Add contract and loopback request validation tests; retain the HTTP 423 regression proving that training cannot start.
+Cost and schedule impact: No provider connection, paid resource, model/dataset transfer, or charge can be created by this phase.
+Decision: APPROVED (PHASE 3A FOUNDATION)
+Approved by: Direct user request
+Target release: AI Lab v2.0.5
+```
+
 ## Approved change record — AI-LAB-CC-049
 
 ```text
@@ -55,6 +112,25 @@ Cost and schedule impact: Each active local workflow can consume selected local-
 Decision: APPROVED (SCOPE INCREASE)
 Approved by: Direct user request
 Target release: Unreleased local development branch; no package, merge, or deployment action in this phase.
+```
+
+## Approved change record — AI-LAB-CC-052
+
+```text
+Change ID: AI-LAB-CC-052
+Requested by: Repository maintainer
+Date: 2026-10-15
+Description: Prepare a provider-independent remote NVIDIA GPU LoRA smoke-test contract, host readiness probe, worker reliability evidence, and procedure while retaining the production training lock.
+Reason: Verify the shared worker on an explicitly approved future GPU host without binding the training engine to the Windows laptop or a cloud provider.
+Affected objective IDs: AI-LAB-OBJ-006
+Architecture impact: Adds file-based job-contract and readiness modules used by the directly executable worker; no remote executor, provider integration, public endpoint, or Local Lab activation is added.
+Security and privacy impact: No credentials, remote commands, uploads, paid resources, or network execution are introduced; the HTTP 423 lock remains required.
+Data impact: Future synthetic datasets, staged models, and adapter outputs remain external to Git and SQLite histories.
+Testing impact: Add mocked contract/readiness/failure lifecycle tests and retain locked-route plus existing Local Lab regressions; real CUDA verification remains pending.
+Cost and schedule impact: No cloud resources are started. A later smoke test requires explicit approval for a GPU host, dependency installation, model source/license, artifact staging, and execution.
+Decision: APPROVED (PREPARATION ONLY)
+Approved by: Direct user request
+Target release: AI Lab v2.0.5
 ```
 
 ## Approved change record ? AI-LAB-CC-048

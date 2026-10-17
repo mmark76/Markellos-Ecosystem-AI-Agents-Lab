@@ -29,6 +29,9 @@
 | AI-LAB-SCOPE-017 | Add an independent, fixed-loopback local Evaluator execution engine for persisted Evaluation Lab runs without changing Training Room behavior. | High | Repository maintainer | Approved by direct user request on 2026-10-14 |
 | AI-LAB-SCOPE-018 | Integrate the independent Evaluation Lab into the local application with bounded same-origin HTTP routes, explicit run initiation, read-only Training Room session selection, and qualified scorecard/findings UI. | High | Repository maintainer | Approved by direct user request on 2026-10-15 |
 | AI-LAB-SCOPE-019 | Align the Local Lab with the approved five active Lab and fifteen Lab-scoped agent architecture while preserving local-only boundaries and legacy Training history. | High | Repository maintainer | Approved by direct user request on 2026-10-16 |
+| AI-LAB-SCOPE-020 | Add the first local, user-owned provider planning surface for remote LoRA fine-tuning. The user declares a provider, spend and runtime limits; Phase 3A neither collects credentials nor executes a remote job. | High | Repository maintainer | Approved by direct user request on 2026-10-16 |
+| AI-LAB-SCOPE-021 | Add explicit, Windows-user-scoped encrypted custody for a user-owned RunPod access token, with status and removal controls. Phase 3B stores no plan, starts no provider request, and performs no training. | High | Repository maintainer | Approved by direct user request on 2026-10-17 |
+| AI-LAB-SCOPE-022 | Add one explicit read-only RunPod connection control that validates the locally protected token and reads a fixed GPU catalog/pricing query. It cannot create or manage provider resources. | High | Repository maintainer | Approved by direct user request on 2026-10-17 |
 
 ## Out of scope
 
@@ -39,6 +42,7 @@
 - Cloud model pulls, unmanaged model URLs, arbitrary network endpoints, and in-app downloads for non-Ollama engines; AI-LAB-SCOPE-008 permits only explicit owner-confirmed Ollama pulls through fixed loopback.
 - Automatic update downloads, installation, executable launch, release-channel selection, and arbitrary update URLs; AI-LAB-SCOPE-009 permits a manual check of one fixed official GitHub Releases endpoint only.
 - Silent dependency installation, unverified download URLs, driver or CUDA installation, arbitrary scripts, automatic model pulls, and any device change without the relevant Easy Start approval dialog.
+- Provider API calls, remote execution, paid provisioning, model/dataset transfers, and credential use remain out of scope except AI-LAB-SCOPE-022's explicit, fixed, read-only RunPod account/GPU-catalog check. It cannot create, alter, or charge provider resources.
 
 ## Foundation impact
 

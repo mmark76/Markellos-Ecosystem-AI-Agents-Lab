@@ -44,10 +44,19 @@ require a separate approved architecture and security scope.
 
 Training uses a separate `training/.venv` and a fixed worker script. The server
 validates selected model and JSONL dataset names against owned local folders,
-then starts at most one worker. CUDA is a PyTorch execution choice, not an
-inference provider; an explicit CUDA request fails when unsupported. This keeps
-the lightweight server, inference adapters, and SQLite conversation history free
-of ML dependencies and training side effects.
+then starts at most one worker when the feature is explicitly approved and
+enabled. CUDA is a PyTorch execution choice, not an inference provider; an
+explicit CUDA request fails when unsupported. This keeps the lightweight
+server, inference adapters, and SQLite conversation history free of ML
+dependencies and training side effects.
+
+Phase 1 retains a hard disabled-by-default service and HTTP-route gate, so no
+training configuration or worker subprocess can start in the released app.
+Read-only status remains available without probing the isolated runtime. The
+worker uses TRL `SFTConfig` for dataset and sequence-length settings and passes
+`LoraConfig` to `SFTTrainer`; its only prepared method is supervised LoRA
+adapter training, not full-parameter fine-tuning. Future activation requires a
+separate approval and controlled integration verification.
 
 ## AI-LAB-ADR-005 — Keep update discovery separate from update installation
 
@@ -75,3 +84,20 @@ remain a manual, user-controlled upgrade procedure.
 The public Cloudflare Pages landing page may use GA4 property `G-ZEPZK1T1YQ` to measure aggregate website use only after a visitor explicitly accepts analytics. The first-party dashboard script stores that choice locally, uses Consent Mode v2 consent signals, and dynamically loads Google's tag only after consent. It sends one manual page view per location and one `zip_download` event per Windows ZIP click. Rejecting or withdrawing consent disables future events.
 
 Consequences: the CSP permits only the Google tag and analytics collection origins required after consent. No tag is included unconditionally, no sensitive or Local Lab data is sent, and no Local Lab source, build, or deployment setting changes.
+
+## AI-LAB-ADR-007 — Keep remote GPU execution provider-neutral and file-based
+
+- Status: Accepted
+- Date: 2026-10-15
+- Related requirements: AI-LAB-OBJ-006, AI-LAB-AC-008, AI-LAB-SEC-006, AI-LAB-SEC-007
+
+The shared LoRA worker accepts a validated local job file and writes a local
+status file plus adapter artifact. A small readiness probe collects host
+evidence without installing packages, loading a model, or contacting a
+provider. The released Local Lab continues to lock all training initiation.
+
+Consequences: GPU infrastructure can be selected independently of the Windows
+Lab and without a RunPod, cloud SDK, public route, or credential in the
+repository. A future executor is responsible for explicitly approved transport,
+authentication, artifact staging, timeout, cost, and teardown controls. This
+decision does not implement remote execution or activate training.
