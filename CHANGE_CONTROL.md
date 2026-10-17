@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-051
+
+```text
+Change ID: AI-LAB-CC-051
+Requested by: Repository maintainer
+Date: 2026-10-17
+Description: Publish the verified AI Lab v2.0.4 Windows ZIP through the existing versioned public R2 archive and make it the current landing-page download.
+Reason: Direct user request to release the new ZIP version and deploy the public landing page.
+Affected objective IDs: AI-LAB-OBJ-003
+Architecture impact: The static landing page continues to reference only a versioned R2 object; no Local Lab, Ollama, SQLite, API, DNS, or authentication boundary changes.
+Security and privacy impact: The public ZIP contains no credentials or application data. Its anonymous URL and SHA-256 are verified before the manifest change. R2 response-header policy remains an external verification follow-up and is not represented as verified by this record.
+Data impact: Adds one immutable versioned public ZIP reference and retains the existing archive history.
+Testing impact: Run landing build and regression tests, foundation validation, diff checks, anonymous download/checksum verification, and post-deployment public-site checks.
+Cost and schedule impact: Uses the existing R2 object and Pages deployment only.
+Decision: APPROVED (RELEASE PUBLICATION)
+Approved by: Direct user request
+Target release: AI Lab v2.0.4
+```
+
 ## Approved change record — AI-LAB-CC-050
 
 ```text
