@@ -79,9 +79,20 @@ the PyTorch training wizard.
 
 Experienced users may run `start-windows.bat`; it performs the same readiness check before starting the server.
 
-Stop the service with `Ctrl+C` in its PowerShell window. If port 8765 is
-already in use, the application reports an error and does not replace another
-service.
+Stop the service with `Ctrl+C` in its PowerShell window. When starting
+a freshly extracted ZIP, the Windows launcher first checks port `8765`. If a
+running Python server is confirmed as AI Training Lab, it asks for permission
+before stopping that exact process and starting the new copy. Older ZIPs used
+a relative `server.py` command that cannot establish ownership conclusively;
+the prompt discloses this uncertainty, the PID, and the command line. Declining
+leaves the existing process untouched. An unrelated or unidentifiable listener
+is never stopped automatically. Stopping a running Lab can interrupt active
+agent work, so finish or save work before approving. Neither this step nor
+the new ZIP deletes local SQLite histories or credentials.
+
+Downloading a ZIP alone does not close a local server; the replacement check
+occurs when the new extracted ZIP's `Start AI Training Lab.bat` is executed.
+It does not change the existing fixed-loopback provider boundary.
 
 ### Desktop shortcut
 

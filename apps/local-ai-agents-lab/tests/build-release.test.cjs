@@ -210,3 +210,21 @@ test('beginner fine-tuning guide and personal provider planner are bundled while
   assert.doesNotMatch(html,/Under Construction/);
   assert.match(page,/Fine-Tuning versus the Learning Lab/);
 });
+
+
+test('Windows replacement preflight is bundled and never indiscriminately kills port owners',()=>{
+  const root=path.resolve(__dirname,'..');
+  const launcher=fs.readFileSync(path.join(root,'start-windows.bat'),'utf8');
+  const preflight=fs.readFileSync(path.join(root,'scripts','prepare-local-server.ps1'),'utf8');
+  const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
+  assert.match(packager,/'scripts\/prepare-local-server\.ps1'/);
+  assert.match(launcher,/prepare-local-server\.ps1/);
+  assert.match(launcher,/if errorlevel 1/);
+  assert.match(launcher,/py -3 "%~dp0server\.py"/);
+  assert.match(preflight,/Get-NetTCPConnection -LocalPort 8765/);
+  assert.match(preflight,/Get-LabServerIdentity/);
+  assert.match(preflight,/LEGACY_CANDIDATE/);
+  assert.match(preflight,/Stop-Process -Id \$ownerPid -Force/);
+  assert.match(preflight,/MessageBoxDefaultButton\]::Button2/);
+  assert.doesNotMatch(preflight,/Stop-Process -Name|taskkill|netsh/);
+});
