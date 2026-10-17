@@ -16,7 +16,26 @@ Testing impact: Windows path, process identity and regression tests; build and v
 Cost and schedule impact: Local-only behavior; no provider call, model usage, or deployment is initiated by the fix.
 Decision: APPROVED (LOCAL STARTUP SAFETY FIX)
 Approved by: Direct user request
-Target release: Next Windows ZIP version; not retroactive to already published v2.0.10
+Target release: AI Lab v2.0.11; not retroactive to already published v2.0.10
+```
+
+## Approved change record — AI-LAB-CC-066
+
+```text
+Change ID: AI-LAB-CC-066
+Requested by: User
+Date: 2026-10-17
+Description: Publish AI Lab v2.0.11 with the verified Windows local-server replacement fix, a fixed-protocol Refresh Local Server Before Launch dashboard action, and a scheduled public R2 ZIP availability and SHA-256 verification.
+Reason: Ensure that a fresh Local Lab start can safely recover from a verified older Lab listener, and promptly detect any future loss or corruption of the public Windows ZIP download.
+Affected objective IDs: AI-LAB-OBJ-003, AI-LAB-OBJ-023
+Architecture impact: Keeps the Local Lab loopback-only and the public landing static. Adds an outbound GitHub Actions monitor that reads only the current reviewed R2 release URL and its checksum manifest.
+Security and privacy impact: The launcher never stops an unrelated or unverified process. The monitor uses no credentials, sends no local data, and checks only the already-public artifact.
+Data impact: Creates one immutable v2.0.11 GitHub/R2 ZIP while retaining all previous versions; no application data, local settings, credentials, or SQLite records are changed.
+Testing impact: Retain Windows launcher/protocol coverage, package verification, full repository checks, monitor regression/real public-artifact verification, published checksum validation, and Pages deployment check.
+Cost and schedule impact: A small scheduled GitHub Actions read-only download check; no model request, provider request, training, or paid resource is created.
+Decision: APPROVED (PATCH RELEASE AND RELIABILITY MONITORING)
+Approved by: Direct user request
+Target release: AI Lab v2.0.11
 ```
 
 ## Approved change record — AI-LAB-CC-063

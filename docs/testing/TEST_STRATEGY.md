@@ -6,6 +6,7 @@
 |---|---|---|---|
 | Landing build | Static public guide artifact and headers. | `node apps/ai-lab-landing/build.cjs` | Generated `apps/ai-lab-landing/dist/` artifact. |
 | Landing test | Static artifact, consent-gated GA4, ZIP event, privacy text, and header contracts. | `node --test apps/ai-lab-landing/tests/build.test.cjs` | Node test output. |
+| Public ZIP monitor | Current reviewed R2 ZIP availability, content type, exact content length, and SHA-256. | `node apps/ai-lab-landing/scripts/verify-public-distribution.cjs` | Manual release check and scheduled GitHub Actions workflow every six hours. |
 | Local package test | Windows package metadata and release verification. | `node --test apps/local-ai-agents-lab/tests/build-release.test.cjs` | Node test output. |
 | Local server tests | Loopback server, SQLite behavior, fixed-provider discovery/routing, and local data behavior. | `py -3 -m unittest discover -s apps/local-ai-agents-lab/tests` | Python test output. |
 | Local training tests | JSONL validation, local path restrictions, CPU selection, and unsupported CUDA handling. | `py -3 -m unittest discover -s apps/local-ai-agents-lab/tests` | Python test output. |

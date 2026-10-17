@@ -6,6 +6,7 @@ const test = require('node:test');
 
 const app = resolve(__dirname, '..');
 const output = join(app, 'dist');
+const distributionMonitor = resolve(app, '..', '..', '.github', 'workflows', 'verify-public-ai-lab-distribution.yml');
 const releaseVersion = readFileSync(join(app, '..', 'local-ai-agents-lab', 'VERSION'), 'utf8').trim();
 const distribution = JSON.parse(readFileSync(join(app, 'release-distribution.json'), 'utf8'));
 const escapedReleaseVersion = releaseVersion.replaceAll('.', '\\.');
@@ -47,6 +48,9 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(styles, /#launch-local-lab:hover,html\[data-color-mode="light"\] #launch-local-lab:hover/);
   assert.match(styles, /background:#1d4ed8;border-color:#1d4ed8;filter:none/);
   assert.match(styles, /#launch-local-lab:focus-visible\{outline:3px solid #93c5fd/);
+  assert.match(styles, /#refresh-local-server\{align-items:flex-start;flex-direction:column/);
+  assert.match(html, /id="refresh-local-server" class="secondary-button" href="markellos-ai-training-lab-refresh:\/\/open"/);
+  assert.match(html, /<span>Refresh Local Server<\/span><small>Before launching the app<\/small><\/a>/);
   assert.match(html, new RegExp(currentDistribution.url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.match(html, /Release archive/);
   assert.match(html, /19 earlier Windows ZIPs/);
@@ -75,7 +79,9 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /id="launch-local-lab" class="secondary-button" href="markellos-ai-training-lab:\/\/open"/);
   assert.match(html, /Launch Local Lab after download and extract zip<\/a>/);
   assert.doesNotMatch(html, /Launch Local Lab <span aria-hidden="true">\?<\/span>/);
-  assert.match(html, /Launch Local Lab works after the first Easy Start setup/);
+  assert.match(html, /Both actions work after the first Easy Start setup/);
+  assert.match(html, /Refresh starts a clean local server without opening the app\./);
+  assert.match(guide, /Refresh Local Server/);
   assert.doesNotMatch(html, /\{\{LEGACY_DOWNLOAD_BUTTON\}\}/);
   assert.match(html, /Starter AI Model/);
   assert.match(guide, /Easy Start creates an AI Lab shortcut on the Windows Desktop/);
@@ -199,4 +205,18 @@ test('analytics stays unloaded until consent and sends only approved events afte
     global.window = originalWindow;
     global.document = originalDocument;
   }
+});
+
+test('public distribution monitoring verifies the reviewed current R2 ZIP on a schedule', () => {
+  const workflow = readFileSync(distributionMonitor, 'utf8');
+  const monitor = readFileSync(join(app, 'scripts', 'verify-public-distribution.cjs'), 'utf8');
+  assert.match(workflow, /schedule:/);
+  assert.match(workflow, /17 \*\/6 \* \* \*/);
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.match(workflow, /verify-public-distribution\.cjs/);
+  assert.match(monitor, /release-distribution\.json/);
+  assert.match(monitor, /Public ZIP returned HTTP/);
+  assert.match(monitor, /application\/x-zip-compressed/);
+  assert.match(monitor, /Public ZIP SHA-256 mismatch/);
+  assert.match(monitor, /Public ZIP length mismatch/);
 });
