@@ -43,7 +43,7 @@ async function refreshCredentialStatus() {
     credentialRemove.hidden = !status.stored;
     providerConnection.hidden = !status.stored;
     credentialMessage(status.stored
-      ? 'A RunPod token is stored encrypted for this Windows user. Training remains locked.'
+      ? 'A RunPod token is stored encrypted for this Windows user. You can now check your own provider connection.'
       : 'No RunPod token is stored for this Windows user.');
   } catch (error) {
     credentialRemove.hidden = true;
@@ -69,7 +69,7 @@ providerPlan.addEventListener('submit', async event => {
     });
     providerPlanOutput.textContent = `${plan.provider.label} · ${plan.limits.maxRuntimeMinutes} minutes · up to $${plan.limits.maxBudgetUsd}\n${plan.billing}\n${plan.credentials}\n${plan.execution}\n${plan.nextStep}`;
     providerPlanOutput.hidden = false;
-    providerPlanMessage('Personal provider plan reviewed. No connection or charge was created.');
+    providerPlanMessage('Personal provider plan reviewed. You may now connect your own RunPod account; no charge was created.');
   } catch (error) {
     providerPlanOutput.hidden = true;
     providerPlanMessage(error.message, true);
@@ -108,7 +108,7 @@ credentialRemove.addEventListener('click', async () => {
         provider: document.getElementById('personal-provider').value, confirmCredentialRemoval: true,
       }),
     });
-    credentialMessage('The locally stored RunPod token was removed. Training remains locked.');
+    credentialMessage('The locally stored RunPod token was removed. No provider action can use it.');
     providerConnectionOutput.hidden = true;
     await refreshCredentialStatus();
   } catch (error) {
@@ -134,7 +134,7 @@ providerConnect.addEventListener('click', async () => {
     });
     providerConnectionOutput.textContent = `${result.provider} account confirmed.\n${listed.length ? listed.join('\n') : 'No GPU catalog entries were returned.'}\n${result.execution}`;
     providerConnectionOutput.hidden = false;
-    providerConnectionMessage('RunPod connection verified. This was read-only; training remains locked.');
+    providerConnectionMessage('RunPod connection verified. This was read-only; no paid Pod or training job was started.');
   } catch (error) {
     providerConnectionMessage(error.message, true);
   } finally {

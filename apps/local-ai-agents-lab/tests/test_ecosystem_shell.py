@@ -53,10 +53,10 @@ class EcosystemShellTests(unittest.TestCase):
         planner = (STATIC / "personal-provider.js").read_text(encoding="utf-8")
         for label in (
             "Advanced: Personal Fine-Tuning Provider",
-            "Under Construction",
-            "No provider account is connected. Training remains locked.",
+            "Your provider account",
+            "Set a plan, then connect your own provider account. No paid job is started automatically.",
             "I will use my own provider account and accept its charges.",
-            "Read-only RunPod connection check",
+            "Check your RunPod account",
             "Check RunPod connection",
         ):
             with self.subTest(label=label):

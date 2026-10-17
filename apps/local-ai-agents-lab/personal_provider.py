@@ -41,7 +41,7 @@ def provider_options() -> dict:
         "regions": sorted(_REGIONS),
         "limits": {"minimumBudgetUsd": 1, "maximumBudgetUsd": int(_MAX_BUDGET_USD), "minimumRuntimeMinutes": 15, "maximumRuntimeMinutes": 720},
         "credentials": "optional-local-vault",
-        "execution": "not-available",
+        "execution": "connection-ready",
     }
 
 
@@ -86,7 +86,7 @@ def build_provider_plan(raw: object) -> dict:
         "billing": "The provider charges your own account directly.",
         "credentials": "No credential was requested, stored, or returned by this plan review.",
         "execution": "No provider connection, upload, provisioning, or training job was started.",
-        "nextStep": "A separately approved local credential-vault action is available; provider execution remains unavailable.",
+        "nextStep": "Save a token locally and use the explicit connection check. A paid Pod or training job is never created by this review.",
     }
 
 

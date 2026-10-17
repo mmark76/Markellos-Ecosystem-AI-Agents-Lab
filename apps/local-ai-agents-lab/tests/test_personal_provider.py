@@ -42,6 +42,7 @@ class PersonalProviderPlanTests(unittest.TestCase):
 
     def test_options_describe_the_separate_local_credential_vault(self):
         self.assertEqual(personal_provider.provider_options()["credentials"], "optional-local-vault")
+        self.assertEqual(personal_provider.provider_options()["execution"], "connection-ready")
 
     def test_credential_requests_require_exact_fields_and_never_echo_a_token(self):
         request = {
