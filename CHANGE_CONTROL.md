@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-068
+
+```text
+Change ID: AI-LAB-CC-068
+Requested by: User
+Date: 2026-10-17
+Description: Publish AI Lab v2.0.13 as an immediate patch for the Connections-hub dialog script route omitted from the local server's static-resource allowlist.
+Reason: The packaged script was present but the local server returned 404 for it, so the Internet connections & fine-tuning button could not register its dialog action.
+Affected objective IDs: AI-LAB-OBJ-003, AI-LAB-OBJ-023
+Architecture impact: Add the existing local `connection-dialogs.js` asset to the fixed local static-resource map. No route beyond loopback, connection flow, provider behavior, or public endpoint changes.
+Security and privacy impact: The route exposes only a reviewed same-origin static script under the existing `script-src 'self'` policy. No credential, consent, network, provider, or data-boundary behavior changes.
+Data impact: Creates one immutable v2.0.13 GitHub/R2 ZIP while retaining all previous versions; no application data, local settings, credentials, or SQLite records are changed.
+Testing impact: Add dynamic loopback asset-serving coverage and package assertions for the dialog script, then validate CI, public checksum, and Pages deployment before release completion.
+Cost and schedule impact: No model request, provider request, training, or paid resource is created.
+Decision: APPROVED (URGENT PATCH RELEASE — LOCAL DIALOG ASSET ROUTE)
+Approved by: Direct user request and reported runtime failure
+Target release: AI Lab v2.0.13
+```
+
 ## Approved change record — AI-LAB-CC-067
 
 ```text
