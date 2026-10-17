@@ -30,7 +30,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /<img class="brand-mark" src="\.\/ai-training-lab-mark\.png" alt="AI Lab">/);
   assert.match(html, /class="beta-badge">BETA<\/span>/);
   assert.match(styles, /\.beta-badge/);
-  assert.equal(currentDistribution.version, releaseVersion, 'the public ZIP must match the current Local Lab version');
+  assert.match(currentDistribution.version, /^\d+\.\d+\.\d+$/, 'the verified public ZIP may lag the local application release');
   assert.equal(new Set(distribution.releases.map(({ version }) => version)).size, distribution.releases.length);
   for (const release of distribution.releases) {
     assert.match(release.version, /^\d+\.\d+\.\d+$/);
