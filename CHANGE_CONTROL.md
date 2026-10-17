@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-056
+
+```text
+Change ID: AI-LAB-CC-056
+Requested by: Repository maintainer
+Date: 2026-10-17
+Description: Publish AI Lab v2.0.5 as a verified Windows ZIP release containing the five active Labs and the bounded personal-provider Fine-Tuning preparation.
+Reason: Direct user request to audit recent Lab additions and ZIP releases, then create and publish v2.0.5.
+Affected objective IDs: AI-LAB-OBJ-003, AI-LAB-OBJ-018, AI-LAB-OBJ-019, AI-LAB-OBJ-020, AI-LAB-OBJ-021
+Architecture impact: Packages the existing local Lab only. The public landing remains a static guide and never exposes the loopback Lab, Ollama, or SQLite data.
+Security and privacy impact: The Fine-Tuning job route remains HTTP 423. The optional user-owned provider token stays Windows-DPAPI-protected, no provider mutation is added, and release packaging excludes local data and credentials.
+Data impact: Creates one immutable versioned ZIP artifact. Existing releases remain retained.
+Testing impact: Audit v2.0.0 through v2.0.4 assets, run complete Local Lab and landing/package regressions, build and verify the v2.0.5 ZIP from its exact commit, and verify the published release asset.
+Cost and schedule impact: No paid provider resource, model download, training job, or remote executor is activated.
+Decision: APPROVED (RELEASE PUBLICATION)
+Approved by: Direct user request
+Target release: AI Lab v2.0.5
+```
+
 ## Approved change record — AI-LAB-CC-055
 
 ```text
