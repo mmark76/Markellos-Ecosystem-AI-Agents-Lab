@@ -18,21 +18,21 @@
   <script defer src="/static/personal-provider.js"></script>
   <script defer src="/static/openai-connection.js"></script>
   <script defer src="/static/panel-layout.js"></script>
+  <script defer src="/static/connection-dialogs.js"></script>
 </head>
 <body>
 <div class="shell" id="panel-layout">
-  <aside class="sidebar" id="left-panel" aria-label="Workspace navigation">
-    <button type="button" class="panel-toggle" id="toggle-left" aria-controls="left-panel" aria-expanded="true" aria-label="Hide left sidebar" title="Hide left sidebar"><svg class="panel-toggle-icon" aria-hidden="true" viewBox="0 0 24 24" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M9 4v16"></path></svg></button>
+  <aside class="sidebar" id="left-panel" aria-label="Connection controls">
+    <button type="button" class="panel-toggle" id="toggle-left" aria-controls="left-panel" aria-expanded="true" aria-label="Hide connection controls" title="Hide connection controls"><svg class="panel-toggle-icon" aria-hidden="true" viewBox="0 0 24 24" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M9 4v16"></path></svg></button>
     <div class="panel-content">
       <div class="brand-stack"><span class="beta-badge">BETA</span><div class="brand"><span class="mark">M</span><span><strong>Markellos Ecosystem<br>AI Lab</strong><small>Private Local Workspace</small></span></div></div>
-      <div class="label">WORKSPACE</div>
-      <button class="nav" data-room="conference" type="button"><span class="workspace-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M20 11a5 5 0 0 1-5 5H8l-4 3v-4a5 5 0 0 1-1-4V7a4 4 0 0 1 4-4h9a4 4 0 0 1 4 4Z"/></svg></span><span id="nav-conference">Conference Room</span></button>
-      <button class="nav selected" data-room="training" type="button"><span class="workspace-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="m2 10 10-5 10 5-10 5-10-5Z"/><path d="M6 12v5c3.5 2.5 8.5 2.5 12 0v-5M22 10v6"/></svg></span><span id="nav-training">Training Lab</span></button>
-      <button class="nav" data-room="evaluation" type="button"><span class="workspace-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="5" y="4" width="14" height="18" rx="2"/><path d="M9 4V2h6v2M9 13l2 2 4-4"/></svg></span><span>Evaluation Lab</span></button>
-      <button class="nav" data-room="advisory" type="button"><span class="workspace-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M9 18h6m-5 4h4M8 15c-1.2-1.1-2-2.8-2-4.5a6 6 0 1 1 12 0c0 1.7-.8 3.4-2 4.5-.7.6-1 1.2-1 2H9c0-.8-.3-1.4-1-2Z"/></svg></span><span>Advisory Lab</span></button>
-      <button class="nav" data-room="optimization" type="button"><span class="workspace-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 6h8m4 0h4M4 12h3m4 0h9M4 18h11m4 0h1"/><circle cx="14" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg></span><span>Optimization Lab</span></button>
-      <div class="label section-gap">PHASE 1 · SANDBOX</div>
-      <p class="tip" id="phase-tip"></p>
+      <div class="connection-area">
+        <div class="label">CONNECTIONS</div>
+        <div class="connection-actions">
+          <button type="button" class="connection-button" id="open-connections-hub" aria-haspopup="dialog" aria-controls="connections-hub-dialog"><strong>Internet connections &amp; fine-tuning</strong><small>Optional ChatGPT and personal-provider connections</small></button>
+        </div>
+        <p class="tip">Connections are optional. Local agents remain on Ollama unless you explicitly use one of these controls.</p>
+      </div>
       <div class="sidebar-footer" id="sidebar-note"></div>
       <div class="sidebar-utility-actions" aria-label="Application controls"><button type="button" id="quick-mode" class="settings-toggle" aria-label="Toggle light and dark mode">Light / Dark</button><button type="button" id="info-toggle" class="settings-toggle" aria-haspopup="dialog">Info</button><button type="button" id="settings-toggle" class="settings-toggle" aria-expanded="false" aria-controls="settings-panel" aria-label="Settings">⚙ <span id="settings-label">Settings</span></button></div>
     </div>
@@ -126,11 +126,18 @@ Completeness</textarea>
     </section>
     <footer><span>© <span class="copyright-year"></span> Markellos Markides. All rights reserved.</span><span class="build-id">ZIP version: ZIP_VERSION</span></footer>
   </main>
-  <div class="panel-resizer panel-resizer-right" id="resize-right" role="separator" aria-label="Resize tools panel" aria-orientation="vertical" tabindex="0"></div>
-  <aside class="inspector" id="right-panel" aria-label="Lab tools">
-    <button type="button" class="panel-toggle" id="toggle-right" aria-controls="right-panel" aria-expanded="true" aria-label="Hide right sidebar" title="Hide right sidebar"><svg class="panel-toggle-icon" aria-hidden="true" viewBox="0 0 24 24" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M15 4v16"></path></svg></button>
+  <div class="panel-resizer panel-resizer-right" id="resize-right" role="separator" aria-label="Resize rooms and agent controls" aria-orientation="vertical" tabindex="0"></div>
+  <aside class="inspector" id="right-panel" aria-label="Rooms and agent controls">
+    <button type="button" class="panel-toggle" id="toggle-right" aria-controls="right-panel" aria-expanded="true" aria-label="Hide rooms and agent controls" title="Hide rooms and agent controls"><svg class="panel-toggle-icon" aria-hidden="true" viewBox="0 0 24 24" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M15 4v16"></path></svg></button>
     <div class="panel-content">
-      <section class="inspector-heading"><p class="eyebrow">LOCAL TOOLS</p><h2>Lab controls</h2></section>
+      <section class="inspector-heading"><p class="eyebrow">WORKSPACE</p><h2>Rooms &amp; agents</h2></section>
+      <div class="room-navigation" aria-label="Choose a Lab">
+        <button class="nav" data-room="conference" type="button"><span class="workspace-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M20 11a5 5 0 0 1-5 5H8l-4 3v-4a5 5 0 0 1-1-4V7a4 4 0 0 1 4-4h9a4 4 0 0 1 4 4Z"/></svg></span><span id="nav-conference">Conference Room</span></button>
+        <button class="nav selected" data-room="training" type="button"><span class="workspace-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="m2 10 10-5 10 5-10 5-10-5Z"/><path d="M6 12v5c3.5 2.5 8.5 2.5 12 0v-5M22 10v6"/></svg></span><span id="nav-training">Training Lab</span></button>
+        <button class="nav" data-room="evaluation" type="button"><span class="workspace-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="5" y="4" width="14" height="18" rx="2"/><path d="M9 4V2h6v2M9 13l2 2 4-4"/></svg></span><span>Evaluation Lab</span></button>
+        <button class="nav" data-room="advisory" type="button"><span class="workspace-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M9 18h6m-5 4h4M8 15c-1.2-1.1-2-2.8-2-4.5a6 6 0 1 1 12 0c0 1.7-.8 3.4-2 4.5-.7.6-1 1.2-1 2H9c0-.8-.3-1.4-1-2Z"/></svg></span><span>Advisory Lab</span></button>
+        <button class="nav" data-room="optimization" type="button"><span class="workspace-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 6h8m4 0h4M4 12h3m4 0h9M4 18h11m4 0h1"/><circle cx="14" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg></span><span>Optimization Lab</span></button>
+      </div>
       <section class="statusbar">
         <div><span class="status-icon">◉</span> <span id="status">Checking local model...</span></div>
         <div class="model-select"><p class="ollama-engine">Inference Engine: <strong>Ollama</strong></p><div id="room-model-selects"></div></div>
@@ -146,14 +153,20 @@ Completeness</textarea>
         <progress id="model-install-progress" max="100" value="0" hidden></progress>
         <p id="model-install-status" role="status" aria-live="polite">Model installation is optional.</p>
       </details>
-      <section class="training-workspace personal-provider-workspace" aria-labelledby="training-title">
-        <h3 id="training-title">Advanced: Personal Fine-Tuning Provider<span class="nav-status training-status">Your provider account</span></h3>
-        <p>Connect and review your own provider account. The provider bills you directly; this Lab does not hold a shared GPU account or payment method.</p>
-        <p class="personal-provider-console-boundary"><strong>RunPod API tokens and SSH public keys are credentials that only enable a direct connection to your own RunPod account or an already-running server. By themselves, they cannot create a server, start a job, or charge your account. Use the official RunPod Console to connect to and manage your own RunPod servers; the Lab cannot create a provider resource or charge your account.</strong></p>
-        <p><a id="open-runpod-console" class="fine-tuning-guide-link" href="https://console.runpod.io/" target="_blank" rel="noopener noreferrer">Open RunPod Console ↗</a></p>
-        <p class="personal-provider-console-boundary"><strong>OpenAI API keys are not accepted, stored, or used by this Lab. Instead, you may optionally connect with ChatGPT through your browser. This user-approved connection does not use an API key. Connecting alone does not send prompts, make an AI request, or create a charge.</strong></p>
-        <p><a id="open-openai-platform" class="fine-tuning-guide-link" href="https://platform.openai.com/" target="_blank" rel="noopener noreferrer">Open OpenAI API Platform ↗</a></p>
-        <section id="openai-chatgpt-connection" class="personal-provider-connection" aria-labelledby="openai-chatgpt-connection-title">
+      <details class="advanced-tools" id="advanced-tools" hidden>
+        <summary>
+          <span><strong>Advanced connections</strong><small>Personal provider and ChatGPT advisor</small></span>
+          <span class="nav-status">Optional</span>
+        </summary>
+        <div class="advanced-tools-content">
+          <section class="training-workspace personal-provider-workspace" aria-labelledby="training-title">
+            <h3 id="training-title">Personal Fine-Tuning Provider<span class="nav-status training-status">Your provider account</span></h3>
+            <p>Connect and review your own provider account. The provider bills you directly; this Lab does not hold a shared GPU account or payment method.</p>
+            <p class="personal-provider-console-boundary"><strong>RunPod API tokens and SSH public keys are credentials that only enable a direct connection to your own RunPod account or an already-running server. By themselves, they cannot create a server, start a job, or charge your account. Use the official RunPod Console to connect to and manage your own RunPod servers; the Lab cannot create a provider resource or charge your account.</strong></p>
+            <p><a id="open-runpod-console" class="fine-tuning-guide-link" href="https://console.runpod.io/" target="_blank" rel="noopener noreferrer">Open RunPod Console ↗</a></p>
+            <p class="personal-provider-console-boundary"><strong>OpenAI API keys are not accepted, stored, or used by this Lab. Instead, you may optionally connect with ChatGPT through your browser. This user-approved connection does not use an API key. Connecting alone does not send prompts, make an AI request, or create a charge.</strong></p>
+            <p><a id="open-openai-platform" class="fine-tuning-guide-link" href="https://platform.openai.com/" target="_blank" rel="noopener noreferrer">Open OpenAI API Platform ↗</a></p>
+            <section id="openai-chatgpt-connection" class="personal-provider-connection" aria-labelledby="openai-chatgpt-connection-title">
           <h4 id="openai-chatgpt-connection-title">Optional: Sign in with ChatGPT</h4>
             <p>Use your browser to approve a direct connection to your own ChatGPT account. The resulting connection record is protected locally for this Windows user. Connecting does not send a prompt or invoke a model. After connection, you may explicitly ask the external advisor for help with material you choose to share.</p>
           <button type="button" id="openai-chatgpt-connect">Continue with ChatGPT</button>
@@ -182,8 +195,8 @@ Completeness</textarea>
             <p id="openai-review-status" class="training-status" role="status" aria-live="polite"></p>
             <pre id="openai-review-output" class="personal-provider-output" hidden></pre>
           </section>
-        </section>
-        <form id="personal-provider-plan">
+            </section>
+            <form id="personal-provider-plan">
           <label for="personal-provider">Provider</label>
           <select id="personal-provider" name="provider"><option value="runpod">RunPod · first supported provider</option></select>
           <label for="personal-region">Region preference</label>
@@ -198,10 +211,10 @@ Completeness</textarea>
           <label class="personal-provider-check"><input id="personal-own-account" name="confirmOwnAccount" type="checkbox" required> I will use my own provider account and accept its charges.</label>
           <label class="personal-provider-check"><input name="confirmDataTransfer" type="checkbox" required> I understand selected training data would go directly to my provider, not to a Markellos server.</label>
           <button type="submit">Review personal provider plan</button>
-        </form>
-        <p id="personal-provider-status" class="training-status" role="status" aria-live="polite">Set a plan, then connect your own provider account. No paid job is started automatically.</p>
-        <pre id="personal-provider-output" class="personal-provider-output" hidden></pre>
-        <details class="personal-credential-workspace">
+            </form>
+            <p id="personal-provider-status" class="training-status" role="status" aria-live="polite">Set a plan, then connect your own provider account. No paid job is started automatically.</p>
+            <pre id="personal-provider-output" class="personal-provider-output" hidden></pre>
+            <details class="personal-credential-workspace">
           <summary>Optional: save a RunPod access token for this Windows user</summary>
           <p>Your token is encrypted locally with Windows protection. It is never shown again by the Lab. It is used only when you explicitly check your own provider connection; saving it never starts a paid job.</p>
           <form id="personal-provider-credentials">
@@ -220,11 +233,28 @@ Completeness</textarea>
             <p id="personal-provider-connection-status" class="training-status" role="status" aria-live="polite">No connection check has been run.</p>
             <pre id="personal-provider-connection-output" class="personal-provider-output" hidden></pre>
           </section>
-        </details>
-        <p><a class="fine-tuning-guide-link" href="/fine-tuning-guide" target="_blank" rel="noopener noreferrer">What is Fine-Tuning? A simple guide ?</a></p>
-      </section>
+            </details>
+            <p><a class="fine-tuning-guide-link" href="/fine-tuning-guide" target="_blank" rel="noopener noreferrer">What is Fine-Tuning? A simple guide ?</a></p>
+          </section>
+        </div>
+      </details>
     </div>
   </aside>
 </div>
+<dialog id="connections-hub-dialog" class="connection-dialog connection-hub-dialog" aria-labelledby="connections-hub-dialog-title">
+  <div class="connection-dialog-heading"><div><p class="eyebrow">OPTIONAL CONNECTIONS</p><h2 id="connections-hub-dialog-title">Internet connections &amp; fine-tuning</h2></div><button type="button" class="dialog-close" data-dialog-close aria-label="Close connections">×</button></div>
+  <div class="connection-dialog-content connection-actions">
+    <button type="button" class="connection-button" id="open-chatgpt-connection" aria-haspopup="dialog" aria-controls="chatgpt-connection-dialog"><strong>ChatGPT advisor</strong><small>Connect or review selected material</small></button>
+    <button type="button" class="connection-button" id="open-personal-provider" aria-haspopup="dialog" aria-controls="personal-provider-dialog"><strong>Personal provider</strong><small>Plan and check your RunPod account</small></button>
+  </div>
+</dialog>
+<dialog id="chatgpt-connection-dialog" class="connection-dialog" aria-labelledby="chatgpt-connection-dialog-title">
+  <div class="connection-dialog-heading"><div><p class="eyebrow">OPTIONAL CONNECTION</p><h2 id="chatgpt-connection-dialog-title">ChatGPT advisor</h2></div><button type="button" class="dialog-close" data-dialog-close aria-label="Close ChatGPT advisor">×</button></div>
+  <div class="connection-dialog-content" id="chatgpt-connection-dialog-content"></div>
+</dialog>
+<dialog id="personal-provider-dialog" class="connection-dialog" aria-labelledby="personal-provider-dialog-title">
+  <div class="connection-dialog-heading"><div><p class="eyebrow">OPTIONAL CONNECTION</p><h2 id="personal-provider-dialog-title">Personal provider</h2></div><button type="button" class="dialog-close" data-dialog-close aria-label="Close personal provider">×</button></div>
+  <div class="connection-dialog-content personal-provider-workspace" id="personal-provider-dialog-content"></div>
+</dialog>
 </body>
 </html>

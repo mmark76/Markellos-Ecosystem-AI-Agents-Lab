@@ -1,5 +1,62 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-063
+
+```text
+Change ID: AI-LAB-CC-063
+Requested by: User
+Date: 2026-10-17
+Description: Clarify the three prominent public landing-page ZIP milestones: v1.1.8 and v2.0.4 are local only; the current v2.0.10 remains local-first and includes optional user-initiated internet connections.
+Reason: Make the two historical local-only milestones distinguishable from the current release without implying that internet connections are automatic or that local Ollama workflows have changed.
+Affected objective IDs: AI-LAB-OBJ-003, AI-LAB-OBJ-021, AI-LAB-OBJ-022, AI-LAB-OBJ-023
+Architecture impact: Static public landing copy and presentation only. No ZIP, release-manifest, application route, provider, analytics, or deployment change.
+Security and privacy impact: Makes the optional nature of external connections explicit; no data handling or consent flow changes.
+Data impact: None.
+Testing impact: Landing build regression and rendered-content inspection.
+Cost and schedule impact: None.
+Decision: APPROVED (UI/COPY CLARIFICATION)
+Approved by: Direct user request
+Target release: AI Lab v2.0.10
+```
+
+## Approved change record — AI-LAB-CC-064
+
+```text
+Change ID: AI-LAB-CC-064
+Requested by: User
+Date: 2026-10-17
+Description: Publish AI Lab v2.0.10 with the approved Local Lab UI/UX organization and updated public release-milestone labels.
+Reason: Direct user request to commit, push, merge, deploy, and create a new Windows ZIP release.
+Affected objective IDs: AI-LAB-OBJ-003, AI-LAB-OBJ-023
+Architecture impact: Packages the loopback Lab and deploys the isolated static public landing. No public application route or hosted inference path is introduced.
+Security and privacy impact: Existing opt-in connection boundaries remain unchanged; the public landing remains static and does not host Local Lab data or credentials.
+Data impact: Creates immutable v2.0.10 GitHub and R2 release artifacts while retaining the existing archive.
+Testing impact: Run full repository checks, build and verify the release package, validate the published ZIP checksum, and verify the Pages deployment.
+Cost and schedule impact: Release and deployment only; no provider action, model request, training job, or paid usage is initiated.
+Decision: APPROVED (RELEASE AND DEPLOYMENT)
+Approved by: Direct user request
+Target release: AI Lab v2.0.10
+```
+
+## Approved change record — AI-LAB-CC-062
+
+```text
+Change ID: AI-LAB-CC-062
+Requested by: User
+Date: 2026-10-17
+Description: Reorganize the Local Lab desktop workspace so one left-panel “Internet connections & fine-tuning” entry point opens connection-specific accessible modals, while the right panel holds Lab-room selection and agent-model controls.
+Reason: The existing right panel exposes too much optional information alongside daily local-model controls, making the workspace difficult to scan.
+Affected objective IDs: AI-LAB-OBJ-023
+Architecture impact: Local presentation markup, modal interaction, and styles only. No route, provider, state, data flow, or model-routing behavior changes.
+Security and privacy impact: Existing explicit connection, consent, credential-custody, and per-review sharing boundaries remain visible and unchanged when the optional section is opened.
+Data impact: None.
+Testing impact: Retain static shell and release-package coverage; verify keyboard modal behavior and narrow, medium, and wide local layouts.
+Cost and schedule impact: None. No provider request, model request, training action, download, or deployment is introduced.
+Decision: APPROVED (UI/UX)
+Approved by: Direct user request
+Target release: Next Local Lab release
+```
+
 ## Approved change record — AI-LAB-CC-061
 
 ```text
