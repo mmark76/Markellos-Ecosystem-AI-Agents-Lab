@@ -16,9 +16,10 @@
       <h1 id="guide-title">Install and use AI Lab</h1>
       <p class="hero-copy">Begin with the simple instructions below, then explore the technical details on the same page.</p>
       <p><a class="inline-link" href="#quick-start">Quick Start</a> · <a class="inline-link" href="#technical-documentation">Technical Documentation</a></p>
+      <div class="hero-actions"><a class="secondary-button" href="./app-description.html">Detailed App Description <span aria-hidden="true">↗</span></a></div>
 
       <h2 id="quick-start">Quick Start (Windows)</h2>
-      <p>The Lab lets you experiment with local AI agents through a Trainer → Student → Evaluator → Improver learning-and-feedback cycle. It is free to use, needs no subscription, and runs on your own computer rather than on this public website.</p>
+      <p>The Lab lets you experiment with fifteen specialized AI agents across five active workspaces, including the Tutor → Student → Evaluator → Improver learning-and-feedback cycle. It is free to use, needs no subscription, and runs on your own computer rather than on this public website.</p>
       <p class="shell-notice"><strong>Before you begin:</strong> Use a Windows computer with at least 3 GiB of free disk space and an Internet connection for any missing prerequisites or initial AI model downloads. Larger models may require substantially more disk space and memory.</p>
       <h2>Start in three steps</h2>
       <ol>
@@ -37,16 +38,16 @@
       <p>After the initial setup and local model downloads, the basic application can run offline. Installing or updating software or downloading additional AI models requires Internet access.</p>
 
       <h2 id="technical-documentation">Technical Documentation</h2>
-      <h2>Rooms and their current status (v2.0.2)</h2>
-      <p>The left WORKSPACE menu shows five rooms, in this order. The first three are available; the last two are visible placeholders and cannot be opened yet.</p>
+      <h2>Rooms and their current status ({{RELEASE_VERSION}})</h2>
+      <p>The WORKSPACE menu contains five active rooms. Each uses independently selected local Ollama models and has separate local history. The fifteen agents work through defined sequential roles.</p>
       <ol>
-        <li><strong>Conference Room - available.</strong> Planner, Researcher, and Reviewer work through a discussion sequentially using locally selected Ollama models. Sessions have their own history.</li>
-        <li><strong>Training Lab - available.</strong> Trainer - Student - Evaluator - Improver work through a four-stage learning-and-feedback exercise. It produces responses and feedback but does <strong>not</strong> update the underlying model weights.</li>
-        <li><strong>Evaluation Lab - available.</strong> Review a completed Training Lab session against defined criteria using a separate Evaluator model. It records scores, findings, and evidence references. An AI-generated score is not independent proof of real-world improvement.</li>
-        <li><strong>Advisory Lab - Under Construction.</strong> A planned space for recommendations based on evaluated results. It cannot be opened in this release.</li>
-        <li><strong>Optimization Lab - Under Construction.</strong> A planned space for applying and testing approved improvements. It cannot be opened in this release.</li>
+        <li><strong>Conference Room - available.</strong> Strategist → Analyst → Engineer: collaborative analysis and proposals for problem-solving.</li>
+        <li><strong>Training Lab - available.</strong> Tutor → Student → Evaluator → Improver: a four-stage learning-and-feedback exercise that does <strong>not</strong> change model weights.</li>
+        <li><strong>Evaluation Lab - available.</strong> Assessor → Scorer → Benchmarker: assessment and benchmarking. Completed Training Lab sessions can also be reviewed using a separate local Evaluator model; original records remain unchanged. Scores are AI judgments, not independent proof.</li>
+        <li><strong>Advisory Lab - available.</strong> Analyst → Advisor: analysis and recommendations, without automatic execution.</li>
+        <li><strong>Optimization Lab - available.</strong> Diagnostician → Optimizer → Validator: proposals for measurable, reversible improvement, without model fine-tuning or configuration changes.</li>
       </ol>
-      <p>These rooms are separate workspaces. The evaluation and feedback features do not themselves perform model fine-tuning.</p>
+      <p>For more about each workspace and the available optional connections, open <a class="inline-link" href="./app-description.html">Detailed App Description</a>.</p>
       <h2>Local runtime and privacy</h2>
       <p>The Lab server is available only at <code>127.0.0.1:8765</code> and talks to local Ollama at <code>127.0.0.1:11434</code>. The public website does not run the Lab, host a model, collect conversations, or expose the local server. The released inference provider is Ollama only.</p>
       <p>For fully local Ollama operation, disable Ollama cloud features using <code>disable_ollama_cloud: true</code> in <code>%USERPROFILE%\.ollama\server.json</code> while retaining other settings, and restart Ollama. Alternatively, set <code>OLLAMA_NO_CLOUD=1</code> in the Ollama process environment. Use installed local models only. This additional setting matters: a local web address alone does not guarantee that Ollama cloud features are disabled.</p>
@@ -55,9 +56,10 @@
       <p>Easy Start reuses compatible Python, Ollama, and existing local models. If a required component is missing, it requests a separate confirmation before installing Python, installing Ollama, starting the local Ollama service, or downloading the initial <code>qwen2.5:0.5b</code> model. If approval is declined, the required setup will not continue.</p>
       <p>If the Lab does not start, first check that Easy Start completed, that Ollama is running locally, and that port <code>8765</code> is free. Close the server window or use <code>Ctrl+C</code> to stop the Lab. Additional model downloads are optional and require approval and Internet access.</p>
       <h2>Feature status, updates, and reference</h2>
-      <p><strong>Advanced: Model Fine-Tuning (Optional)</strong> remains locked because the training worker is not yet compatible. The v2.0.2 Local Lab includes a <strong>What is Fine-Tuning? A simple guide</strong> link that opens a beginner explanation in a separate tab. Reading the guide does not train or install anything. Updates are manual: stop the Lab, back up <code>data/campus.sqlite3</code>, then extract a new official ZIP separately and preserve your data and installed Ollama models.</p>
+      <p><strong>Advanced: Model Fine-Tuning (Optional)</strong> remains locked because the training worker is not yet compatible. The Local Lab includes a <strong>What is Fine-Tuning? A simple guide</strong> link that opens a beginner explanation in a separate tab. Reading the guide does not train or install anything. Updates are manual: stop the Lab, back up <code>data/campus.sqlite3</code>, then extract a new official ZIP separately and preserve your data and installed Ollama models.</p>
       <p>Read the <a class="inline-link" href="./README.md">public technical README</a> for release-specific documentation, and the <code>README.md</code> inside your downloaded ZIP for fuller Local Lab technical, configuration, backup, and migration information.</p>
     </section>
   </main>
+  <footer class="site-footer"><div class="footer-inner"><p class="footer-line">© 2026 Markellos Markides. All rights reserved.</p><p class="footer-line build-id">{{BUILD_ID}}</p></div></footer>
 </body>
 </html>

@@ -19,5 +19,9 @@ jobs:
         run: node --check dashboard.js
       - name: Test dashboard contracts
         run: node --test tests/dashboard-shell.test.cjs
+      - name: Validate public AI Lab landing pages
+        run: |
+          node --check apps/ai-lab-landing/build.cjs
+          node --test apps/ai-lab-landing/tests/build.test.cjs
       - name: Build commit artifact
         run: node scripts/build-site.cjs HEAD "$RUNNER_TEMP/framework-site"
