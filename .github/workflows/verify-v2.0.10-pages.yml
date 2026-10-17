@@ -1,0 +1,37 @@
+name: Verify v2.0.10 public Pages download
+
+on:
+  push:
+    branches:
+      - chore/publish-v2.0.10-r2-distribution
+
+permissions:
+  contents: read
+
+jobs:
+  verify-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify the live public Pages release and download URL
+        shell: bash
+        env:
+          EXPECTED_URL: https://pub-33c16df521b3460a8d4b1a6927656318.r2.dev/releases/v2.0.10/AI-Agents-Lab-Windows.zip
+          PUBLIC_PAGE: https://ai-lab.markellosecosystem.com/
+        run: |
+          set -euo pipefail
+          html="$(mktemp)"
+          trap 'rm -f "$html"' EXIT
+          for attempt in 1 2 3 4 5; do
+            curl --fail --location --silent --show-error --connect-timeout 15 --max-time 45 -H 'Cache-Control: no-cache' "$PUBLIC_PAGE?release-check=${GITHUB_SHA}-$attempt" --output "$html"
+            if grep -Fq 'CURRENT RELEASE · v2.0.10' "$html" \
+              && grep -Fq 'Download v2.0.10' "$html" \
+              && grep -Fq "$EXPECTED_URL" "$html" \
+              && grep -Fq '19 earlier Windows ZIPs' "$html"; then
+              echo 'Public Cloudflare Pages v2.0.10 ZIP download verified.'
+              exit 0
+            fi
+            echo "Public Pages not on v2.0.10 yet (attempt $attempt)."
+            sleep 8
+          done
+          echo 'Public Pages v2.0.10 verification did not pass.'
+          exit 1
