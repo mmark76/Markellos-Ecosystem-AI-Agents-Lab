@@ -44,7 +44,13 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, new RegExp(`Download v${escapedDistributionVersion} <span aria-hidden="true">↓<\/span><\/span><small>Local \\+ optional internet connections<\/small>`));
   assert.match(html, /id="zip-download-v204" class="secondary-button release-download" data-zip-version="v2\.0\.4"[^>]*><span>Download v2\.0\.4<\/span><small>Local only<\/small><\/a>/);
   assert.match(html, /id="zip-download-v118" class="secondary-button release-download" data-zip-version="v1\.1\.8"[^>]*><span>Download v1\.1\.8<\/span><small>Local only<\/small><\/a>/);
-  assert.match(styles, /\.hero-actions\{display:flex;flex-wrap:wrap;gap:var\(--space-3\);margin-top:var\(--space-5\)\}/);
+  assert.match(html, /class="hero-actions" aria-label="Download, local launch, and documentation actions"/);
+  assert.match(html, /class="hero-action-group download-actions"/);
+  assert.match(html, /class="hero-action-group local-actions"/);
+  assert.match(html, /class="hero-action-group documentation-actions"/);
+  assert.match(styles, /\.hero-actions\{display:grid;gap:var\(--space-3\);margin-top:var\(--space-5\)\}/);
+  assert.match(styles, /\.download-actions\{grid-template-columns:minmax\(14rem,1\.45fr\) repeat\(2,minmax\(9\.5rem,1fr\)\);width:min\(100%,38rem\)\}/);
+  assert.match(styles, /@media \(max-width: 42rem\) \{ \.download-actions, \.local-actions, \.documentation-actions \{ grid-template-columns: minmax\(0, 1fr\);/);
   assert.match(styles, /#launch-local-lab,html\[data-color-mode="light"\] #launch-local-lab/);
   assert.match(styles, /background:#2563eb;color:#ffffff;border-color:#2563eb/);
   assert.match(styles, /#launch-local-lab:hover,html\[data-color-mode="light"\] #launch-local-lab:hover/);
