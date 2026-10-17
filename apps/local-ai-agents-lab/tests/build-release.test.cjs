@@ -17,9 +17,10 @@ test('invalid version, SHA, and time are rejected',()=>{
   assert.throws(()=>formatBuildId('1.0.0','not-a-git-sha','2026-01-15T12:00:00Z'));
   assert.throws(()=>formatBuildId('1.0.0',sha,'nonsense'));
 });
-test('all fifteen Lab-scoped role prompt files are included in the Windows release',()=>{
+test('all fifteen Lab-scoped role prompt files are packaged and release-verified',()=>{
   const root=path.resolve(__dirname,'..');
   const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
+  const verifier=fs.readFileSync(path.join(root,'scripts','verify-release.cjs'),'utf8');
   for(const role of [
     "conference-strategist","conference-analyst","conference-engineer",
     "training-tutor","training-student","training-evaluator","training-improver",
@@ -30,6 +31,7 @@ test('all fifteen Lab-scoped role prompt files are included in the Windows relea
     const name='prompts/'+role+'.txt';
     assert.ok(fs.readFileSync(path.join(root,name),'utf8').trim());
     assert.ok(packager.includes("'"+name+"'"));
+    assert.ok(verifier.includes('"'+role+'"'));
   }
 });
 test('Windows training wizard is packaged and opt-in',()=>{
