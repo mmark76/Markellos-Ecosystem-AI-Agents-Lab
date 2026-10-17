@@ -12,6 +12,12 @@ jobs:
   verify-r2-zip:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Test landing release manifest and dashboard
+        run: node --test apps/ai-lab-landing/tests/build.test.cjs
       - name: Verify anonymous download, ZIP length and SHA-256
         shell: bash
         env:
