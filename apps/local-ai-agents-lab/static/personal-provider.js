@@ -10,6 +10,10 @@ const credentialSave = document.getElementById('personal-credential-save');
 const credentialRemove = document.getElementById('personal-credential-remove');
 const credentialStorage = document.getElementById('personal-credential-storage');
 const ownAccount = document.getElementById('personal-own-account');
+const providerConnection = document.getElementById('personal-provider-connection');
+const providerConnect = document.getElementById('personal-provider-connect');
+const providerConnectionStatus = document.getElementById('personal-provider-connection-status');
+const providerConnectionOutput = document.getElementById('personal-provider-connection-output');
 
 function providerPlanMessage(message, error = false) {
   providerPlanStatus.textContent = message;
@@ -28,15 +32,22 @@ function credentialMessage(message, error = false) {
   credentialStatus.dataset.state = error ? 'error' : 'success';
 }
 
+function providerConnectionMessage(message, error = false) {
+  providerConnectionStatus.textContent = message;
+  providerConnectionStatus.dataset.state = error ? 'error' : 'success';
+}
+
 async function refreshCredentialStatus() {
   try {
     const status = await providerPlanFetch('/api/training/provider-credential-status');
     credentialRemove.hidden = !status.stored;
+    providerConnection.hidden = !status.stored;
     credentialMessage(status.stored
       ? 'A RunPod token is stored encrypted for this Windows user. Training remains locked.'
       : 'No RunPod token is stored for this Windows user.');
   } catch (error) {
     credentialRemove.hidden = true;
+    providerConnection.hidden = true;
     credentialMessage(error.message, true);
   }
 }
@@ -98,11 +109,36 @@ credentialRemove.addEventListener('click', async () => {
       }),
     });
     credentialMessage('The locally stored RunPod token was removed. Training remains locked.');
+    providerConnectionOutput.hidden = true;
     await refreshCredentialStatus();
   } catch (error) {
     credentialMessage(error.message, true);
   } finally {
     credentialRemove.disabled = false;
+  }
+});
+
+providerConnect.addEventListener('click', async () => {
+  providerConnect.disabled = true;
+  providerConnectionOutput.hidden = true;
+  providerConnectionMessage('Checking RunPod with a read-only request…');
+  try {
+    const result = await providerPlanFetch('/api/training/provider-connection', {
+      method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({
+        provider: document.getElementById('personal-provider').value, confirmReadOnlyConnection: true,
+      }),
+    });
+    const listed = result.gpus.slice(0, 12).map(gpu => {
+      const price = gpu.hourlyPriceUsd === null ? 'price unavailable' : `$${gpu.hourlyPriceUsd}/hour`;
+      return `${gpu.name} · ${gpu.memoryGb} GB · ${gpu.availability || 'availability unavailable'} · ${price}`;
+    });
+    providerConnectionOutput.textContent = `${result.provider} account confirmed.\n${listed.length ? listed.join('\n') : 'No GPU catalog entries were returned.'}\n${result.execution}`;
+    providerConnectionOutput.hidden = false;
+    providerConnectionMessage('RunPod connection verified. This was read-only; training remains locked.');
+  } catch (error) {
+    providerConnectionMessage(error.message, true);
+  } finally {
+    providerConnect.disabled = false;
   }
 });
 

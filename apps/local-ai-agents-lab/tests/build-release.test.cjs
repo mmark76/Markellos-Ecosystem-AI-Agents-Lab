@@ -170,6 +170,7 @@ test('beginner fine-tuning guide and personal provider planner are bundled while
   assert.match(packager,/'static\/fine-tuning-guide.css'/);
   assert.match(packager,/'personal_provider.py'/);
   assert.match(packager,/'credential_vault.py'/);
+  assert.match(packager,/'runpod_readonly.py'/);
   assert.match(packager,/'static\/personal-provider.js'/);
   assert.match(server,/"\/fine-tuning-guide": \("fine-tuning-guide.html", "text\/html; charset=utf-8"\)/);
   assert.match(server,/"\/api\/training\/provider-plan"/);

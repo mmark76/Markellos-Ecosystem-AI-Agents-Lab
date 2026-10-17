@@ -61,6 +61,11 @@ class PersonalProviderPlanTests(unittest.TestCase):
             personal_provider.credential_removal_request({"provider": "runpod", "confirmCredentialRemoval": False})
         self.assertEqual(personal_provider.credential_removal_request({"provider": "runpod", "confirmCredentialRemoval": True}), "runpod")
 
+    def test_connection_check_requires_an_explicit_read_only_confirmation(self):
+        with self.assertRaisesRegex(personal_provider.PersonalProviderConnectionError, "Confirm the read-only"):
+            personal_provider.connection_check_request({"provider": "runpod", "confirmReadOnlyConnection": False})
+        self.assertEqual(personal_provider.connection_check_request({"provider": "runpod", "confirmReadOnlyConnection": True}), "runpod")
+
 
 if __name__ == "__main__":
     unittest.main()

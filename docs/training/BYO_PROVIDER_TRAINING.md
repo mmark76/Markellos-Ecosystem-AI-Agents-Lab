@@ -1,4 +1,4 @@
-# Personal Provider Fine-Tuning — Phases 3A and 3B
+# Personal Provider Fine-Tuning — Phases 3A, 3B, and 3C-A
 
 ## Scope
 
@@ -37,12 +37,31 @@ outside the repository, SQLite database, release package, and backups.
 - No provider request, account validation, pricing lookup, upload,
   provisioning, model download, job launch, or training occurs in Phase 3B.
 
+## Phase 3C-A — explicit read-only connection check
+
+`AI-LAB-SCOPE-021` permits one narrow use of a locally protected RunPod token:
+after the user explicitly selects **Check RunPod connection**, the local Lab
+sends one fixed HTTPS GraphQL query to `https://api.runpod.io/graphql` using a
+Bearer header. The query confirms authentication and reads GPU names, memory,
+availability labels, and listed hourly prices. The token is never placed in a
+URL, returned to the browser, written to SQLite, or logged.
+
+- The browser calls only the loopback Lab; only the local adapter contacts the
+  fixed RunPod endpoint.
+- The adapter has a static GraphQL query and cannot submit a mutation, accept a
+  provider URL, use a shell command, or upload model or dataset data.
+- The response excludes account ID, email, balance, payment details, Pods, SSH
+  details, and any secret. It is displayed only in browser memory.
+- This is a live provider read when the user chooses the control; it is not a
+  training action and it does not create a charge.
+- `/api/training/jobs` remains locked with HTTP 423.
+
 ## Explicitly deferred
 
-Provider authentication and all use of the locally protected token require a
-new explicit approval: provider API calls, cost quotation, model/dataset
-transfer, provisioning, remote job status, cancellation, artifact retrieval,
-and teardown remain deferred.
+All provider actions other than the Phase 3C-A read-only check require a new
+explicit approval: exact cost quotation/selection, model/dataset transfer,
+provisioning, remote job status, cancellation, artifact retrieval, teardown,
+and any mutation remain deferred.
 
 No provider adapter may accept an arbitrary URL, shell command, or credential
 from the UI. A future provider adapter must use an allow-listed provider API,

@@ -175,6 +175,13 @@ Completeness</textarea>
           </form>
           <p id="personal-credential-status" class="training-status" role="status" aria-live="polite">Checking local credential status…</p>
           <button type="button" id="personal-credential-remove" class="personal-credential-remove" hidden>Remove locally stored token</button>
+          <section id="personal-provider-connection" class="personal-provider-connection" hidden aria-labelledby="personal-provider-connection-title">
+            <h4 id="personal-provider-connection-title">Read-only RunPod connection check</h4>
+            <p>Checks your encrypted token and reads RunPod GPU availability and current listed prices. It cannot create a Pod, upload data, or charge your account.</p>
+            <button type="button" id="personal-provider-connect">Check RunPod connection</button>
+            <p id="personal-provider-connection-status" class="training-status" role="status" aria-live="polite">No connection check has been run.</p>
+            <pre id="personal-provider-connection-output" class="personal-provider-output" hidden></pre>
+          </section>
         </details>
         <p><a class="fine-tuning-guide-link" href="/fine-tuning-guide" target="_blank" rel="noopener noreferrer">What is Fine-Tuning? A simple guide ?</a></p>
       </section>

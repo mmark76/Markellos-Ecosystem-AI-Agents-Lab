@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-052
+
+```text
+Change ID: AI-LAB-CC-052
+Requested by: Repository maintainer
+Date: 2026-10-17
+Description: Add one explicit, fixed-endpoint, read-only RunPod connection check for a user-owned credential.
+Reason: Let a Local Lab user verify their own account token and inspect the current GPU catalog before any future paid action is considered.
+Affected objective IDs: AI-LAB-OBJ-020
+Architecture impact: Adds a small provider adapter limited to a fixed HTTPS GraphQL query and a bounded same-origin connection route. No Pod mutation, remote executor, worker change, or SQLite schema change is added.
+Security and privacy impact: The bearer token remains in the local process, is not placed in a URL, log, response, or browser storage, and the adapter cannot send a mutation, upload data, or accept a provider URL. The user must explicitly click the connection control.
+Data impact: The read-only response is displayed in memory only and is not persisted. The existing encrypted token blob remains owner-controlled.
+Testing impact: Add mocked fixed-endpoint/bearer/query, provider-error, contract, loopback, static UI, packaging, and locked-route regressions.
+Cost and schedule impact: No Pod, volume, endpoint, data transfer, model download, job, or charge can be created.
+Decision: APPROVED (PHASE 3C-A READ-ONLY CONNECTION)
+Approved by: Direct user request
+Target release: Unreleased Local Lab development branch; no package, merge, deployment, release, or paid provider action in this phase.
+```
+
 ## Approved change record — AI-LAB-CC-051
 
 ```text

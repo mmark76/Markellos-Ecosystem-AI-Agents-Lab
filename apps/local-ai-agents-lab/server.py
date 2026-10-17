@@ -36,7 +36,8 @@ if str(ROOT) not in sys.path:
 from providers import InferenceProviders, ProviderError
 from training import TrainingError, TrainingLockedError, TrainingService
 from credential_vault import CredentialVault, CredentialVaultError
-from personal_provider import PersonalProviderCredentialError, PersonalProviderPlanError, build_provider_plan, credential_removal_request, credential_store_request, provider_options
+from personal_provider import PersonalProviderConnectionError, PersonalProviderCredentialError, PersonalProviderPlanError, build_provider_plan, connection_check_request, credential_removal_request, credential_store_request, provider_options
+from runpod_readonly import RunpodReadOnlyError, RunpodReadOnlyService
 from model_install import ModelInstallError, ModelInstallBusy, OllamaModelInstaller
 from evaluation_lab.http_api import EvaluationAPIError, EvaluationHTTPService
 from evaluation_lab.repository import EvaluationRepository, EvaluationRepositoryError
@@ -45,6 +46,7 @@ PROVIDERS = InferenceProviders()
 TRAINING = TrainingService(ROOT)
 MODEL_INSTALLER = OllamaModelInstaller(OPENER)
 CREDENTIAL_VAULT = CredentialVault()
+RUNPOD_CONNECTION = RunpodReadOnlyService(CREDENTIAL_VAULT)
 
 PROMPT_ROLES = ("Trainer", "Student", "Evaluator", "Improver", "Planner", "Researcher", "Reviewer")
 PROMPTS = {
@@ -505,6 +507,18 @@ class Handler(BaseHTTPRequestHandler):
                 self._json({"state": "STORED_LOCALLY", "provider": request["provider"], "scope": "current-windows-user", "execution": "No provider connection, upload, provisioning, or training job was started."})
             except (CredentialVaultError, PersonalProviderCredentialError, ValueError, TypeError, json.JSONDecodeError) as err:
                 self._json({"error": str(err)}, 400)
+            return
+        if self.path == "/api/training/provider-connection":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if not 2 <= size <= 256:
+                    raise PersonalProviderConnectionError("Invalid provider connection request size.")
+                provider = connection_check_request(json.loads(self.rfile.read(size)))
+                self._json(RUNPOD_CONNECTION.check(provider))
+            except (PersonalProviderConnectionError, ValueError, TypeError, json.JSONDecodeError) as err:
+                self._json({"error": str(err)}, 400)
+            except RunpodReadOnlyError as err:
+                self._json({"error": str(err)}, 502)
             return
         if self.path.startswith("/api/training-sessions/") and self.path.endswith("/cancel"):
             try:

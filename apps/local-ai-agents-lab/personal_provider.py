@@ -18,6 +18,10 @@ class PersonalProviderCredentialError(ValueError):
     """Raised when a local credential request is incomplete or unsafe."""
 
 
+class PersonalProviderConnectionError(ValueError):
+    """Raised when an explicit read-only connection check is unsafe."""
+
+
 _PROVIDERS = {
     "runpod": {
         "id": "runpod",
@@ -117,4 +121,15 @@ def credential_removal_request(raw: object) -> str:
         raise PersonalProviderCredentialError("Select a supported personal provider.")
     if raw["confirmCredentialRemoval"] is not True:
         raise PersonalProviderCredentialError("Confirm removal of the locally stored provider credential.")
+    return raw["provider"]
+
+
+def connection_check_request(raw: object) -> str:
+    """Validate the one explicit, non-mutating provider connection action."""
+    if not isinstance(raw, dict) or set(raw) != {"provider", "confirmReadOnlyConnection"}:
+        raise PersonalProviderConnectionError("Provider connection request contains unsupported fields.")
+    if raw["provider"] not in _PROVIDERS:
+        raise PersonalProviderConnectionError("Select a supported personal provider.")
+    if raw["confirmReadOnlyConnection"] is not True:
+        raise PersonalProviderConnectionError("Confirm the read-only RunPod connection check.")
     return raw["provider"]
