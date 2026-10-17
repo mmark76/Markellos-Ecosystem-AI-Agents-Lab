@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-067
+
+```text
+Change ID: AI-LAB-CC-067
+Requested by: User
+Date: 2026-10-17
+Description: Publish AI Lab v2.0.12 with a more visually explicit Internet connections & fine-tuning hub control in the Local Lab sidebar.
+Reason: Make the optional Connections hub immediately recognizable as an interactive action while keeping the local-first default understandable.
+Affected objective IDs: AI-LAB-OBJ-003, AI-LAB-OBJ-023
+Architecture impact: CSS-only presentation refinement for the existing Connections dialog trigger. No route, connection flow, provider behavior, or public endpoint changes.
+Security and privacy impact: No credential, consent, network, provider, or data-boundary behavior changes. The control continues to open the same user-initiated local dialog.
+Data impact: Creates one immutable v2.0.12 GitHub/R2 ZIP while retaining all previous versions; no application data, local settings, credentials, or SQLite records are changed.
+Testing impact: Retain package verification and local shell regression tests, including assertions for the explicit Connections-hub button treatment; validate CI, public checksum, and Pages deployment before release completion.
+Cost and schedule impact: No model request, provider request, training, or paid resource is created.
+Decision: APPROVED (PATCH RELEASE — UI CLARITY)
+Approved by: Direct user request
+Target release: AI Lab v2.0.12
+```
+
 ## Approved change record — AI-LAB-CC-065
 
 ```text
