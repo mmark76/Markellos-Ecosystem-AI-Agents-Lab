@@ -120,7 +120,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(guide, /Optimization Lab - available/);
   assert.match(guide, new RegExp(`Rooms and their current status \\(v${escapedDistributionVersion}\\)`));
   assert.match(guide, /Tutor → Student → Evaluator → Improver/);
-  assert.doesNotMatch(guide, /Under Construction|v2\\.0\\.2/);
+  assert.doesNotMatch(guide, /Under Construction|v2\.0\.2/);
   assert.match(guide, /What is Fine-Tuning\? A simple guide/);
   assert.doesNotMatch(guide, /Conference Room is not yet available/);
   assert.match(guide, /Quick Start \(Windows\)/);
