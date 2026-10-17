@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-071
+
+```text
+Change ID: AI-LAB-CC-071
+Requested by: User
+Date: 2026-10-18
+Description: Preserve the most recent completed ChatGPT Advisor question and answer while the current browser tab remains open, so closing and reopening its local dialog does not lose the visible exchange.
+Reason: The user observed the prior advisor exchange disappearing after closing the pop-up without disconnecting.
+Affected objective IDs: AI-LAB-OBJ-023
+Architecture impact: Add a browser-session-only presentation-state adapter in `static/openai-connection.js`. It has no server, room, OAuth, provider, or database contract.
+Security and privacy impact: The stored value is limited to the last explicitly submitted question and returned answer in the current tab's `sessionStorage`; it is never sent automatically, written to room history, or persisted after the browser session. It is cleared when the user disconnects or the connection becomes unavailable.
+Data impact: No SQLite, credential, profile, or permanent browser-storage change.
+Testing impact: Add static UI regression assertions for the session-only key, write, removal, and restoration behavior; retain existing connection and package coverage.
+Cost and schedule impact: No model request, provider mutation, training action, deployment, or release is initiated by this fix.
+Decision: APPROVED (PATCH VERSION, MERGE, RELEASE, ZIP, AND DEPLOYMENT)
+Approved by: Direct user approval on 2026-10-18
+Target release: AI Lab v2.0.15
+```
+
 ## Approved change record — AI-LAB-CC-070
 
 ```text

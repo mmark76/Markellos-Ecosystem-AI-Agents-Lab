@@ -12,6 +12,7 @@ const answer = document.getElementById('openai-review-answer');
 const answerOutput = document.getElementById('openai-review-output');
 const copyAnswer = document.getElementById('openai-review-copy');
 const advisorStatus = document.getElementById('openai-review-status');
+const advisorSessionKey = 'ai-lab:chatgpt-advisor:last-exchange';
 
 function chatgptMessage(message, error = false) {
   chatgptStatus.textContent = message;
@@ -29,12 +30,45 @@ async function chatgptRequest(path, options) {
   return payload;
 }
 
+function clearAdvisorSession() {
+  try {
+    sessionStorage.removeItem(advisorSessionKey);
+  } catch (_error) {
+    // Storage can be unavailable; the advisor remains usable without it.
+  }
+}
+
+function restoreAdvisorSession() {
+  try {
+    const stored = sessionStorage.getItem(advisorSessionKey);
+    if (!stored) return;
+    const exchange = JSON.parse(stored);
+    if (typeof exchange.question !== 'string' || typeof exchange.answer !== 'string' || !exchange.answer) return;
+    question.value = exchange.question;
+    renderAnswer(exchange.answer);
+    answer.hidden = false;
+    advisorStatus.textContent = 'Last answer restored for this browser tab.';
+  } catch (_error) {
+    // A malformed or unavailable session value must not interrupt the advisor.
+  }
+}
+
+function rememberAdvisorSession(questionText, answerText) {
+  if (!answerText) return;
+  try {
+    sessionStorage.setItem(advisorSessionKey, JSON.stringify({question: questionText, answer: answerText}));
+  } catch (_error) {
+    // Storage can be unavailable; the advisor remains usable without it.
+  }
+}
+
 function showDisconnected(status) {
   const unreadable = status.connectionState === 'unreadable';
   chatgptConnect.hidden = false;
   chatgptConnect.textContent = unreadable ? 'Reconnect with ChatGPT' : 'Connect with ChatGPT';
   chatgptRemove.hidden = !unreadable;
   advisor.hidden = true;
+  clearAdvisorSession();
   chatgptIntro.hidden = false;
   chatgptIntro.textContent = 'Connect your ChatGPT account to ask a question. Connecting does not send a prompt or invoke a model.';
   chatgptMessage(status.message || 'No ChatGPT connection is stored for this Windows user.', unreadable);
@@ -47,6 +81,7 @@ function showConnected(status) {
   chatgptSetup.hidden = true;
   advisor.hidden = !status.planUsageAuthorized;
   if (status.planUsageAuthorized) {
+    restoreAdvisorSession();
     chatgptMessage('ChatGPT is connected for this Windows user.');
     return;
   }
@@ -102,6 +137,7 @@ chatgptRemove.addEventListener('click', async () => {
     await chatgptRequest('/api/openai/connection', {
       method: 'DELETE', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({confirmRemoval: true}),
     });
+    clearAdvisorSession();
     answer.hidden = true;
     answerOutput.replaceChildren();
     advisorStatus.textContent = '';
@@ -169,8 +205,10 @@ ask.addEventListener('click', async () => {
       method: 'POST', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({confirmExternalReview: true, question: value}),
     });
-    renderAnswer(result.answer || '');
+    const answerText = result.answer || '';
+    renderAnswer(answerText);
     answer.hidden = false;
+    rememberAdvisorSession(value, answerText);
     advisorStatus.textContent = 'Answer ready.';
   } catch (error) {
     advisorStatus.textContent = error.message;
