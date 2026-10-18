@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-085
+
+```text
+Change ID: AI-LAB-CC-085
+Requested by: User
+Date: 2026-10-18
+Description: Blend the Release archive and Easy Start Components introductory cards into the page background while retaining their existing layout spacing.
+Reason: Remove the visible frame and panel fill from the two specified cards.
+Affected objective IDs: AI-LAB-OBJ-002, AI-LAB-OBJ-003
+Architecture impact: Static landing-page CSS and regression assertion only. No text, link, application, analytics, build, or deployment behavior changes.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Landing build regression asserts transparent frame and background treatment for both specified cards.
+Cost and schedule impact: None.
+Decision: APPROVED (UI REFINEMENT)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```
+
 ## Approved change record — AI-LAB-CC-084
 
 ```text

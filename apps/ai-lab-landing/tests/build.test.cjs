@@ -94,6 +94,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(styles, /\.steps ol \{ display: grid; gap: var\(--space-4\); padding-left: 0; list-style-position: inside; \}/);
   assert.match(styles, /#overview \.dashboard-card \{ min-height: 17rem; \}/);
   assert.match(styles, /\.content-card \{ width: min\(100%, var\(--content-narrow\)\); min-height: 0; margin-inline: auto; \}/);
+  assert.match(styles, /\.archive-card, \.section-intro-card \{ border-color: transparent; background: transparent; \}/);
   assert.match(styles, /\.content-card-grid \{ width: min\(100%, 54rem\); display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); gap: var\(--space-5\); margin: var\(--space-12\) auto 0; \}/);
   assert.match(styles, /\.engine-card \{ min-height: 15rem; \}/);
   assert.match(styles, /\.footer-inner \{ display: grid; justify-items: center; gap: var\(--space-1\); padding-block: var\(--space-5\); color: var\(--color-text-muted\); font-size: var\(--font-size-sm\); text-align: center; \}/);
