@@ -9,6 +9,7 @@ const output = join(app, 'dist');
 const distributionMonitor = resolve(app, '..', '..', '.github', 'workflows', 'verify-public-ai-lab-distribution.yml');
 const releaseVersion = readFileSync(join(app, '..', 'local-ai-agents-lab', 'VERSION'), 'utf8').trim();
 const distribution = JSON.parse(readFileSync(join(app, 'release-distribution.json'), 'utf8'));
+const betaDistribution = JSON.parse(readFileSync(join(app, 'github-beta-releases.json'), 'utf8'));
 const escapedReleaseVersion = releaseVersion.replaceAll('.', '\\.');
 const [currentDistribution, ...previousDistributions] = distribution.releases;
 const escapedDistributionVersion = currentDistribution.version.replaceAll('.', '\\.');
@@ -23,13 +24,22 @@ test('build truthfully presents the current public state of the Local Lab', () =
   const styles = readFileSync(join(output, 'styles.css'), 'utf8');
 
   assert.match(html, new RegExp(`v${escapedReleaseVersion}_\\d{8}_\\d{4}_[0-9a-f]{7}`));
-  assert.doesNotMatch(html, /\{\{BUILD_ID\}\}|\{\{RELEASE_VERSION\}\}|\{\{GITHUB_RELEASE_URL\}\}/);
+  assert.doesNotMatch(html, /\{\{BUILD_ID\}\}|\{\{RELEASE_VERSION\}\}|\{\{GITHUB_RELEASE_URL\}\}|\{\{GITHUB_RELEASE_VERSION\}\}|\{\{GITHUB_RELEASE_SHA256\}\}/);
   assert.match(html, /styles\.css\?v=v\d+\.\d+\.\d+_\d{8}_\d{4}_[a-f0-9]{7}/);
   assert.match(html, new RegExp(`CURRENT RELEASE · v${escapedDistributionVersion} · LOCAL \\+ OPTIONAL INTERNET CONNECTIONS`));
   assert.match(html, new RegExp(`<h1 id="page-title">AI Lab v${escapedDistributionVersion}<\\/h1>`));
   assert.match(html, /<img class="brand-mark" src="\.\/ai-training-lab-mark\.png" alt="AI Lab">/);
-  assert.match(html, /class="beta-badge">BETA<\/span>/);
-  assert.match(styles, /\.beta-badge/);
+  assert.match(html, /<span class="project-name">AI Lab<\/span>/);
+  assert.doesNotMatch(html, /class="beta-badge"/);
+  assert.doesNotMatch(styles, /\.beta-badge/);
+  const subscriptionNotice = 'Using the optional ChatGPT Advisor may require an eligible paid ChatGPT subscription. Availability and usage limits are determined by OpenAI.';
+  assert.match(html, /<p class="advisor-plan-notice"><strong>ChatGPT Advisor — Subscription Requirements\.<\/strong>/);
+  assert.ok(html.includes(subscriptionNotice), 'The main landing page must show the ChatGPT eligibility notice.');
+  assert.ok(description.includes(subscriptionNotice), 'Keep the same eligibility notice in Detailed App Description.');
+  assert.doesNotMatch(html, /<nav class="primary-nav"|class="nav-link/);
+  assert.ok(styles.includes('.advisor-plan-notice { margin: var(--space-3) 0 var(--space-4);'));
+  assert.ok(styles.includes('font-size: var(--font-size-sm); line-height: var(--line-height-normal); text-align: left; overflow-wrap: anywhere; }'));
+  assert.doesNotMatch(styles, /\.primary-nav\s*\{|\.nav-link\s*\{/);
   assert.match(currentDistribution.version, /^\d+\.\d+\.\d+$/, 'the verified public ZIP may lag the local application release');
   assert.equal(new Set(distribution.releases.map(({ version }) => version)).size, distribution.releases.length);
   for (const release of distribution.releases) {
@@ -37,13 +47,19 @@ test('build truthfully presents the current public state of the Local Lab', () =
     assert.match(release.url, new RegExp(`/releases/v${release.version.replaceAll('.', '\\.')}/AI-Agents-Lab-Windows\\.zip$`));
     assert.match(release.sha256, /^[a-f0-9]{64}$/);
   }
-  assert.match(html, new RegExp(`Public BETA download:<\\/strong> The v${escapedDistributionVersion} Windows ZIP is available\\.`));
+  assert.ok(html.includes(`<p class="shell-notice"><strong>Milestone download:</strong> The v${currentDistribution.version} Windows ZIP is available via Cloudflare R2. For the latest BETA, use the GitHub v2.0.19 button.</p>`));
   assert.doesNotMatch(html, /available without GitHub sign-in/);
   assert.doesNotMatch(html, /Download access note|private GitHub repository.*authorized GitHub access/);
   assert.match(html, new RegExp(`id="zip-download" class="primary-button release-download" data-zip-version="v${escapedDistributionVersion}" data-zip-sha256="${currentDistribution.sha256}"`));
-  const expectedGitHubFallback = `https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v${currentDistribution.version}/AI-Agents-Lab-Windows.zip`;
-  assert.match(html, new RegExp(`id="github-release-download" class="secondary-button release-download github-release-download" data-zip-version="v${escapedDistributionVersion}" data-zip-sha256="${currentDistribution.sha256}" data-download-source="github-release" href="${expectedGitHubFallback.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`));
-  assert.match(html, /<span>Alternative download<\/span><small>GitHub release mirror<\/small>/);
+  const expectedGitHubFallback = 'https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v2.0.19/AI-Agents-Lab-Windows.zip';
+  assert.ok(html.includes(`id="github-release-download" class="secondary-button release-download github-release-download" data-zip-version="v2.0.19" data-zip-sha256="f8e31d3f93aef88121482a9b4e161f55fa7b975eea28a7248b66c5d8b4f122d5" data-download-source="github-release" href="${expectedGitHubFallback}"`));
+  assert.match(html, /<span>Download v2\.0\.19 BETA<\/span><small>GitHub · newer BETA ZIP<\/small>/);
+  const downloadGroup = html.match(/<div class="hero-action-group download-actions">([\s\S]*?)<\/div>/)?.[1];
+  assert.ok(downloadGroup, 'Download group must remain present');
+  const buttonOrder = [...downloadGroup.matchAll(/id="([^"]+)" class="(?:primary|secondary)-button release-download/g)].map(match => match[1]);
+  assert.deepEqual(buttonOrder, ['zip-download','github-release-download','zip-download-v2015','zip-download-v204'], 'Keep the four buttons in their existing 2x2 positions');
+  assert.equal((downloadGroup.match(/data-download-source="cloudflare-r2"/g) || []).length, 3, 'Three R2 milestone buttons must be unchanged');
+  assert.equal((downloadGroup.match(/data-download-source="github-release"/g) || []).length, 1, 'Only top-right BETA uses GitHub');
   assert.match(html, new RegExp(`Download v${escapedDistributionVersion} <span aria-hidden="true">↓<\/span><\/span><small>Local \\+ optional internet connections<\/small>`));
   // While a new package is being published, the distribution manifest still
   // names v2.0.15 as current.  It becomes the secondary milestone only when
@@ -67,10 +83,9 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(styles, /\.hero \{ max-width: none; margin-bottom: var\(--space-3\); \}/);
   assert.match(styles, /\.shell-notice \{ width: fit-content; max-width: 100%; margin: var\(--space-5\) auto 0; padding: var\(--space-3\) var\(--space-4\); border-inline-start: 3px solid var\(--app-accent\);/);
   assert.match(styles, /\.hero > \.eyebrow, \.hero h1 \{ text-align: center; \}/);
-  assert.match(styles, /\.hero-actions\{display:grid;width:min\(100%,31\.25rem\);gap:var\(--space-3\);margin:var\(--space-5\) auto 0\}/);
-  assert.match(styles, /\.hero-action-group\{display:grid;grid-auto-rows:3\.75rem;gap:var\(--space-3\);align-items:stretch;justify-content:center\}/);
-  assert.match(styles, /\.download-actions\{grid-template-columns:repeat\(2,15\.25rem\)\}/);
-  assert.match(styles, /\.local-actions,\.documentation-actions\{grid-template-columns:repeat\(2,15\.25rem\)\}/);
+  assert.match(styles, /\.hero-actions\{display:grid;width:min\(100%,50rem\);gap:var\(--space-4\);margin:var\(--space-5\) auto 0\}/);
+  assert.match(styles, /\.hero-action-group\{display:grid;grid-auto-rows:3\.75rem;gap:var\(--space-4\);align-items:stretch;justify-content:center\}/);
+  assert.match(styles, /\.download-actions,\.local-actions,\.documentation-actions\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)\}/);
   assert.match(styles, /\.hero-action-group \.primary-button,\.hero-action-group \.secondary-button\{justify-content:center;text-align:center\}/);
   assert.match(styles, /\.hero-action-group \.release-download,\.hero-action-group #refresh-local-server\{align-items:center;justify-content:center;text-align:center\}/);
   assert.match(styles, /@media \(max-width:48rem\) \{ \.hero-actions \{ width:min\(100%,26rem\); \} \.download-actions, \.local-actions, \.documentation-actions \{ grid-template-columns: minmax\(0, 1fr\); width: 100%; \}/);
@@ -84,8 +99,17 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /<span>Refresh Local Server<\/span><small>Before launching the app<\/small><\/a>/);
   assert.match(html, new RegExp(currentDistribution.url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.match(html, /Release archive/);
-  assert.match(html, new RegExp(`${previousDistributions.length} earlier Windows ZIPs`));
-  assert.match(html, /Verified historical releases are retained for reference and future agent studies\./);
+  assert.match(html, /Cloudflare R2 milestones · GitHub BETA/);
+  assert.match(html, /Milestones · Cloudflare R2/);
+  assert.match(html, /BETA releases · GitHub/);
+  assert.match(html, /Earlier Cloudflare R2 releases/);
+  assert.match(html, /id="r2-milestone-history"/);
+  assert.match(html, /id="r2-legacy-history"/);
+  assert.match(html, /id="github-beta-history"/);
+  assert.match(html, /id="github-beta-status"/);
+  assert.match(html, /github-release-archive\.js/);
+  assert.match(html, new RegExp(`${distribution.releases.length - 3} ZIPs`));
+  assert.match(html, /Earlier verified R2 releases are retained without treating them as new milestones\./);
   assert.match(styles, /\.release-history \{ margin-top: 0; \}/);
   assert.match(styles, /\.release-history details/);
   assert.doesNotMatch(styles, /margin-right: clamp\(8rem, 15vw, 16rem\)|margin-right: calc\(\(100% \+ var\(--space-5\)\) \/ 3\)/);
@@ -119,6 +143,26 @@ test('build truthfully presents the current public state of the Local Lab', () =
     assert.match(html, new RegExp(`<code title="SHA-256: ${release.sha256}">${release.sha256.slice(0, 7)}</code>`));
     assert.doesNotMatch(html, new RegExp(`<code>${release.sha256}</code>`));
   }
+  // The R2 manifest is unchanged: three featured milestones and all older R2 entries.
+  const milestoneSection = html.split('id="r2-milestone-history">', 2)[1].split('</ul>', 1)[0];
+  const olderR2Section = html.split('id="r2-legacy-history">', 2)[1].split('</ul>', 1)[0];
+  for (const version of ['2.0.16', '2.0.15', '2.0.4']) {
+    assert.match(milestoneSection, new RegExp('data-zip-version="v' + version.replaceAll('.', '\\.') + '"'));
+    assert.doesNotMatch(olderR2Section, new RegExp('data-zip-version="v' + version.replaceAll('.', '\\.') + '"'));
+  }
+  assert.equal((milestoneSection.match(/<li>/g) || []).length, 3);
+  assert.equal((olderR2Section.match(/<li>/g) || []).length, distribution.releases.length - 3);
+  // The initial GitHub history works without a network request.
+  const betaSection = html.split('id="github-beta-history">', 2)[1].split('</ul>', 1)[0];
+  assert.equal((betaSection.match(/<li>/g) || []).length, betaDistribution.releases.length);
+  for (const release of betaDistribution.releases) {
+    assert.ok(!distribution.releases.some(item => item.version === release.version), 'GitHub BETA must not duplicate R2 versions');
+    assert.match(release.version, /^\d+\.\d+\.\d+$/);
+    assert.match(release.sha256, /^[a-f0-9]{64}$/);
+    assert.ok(betaSection.includes('releases/download/v' + release.version + '/AI-Agents-Lab-Windows.zip'));
+    assert.ok(betaSection.includes('data-zip-sha256="' + release.sha256 + '"'));
+  }
+  assert.equal(betaDistribution.releases[0].version, '2.0.19');
   assert.doesNotMatch(html, /id="zip-update"/);
   assert.match(html, /Trainer → Student → Evaluator → Improver/);
   const overview = html.slice(html.indexOf('<section id="overview"'), html.indexOf('</section>', html.indexOf('<section id="overview"')));
@@ -126,7 +170,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /Agent Collaboration \/ Conference Room/);
   assert.match(html, /Start in three simple steps/);
   assert.match(html, /<section class="hero"[^>]*>\s*<article class="dashboard-card content-card hero-card">/);
-  assert.match(html, /<details class="dashboard-card content-card archive-card">/);
+  assert.match(html, /<details class="dashboard-card content-card archive-card" id="release-archive">/);
   assert.match(html, /<header class="dashboard-card content-card section-intro-card"><p class="eyebrow">EASY START COMPONENTS/);
   assert.match(html, /<section id="start" class="simple-section steps"[^>]*>\s*<article class="dashboard-card content-card">/);
   assert.match(html, /<section id="privacy" class="simple-section"[^>]*>\s*<article class="dashboard-card content-card">/);
@@ -320,4 +364,29 @@ test('public distribution monitoring verifies the reviewed current R2 ZIP on a s
   assert.match(monitor, /application\/x-zip-compressed/);
   assert.match(monitor, /Public ZIP SHA-256 mismatch/);
   assert.match(monitor, /Public ZIP length mismatch/);
+});
+
+test('GitHub BETA archive filters R2 versions and invalid assets without duplicates', () => {
+  const {githubOnlyReleases} = require(join(app, 'src', 'github-release-archive.js'));
+  const digest = 'sha256:' + 'a'.repeat(64);
+  const valid = version => ({tag_name:'v'+version, draft:false, assets:[{name:'AI-Agents-Lab-Windows.zip',state:'uploaded',digest}]});
+  const result = githubOnlyReleases([
+    valid('2.0.17'), valid('2.0.16'), valid('2.0.19'), valid('2.0.19'),
+    valid('2.0.18'), {tag_name:'v2.0.20',draft:true,assets:valid('2.0.20').assets},
+    {tag_name:'unsafe',draft:false,assets:valid('2.0.20').assets},
+    {tag_name:'v2.0.21',draft:false,assets:[{name:'AI-Agents-Lab-Windows.zip',state:'uploaded',digest:'sha256:bad'}]},
+    {tag_name:'v2.0.22',draft:false,assets:[{name:'other.zip',state:'uploaded',digest}]},
+  ], new Set(['2.0.16']));
+  assert.deepEqual(result.map(item => item.version), ['2.0.19','2.0.18','2.0.17']);
+  assert.ok(result.every(item => item.sha256 === 'a'.repeat(64)));
+  assert.ok(result.every(item => item.url.startsWith('https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v')));
+  const headers = readFileSync(join(app, '_headers'), 'utf8');
+  assert.match(headers, /connect-src '[^;]*https:\/\/api\.github\.com;/);
+  assert.match(headers, /default-src 'self'/);
+  assert.match(headers, /script-src 'self' https:\/\/www\.googletagmanager\.com/);
+  const source = readFileSync(join(app, 'src', 'github-release-archive.js'), 'utf8');
+  assert.match(source, /archive\.addEventListener\('toggle'/);
+  assert.match(source, /if \(!archive\.open \|\| requested\) return/);
+  assert.match(source, /Showing verified BETA snapshot/);
+  assert.match(source, /list\.replaceChildren/);
 });

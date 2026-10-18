@@ -34,6 +34,19 @@ test('all fifteen Lab-scoped role prompt files are packaged and release-verified
     assert.ok(verifier.includes('"'+role+'"'));
   }
 });
+test('next Windows ZIP bundles both approved learning documents without runtime imports',()=>{
+  const root=path.resolve(__dirname,'..','..','..');
+  const packager=fs.readFileSync(path.join(root,'apps','local-ai-agents-lab','scripts','build-release.cjs'),'utf8');
+  const verifier=fs.readFileSync(path.join(root,'apps','local-ai-agents-lab','scripts','verify-release.cjs'),'utf8');
+  for(const name of ['EDUCATIONAL_RESOURCE_LIBRARY.md','STARTER_EXERCISES.md']){
+    assert.ok(fs.readFileSync(path.join(root,'docs','learning',name),'utf8').trim(),name);
+    assert.ok(packager.includes("'"+name+"'"),name+' missing from build');
+    assert.ok(verifier.includes("'"+name+"'"),name+' missing from release verification');
+  }
+  assert.match(packager,/text\.replace\(original,'\.\.\/\.\.\/prompts\/'\)/);
+  assert.match(verifier,/library\.includes\('\.\.\/\.\.\/prompts\/'\)/);
+});
+
 test('Windows training wizard is packaged and opt-in',()=>{
   const root=path.resolve(__dirname,'..');
   const launcher=fs.readFileSync(path.join(root,'setup-training-windows.bat'),'utf8');

@@ -1,6 +1,6 @@
 # Markellos Ecosystem AI Lab
 
-Version: v2.0.16 · Private local starter
+Version: v2.0.19 · Private local starter
 
 Local Windows application with five active workspaces:
 
@@ -30,6 +30,14 @@ It asks for a separate, explicit approval before it can:
 4. Download the initial local model, `qwen2.5:0.5b`, through the local Ollama service.
 
 No package, service, or model download begins before its own approval dialog. Easy Start reuses compatible Python, Ollama, and local models already on the computer, and does not reinstall them. The first setup requires an Internet connection, Windows Package Manager, and at least 3 GiB of free disk space. Windows may show its own confirmation prompts for package installation.
+
+## Bundled educational reference library
+
+This Windows ZIP includes two documentation-only Markdown files in the
+`docs/learning/` folder: `EDUCATIONAL_RESOURCE_LIBRARY.md` and
+`STARTER_EXERCISES.md`. You can read them without downloading any external
+datasets. These references are not connected to runtime Agent selection,
+fine-tuning, benchmarking or executable dependencies.
 
 ## Agent system prompts
 

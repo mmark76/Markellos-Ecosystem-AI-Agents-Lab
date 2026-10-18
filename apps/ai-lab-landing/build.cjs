@@ -36,6 +36,19 @@ for (const release of releaseHistory) {
   seenVersions.add(release.version);
 }
 const [currentRelease, ...previousReleases] = releaseHistory;
+// The public R2 manifest and the GitHub-only BETA manifest have separate ownership.
+const betaDistribution = JSON.parse(readFileSync(join(__dirname, 'github-beta-releases.json'), 'utf8'));
+if (!Array.isArray(betaDistribution.releases) || betaDistribution.releases.length === 0)
+  throw new Error('At least one verified GitHub BETA release is required');
+const betaHistory = betaDistribution.releases;
+const betaVersions = new Set();
+for (const release of betaHistory) {
+  if (!/^\d+\.\d+\.\d+$/.test(release.version) || betaVersions.has(release.version) || seenVersions.has(release.version))
+    throw new Error('Invalid, duplicate or R2-overlapping GitHub BETA version');
+  if (!/^[a-f0-9]{64}$/.test(release.sha256)) throw new Error('Invalid GitHub BETA SHA-256');
+  betaVersions.add(release.version);
+}
+const githubBetaRelease = betaHistory[0];
 const commit = git(['rev-parse', '--short=7', 'HEAD']);
 const buildId = `v${releaseVersion}_${cyprusTimestamp(new Date())}_${commit}`;
 const indexPath = join(output, 'index.html');
@@ -45,9 +58,15 @@ const milestoneButton=(version,scope)=>{
   return release?'<a id="zip-download-v'+version.replaceAll('.','')+'" class="secondary-button release-download" data-zip-version="v'+version+'" data-zip-sha256="'+release.sha256+'" data-download-source="cloudflare-r2" href="'+release.url+'"><span>Download v'+version+'</span><small>'+scope+'</small></a>':'';
 };
 const legacyButton=[milestoneButton('2.0.15','Previous milestone · local + optional internet connections'),milestoneButton('2.0.4','Local only')].join('');
-const releaseLinks = previousReleases.map(({ version, url, sha256 }) => `<li><a data-zip-version="v${version}" data-zip-sha256="${sha256}" href="${url}">v${version}</a><code title="SHA-256: ${sha256}">${sha256.slice(0, 7)}</code></li>`).join('');
+const releaseItem = ({ version, url, sha256 }) => `<li><a data-zip-version="v${version}" data-zip-sha256="${sha256}" href="${url}">v${version}</a><code title="SHA-256: ${sha256}">${sha256.slice(0, 7)}</code></li>`;
+const featuredR2 = [currentRelease, ...['2.0.15', '2.0.4'].map(version => releaseHistory.find(release => release.version === version)).filter(Boolean)];
+const featuredVersions = new Set(featuredR2.map(release => release.version));
+const historicalR2 = releaseHistory.filter(release => !featuredVersions.has(release.version));
+const milestoneLinks = featuredR2.map(releaseItem).join('');
+const releaseLinks = historicalR2.map(releaseItem).join('');
+const betaLinks = betaHistory.map(({version,sha256}) => releaseItem({version, sha256, url:githubReleaseAssetUrl(version)})).join('');
 const injectPageIdentity = html => html.replaceAll('{{BUILD_ID}}', buildId).replaceAll('{{RELEASE_VERSION}}', `v${currentRelease.version}`);
-writeFileSync(indexPath, injectPageIdentity(readFileSync(indexPath, 'utf8')).replaceAll('{{DISTRIBUTION_URL}}', currentRelease.url).replaceAll('{{GITHUB_RELEASE_URL}}', githubReleaseAssetUrl(currentRelease.version)).replaceAll('{{RELEASE_SHA256}}', currentRelease.sha256).replaceAll('{{LEGACY_DOWNLOAD_BUTTON}}', legacyButton).replaceAll('{{ARCHIVE_COUNT}}', String(previousReleases.length)).replaceAll('{{RELEASE_HISTORY}}', releaseLinks));
+writeFileSync(indexPath, injectPageIdentity(readFileSync(indexPath, 'utf8')).replaceAll('{{DISTRIBUTION_URL}}', currentRelease.url).replaceAll('{{GITHUB_RELEASE_URL}}', githubReleaseAssetUrl(githubBetaRelease.version)).replaceAll('{{GITHUB_RELEASE_VERSION}}', 'v'+githubBetaRelease.version).replaceAll('{{GITHUB_RELEASE_SHA256}}', githubBetaRelease.sha256).replaceAll('{{RELEASE_SHA256}}', currentRelease.sha256).replaceAll('{{LEGACY_DOWNLOAD_BUTTON}}', legacyButton).replaceAll('{{R2_MILESTONE_HISTORY}}', milestoneLinks).replaceAll('{{R2_LEGACY_COUNT}}', String(historicalR2.length)).replaceAll('{{RELEASE_HISTORY}}', releaseLinks).replaceAll('{{GITHUB_BETA_HISTORY}}', betaLinks));
 for (const page of ['simple-guide.html', 'app-description.html']) {
   const pagePath = join(output, page);
   writeFileSync(pagePath, injectPageIdentity(readFileSync(pagePath, 'utf8')));

@@ -27,6 +27,14 @@ function verify(dir,expectedSha){
     if(!fs.existsSync(file)||!fs.readFileSync(file,'utf8').trim())
       throw Error('Missing or empty agent prompt: '+role);
   }
+  for(const name of ['EDUCATIONAL_RESOURCE_LIBRARY.md','STARTER_EXERCISES.md']){
+    const file=path.join(dir,'docs','learning',name);
+    if(!fs.existsSync(file)||!fs.readFileSync(file,'utf8').trim())
+      throw Error('Missing or empty bundled educational document: '+name);
+  }
+  const library=fs.readFileSync(path.join(dir,'docs','learning','EDUCATIONAL_RESOURCE_LIBRARY.md'),'utf8');
+  if(!library.includes('../../prompts/')||library.includes('../../apps/local-ai-agents-lab/prompts/'))
+    throw Error('Bundled educational library must reference the packaged prompts');
   console.log('RELEASE_VERIFIED '+expectedId);
 }
 if(require.main===module){
