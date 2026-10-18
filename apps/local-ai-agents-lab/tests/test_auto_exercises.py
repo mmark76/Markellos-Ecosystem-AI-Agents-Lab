@@ -94,6 +94,11 @@ class AutoExerciseTests(unittest.TestCase):
                         break
                     time.sleep(.05)
                 self.assertEqual(session["status"], "completed")
+                for _ in range(40):
+                    if not campus.RUN_LOCK.locked():
+                        break
+                    time.sleep(.05)
+                self.assertFalse(campus.RUN_LOCK.locked())
                 self.assertEqual([s["agent_role"] for s in session["stages"]], list(campus.FLOW["training"]))
                 self.assertEqual(campus.history("training")[0]["agent"], "You")
                 self.assertIn("train-evidence-01", campus.history("training")[0]["content"])
