@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-084
+
+```text
+Change ID: AI-LAB-CC-084
+Requested by: User
+Date: 2026-10-18
+Description: Centre each two-button hero action group within the centred CTA container and present all landing-page information blocks in compact cards, with the installation and privacy cards paired per desktop row.
+Reason: The fixed-width ZIP, local-launch, and documentation button pairs were visually left-aligned inside an otherwise centred action area, and the user requested compact cards for all landing-page text blocks with at least two cards per desktop row.
+Affected objective IDs: AI-LAB-OBJ-002, AI-LAB-OBJ-003
+Architecture impact: Static landing-page HTML/CSS and regression assertions only. No text, link, application, analytics, build, or deployment behavior changes.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Landing build regression asserts centred action-group tracks, compact card widths, card containment for each information block, and the two-column information-card grid.
+Cost and schedule impact: None.
+Decision: APPROVED (UI ALIGNMENT)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```
+
 ## Approved change record — AI-LAB-CC-083
 
 ```text

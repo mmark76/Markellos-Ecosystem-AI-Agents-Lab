@@ -64,8 +64,8 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(styles, /\.main-content \{ flex: 1; padding-block: var\(--space-12\); text-align: center; \}/);
   assert.match(styles, /\.hero \{ max-width: none; margin-bottom: var\(--space-12\); \}/);
   assert.match(styles, /\.hero > \.eyebrow, \.hero h1 \{ text-align: center; \}/);
-  assert.match(styles, /\.hero-actions\{display:grid;width:min\(calc\(100vw - 4rem\),47\.25rem\);gap:var\(--space-3\);margin:var\(--space-5\) auto 0\}/);
-  assert.match(styles, /\.hero-action-group\{display:grid;grid-auto-rows:3\.75rem;gap:var\(--space-3\);align-items:stretch\}/);
+  assert.match(styles, /\.hero-actions\{display:grid;width:min\(100%,31\.25rem\);gap:var\(--space-3\);margin:var\(--space-5\) auto 0\}/);
+  assert.match(styles, /\.hero-action-group\{display:grid;grid-auto-rows:3\.75rem;gap:var\(--space-3\);align-items:stretch;justify-content:center\}/);
   assert.match(styles, /\.download-actions\{grid-template-columns:repeat\(2,15\.25rem\)\}/);
   assert.match(styles, /\.local-actions,\.documentation-actions\{grid-template-columns:repeat\(2,15\.25rem\)\}/);
   assert.match(styles, /\.hero-action-group \.primary-button,\.hero-action-group \.secondary-button\{justify-content:center;text-align:center\}/);
@@ -85,7 +85,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /Verified historical releases are retained for reference and future agent studies\./);
   assert.match(styles, /\.release-history details/);
   assert.doesNotMatch(styles, /margin-right: clamp\(8rem, 15vw, 16rem\)|margin-right: calc\(\(100% \+ var\(--space-5\)\) \/ 3\)/);
-  assert.match(styles, /\.card-grid \{ display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); gap: var\(--space-5\); \}/);
+  assert.match(styles, /\.card-grid \{ width: min\(100%, 54rem\); display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); gap: var\(--space-5\); margin-inline: auto; \}/);
   assert.match(styles, /\.simple-section \{ max-width: none; margin-top: var\(--space-12\); \}/);
   assert.match(styles, /\.simple-section > \.eyebrow, \.simple-section > h2 \{ text-align: center; \}/);
   assert.match(styles, /\.release-history summary \{ display: flex; align-items: baseline; justify-content: center;/);
@@ -93,6 +93,8 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(styles, /\.engine-card \.primary-button \{ width: fit-content; margin: auto auto 0; \}/);
   assert.match(styles, /\.steps ol \{ display: grid; gap: var\(--space-4\); padding-left: 0; list-style-position: inside; \}/);
   assert.match(styles, /#overview \.dashboard-card \{ min-height: 17rem; \}/);
+  assert.match(styles, /\.content-card \{ width: min\(100%, var\(--content-narrow\)\); min-height: 0; margin-inline: auto; \}/);
+  assert.match(styles, /\.content-card-grid \{ width: min\(100%, 54rem\); display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); gap: var\(--space-5\); margin: var\(--space-12\) auto 0; \}/);
   assert.match(styles, /\.engine-card \{ min-height: 15rem; \}/);
   assert.match(styles, /\.footer-inner \{ display: grid; justify-items: center; gap: var\(--space-1\); padding-block: var\(--space-5\); color: var\(--color-text-muted\); font-size: var\(--font-size-sm\); text-align: center; \}/);
   for (const release of previousDistributions) {
@@ -108,6 +110,12 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /AVAILABLE IN v1.1.8<\/p><h2>Agent Collaboration \/ Conference Room/);
   assert.match(html, /Agent Collaboration \/ Conference Room/);
   assert.match(html, /Start in three simple steps/);
+  assert.match(html, /<section class="hero"[^>]*>\s*<article class="dashboard-card content-card hero-card">/);
+  assert.match(html, /<details class="dashboard-card content-card archive-card">/);
+  assert.match(html, /<header class="dashboard-card content-card section-intro-card"><p class="eyebrow">EASY START COMPONENTS/);
+  assert.match(html, /<section id="start" class="simple-section steps"[^>]*>\s*<article class="dashboard-card content-card">/);
+  assert.match(html, /<section id="privacy" class="simple-section"[^>]*>\s*<article class="dashboard-card content-card">/);
+  assert.match(html, /<div class="content-card-grid">\s*<section id="start"/);
   assert.match(html, /Start AI Training Lab\.bat/);
   assert.match(html, /id="launch-local-lab" class="secondary-button" href="markellos-ai-training-lab:\/\/open"/);
   assert.match(html, /Launch Local Lab after download and extract zip<\/a>/);
