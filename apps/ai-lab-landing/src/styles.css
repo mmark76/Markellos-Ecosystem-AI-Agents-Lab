@@ -99,7 +99,7 @@ html[data-color-mode="light"] .dashboard-card { box-shadow: var(--shadow-sm); }
 html[data-color-mode="light"] .shell-notice { background:#e8f0fb; color:#1f3550; }
 html[data-color-mode="light"] .secondary-button { background:#ffffff; color:#172033; }
 
-.launch-helper{margin-top:var(--space-3);color:var(--color-text-muted);font-size:var(--font-size-sm)}
+.dashboard-card p.launch-helper{margin-top:var(--space-5);color:var(--color-text-muted);font-size:var(--font-size-sm)}
 
 
 /* Distinct launch action: royal blue in both themes, independent of the download accent. */
