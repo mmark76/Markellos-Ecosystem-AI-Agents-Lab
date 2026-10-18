@@ -65,8 +65,27 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn("storageWrite(backgroundKey, background)", self.settings)
         self.assertIn("el.setAttribute('aria-label',label.backgrounds[el.dataset.background])", self.settings)
         self.assertNotIn("el.setAttribute('title',label.backgrounds[el.dataset.background])", self.settings)
-        # Preserve the separate accent controls and their existing behavior.
-        self.assertIn("el.setAttribute('title',label.colors[el.dataset.accent])", self.settings)
+    def test_all_appearance_choices_have_accessible_labels_without_native_hover_tooltips(self):
+        for group, names, key, label in (
+            ("accent", ("Mint", "Blue", "Purple", "Orange", "Rose", "White"), "accentKey", "colors"),
+            ("background", ("Default", "Midnight", "Navy", "Forest", "Plum"), "backgroundKey", "backgrounds"),
+            ("font", ("System", "Modern", "Serif", "Monospace"), "fontKey", "fonts"),
+        ):
+            with self.subTest(group=group):
+                for name in names:
+                    self.assertIn(f'aria-label="{name}"', self.html)
+                self.assertIn(f"storageWrite({key}, {group})", self.settings)
+                self.assertIn(
+                    f"el.setAttribute('aria-label',label.{label}[el.dataset.{group}])",
+                    self.settings,
+                )
+                self.assertIn(f"el.setAttribute('aria-pressed', String(el.dataset.{group} === {group}))", self.settings)
+                self.assertNotIn(f"el.setAttribute('title',label.{label}[el.dataset.{group}])", self.settings)
+        self.assertNotIn("setAttribute('title'", self.settings)
+        # The 15 choices have visible names and no static title attributes.
+        for group in ("accent-options", "background-options", "font-options"):
+            choices = self.html.split(f'id="{group}"', 1)[1].split("</div>", 1)[0]
+            self.assertNotIn(' title="', choices)
 
     def test_active_training_stage_has_subtle_full_frame_signal(self):
         self.assertIn("training-stage status-${String(stage.status||'').toLowerCase().replace(/\\s+/g,'-')}", self.app)
