@@ -211,7 +211,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.doesNotMatch(script, /checkForZipUpdate|scheduleZipUpdateChecks|downloaded-zip-version/);
   assert.match(script, /const ANALYTICS_CONSENT_KEY = 'markellos\.ai-lab\.analytics-consent\.v1'/);
   assert.match(script, /const GA_MEASUREMENT_ID = 'G-ZEPZK1T1YQ'/);
-  assert.match(script, /send\('consent','default',CONSENT_DENIED\)/);
+  assert.match(script, /gtag\(\)\('consent','default',CONSENT_DENIED\)/);
   assert.match(script, /send\('consent','update',CONSENT_GRANTED\)/);
   assert.match(script, /script\.src=`https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=\$\{encodeURIComponent\(GA_MEASUREMENT_ID\)\}`/);
   assert.match(script, /window\.gtag\('config',GA_MEASUREMENT_ID,\{send_page_view:false\}\)/);
@@ -268,6 +268,7 @@ test('analytics stays unloaded until consent and sends only approved events afte
     delete require.cache[modulePath];
     require(modulePath);
     assert.equal(scripts.length, 0, 'Google tag must not load before consent');
+    assert.deepEqual(Array.from(window.dataLayer[0]), ['consent', 'default', {analytics_storage:'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'}]);
     elements['accept-analytics'].listeners.get('click')();
     assert.equal(scripts.length, 1, 'acceptance loads one Google tag');
     window.gtag = (...args) => window.dataLayer.push(args);
