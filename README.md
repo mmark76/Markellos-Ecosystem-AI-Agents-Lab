@@ -13,6 +13,7 @@ AI Lab is a local-first experimentation environment for a Windows device, with a
 2. For local use, follow the [Local Lab guide](apps/local-ai-agents-lab/README.md).
 3. For the public guide, follow the [Landing-page guide](apps/ai-lab-landing/README.md).
 4. Review the [Architecture](docs/architecture/SYSTEM_ARCHITECTURE.md), [Security Plan](docs/security/SECURITY_PLAN.md), and [Threat Model](docs/security/THREAT_MODEL.md) before a material change.
+5. For optional, manual learning exercises, browse the [Educational Resource Library](docs/learning/EDUCATIONAL_RESOURCE_LIBRARY.md) and [five Lab starter exercises](docs/learning/STARTER_EXERCISES.md). No external datasets or benchmark tools are installed by these references.
 
 ## Boundaries
 
