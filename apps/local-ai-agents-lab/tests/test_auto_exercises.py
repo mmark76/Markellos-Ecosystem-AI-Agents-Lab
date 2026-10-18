@@ -111,7 +111,7 @@ class AutoExerciseTests(unittest.TestCase):
                     "models": {role: "test-local:1" for role in campus.FLOW["conference"]},
                     "prompt": "Existing manual flow is still supported"})
                 self.assertEqual(status, 200)
-                self.assertIsNone(manual["autoExercise"])
+                self.assertNotIn("autoExercise", manual)
         finally:
             server.shutdown()
             server.server_close()
