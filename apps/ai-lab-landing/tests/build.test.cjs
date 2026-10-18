@@ -203,6 +203,10 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(description, /Five workspaces, fifteen specialized agents/);
   for (const role of ["Strategist → Analyst → Engineer", "Tutor → Student → Evaluator → Improver", "Assessor → Scorer → Benchmarker", "Analyst → Advisor", "Diagnostician → Optimizer → Validator"]) assert.ok(description.includes(role), `Missing agent workflow: ${role}`);
   assert.match(description, /fine-tuning \(including LoRA training\) is <strong>not enabled<\/strong>/);
+  const optionalServices = description.slice(description.indexOf('<h2>Optional external services</h2>'), description.indexOf('<h2>Local-first design and privacy</h2>'));
+  assert.match(optionalServices, /Using the optional ChatGPT Advisor may require an eligible paid ChatGPT subscription\./);
+  assert.match(optionalServices, /Availability and usage limits are determined by OpenAI\./);
+  assert.match(optionalServices, /AI Training Lab's local Ollama-powered features remain free to use without a ChatGPT subscription\./);
   for (const page of [guide, description]) {
     assert.match(page, new RegExp(`v${escapedDistributionVersion}`));
     assert.match(page, new RegExp(`v${escapedReleaseVersion}_\\d{8}_\\d{4}_[0-9a-f]{7}`));
