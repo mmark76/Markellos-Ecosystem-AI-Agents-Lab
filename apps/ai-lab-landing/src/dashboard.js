@@ -6,7 +6,6 @@ const DEFAULT = Object.freeze({colorMode:'dark',accent:'#f2c230',font:'system',t
 const CONSENT_DENIED = Object.freeze({analytics_storage:'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});
 const CONSENT_GRANTED = Object.freeze({...CONSENT_DENIED,analytics_storage:'granted'});
 function gtag() { window.dataLayer=window.dataLayer||[]; window.gtag=window.gtag||function(){window.dataLayer.push(arguments);}; return window.gtag; }
-gtag()('consent','default',CONSENT_DENIED);
 let analyticsInitialized = false;
 let lastTrackedLocation = null;
 const validHex = value => typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value) ? value.toLowerCase() : null;
