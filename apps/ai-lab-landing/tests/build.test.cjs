@@ -30,6 +30,14 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /<img class="brand-mark" src="\.\/ai-training-lab-mark\.png" alt="AI Lab">/);
   assert.match(html, /class="beta-badge">BETA<\/span>/);
   assert.match(styles, /\.beta-badge/);
+  const subscriptionNotice = 'Using the optional ChatGPT Advisor may require an eligible paid ChatGPT subscription. Availability and usage limits are determined by OpenAI.';
+  assert.match(html, /<p class="advisor-plan-notice"><strong>ChatGPT Advisor — Subscription Requirements\.<\/strong>/);
+  assert.ok(html.includes(subscriptionNotice), 'The main landing page must show the ChatGPT eligibility notice.');
+  assert.ok(description.includes(subscriptionNotice), 'Keep the same eligibility notice in Detailed App Description.');
+  assert.doesNotMatch(html, /<nav class="primary-nav"|class="nav-link/);
+  assert.ok(styles.includes('.advisor-plan-notice { margin: var(--space-3) 0 var(--space-4);'));
+  assert.ok(styles.includes('font-size: var(--font-size-sm); line-height: var(--line-height-normal); text-align: left; overflow-wrap: anywhere; }'));
+  assert.doesNotMatch(styles, /\.primary-nav\s*\{|\.nav-link\s*\{/);
   assert.match(currentDistribution.version, /^\d+\.\d+\.\d+$/, 'the verified public ZIP may lag the local application release');
   assert.equal(new Set(distribution.releases.map(({ version }) => version)).size, distribution.releases.length);
   for (const release of distribution.releases) {
