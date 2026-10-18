@@ -57,6 +57,7 @@ a:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 4px; }
 .dashboard-card p:not(.card-label), .simple-section p:last-child { margin-top: 0; margin-bottom: 0; color: var(--color-text-muted); }
 .simple-section { max-width: none; margin-top: var(--space-3); }
 .simple-section > .eyebrow, .simple-section > h2 { text-align: center; }
+.simple-section.guide > .eyebrow, .simple-section.guide > h1, .simple-section.guide > h2 { text-align: left; }
 .simple-section h2 { margin-bottom: var(--space-4); font-size: var(--font-size-2xl); }
 .engine-downloads { max-width: var(--content-wide); }
 .release-history { margin-top: 0; }
