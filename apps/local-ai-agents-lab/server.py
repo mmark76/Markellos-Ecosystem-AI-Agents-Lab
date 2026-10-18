@@ -719,7 +719,7 @@ class Handler(BaseHTTPRequestHandler):
             if not isinstance(raw_prompt, str):
                 raise ValueError("Invalid prompt")
             prompt = raw_prompt.strip()
-            if room not in ROOMS or provider != "ollama" or (not auto_mode and not 1 <= len(prompt) <= 2500):
+            if room not in ROOMS or provider != "ollama" or (auto_mode and room != "training") or (not auto_mode and not 1 <= len(prompt) <= 2500):
                 raise ValueError("Select a Lab and a topic of up to 2,500 characters.")
             if auto_mode and "prompt" in body:
                 raise ValueError("Automatic Lab sessions select their exercise from the trusted local catalog.")
