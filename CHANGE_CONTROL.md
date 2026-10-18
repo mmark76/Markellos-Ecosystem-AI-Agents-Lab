@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-074
+
+```text
+Change ID: AI-LAB-CC-074
+Requested by: User
+Date: 2026-10-18
+Description: Increase the equal width of the introductory landing-page action buttons and centre every visible button label.
+Reason: Prevent long existing labels from wrapping onto three lines while preserving aligned action controls.
+Affected objective IDs: AI-LAB-OBJ-002, AI-LAB-OBJ-003
+Architecture impact: Static landing-page CSS layout only. No text, URL, build, protocol, application, or deployment behavior changes.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Landing build regression asserts the widened uniform desktop grid, centred labels, and mobile fallback.
+Cost and schedule impact: None.
+Decision: APPROVED (UI CLARITY)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```
+
 ## Approved change record — AI-LAB-CC-073
 
 ```text
