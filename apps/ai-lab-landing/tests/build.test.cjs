@@ -23,7 +23,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   const styles = readFileSync(join(output, 'styles.css'), 'utf8');
 
   assert.match(html, new RegExp(`v${escapedReleaseVersion}_\\d{8}_\\d{4}_[0-9a-f]{7}`));
-  assert.doesNotMatch(html, /\{\{BUILD_ID\}\}|\{\{RELEASE_VERSION\}\}|\{\{GITHUB_RELEASE_URL\}\}/);
+  assert.doesNotMatch(html, /\{\{BUILD_ID\}\}|\{\{RELEASE_VERSION\}\}|\{\{GITHUB_RELEASE_URL\}\}|\{\{GITHUB_RELEASE_VERSION\}\}|\{\{GITHUB_RELEASE_SHA256\}\}/);
   assert.match(html, /styles\.css\?v=v\d+\.\d+\.\d+_\d{8}_\d{4}_[a-f0-9]{7}/);
   assert.match(html, new RegExp(`CURRENT RELEASE · v${escapedDistributionVersion} · LOCAL \\+ OPTIONAL INTERNET CONNECTIONS`));
   assert.match(html, new RegExp(`<h1 id="page-title">AI Lab v${escapedDistributionVersion}<\\/h1>`));
@@ -49,9 +49,9 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.doesNotMatch(html, /available without GitHub sign-in/);
   assert.doesNotMatch(html, /Download access note|private GitHub repository.*authorized GitHub access/);
   assert.match(html, new RegExp(`id="zip-download" class="primary-button release-download" data-zip-version="v${escapedDistributionVersion}" data-zip-sha256="${currentDistribution.sha256}"`));
-  const expectedGitHubFallback = `https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v${currentDistribution.version}/AI-Agents-Lab-Windows.zip`;
-  assert.match(html, new RegExp(`id="github-release-download" class="secondary-button release-download github-release-download" data-zip-version="v${escapedDistributionVersion}" data-zip-sha256="${currentDistribution.sha256}" data-download-source="github-release" href="${expectedGitHubFallback.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`));
-  assert.match(html, /<span>Alternative download<\/span><small>GitHub release mirror<\/small>/);
+  const expectedGitHubFallback = 'https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v2.0.17/AI-Agents-Lab-Windows.zip';
+  assert.match(html, new RegExp(`id="github-release-download" class="secondary-button release-download github-release-download" data-zip-version="v2\\.0\\.17" data-zip-sha256="fd19ca26c78a2baf374389edf8c3b210c47afab6d2fb9e66d995b18340f40c73" data-download-source="github-release" href="${expectedGitHubFallback.replace(/[.*+?^${}()|[\]\\]/g, '\\  assert.match(html, new RegExp(`id="github-release-download" class="secondary-button release-download github-release-download" data-zip-version="v${escapedDistributionVersion}" data-zip-sha256="${currentDistribution.sha256}" data-download-source="github-release" href="${expectedGitHubFallback.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`));')}"`));
+  assert.match(html, /<span>Download v2\.0\.17 BETA<\/span><small>GitHub · newer BETA ZIP<\/small>/);
   assert.match(html, new RegExp(`Download v${escapedDistributionVersion} <span aria-hidden="true">↓<\/span><\/span><small>Local \\+ optional internet connections<\/small>`));
   // While a new package is being published, the distribution manifest still
   // names v2.0.15 as current.  It becomes the secondary milestone only when
