@@ -157,7 +157,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.equal((betaSection.match(/<li>/g) || []).length, betaDistribution.releases.length);
   for (const release of betaDistribution.releases) {
     assert.ok(!distribution.releases.some(item => item.version === release.version), 'GitHub BETA must not duplicate R2 versions');
-    assert.match(release.version, /^\\d+\\.\\d+\\.\\d+$/);
+    assert.match(release.version, /^\d+\.\d+\.\d+$/);
     assert.match(release.sha256, /^[a-f0-9]{64}$/);
     assert.ok(betaSection.includes('releases/download/v' + release.version + '/AI-Agents-Lab-Windows.zip'));
     assert.ok(betaSection.includes('data-zip-sha256="' + release.sha256 + '"'));
