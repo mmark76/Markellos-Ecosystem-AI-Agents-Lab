@@ -97,6 +97,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(styles, /\.simple-section \{ max-width: none; margin-top: var\(--space-3\); \}/);
   assert.match(styles, /\.simple-section > \.eyebrow, \.simple-section > h2 \{ text-align: center; \}/);
   assert.ok(styles.includes('.guide > p:not(.eyebrow):not(.guide-navigation), .guide li { text-align: justify; }'));
+  assert.ok(styles.includes('.simple-section.guide > .eyebrow, .simple-section.guide > h1, .simple-section.guide > h2 { text-align: left; }'));
   assert.match(guide, /<p class="guide-navigation"><a class="inline-link" href="#technical-documentation">/);
   assert.match(description, /<p class="guide-navigation"><a class="inline-link" href="\.\/simple-guide\.html">/);
   assert.match(styles, /\.release-history summary \{ display: flex; align-items: baseline; justify-content: center;/);
