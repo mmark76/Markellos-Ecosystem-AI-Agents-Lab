@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-083
+
+```text
+Change ID: AI-LAB-CC-083
+Requested by: User
+Date: 2026-10-18
+Description: Centre all visible text within the public landing page content while retaining the established header composition, shared wide container, and two-column card layout.
+Reason: Apply the user's revised visual-alignment direction.
+Affected objective IDs: AI-LAB-OBJ-002, AI-LAB-OBJ-003
+Architecture impact: Static landing-page CSS and regression assertions only. No text, link, application, analytics, build, or deployment behavior changes.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Landing build regression verifies centred content text, archive rows, card action placement, and installation list alignment.
+Cost and schedule impact: None.
+Decision: APPROVED (UI ALIGNMENT)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```
+
 ## Approved change record — AI-LAB-CC-082
 
 ```text
