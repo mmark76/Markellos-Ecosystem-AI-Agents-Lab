@@ -44,6 +44,9 @@ class AutoExerciseCatalogTests(unittest.TestCase):
         packager = (ROOT / "scripts" / "build-release.cjs").read_text(encoding="utf-8")
         self.assertNotIn('id="prompt" rows="3" maxlength="2500" required', html)
         self.assertIn("/api/auto-run", app)
+        self.assertIn("const automatic=room==='training'&&!prompt", app)
+        self.assertIn("auto_mode and room != \"training\"", server)
+        self.assertIn("required=room!==", app)
         self.assertIn("auto_exercise_for_room", server)
         self.assertIn("'exercise_library.py'", packager)
 
