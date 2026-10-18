@@ -61,7 +61,8 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /class="hero-action-group download-actions"/);
   assert.match(html, /class="hero-action-group local-actions"/);
   assert.match(html, /class="hero-action-group documentation-actions"/);
-  assert.match(styles, /\.hero-actions\{display:grid;width:min\(calc\(100vw - 4rem\),47\.25rem\);gap:var\(--space-3\);margin-top:var\(--space-5\)\}/);
+  assert.match(styles, /\.hero \{ max-width: var\(--content-narrow\); margin: 0 auto var\(--space-12\); text-align: center; \}/);
+  assert.match(styles, /\.hero-actions\{display:grid;width:min\(calc\(100vw - 4rem\),47\.25rem\);gap:var\(--space-3\);margin:var\(--space-5\) auto 0\}/);
   assert.match(styles, /\.hero-action-group\{display:grid;grid-auto-rows:3\.75rem;gap:var\(--space-3\);align-items:stretch\}/);
   assert.match(styles, /\.download-actions\{grid-template-columns:repeat\(2,15\.25rem\)\}/);
   assert.match(styles, /\.local-actions,\.documentation-actions\{grid-template-columns:repeat\(2,15\.25rem\)\}/);
@@ -87,6 +88,10 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(styles, /@media \(min-width: 80rem\) \{\s*\.header-actions \{ margin-right: calc\(\(100% \+ var\(--space-5\)\) \/ 3\); \}/);
   assert.doesNotMatch(styles, /margin-right: clamp\(15rem, 24vw, 26rem\)/);
   assert.match(styles, /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(styles, /\.card-grid \{ display: grid; grid-template-columns: repeat\(3, minmax\(0, 1fr\)\); gap: var\(--space-5\); text-align: center; \}/);
+  assert.match(styles, /\.simple-section \{ max-width: var\(--content-narrow\); margin: var\(--space-12\) auto 0; text-align: center; \}/);
+  assert.match(styles, /\.release-history summary \{ display: flex; align-items: baseline; justify-content: center;/);
+  assert.match(styles, /\.steps ol \{ display: grid; gap: var\(--space-4\); padding-left: 0; list-style-position: inside; \}/);
   assert.match(styles, /#overview \.dashboard-card \{ min-height: 17rem; \}/);
   assert.match(styles, /\.engine-card \{ min-height: 15rem; \}/);
   assert.match(styles, /\.footer-inner \{ display: grid; justify-items: center; gap: var\(--space-1\); padding-block: var\(--space-5\); color: var\(--color-text-muted\); font-size: var\(--font-size-sm\); text-align: center; \}/);

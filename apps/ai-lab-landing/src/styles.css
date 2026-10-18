@@ -26,7 +26,7 @@ a:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 4px; }
 .nav-link:hover, .nav-link.is-active { color: var(--color-neutral-0); }
 .nav-link.is-active::after { content: ""; position: absolute; right: var(--space-4); bottom: 0; left: var(--space-4); height: 3px; border-radius: var(--radius-pill) var(--radius-pill) 0 0; background: var(--app-accent); }
 .main-content { flex: 1; padding-block: var(--space-12); }
-.hero { max-width: var(--content-narrow); margin-bottom: var(--space-12); }
+.hero { max-width: var(--content-narrow); margin: 0 auto var(--space-12); text-align: center; }
 .eyebrow, .card-label { margin: 0 0 var(--space-2); color: var(--color-text-muted); }
 .hero h1, .simple-section h2, .dashboard-card h2 { margin-top: 0; color: var(--color-text); line-height: var(--line-height-tight); }
 .guide h1 { margin-top: 0; color: var(--color-text); line-height: var(--line-height-tight); }
@@ -35,31 +35,31 @@ a:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 4px; }
 .guide li { margin-block: var(--space-2); line-height: var(--line-height-relaxed); }
 .hero h1 { margin-bottom: var(--space-4); font-size: clamp(2rem, 5vw, 3.4rem); letter-spacing: -.025em; }
 .hero-copy { margin: 0; color: var(--color-text-muted); font-size: var(--font-size-lg); line-height: var(--line-height-relaxed); }
-.shell-notice { margin: var(--space-5) 0 0; padding: var(--space-3) var(--space-4); border-inline-start: 3px solid var(--app-accent); background: var(--color-surface); color: var(--color-text-muted); font-size: var(--font-size-sm); }
-.hero-actions{display:grid;width:min(calc(100vw - 4rem),47.25rem);gap:var(--space-3);margin-top:var(--space-5)}.hero-action-group{display:grid;grid-auto-rows:3.75rem;gap:var(--space-3);align-items:stretch}.download-actions{grid-template-columns:repeat(2,15.25rem)}.local-actions,.documentation-actions{grid-template-columns:repeat(2,15.25rem)}.hero-action-group .primary-button,.hero-action-group .secondary-button{justify-content:center;text-align:center}.hero-action-group .release-download,.hero-action-group #refresh-local-server{align-items:center;justify-content:center;text-align:center}.primary-button,.secondary-button { min-height: var(--touch-target-min); display: inline-flex; align-items: center; gap: var(--space-2); padding-inline: var(--space-4); border: 1px solid var(--app-accent); border-radius: var(--radius-md); font-weight: var(--font-weight-bold); text-decoration: none; }.primary-button { background: var(--app-accent); color: var(--app-on-accent); }.secondary-button{background:var(--color-surface);color:var(--color-text)}
+.shell-notice { margin: var(--space-5) 0 0; padding: var(--space-3) var(--space-4); border-inline-start: 3px solid var(--app-accent); background: var(--color-surface); color: var(--color-text-muted); font-size: var(--font-size-sm); text-align: center; }
+.hero-actions{display:grid;width:min(calc(100vw - 4rem),47.25rem);gap:var(--space-3);margin:var(--space-5) auto 0}.hero-action-group{display:grid;grid-auto-rows:3.75rem;gap:var(--space-3);align-items:stretch}.download-actions{grid-template-columns:repeat(2,15.25rem)}.local-actions,.documentation-actions{grid-template-columns:repeat(2,15.25rem)}.hero-action-group .primary-button,.hero-action-group .secondary-button{justify-content:center;text-align:center}.hero-action-group .release-download,.hero-action-group #refresh-local-server{align-items:center;justify-content:center;text-align:center}.primary-button,.secondary-button { min-height: var(--touch-target-min); display: inline-flex; align-items: center; gap: var(--space-2); padding-inline: var(--space-4); border: 1px solid var(--app-accent); border-radius: var(--radius-md); font-weight: var(--font-weight-bold); text-decoration: none; }.primary-button { background: var(--app-accent); color: var(--app-on-accent); }.secondary-button{background:var(--color-surface);color:var(--color-text)}
 .release-download{align-items:flex-start;flex-direction:column;gap:1px;padding-block:var(--space-2)}.release-download small{font-size:var(--font-size-xs);font-weight:var(--font-weight-regular);line-height:1.25}
 .primary-button:hover { filter: brightness(.94); }
-.card-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); }
+.card-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); text-align: center; }
 .dashboard-card { min-width: 0; min-height: 15rem; display: flex; flex-direction: column; padding: var(--space-6); border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface); }
 #overview .dashboard-card { min-height: 17rem; }
 .dashboard-card h2 { margin-bottom: var(--space-3); font-size: var(--font-size-xl); }
 .dashboard-card p:not(.card-label), .simple-section p:last-child { margin-top: 0; margin-bottom: 0; color: var(--color-text-muted); }
-.simple-section { max-width: var(--content-narrow); margin-top: var(--space-12); }
+.simple-section { max-width: var(--content-narrow); margin: var(--space-12) auto 0; text-align: center; }
 .simple-section h2 { margin-bottom: var(--space-4); font-size: var(--font-size-2xl); }
 .engine-downloads { max-width: var(--content-wide); }
 .release-history { margin-top: var(--space-8); }
 .release-history details { border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); padding-block: var(--space-3); }
-.release-history summary { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); cursor: pointer; color: var(--color-text); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); }
+.release-history summary { display: flex; align-items: baseline; justify-content: center; gap: var(--space-4); cursor: pointer; color: var(--color-text); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); }
 .release-history summary span { color: var(--color-text-muted); font-size: var(--font-size-xs); font-weight: var(--font-weight-normal); }
 .release-history details > p { margin: var(--space-4) 0 0; color: var(--color-text-muted); font-size: var(--font-size-sm); }
 .release-history ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2) var(--space-5); margin: var(--space-4) 0 0; padding: 0; list-style: none; }
-.release-history li { min-width: 0; display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+.release-history li { min-width: 0; display: flex; align-items: baseline; justify-content: center; gap: var(--space-3); }
 .release-history li a { color: var(--color-text); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); }
 .release-history code { min-width: 0; overflow: hidden; color: var(--color-text-muted); font-size: var(--font-size-xs); text-overflow: ellipsis; white-space: nowrap; }
 .engine-card { min-height: 15rem; }
-.engine-card .primary-button { margin-top: auto; width: fit-content; }
-.steps ol { display: grid; gap: var(--space-4); padding-left: var(--space-5); }
-.steps li { padding-left: var(--space-2); }
+.engine-card .primary-button { width: fit-content; margin: auto auto 0; }
+.steps ol { display: grid; gap: var(--space-4); padding-left: 0; list-style-position: inside; }
+.steps li { padding-left: 0; }
 .inline-link { color: var(--app-accent-strong); font-weight: var(--font-weight-bold); text-underline-offset: .16em; }
 .inline-button { border: 0; padding: 0; background: transparent; color: var(--app-accent-strong); font: inherit; font-weight: var(--font-weight-bold); text-decoration: underline; text-underline-offset: .16em; cursor: pointer; }
 .shell-notice .inline-link { color: var(--color-text); }
@@ -99,7 +99,7 @@ html[data-color-mode="light"] .secondary-button { background:#ffffff; color:#172
   .header-actions { margin-right: calc((100% + var(--space-5)) / 3); }
 }
 
-.launch-helper{margin-top:var(--space-3);color:var(--color-text-muted);font-size:var(--font-size-sm)}
+.launch-helper{margin-top:var(--space-3);color:var(--color-text-muted);font-size:var(--font-size-sm);text-align:center}
 
 
 /* Distinct launch action: royal blue in both themes, independent of the download accent. */
