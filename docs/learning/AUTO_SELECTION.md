@@ -1,24 +1,26 @@
 # Automatic Exercise Selection — Controlled Local Implementation
 
-**Decision (2026-10-18):** Remove the user's need to find, choose, copy or paste practice exercises, while retaining the existing 5 Labs, 15 agent identities and their role-specific system prompts. This implementation is **automatic task selection when a Lab session starts**, not a scheduled or autonomous inference service.
+**Decision (2026-10-18):** Remove the user's need to find, choose, copy or paste practice exercises, while retaining the existing 5 Labs, 15 agent identities and their role-specific system prompts. This implementation is **automatic task selection when a Training Lab session starts**, not a scheduled or autonomous inference service.
 
 ## Actual behavior
 
-1. User selects a Lab and installed local Ollama models using the existing controls (or their saved browser selections).
-2. The topic field is optional. With a custom topic, the existing `POST /api/run` workflow is unchanged.
+1. User selects **Training Lab** and installed local Ollama models using the existing controls (or their saved browser selections).
+2. Only the Training Lab topic field is optional. With a custom topic, the existing `POST /api/run` workflow is unchanged. The other four Labs require a user-supplied topic.
 3. When the topic is empty and **Start** is pressed, the UI sends `POST /api/auto-run` with the existing room, provider and model assignments, but no prompt.
 4. The server validates the same fixed local provider, model assignments, request origin and single-session lock.
-5. It chooses a task using deterministic per-Lab rotation, counting only previously saved auto-selected user messages; manual conversations do not advance the rotation.
+5. It chooses a task using deterministic Training-only rotation, counting only previously saved auto-selected Training user messages; manual conversations do not advance the rotation.
 6. The selected original text-only exercise is persisted as the user's task in local SQLite history, alongside its exercise ID and external methodology reference URL, then flows through the same 15 unchanged role prompts and existing stage/conversation storage.
-7. Every subsequent started session chooses the next local example for that Lab. There are two starter exercises in each Lab (ten total).
+7. Every subsequent automatically started Training Lab session chooses the next local example. There are **two starter exercises, both for Training Lab**.
 
-The existing Training Lab remains Tutor → Student → Evaluator → Improver. Evaluation Lab, Advisory Lab, Conference Room and Optimization Lab retain their own workflows. The user may cancel Training using its existing cancellation control.
+The existing Training Lab remains Tutor → Student → Evaluator → Improver. Evaluation Lab, Advisory Lab, Conference Room and Optimization Lab retain their own workflows **without automatic exercise selection**. The user may cancel Training using its existing cancellation control.
 
 ## Sources versus actual runtime assets
 
-`apps/local-ai-agents-lab/exercise_library.py` is a **trusted, bundled, independently authored** exercise bank. Original references from prompts.chat, PromptSource, Dolly 15k, UltraChat 200k, LM Evaluation Harness, Promptfoo and τ³-bench are **methodology citations, not live dataset downloads or embedded upstream examples**. No source code or data is imported from these external projects.
+`apps/local-ai-agents-lab/exercise_library.py` is a **trusted, bundled, independently authored** exercise bank. Original references from Dolly 15k and UltraChat 200k are **methodology citations, not live dataset downloads or embedded upstream examples**. No source code or data is imported from these external projects.
 
 This is deliberately the first phase of automation: the user does not curate tasks, while source ingestion stays offline-reviewed and reproducible. Future direct ingestion of actual open-source samples requires a separate source- and license-aware import design, test/holdout isolation, data-size caps, provenance records, and explicit security review. Live pulling from external services is not present.
+
+The new automatic endpoint rejects requests targeting any other Lab, even if called directly. Conference Room, Evaluation Lab, Advisory Lab and Optimization Lab continue to use the original manual `POST /api/run` route.
 
 ## Unchanged guarantees
 
