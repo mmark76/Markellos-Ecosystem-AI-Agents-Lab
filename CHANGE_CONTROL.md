@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-079
+
+```text
+Change ID: AI-LAB-CC-079
+Requested by: User
+Date: 2026-10-18
+Description: Centre the public landing-page footer text and rebalance the relative heights of the upper overview cards and lower Easy Start cards.
+Reason: Give the shared shell a more consistent visual axis and make the card sections feel more uniform.
+Affected objective IDs: AI-LAB-OBJ-002, AI-LAB-OBJ-003
+Architecture impact: Static landing-page CSS only. No text, URL, build, protocol, application, analytics, or deployment behavior changes.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Landing build regression asserts the footer alignment and the adjusted card-height hierarchy.
+Cost and schedule impact: None.
+Decision: APPROVED (UI CLARITY)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```
+
 ## Approved change record — AI-LAB-CC-078
 
 ```text

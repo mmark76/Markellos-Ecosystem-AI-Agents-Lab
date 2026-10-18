@@ -87,6 +87,9 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(styles, /@media \(min-width: 80rem\) \{\s*\.header-actions \{ margin-right: calc\(\(100% \+ var\(--space-5\)\) \/ 3\); \}/);
   assert.doesNotMatch(styles, /margin-right: clamp\(15rem, 24vw, 26rem\)/);
   assert.match(styles, /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(styles, /#overview \.dashboard-card \{ min-height: 17rem; \}/);
+  assert.match(styles, /\.engine-card \{ min-height: 15rem; \}/);
+  assert.match(styles, /\.footer-inner \{ display: grid; justify-items: center; gap: var\(--space-1\); padding-block: var\(--space-5\); color: var\(--color-text-muted\); font-size: var\(--font-size-sm\); text-align: center; \}/);
   for (const release of previousDistributions) {
     const escapedVersion = release.version.replaceAll('.', '\\.');
     assert.match(html, new RegExp(`data-zip-version="v${escapedVersion}"`));
