@@ -108,6 +108,8 @@ def initialize():
             db.execute("ALTER TABLE messages ADD COLUMN session_id INTEGER")
         if "model" not in columns:
             db.execute("ALTER TABLE messages ADD COLUMN model TEXT")
+        if "exercise_id" not in columns:
+            db.execute("ALTER TABLE messages ADD COLUMN exercise_id TEXT")
         db.execute("UPDATE messages SET room='training' WHERE room=?", (LEGACY_TRAINING_ROOM,))
         db.execute("""CREATE TABLE IF NOT EXISTS training_sessions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -164,18 +166,19 @@ def auto_exercise_for_room(room: str) -> tuple[dict, str]:
     """Choose next trusted offline exercise using only prior auto-run entries."""
     with closing(connect()) as db:
         count = db.execute(
-            "SELECT COUNT(*) FROM messages WHERE room=? AND agent='You' AND content LIKE '[AUTO EXERCISE:%'",
+            "SELECT COUNT(*) FROM messages WHERE room=? AND agent='You' AND exercise_id IS NOT NULL",
             (room,),
         ).fetchone()[0]
     exercise = select_exercise(room, count)
     return exercise, format_exercise(exercise)
 
 
-def add_message(room: str, agent: str, content: str, session_id: Optional[int] = None, model: Optional[str] = None):
+def add_message(room: str, agent: str, content: str, session_id: Optional[int] = None, model: Optional[str] = None,
+                exercise_id: Optional[str] = None):
     with closing(connect()) as db, db:
         db.execute(
-            "INSERT INTO messages(room,agent,content,created_at,session_id,model) VALUES(?,?,?,?,?,?)",
-            (room, agent, content[:12000], utc_now(), session_id, model),
+            "INSERT INTO messages(room,agent,content,created_at,session_id,model,exercise_id) VALUES(?,?,?,?,?,?,?)",
+            (room, agent, content[:12000], utc_now(), session_id, model, exercise_id),
         )
 
 
@@ -199,12 +202,12 @@ def create_training_session(provider: str, assignments: dict[str, str]) -> int:
 def history(room: str, limit: int = 80) -> list[dict]:
     with closing(connect()) as db, db:
         rows = db.execute(
-            "SELECT messages.id,messages.agent,messages.content,messages.created_at,messages.session_id,"
+            "SELECT messages.id,messages.agent,messages.content,messages.created_at,messages.session_id,messages.exercise_id,"
             " COALESCE(messages.model, CASE messages.agent WHEN 'Trainer' THEN training_sessions.trainer_model WHEN 'Tutor' THEN training_sessions.trainer_model"
             " WHEN 'Student' THEN training_sessions.student_model"
             " WHEN 'Evaluator' THEN training_sessions.evaluator_model"
             " WHEN 'Improver' THEN training_sessions.improver_model END) AS model"
-            " FROM (SELECT id,agent,content,created_at,session_id,model FROM messages WHERE room=?"
+            " FROM (SELECT id,agent,content,created_at,session_id,model,exercise_id FROM messages WHERE room=?"
             " ORDER BY id DESC LIMIT ?) AS messages"
             " LEFT JOIN training_sessions ON training_sessions.id=messages.session_id"
             " ORDER BY messages.id ASC", (room, limit)
@@ -274,10 +277,11 @@ def evaluation_fields(response: str) -> tuple[Optional[int], Optional[str]]:
     return score, result
 
 
-def run_training_session(session_id: int, prompt: str, assignments: dict[str, str], cancel: Event):
+def run_training_session(session_id: int, prompt: str, assignments: dict[str, str], cancel: Event,
+                         exercise_id: Optional[str] = None):
     """Run one four-stage cycle serially; completed stages are durable immediately."""
     transcript = [{"agent": "You", "content": prompt}]
-    add_message("training", "You", prompt, session_id)
+    add_message("training", "You", prompt, session_id, exercise_id=exercise_id)
     try:
         for agent in FLOW["training"]:
             if cancel.is_set():
@@ -748,7 +752,8 @@ class Handler(BaseHTTPRequestHandler):
                 cancel = Event()
                 with SESSION_CANCELS_LOCK:
                     SESSION_CANCELS[session_id] = cancel
-                Thread(target=run_training_session, args=(session_id, prompt, assignments, cancel),
+                Thread(target=run_training_session, args=(session_id, prompt, assignments, cancel,
+                                                          auto_exercise["id"] if auto_exercise else None),
                        name=f"training-session-{session_id}", daemon=True).start()
                 session_owns_lock = True
                 result = {"room": room, "session_id": session_id, "status": "running"}

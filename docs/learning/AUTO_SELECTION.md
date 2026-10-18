@@ -8,11 +8,11 @@
 2. Only the Training Lab topic field is optional. With a custom topic, the existing `POST /api/run` workflow is unchanged. The other four Labs require a user-supplied topic.
 3. When the topic is empty and **Start** is pressed, the UI sends `POST /api/auto-run` with the existing room, provider and model assignments, but no prompt.
 4. The server validates the same fixed local provider, model assignments, request origin and single-session lock.
-5. It chooses a task using deterministic Training-only rotation, counting only previously saved auto-selected Training user messages; manual conversations do not advance the rotation.
-6. The selected original text-only exercise is persisted as the user's task in local SQLite history, alongside its exercise ID and external methodology reference URL, then flows through the same 15 unchanged role prompts and existing stage/conversation storage.
+5. It chooses a task using deterministic Training-only rotation, counting only prior Training user messages with a server-assigned, non-null SQLite `exercise_id`. Manual topic text, even if it starts with `[AUTO EXERCISE:`, cannot advance the rotation.
+6. The selected original text-only exercise is persisted as the user's task in local SQLite history, with an explicit `exercise_id` field and its methodology reference URL in the recorded task. The existing Tutor → Student → Evaluator → Improver prompts and stage storage are unchanged.
 7. Every subsequent automatically started Training Lab session chooses the next local example. There are **two starter exercises, both for Training Lab**.
 
-The existing Training Lab remains Tutor → Student → Evaluator → Improver. Evaluation Lab, Advisory Lab, Conference Room and Optimization Lab retain their own workflows **without automatic exercise selection**. The user may cancel Training using its existing cancellation control.
+The existing Training Lab remains Tutor → Student → Evaluator → Improver. Evaluation Lab, Advisory Lab, Conference Room and Optimization Lab retain their own workflows **without automatic exercise selection**. The `select_exercise(room, count)` catalog interface is already room-keyed and reusable later, but no routes, exercise banks, or automatic execution are enabled in the other Labs by this change. The user may cancel Training using its existing cancellation control.
 
 ## Sources versus actual runtime assets
 
@@ -30,8 +30,12 @@ The new automatic endpoint rejects requests targeting any other Lab, even if cal
 - No automatic third-party downloads, API keys, dependency installs, external code, or network access for the agents.
 - No new training worker, fine-tuning, model-weight changes, or new timer/background recurrence.
 - No change to the currently published Windows ZIP or Cloudflare Pages landing; the release packaging manifest **will include** the new module when a future ZIP is intentionally built.
-- Existing session history and evaluations stay intact; automatic tasks are visibly distinguishable by the `[AUTO EXERCISE: ...]` prefix.
+- Existing session history and evaluations stay intact; the additive nullable SQLite `messages.exercise_id` column is the authoritative automatic-selection marker. The `[AUTO EXERCISE: ...]` prefix is display text only. Legacy rows remain unmarked and readable.
 
 ## Testing and rollout
 
-New regression tests cover the bank shape, constraints, deterministic rotation, no interference from manually entered topics, the automatic HTTP route, unchanged manual route, and UI/packager inclusion. Full integration with a real Ollama model should be checked locally before releasing an updated ZIP. Review and merge this feature independently of the documentation-only educational-catalog PR.
+New regression tests cover the bank shape, constraints, deterministic rotation, legacy database migration, manual topics (including spoofed `[AUTO EXERCISE:` prefixes), two sequential automatic runs, the automatic HTTP route, unchanged manual route, and UI/packager inclusion.
+
+Before an updated Windows ZIP is released: on a local Windows PC with Ollama running, open Training Lab, select installed models for all four roles, leave the topic empty, press Start, and verify completed stages, saved `exercise_id`, response history, and the next rotated exercise. Then verify a custom Training topic still uses the manual route and each of the other four Labs still requires a topic. CI uses mocked Ollama and does not replace this manual check.
+
+Review and merge this feature independently of the documentation-only educational-catalog PR.

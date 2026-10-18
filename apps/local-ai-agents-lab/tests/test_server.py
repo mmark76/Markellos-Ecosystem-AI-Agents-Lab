@@ -103,7 +103,11 @@ class CampusTests(unittest.TestCase):
         self.assertEqual(campus.history("training")[0]["content"], "Old lesson")
         with campus.closing(campus.connect()) as db:
             columns = {row[1] for row in db.execute("PRAGMA table_info(training_sessions)")}
+            message_columns = {row[1] for row in db.execute("PRAGMA table_info(messages)")}
         self.assertTrue({"evaluator_model", "improver_model", "status"}.issubset(columns))
+        self.assertIn("exercise_id", message_columns)
+        self.assertIsNone(campus.history("training")[0]["exercise_id"])
+        campus.initialize()  # The additive migration is safe on subsequent launches.
         campus.DB_PATH = current_db
 
     def test_conference_messages_persist_individual_models_without_changing_training(self):
@@ -428,11 +432,33 @@ class HttpIntegrationTests(unittest.TestCase):
                 self.assertFalse(campus.RUN_LOCK.locked())
                 saved = campus.history("training")
                 self.assertTrue(saved[0]["content"].startswith("[AUTO EXERCISE: train-evidence-01]"))
+                self.assertEqual(saved[0]["exercise_id"], "train-evidence-01")
                 self.assertEqual([stage["agent_role"] for stage in session["stages"]],
                                  list(campus.FLOW["training"]))
                 self.assertEqual(campus.auto_exercise_for_room("training")[0]["id"], "train-dialogue-02")
                 campus.add_message("training", "You", "Manual user topic")
+                campus.add_message("training", "You", "[AUTO EXERCISE: train-dialogue-02] User-written topic")
+                self.assertIsNone(campus.history("training")[-1]["exercise_id"])
+                campus.initialize()  # A restart must preserve the rotation and manual-topic boundary.
                 self.assertEqual(campus.auto_exercise_for_room("training")[0]["id"], "train-dialogue-02")
+                response_code, next_started = request("/api/auto-run", {
+                    "room": "training", "provider": "ollama", "models": assignments, "language": "en"})
+                self.assertEqual(response_code, 202)
+                self.assertEqual(next_started["autoExercise"]["id"], "train-dialogue-02")
+                for _ in range(80):
+                    with opener.open(origin + "/api/training-sessions/" + str(next_started["session_id"])) as response:
+                        next_session = json.load(response)
+                    if next_session["status"] != "running":
+                        break
+                    time.sleep(.05)
+                self.assertEqual(next_session["status"], "completed")
+                for _ in range(40):
+                    if not campus.RUN_LOCK.locked():
+                        break
+                    time.sleep(.05)
+                self.assertFalse(campus.RUN_LOCK.locked())
+                self.assertEqual(campus.history("training")[-5]["exercise_id"], "train-dialogue-02")
+                self.assertEqual(campus.auto_exercise_for_room("training")[0]["id"], "train-evidence-01")
                 with self.assertRaises(HTTPError) as invalid:
                     request("/api/auto-run", {"room": "training", "provider": "ollama",
                            "models": assignments, "prompt": "Disallowed override"})
