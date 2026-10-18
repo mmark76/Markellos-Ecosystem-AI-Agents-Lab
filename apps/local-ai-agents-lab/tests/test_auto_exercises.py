@@ -9,9 +9,8 @@ from exercise_library import EXERCISES, select_exercise, format_exercise
 
 
 class AutoExerciseCatalogTests(unittest.TestCase):
-    def test_catalog_has_two_tasks_per_existing_lab(self):
-        self.assertEqual(set(EXERCISES), {
-            "conference", "training", "evaluation", "advisory", "optimization"})
+    def test_catalog_has_training_exercises_only(self):
+        self.assertEqual(set(EXERCISES), {"training"})
         all_ids = set()
         for room, options in EXERCISES.items():
             self.assertGreaterEqual(len(options), 2, room)
@@ -24,7 +23,7 @@ class AutoExerciseCatalogTests(unittest.TestCase):
                 self.assertIn("not downloaded", prompt)
                 self.assertLessEqual(len(prompt), 1500)
 
-    def test_selector_rotates_predictably_for_all_labs(self):
+    def test_selector_rotates_training_exercises(self):
         for room, options in EXERCISES.items():
             self.assertEqual(select_exercise(room, 0), options[0])
             self.assertEqual(select_exercise(room, 1), options[1])
