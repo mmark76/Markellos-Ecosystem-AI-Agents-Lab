@@ -751,8 +751,10 @@ class Handler(BaseHTTPRequestHandler):
                 Thread(target=run_training_session, args=(session_id, prompt, assignments, cancel),
                        name=f"training-session-{session_id}", daemon=True).start()
                 session_owns_lock = True
-                self._json({"room": room, "session_id": session_id, "status": "running",
-                            "autoExercise": {"id": auto_exercise["id"], "title": auto_exercise["title"]} if auto_exercise else None}, 202)
+                result = {"room": room, "session_id": session_id, "status": "running"}
+                if auto_exercise:
+                    result["autoExercise"] = {"id": auto_exercise["id"], "title": auto_exercise["title"]}
+                self._json(result, 202)
                 return
             add_message(room, "You", prompt)
             transcript = history(room, 14)
@@ -763,8 +765,10 @@ class Handler(BaseHTTPRequestHandler):
                 item = {"agent": agent, "content": answer, "created_at": utc_now(), "model": assignments[agent]}
                 completed.append(item)
                 transcript.append(item)
-            self._json({"messages": completed, "room": room, "session_id": None,
-                        "autoExercise": {"id": auto_exercise["id"], "title": auto_exercise["title"]} if auto_exercise else None})
+            result = {"messages": completed, "room": room, "session_id": None}
+            if auto_exercise:
+                result["autoExercise"] = {"id": auto_exercise["id"], "title": auto_exercise["title"]}
+            self._json(result)
         except (TimeoutError, HTTPError, URLError, OSError, ValueError, KeyError, ProviderError) as err:
             self._json({"error": f"The session stopped. Answers already produced were saved. {err}"}, 502)
         finally:
