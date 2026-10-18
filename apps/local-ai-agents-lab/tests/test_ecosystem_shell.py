@@ -49,6 +49,12 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn('/static/ecosystem-tokens.css', self.html)
         self.assertIn('var(--font-sans', self.css)
 
+    def test_active_training_stage_has_subtle_full_frame_signal(self):
+        self.assertIn("training-stage status-${String(stage.status||'').toLowerCase().replace(/\\s+/g,'-')}", self.app)
+        self.assertIn('.training-stage.status-running', self.css)
+        self.assertIn('background:color-mix(in srgb,var(--accent) 8%,var(--surface))', self.css)
+        self.assertIn('host.append(card);if(response&&scrollTop!==undefined)response.scrollTop=scrollTop', self.app)
+
     def test_personal_provider_surface_is_visible_but_training_remains_locked(self):
         planner = (STATIC / "personal-provider.js").read_text(encoding="utf-8")
         chatgpt = (STATIC / "openai-connection.js").read_text(encoding="utf-8")
@@ -76,6 +82,9 @@ class EcosystemShellTests(unittest.TestCase):
             "Ask ChatGPT",
             "ChatGPT Answer",
             "Copy Answer",
+            "Local Advisor history",
+            "Saved on this PC only. It is never sent automatically to ChatGPT.",
+            "Clear local history",
             "Check your RunPod account",
             "Check RunPod connection",
         ):
@@ -100,7 +109,7 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertNotIn('localStorage', planner)
         self.assertNotIn('console.', planner)
         self.assertNotIn('api.runpod.io', planner)
-        for path in ('/api/openai/connection', '/api/openai/connection/setup', '/api/openai/review'):
+        for path in ('/api/openai/connection', '/api/openai/connection/setup', '/api/openai/review', '/api/openai/advisor-history'):
             with self.subTest(path=path):
                 self.assertIn(path, chatgpt)
         self.assertNotIn('localStorage', chatgpt)
@@ -108,6 +117,12 @@ class EcosystemShellTests(unittest.TestCase):
         self.assertIn('sessionStorage.setItem(advisorSessionKey', chatgpt)
         self.assertIn('sessionStorage.removeItem(advisorSessionKey)', chatgpt)
         self.assertIn('Last answer restored for this browser tab.', chatgpt)
+        self.assertIn('refreshAdvisorHistory()', chatgpt)
+        self.assertIn('renderAdvisorHistory', chatgpt)
+        self.assertIn('confirmClearAdvisorHistory', chatgpt)
+        self.assertIn('id="openai-advisor-history"', self.html)
+        self.assertIn('id="openai-advisor-history-clear"', self.html)
+        self.assertIn('.advisor-local-history{', self.css)
         self.assertNotIn('console.', chatgpt)
         self.assertIn("window.addEventListener('focus', refreshChatgptStatus)", chatgpt)
         self.assertIn("visibilitychange", chatgpt)
@@ -124,6 +139,7 @@ class EcosystemShellTests(unittest.TestCase):
         dialogs = (STATIC / "connection-dialogs.js").read_text(encoding="utf-8")
         for item in (
             'id="open-connections-hub"',
+            'class="new-feature-badge">NEW FEATURE</span>',
             'id="connections-hub-dialog"',
             'id="open-chatgpt-connection"',
             'id="open-personal-provider"',
@@ -136,6 +152,7 @@ class EcosystemShellTests(unittest.TestCase):
                 self.assertIn(item, self.html)
         self.assertIn("dialog.showModal()", dialogs)
         self.assertIn("dialog.close()", dialogs)
+        self.assertIn('#open-connections-hub .new-feature-badge', self.css)
         self.assertIn("a[href=\"/fine-tuning-guide\"]", dialogs)
         self.assertIn("guide) providerSection.querySelector('h3')?.after(guide)", dialogs)
         self.assertIn("connectionsHub?.open", dialogs)

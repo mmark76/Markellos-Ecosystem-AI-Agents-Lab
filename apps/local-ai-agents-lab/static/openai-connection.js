@@ -12,6 +12,8 @@ const answer = document.getElementById('openai-review-answer');
 const answerOutput = document.getElementById('openai-review-output');
 const copyAnswer = document.getElementById('openai-review-copy');
 const advisorStatus = document.getElementById('openai-review-status');
+const advisorHistoryOutput = document.getElementById('openai-advisor-history-output');
+const clearAdvisorHistory = document.getElementById('openai-advisor-history-clear');
 const advisorSessionKey = 'ai-lab:chatgpt-advisor:last-exchange';
 
 function chatgptMessage(message, error = false) {
@@ -166,8 +168,8 @@ function appendInlineMarkdown(target, value) {
   }
 }
 
-function renderAnswer(text) {
-  answerOutput.replaceChildren();
+function renderFormattedText(target, text) {
+  target.replaceChildren();
   const lines = text.replace(/\r\n/g, '\n').split('\n');
   let list;
   for (const line of lines) {
@@ -175,7 +177,7 @@ function renderAnswer(text) {
     if (item) {
       if (!list) {
         list = document.createElement('ul');
-        answerOutput.append(list);
+        target.append(list);
       }
       const listItem = document.createElement('li');
       appendInlineMarkdown(listItem, item[1]);
@@ -186,7 +188,53 @@ function renderAnswer(text) {
     if (!line.trim()) continue;
     const paragraph = document.createElement('p');
     appendInlineMarkdown(paragraph, line);
-    answerOutput.append(paragraph);
+    target.append(paragraph);
+  }
+}
+
+function renderAnswer(text) {
+  renderFormattedText(answerOutput, text);
+}
+
+function renderAdvisorHistory(exchanges) {
+  advisorHistoryOutput.replaceChildren();
+  if (!Array.isArray(exchanges) || exchanges.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'empty-advisor-history';
+    empty.textContent = 'No ChatGPT Advisor exchanges have been saved on this PC yet.';
+    advisorHistoryOutput.append(empty);
+    return;
+  }
+  for (const exchange of exchanges) {
+    const entry = document.createElement('article');
+    entry.className = 'advisor-history-entry';
+    const when = document.createElement('p');
+    when.className = 'advisor-history-meta';
+    when.textContent = `Saved locally · ${exchange.created_at}`;
+    const questionTitle = document.createElement('h6');
+    questionTitle.textContent = 'Your Question';
+    const questionText = document.createElement('p');
+    questionText.textContent = exchange.question;
+    const answerTitle = document.createElement('h6');
+    answerTitle.textContent = 'ChatGPT Answer';
+    const answerText = document.createElement('div');
+    answerText.className = 'advisor-history-answer';
+    renderFormattedText(answerText, exchange.answer);
+    entry.append(when, questionTitle, questionText, answerTitle, answerText);
+    advisorHistoryOutput.append(entry);
+  }
+}
+
+async function refreshAdvisorHistory() {
+  try {
+    const result = await chatgptRequest('/api/openai/advisor-history');
+    renderAdvisorHistory(result.exchanges);
+  } catch (_error) {
+    advisorHistoryOutput.replaceChildren();
+    const unavailable = document.createElement('p');
+    unavailable.className = 'empty-advisor-history';
+    unavailable.textContent = 'Local Advisor history is unavailable.';
+    advisorHistoryOutput.append(unavailable);
   }
 }
 
@@ -209,11 +257,33 @@ ask.addEventListener('click', async () => {
     renderAnswer(answerText);
     answer.hidden = false;
     rememberAdvisorSession(value, answerText);
+    await refreshAdvisorHistory();
     advisorStatus.textContent = 'Answer ready.';
   } catch (error) {
     advisorStatus.textContent = error.message;
   } finally {
     ask.disabled = false;
+  }
+});
+
+clearAdvisorHistory.addEventListener('click', async () => {
+  if (!confirm('Clear every ChatGPT Advisor exchange saved locally on this PC? This cannot be undone.')) return;
+  clearAdvisorHistory.disabled = true;
+  try {
+    await chatgptRequest('/api/openai/advisor-history', {
+      method: 'DELETE', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({confirmClearAdvisorHistory: true}),
+    });
+    clearAdvisorSession();
+    answer.hidden = true;
+    answerOutput.replaceChildren();
+    question.value = '';
+    advisorStatus.textContent = 'Local Advisor history cleared.';
+    await refreshAdvisorHistory();
+  } catch (error) {
+    advisorStatus.textContent = error.message;
+  } finally {
+    clearAdvisorHistory.disabled = false;
   }
 });
 
@@ -234,3 +304,4 @@ document.addEventListener('visibilitychange', () => {
   if (!document.hidden) refreshChatgptStatus();
 });
 refreshChatgptStatus();
+refreshAdvisorHistory();

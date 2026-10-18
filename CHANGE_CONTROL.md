@@ -1,5 +1,62 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-077
+
+```text
+Change ID: AI-LAB-CC-077
+Requested by: User
+Date: 2026-10-18
+Description: Publish AI Lab v2.0.16 with the separate local ChatGPT Advisor history, the completed Local Lab UI fixes, and the curated v2.0.16/v2.0.15/v2.0.4 public milestone selection.
+Reason: Direct user authorization to commit, merge, deploy, and release the verified completed work as a new Windows ZIP.
+Affected objective IDs: AI-LAB-OBJ-003, AI-LAB-OBJ-018, AI-LAB-OBJ-024
+Architecture impact: Packages the reviewed loopback Local Lab and deploys only the isolated static landing artifact. No public Local Lab service, data route, or hosted inference is introduced.
+Security and privacy impact: The ZIP excludes local data and credentials. The new Advisor history remains separate local SQLite data; each external request remains explicit and question-only. The release creates no inference, provider mutation, training job, or paid resource.
+Data impact: Creates immutable v2.0.16 GitHub and R2 ZIP artifacts while retaining the full archive. Existing user database records are not included or modified.
+Testing impact: Merge only after required local and CI checks are green; build and verify the exact ZIP, verify the public R2 object and SHA-256, update the landing manifest, and verify the Pages deployment.
+Cost and schedule impact: Existing R2 storage and Pages deployment only.
+Decision: APPROVED (PATCH RELEASE, DEPLOYMENT, AND MILESTONES)
+Approved by: Direct user request
+Target release: AI Lab v2.0.16
+```
+
+## Approved change record — AI-LAB-CC-076
+
+```text
+Change ID: AI-LAB-CC-076
+Requested by: User
+Date: 2026-10-18
+Description: Retain the proven v2.0.15 public ZIP as a prominent milestone alongside the newest release and the v2.0.4 local-only milestone, and remove v1.1.8 and v2.0.10 from that prominent milestone row.
+Reason: The user considers v2.0.15 a successful milestone and no longer wants the older v1.1.8 or v2.0.10 downloads emphasised there.
+Affected objective IDs: AI-LAB-OBJ-003
+Architecture impact: Static landing-page release-selection copy and test contract only. The complete immutable release archive, R2 object URLs, ZIPs, and Local Lab runtime are unchanged.
+Security and privacy impact: None; the public page remains static and the Local Lab remains loopback-only.
+Data impact: None. v1.1.8 and v2.0.10 remain retained in the full release archive.
+Testing impact: Landing build regression asserts the v2.0.15 and v2.0.4 secondary milestones and verifies that v1.1.8 and v2.0.10 are not rendered as prominent milestone buttons.
+Cost and schedule impact: None.
+Decision: APPROVED (RELEASE MILESTONE CURATION)
+Approved by: Direct user request
+Target release: Current public landing page presentation
+```
+
+## Approved change record — AI-LAB-CC-075
+
+```text
+Change ID: AI-LAB-CC-075
+Requested by: User
+Date: 2026-10-18
+Description: Retain only completed ChatGPT Advisor questions and answers submitted from the Local Lab in a separate, locally clearable SQLite history on the user's PC.
+Reason: The user wants continuity for confidential external advice requested through the Lab without mixing it into local-agent rooms, the ChatGPT UI, or automatic cloud synchronization.
+Affected objective IDs: AI-LAB-OBJ-024
+Architecture impact: Additive advisor_exchanges table and fixed-loopback history/read-clear routes; presentation renders safely using DOM nodes. The new store is separate from messages and is never used as input to a subsequent Advisor request.
+Security and privacy impact: Each explicit Ask still sends that question to OpenAI for processing. The Lab stores only the corresponding submitted question and returned answer locally in campus.sqlite3, without encryption at rest, auto-sync, or automatic replay. The user may explicitly clear only this local history; disconnect preserves it.
+Data impact: Additive advisor_exchanges records only. Existing room messages and connection records are neither altered nor deleted. An explicit user confirmation is required before deleting this separate history.
+Testing impact: SQLite boundary/clear, mocked loopback persistence/clear, static privacy/safe-render contract, and package regression coverage are required.
+Cost and schedule impact: No additional provider call, model selection, or background request.
+Decision: APPROVED (LOCAL ADVISOR HISTORY)
+Approved by: Direct user request
+Target release: AI Lab v2.0.16
+```
+
 ## Approved change record — AI-LAB-CC-074
 
 ```text

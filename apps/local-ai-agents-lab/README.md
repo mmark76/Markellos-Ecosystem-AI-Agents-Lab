@@ -1,6 +1,6 @@
 # Markellos Ecosystem AI Lab
 
-Version: v2.0.15 · Private local starter
+Version: v2.0.16 · Private local starter
 
 Local Windows application with five active workspaces:
 
@@ -157,9 +157,13 @@ notes, local history, files, or agent output. The Lab chooses the first visible
 model in the account-specific provider catalog internally; it never exposes a
 manual model picker or silently retries another model. The Advisor never reads
 a room automatically, synchronizes history in the background, or adds an
-external answer to local room history. While the connection is active the Lab
-is not exclusively local; the user can disconnect at any time to restore
-local-only operation.
+external answer to local room history. After a completed Ask, the submitted
+question and returned answer are saved in a separate local Advisor history in
+`data/campus.sqlite3`. This local copy is not replayed to ChatGPT, synchronized
+in the background, or deleted by disconnecting; the user can review and
+explicitly clear it in the Advisor. While the connection is active the Lab is
+not exclusively local; the user can disconnect at any time to restore local-only
+operation.
 
 The local agents continue to use loopback Ollama independently. Their work
 remains local unless the user deliberately asks the external advisor a
@@ -208,8 +212,8 @@ environment.
   own**. For genuinely local Ollama operation, enable `disable_ollama_cloud`
   as described above and use downloaded local models only.
 - `data/campus.sqlite3` is created automatically and stores conversations
-  without encryption. Use BitLocker or Windows device encryption when
-  protection at rest is required.
+  and the separate Advisor Q/A history without encryption. Use BitLocker or
+  Windows device encryption when protection at rest is required.
 - Anyone who can access the **same Windows account or device** may be able to
   read that file.
 - Internet access is required while downloading or installing Python, Ollama,

@@ -34,6 +34,7 @@
 | AI-LAB-SCOPE-022 | Add one explicit read-only RunPod connection control that validates the locally protected token and reads a fixed GPU catalog/pricing query. It cannot create or manage provider resources. | High | Repository maintainer | Approved by direct user request on 2026-10-17 |
 | AI-LAB-SCOPE-023 | Add an optional, user-approved Sign in with ChatGPT bridge for the local Windows Lab. It must not accept API keys, initiate model inference, or create a charge merely by connecting. | High | Repository maintainer | Approved by direct user request on 2026-10-17 |
 | AI-LAB-SCOPE-024 | Add an optional external ChatGPT advisor that works in parallel with local agents only after the user explicitly submits and confirms one question. It must never read or synchronize local-room conversations automatically; disconnecting removes the local connection and returns the Lab to local-only operation. | High | Repository maintainer | Refined by direct user request on 2026-10-17 |
+| AI-LAB-SCOPE-025 | Retain only explicitly submitted ChatGPT Advisor questions and replies in a separate, user-clearable local SQLite history on the PC. It must never be added to a local room, automatically replayed to ChatGPT, or synchronized in the background. | High | Repository maintainer | Approved by direct user request on 2026-10-18 |
 
 ## Out of scope
 

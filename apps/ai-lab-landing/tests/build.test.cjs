@@ -42,8 +42,18 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.doesNotMatch(html, /Download access note|private GitHub repository.*authorized GitHub access/);
   assert.match(html, new RegExp(`id="zip-download" class="primary-button release-download" data-zip-version="v${escapedDistributionVersion}" data-zip-sha256="${currentDistribution.sha256}"`));
   assert.match(html, new RegExp(`Download v${escapedDistributionVersion} <span aria-hidden="true">↓<\/span><\/span><small>Local \\+ optional internet connections<\/small>`));
+  // While a new package is being published, the distribution manifest still
+  // names v2.0.15 as current.  It becomes the secondary milestone only when
+  // v2.0.16 is published to the manifest in the follow-up deployment.
+  const v2015Milestone = /id="zip-download-v2015" class="secondary-button release-download" data-zip-version="v2\.0\.15"[^>]*><span>Download v2\.0\.15<\/span><small>Previous milestone · local \+ optional internet connections<\/small><\/a>/;
+  if (currentDistribution.version === '2.0.15') {
+    assert.doesNotMatch(html, v2015Milestone);
+  } else {
+    assert.match(html, v2015Milestone);
+  }
   assert.match(html, /id="zip-download-v204" class="secondary-button release-download" data-zip-version="v2\.0\.4"[^>]*><span>Download v2\.0\.4<\/span><small>Local only<\/small><\/a>/);
-  assert.match(html, /id="zip-download-v118" class="secondary-button release-download" data-zip-version="v1\.1\.8"[^>]*><span>Download v1\.1\.8<\/span><small>Local only<\/small><\/a>/);
+  assert.doesNotMatch(html, /id="zip-download-v2010"/);
+  assert.doesNotMatch(html, /id="zip-download-v118"/);
   assert.match(html, /class="hero-actions" aria-label="Download, local launch, and documentation actions"/);
   assert.match(html, /class="hero-action-group download-actions"/);
   assert.match(html, /class="hero-action-group local-actions"/);
