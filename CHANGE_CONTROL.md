@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-081
+
+```text
+Change ID: AI-LAB-CC-081
+Requested by: User
+Date: 2026-10-18
+Description: Restore the landing page layout that preceded the global content-centering change, retaining only the centred footer and existing equal-sized action buttons.
+Reason: The global centering created a visually incorrect composition.
+Affected objective IDs: AI-LAB-OBJ-002, AI-LAB-OBJ-003
+Architecture impact: Static landing-page CSS and its regression assertions only. No text, link, application, analytics, build, or deployment behavior changes.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Landing build regression asserts the restored reading alignment while preserving the footer and action-button layout.
+Cost and schedule impact: None.
+Decision: APPROVED (UI CORRECTION)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```
+
 ## Approved change record — AI-LAB-CC-080
 
 ```text
