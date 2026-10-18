@@ -42,6 +42,19 @@ function build(ref,destination){
     }
     content.set(file,bytes);
   }
+  // Documentation-only sources live outside the application subtree.
+  // Bundle reviewed Markdown at stable ZIP-relative paths, without importing it into runtime.
+  const learningDocs=['EDUCATIONAL_RESOURCE_LIBRARY.md','STARTER_EXERCISES.md'];
+  for(const name of learningDocs){
+    const source='docs/learning/'+name;
+    let bytes=execFileSync('git',['show',sha+':'+source],{cwd:root,maxBuffer:RELEASE_FILE_MAX_BUFFER});
+    if(name==='EDUCATIONAL_RESOURCE_LIBRARY.md'){
+      const text=bytes.toString('utf8'), original='../../apps/local-ai-agents-lab/prompts/';
+      if(text.split(original).length!==2)throw Error('Educational library prompt link changed');
+      bytes=Buffer.from(text.replace(original,'../../prompts/'),'utf8');
+    }
+    content.set(source,bytes);
+  }
   const output=path.join(target,'local-ai-agents-lab');
   fs.mkdirSync(output,{recursive:true});
   for(const [file,bytes] of content){
