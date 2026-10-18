@@ -64,7 +64,8 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(styles, /\.header-inner \{ width: min\(calc\(100% - 2rem\), 54rem\); margin-inline: auto; padding-top: var\(--space-5\); \}/);
   assert.match(styles, /\.hero-card \{ width: min\(100%, 54rem\); margin-bottom: 0; \}/);
   assert.match(styles, /\.main-content \{ flex: 1; padding-block: var\(--space-8\); text-align: center; \}/);
-  assert.match(styles, /\.hero \{ max-width: none; margin-bottom: var\(--space-8\); \}/);
+  assert.match(styles, /\.hero \{ max-width: none; margin-bottom: var\(--space-3\); \}/);
+  assert.match(styles, /\.shell-notice \{ width: fit-content; max-width: 100%; margin: var\(--space-5\) auto 0; padding: var\(--space-3\) var\(--space-4\); border-inline-start: 3px solid var\(--app-accent\);/);
   assert.match(styles, /\.hero > \.eyebrow, \.hero h1 \{ text-align: center; \}/);
   assert.match(styles, /\.hero-actions\{display:grid;width:min\(100%,31\.25rem\);gap:var\(--space-3\);margin:var\(--space-5\) auto 0\}/);
   assert.match(styles, /\.hero-action-group\{display:grid;grid-auto-rows:3\.75rem;gap:var\(--space-3\);align-items:stretch;justify-content:center\}/);
@@ -85,6 +86,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /Release archive/);
   assert.match(html, new RegExp(`${previousDistributions.length} earlier Windows ZIPs`));
   assert.match(html, /Verified historical releases are retained for reference and future agent studies\./);
+  assert.match(styles, /\.release-history \{ margin-top: 0; \}/);
   assert.match(styles, /\.release-history details/);
   assert.doesNotMatch(styles, /margin-right: clamp\(8rem, 15vw, 16rem\)|margin-right: calc\(\(100% \+ var\(--space-5\)\) \/ 3\)/);
   assert.match(styles, /\.card-grid \{ width: min\(100%, 54rem\); display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); gap: var\(--space-4\); margin-inline: auto; \}/);
