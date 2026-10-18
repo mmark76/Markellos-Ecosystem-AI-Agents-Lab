@@ -28,8 +28,9 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, new RegExp(`CURRENT RELEASE · v${escapedDistributionVersion} · LOCAL \\+ OPTIONAL INTERNET CONNECTIONS`));
   assert.match(html, new RegExp(`<h1 id="page-title">AI Lab v${escapedDistributionVersion}<\\/h1>`));
   assert.match(html, /<img class="brand-mark" src="\.\/ai-training-lab-mark\.png" alt="AI Lab">/);
-  assert.match(html, /class="beta-badge">BETA<\/span>/);
-  assert.match(styles, /\.beta-badge/);
+  assert.match(html, /<span class="project-name">AI Lab<\/span>/);
+  assert.doesNotMatch(html, /class="beta-badge"/);
+  assert.doesNotMatch(styles, /\.beta-badge/);
   const subscriptionNotice = 'Using the optional ChatGPT Advisor may require an eligible paid ChatGPT subscription. Availability and usage limits are determined by OpenAI.';
   assert.match(html, /<p class="advisor-plan-notice"><strong>ChatGPT Advisor — Subscription Requirements\.<\/strong>/);
   assert.ok(html.includes(subscriptionNotice), 'The main landing page must show the ChatGPT eligibility notice.');
@@ -45,13 +46,19 @@ test('build truthfully presents the current public state of the Local Lab', () =
     assert.match(release.url, new RegExp(`/releases/v${release.version.replaceAll('.', '\\.')}/AI-Agents-Lab-Windows\\.zip$`));
     assert.match(release.sha256, /^[a-f0-9]{64}$/);
   }
-  assert.match(html, new RegExp(`Public BETA download:<\\/strong> The v${escapedDistributionVersion} Windows ZIP is available\\.`));
+  assert.ok(html.includes(`<p class="shell-notice"><strong>Milestone download:</strong> The v${currentDistribution.version} Windows ZIP is available via Cloudflare R2. For the latest BETA, use the GitHub v2.0.18 button.</p>`));
   assert.doesNotMatch(html, /available without GitHub sign-in/);
   assert.doesNotMatch(html, /Download access note|private GitHub repository.*authorized GitHub access/);
   assert.match(html, new RegExp(`id="zip-download" class="primary-button release-download" data-zip-version="v${escapedDistributionVersion}" data-zip-sha256="${currentDistribution.sha256}"`));
   const expectedGitHubFallback = 'https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v2.0.18/AI-Agents-Lab-Windows.zip';
   assert.ok(html.includes(`id="github-release-download" class="secondary-button release-download github-release-download" data-zip-version="v2.0.18" data-zip-sha256="8ab769da535517d5f02a3e6b7e1e24b1e81e62221aa5fde3fe29b65be2e05c0e" data-download-source="github-release" href="${expectedGitHubFallback}"`));
   assert.match(html, /<span>Download v2\.0\.18 BETA<\/span><small>GitHub · newer BETA ZIP<\/small>/);
+  const downloadGroup = html.match(/<div class="hero-action-group download-actions">([\s\S]*?)<\/div>/)?.[1];
+  assert.ok(downloadGroup, 'Download group must remain present');
+  const buttonOrder = [...downloadGroup.matchAll(/id="([^"]+)" class="(?:primary|secondary)-button release-download/g)].map(match => match[1]);
+  assert.deepEqual(buttonOrder, ['zip-download','github-release-download','zip-download-v2015','zip-download-v204'], 'Keep the four buttons in their existing 2x2 positions');
+  assert.equal((downloadGroup.match(/data-download-source="cloudflare-r2"/g) || []).length, 3, 'Three R2 milestone buttons must be unchanged');
+  assert.equal((downloadGroup.match(/data-download-source="github-release"/g) || []).length, 1, 'Only top-right BETA uses GitHub');
   assert.match(html, new RegExp(`Download v${escapedDistributionVersion} <span aria-hidden="true">↓<\/span><\/span><small>Local \\+ optional internet connections<\/small>`));
   // While a new package is being published, the distribution manifest still
   // names v2.0.15 as current.  It becomes the secondary milestone only when
