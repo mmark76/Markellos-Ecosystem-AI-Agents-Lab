@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-073
+
+```text
+Change ID: AI-LAB-CC-073
+Requested by: User
+Date: 2026-10-18
+Description: Give every introductory landing-page action button the same desktop width and height.
+Reason: Equal button dimensions improve visual alignment across download, local-launch, and documentation actions.
+Affected objective IDs: AI-LAB-OBJ-002, AI-LAB-OBJ-003
+Architecture impact: Static landing-page CSS layout only. No text, URL, build, protocol, application, or deployment behavior changes.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Landing build regression asserts the fixed desktop grid dimensions and narrow-screen fallback.
+Cost and schedule impact: None.
+Decision: APPROVED (UI CLARITY)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```
+
 ## Approved change record — AI-LAB-CC-071
 
 ```text
