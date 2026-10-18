@@ -114,6 +114,18 @@ class CampusTests(unittest.TestCase):
                          ["strategist:1", "analyst:1", "engineer:1"])
         self.assertEqual(campus.history("training"), [])
 
+    def test_advisor_history_is_separate_from_local_room_history_and_can_be_cleared(self):
+        first = campus.save_advisor_exchange("First question", "First answer")
+        second = campus.save_advisor_exchange("Second question", "Second answer")
+        self.assertEqual(first["question"], "First question")
+        self.assertEqual(
+            [(entry["question"], entry["answer"]) for entry in campus.advisor_history()],
+            [("First question", "First answer"), ("Second question", "Second answer")],
+        )
+        self.assertEqual(campus.history("training"), [])
+        self.assertEqual(campus.clear_advisor_history(), 2)
+        self.assertEqual(campus.advisor_history(), [])
+
     def test_ollama_unavailable_is_reported_without_fallback(self):
         with patch.object(campus.OPENER, "open", side_effect=URLError("offline")):
             self.assertFalse(campus.provider_status("ollama")["available"])
@@ -171,7 +183,7 @@ class HttpIntegrationTests(unittest.TestCase):
     def test_http_chatgpt_connection_is_explicit_and_never_returns_a_token(self):
         from http.server import ThreadingHTTPServer
         from urllib.request import Request, build_opener, ProxyHandler
-        original_port, original_connection = campus.PORT, campus.OPENAI_CONNECTION
+        original_port, original_connection, original_db = campus.PORT, campus.OPENAI_CONNECTION, campus.DB_PATH
 
         class FakeConnection:
             def __init__(self): self.calls = []
@@ -181,36 +193,50 @@ class HttpIntegrationTests(unittest.TestCase):
             def ask_advisor(self, **kwargs): self.calls.append(("ask", kwargs)); return {"answer":"External response"}
 
         fake = FakeConnection()
-        server = ThreadingHTTPServer(("127.0.0.1", 0), campus.Handler); campus.PORT = server.server_address[1]
-        thread = Thread(target=server.serve_forever, daemon=True); thread.start()
-        try:
-            origin = f"http://127.0.0.1:{campus.PORT}"
-            campus.OPENAI_CONNECTION = fake
-            opener = build_opener(ProxyHandler({}))
-            with opener.open(origin + "/api/openai/connection") as response:
-                self.assertFalse(json.load(response)["connected"])
-            connect = Request(origin + "/api/openai/connection", data=b'{"confirmConnection":true}', headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
-            with opener.open(connect) as response:
-                result = json.load(response)
-            self.assertEqual(result["state"], "AUTHORIZATION_STARTED")
-            self.assertEqual(fake.calls, [("start", campus.PORT)])
-            review_body = {"confirmExternalReview":True,"question":"Review this"}
-            review = Request(origin + "/api/openai/review", data=json.dumps(review_body).encode(), headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
-            with opener.open(review) as response:
-                self.assertEqual(json.load(response)["answer"], "External response")
-            self.assertEqual(fake.calls[-1], ("ask", {"question":"Review this"}))
-            forbidden = {"confirmExternalReview":True,"question":"Review this","room":"training"}
-            invalid = Request(origin + "/api/openai/review", data=json.dumps(forbidden).encode(), headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
-            with self.assertRaises(HTTPError) as raised:
-                opener.open(invalid)
-            self.assertEqual(raised.exception.code, 400)
-            raised.exception.close()
-            remove = Request(origin + "/api/openai/connection", data=b'{"confirmRemoval":true}', headers={"Origin":origin,"Content-Type":"application/json"}, method="DELETE")
-            with opener.open(remove) as response:
-                self.assertTrue(json.load(response)["removed"])
-            self.assertNotIn("token", json.dumps(result).lower())
-        finally:
-            server.shutdown(); server.server_close(); thread.join(timeout=4); campus.PORT = original_port; campus.OPENAI_CONNECTION = original_connection
+        with tempfile.TemporaryDirectory() as temporary:
+            campus.DB_PATH = Path(temporary) / "data" / "campus.sqlite3"
+            campus.initialize()
+            server = ThreadingHTTPServer(("127.0.0.1", 0), campus.Handler); campus.PORT = server.server_address[1]
+            thread = Thread(target=server.serve_forever, daemon=True); thread.start()
+            try:
+                origin = f"http://127.0.0.1:{campus.PORT}"
+                campus.OPENAI_CONNECTION = fake
+                opener = build_opener(ProxyHandler({}))
+                with opener.open(origin + "/api/openai/connection") as response:
+                    self.assertFalse(json.load(response)["connected"])
+                connect = Request(origin + "/api/openai/connection", data=b'{"confirmConnection":true}', headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
+                with opener.open(connect) as response:
+                    result = json.load(response)
+                self.assertEqual(result["state"], "AUTHORIZATION_STARTED")
+                self.assertEqual(fake.calls, [("start", campus.PORT)])
+                review_body = {"confirmExternalReview":True,"question":"Review this"}
+                review = Request(origin + "/api/openai/review", data=json.dumps(review_body).encode(), headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
+                with opener.open(review) as response:
+                    review_result = json.load(response)
+                self.assertEqual(review_result["answer"], "External response")
+                self.assertTrue(review_result["localHistorySaved"])
+                self.assertEqual(fake.calls[-1], ("ask", {"question":"Review this"}))
+                with opener.open(origin + "/api/openai/advisor-history") as response:
+                    history = json.load(response)["exchanges"]
+                self.assertEqual([(entry["question"], entry["answer"]) for entry in history], [("Review this", "External response")])
+                self.assertEqual(campus.history("training"), [])
+                forbidden = {"confirmExternalReview":True,"question":"Review this","room":"training"}
+                invalid = Request(origin + "/api/openai/review", data=json.dumps(forbidden).encode(), headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
+                with self.assertRaises(HTTPError) as raised:
+                    opener.open(invalid)
+                self.assertEqual(raised.exception.code, 400)
+                raised.exception.close()
+                clear = Request(origin + "/api/openai/advisor-history", data=b'{"confirmClearAdvisorHistory":true}', headers={"Origin":origin,"Content-Type":"application/json"}, method="DELETE")
+                with opener.open(clear) as response:
+                    self.assertEqual(json.load(response), {"state":"CLEARED_LOCALLY","deleted":1})
+                with opener.open(origin + "/api/openai/advisor-history") as response:
+                    self.assertEqual(json.load(response)["exchanges"], [])
+                remove = Request(origin + "/api/openai/connection", data=b'{"confirmRemoval":true}', headers={"Origin":origin,"Content-Type":"application/json"}, method="DELETE")
+                with opener.open(remove) as response:
+                    self.assertTrue(json.load(response)["removed"])
+                self.assertNotIn("token", json.dumps(result).lower())
+            finally:
+                server.shutdown(); server.server_close(); thread.join(timeout=4); campus.PORT = original_port; campus.OPENAI_CONNECTION = original_connection; campus.DB_PATH = original_db
 
     def test_http_personal_provider_credentials_are_local_only_and_removable(self):
         from http.server import ThreadingHTTPServer

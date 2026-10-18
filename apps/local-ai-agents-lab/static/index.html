@@ -29,7 +29,7 @@
       <div class="connection-area">
         <div class="label">CONNECTIONS</div>
         <div class="connection-actions">
-          <button type="button" class="connection-button" id="open-connections-hub" aria-haspopup="dialog" aria-controls="connections-hub-dialog"><strong>Internet connections &amp; fine-tuning</strong><small>Optional ChatGPT and personal-provider connections</small></button>
+          <button type="button" class="connection-button" id="open-connections-hub" aria-haspopup="dialog" aria-controls="connections-hub-dialog"><span class="new-feature-badge">NEW FEATURE</span><strong>Internet connections &amp; fine-tuning</strong><small>Optional ChatGPT and personal-provider connections</small></button>
         </div>
         <p class="tip">Connections are optional. Local agents remain on Ollama unless you explicitly use one of these controls.</p>
       </div>
@@ -187,6 +187,16 @@ Completeness</textarea>
               <h6 id="openai-review-answer-title">ChatGPT Answer</h6>
               <div id="openai-review-output" class="personal-provider-output" tabindex="0"></div>
               <button type="button" id="openai-review-copy">Copy Answer</button>
+            </section>
+            <section id="openai-advisor-history" class="advisor-local-history" aria-labelledby="openai-advisor-history-title">
+              <div class="advisor-history-heading">
+                <div>
+                  <h5 id="openai-advisor-history-title">Local Advisor history</h5>
+                  <p>Saved on this PC only. It is never sent automatically to ChatGPT.</p>
+                </div>
+                <button type="button" id="openai-advisor-history-clear">Clear local history</button>
+              </div>
+              <div id="openai-advisor-history-output" aria-live="polite"><p class="empty-advisor-history">Loading local Advisor history…</p></div>
             </section>
           </section>
             </section>

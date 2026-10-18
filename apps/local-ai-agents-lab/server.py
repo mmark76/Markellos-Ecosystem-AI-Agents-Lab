@@ -145,6 +145,15 @@ def initialize():
         db.execute("CREATE INDEX IF NOT EXISTS idx_room_id ON messages(room,id)")
         db.execute("CREATE INDEX IF NOT EXISTS idx_messages_session_id ON messages(session_id)")
         db.execute("CREATE INDEX IF NOT EXISTS idx_training_stages_session ON training_stages(session_id,execution_order)")
+        # Advisor exchanges deliberately have their own local history boundary:
+        # they are neither room messages nor input for a later cloud request.
+        db.execute("""CREATE TABLE IF NOT EXISTS advisor_exchanges (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            question TEXT NOT NULL,
+            answer TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        )""")
+        db.execute("CREATE INDEX IF NOT EXISTS idx_advisor_exchanges_id ON advisor_exchanges(id)")
 
     # The Evaluation Lab owns only additive tables; legacy migrations run first.
     EvaluationRepository(DB_PATH).initialize()
@@ -300,6 +309,42 @@ def clear_history(room: str) -> int:
     return result.rowcount
 
 
+def save_advisor_exchange(question: str, answer: str) -> dict:
+    """Persist an explicit Advisor exchange without mixing it into room history."""
+    if not isinstance(question, str) or not isinstance(answer, str):
+        raise ValueError("Advisor exchange must contain text.")
+    question = question.strip()
+    if not question or not answer:
+        raise ValueError("Advisor exchange must contain a question and answer.")
+    with closing(connect()) as db, db:
+        result = db.execute(
+            "INSERT INTO advisor_exchanges(question,answer,created_at) VALUES(?,?,?)",
+            (question, answer, utc_now()),
+        )
+        exchange = db.execute(
+            "SELECT id,question,answer,created_at FROM advisor_exchanges WHERE id=?",
+            (result.lastrowid,),
+        ).fetchone()
+    return dict(exchange)
+
+
+def advisor_history(limit: int = 80) -> list[dict]:
+    with closing(connect()) as db:
+        rows = db.execute(
+            "SELECT id,question,answer,created_at FROM "
+            "(SELECT id,question,answer,created_at FROM advisor_exchanges ORDER BY id DESC LIMIT ?) "
+            "ORDER BY id ASC",
+            (limit,),
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def clear_advisor_history() -> int:
+    with closing(connect()) as db, db:
+        result = db.execute("DELETE FROM advisor_exchanges")
+    return result.rowcount
+
+
 def local_models(provider: str = "ollama") -> list[str]:
     """Return models from one allow-listed local inference provider."""
     return PROVIDERS.models(provider, OPENER)
@@ -391,6 +436,9 @@ class Handler(BaseHTTPRequestHandler):
                 self._json(OPENAI_CONNECTION.status())
             except OpenAIConnectionError as err:
                 self._json({"error": str(err)}, 503)
+            return
+        if self.path == "/api/openai/advisor-history":
+            self._json({"exchanges": advisor_history()})
             return
         if self.path.startswith("/api/evaluation/"):
             try:
@@ -507,7 +555,9 @@ class Handler(BaseHTTPRequestHandler):
                     raise OpenAIConnectionError("Confirm the ChatGPT question request.")
                 if not isinstance(body["question"], str):
                     raise OpenAIConnectionError("The ChatGPT question is invalid.")
-                self._json(OPENAI_CONNECTION.ask_advisor(question=body["question"]))
+                result = OPENAI_CONNECTION.ask_advisor(question=body["question"])
+                exchange = save_advisor_exchange(body["question"], result["answer"])
+                self._json({**result, "localHistorySaved": True, "exchange": exchange})
             except (OpenAIConnectionError, ValueError, TypeError, json.JSONDecodeError) as err:
                 self._json({"error": str(err)}, 400)
             return
@@ -712,6 +762,15 @@ class Handler(BaseHTTPRequestHandler):
                     raise OpenAIConnectionError("Confirm local ChatGPT connection removal.")
                 self._json(OPENAI_CONNECTION.remove())
             except (OpenAIConnectionError, ValueError, TypeError, json.JSONDecodeError) as err:
+                self._json({"error": str(err)}, 400)
+            return
+        if self.path == "/api/openai/advisor-history":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if not 2 <= size <= 96 or json.loads(self.rfile.read(size)) != {"confirmClearAdvisorHistory": True}:
+                    raise ValueError("Confirm local Advisor history deletion.")
+                self._json({"state": "CLEARED_LOCALLY", "deleted": clear_advisor_history()})
+            except (ValueError, TypeError, json.JSONDecodeError) as err:
                 self._json({"error": str(err)}, 400)
             return
         if self.path != "/api/training/provider-credentials":
