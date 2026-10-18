@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-082
+
+```text
+Change ID: AI-LAB-CC-082
+Requested by: User
+Date: 2026-10-18
+Description: Use one shared wide landing-page container for header, body, and footer; render landing cards in two equal columns; keep card, guide, and privacy text left-aligned; centre only section titles, CTA controls, and the footer.
+Reason: Correct the landing-page geometry without globally centring its readable content.
+Affected objective IDs: AI-LAB-OBJ-002, AI-LAB-OBJ-003
+Architecture impact: Static landing-page CSS and regression assertions only. No text, link, application, analytics, build, or deployment behavior changes.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Landing build regression verifies the shared container geometry, two-column cards, reading alignment, and centred footer/CTA rules.
+Cost and schedule impact: None.
+Decision: APPROVED (UI GEOMETRY)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```
+
 ## Approved change record — AI-LAB-CC-081
 
 ```text

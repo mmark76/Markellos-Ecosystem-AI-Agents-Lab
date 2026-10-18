@@ -61,8 +61,9 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /class="hero-action-group download-actions"/);
   assert.match(html, /class="hero-action-group local-actions"/);
   assert.match(html, /class="hero-action-group documentation-actions"/);
-  assert.match(styles, /\.hero \{ max-width: var\(--content-narrow\); margin-bottom: var\(--space-12\); \}/);
-  assert.match(styles, /\.hero-actions\{display:grid;width:min\(calc\(100vw - 4rem\),47\.25rem\);gap:var\(--space-3\);margin-top:var\(--space-5\)\}/);
+  assert.match(styles, /\.hero \{ max-width: none; margin-bottom: var\(--space-12\); \}/);
+  assert.match(styles, /\.hero > \.eyebrow, \.hero h1 \{ text-align: center; \}/);
+  assert.match(styles, /\.hero-actions\{display:grid;width:min\(calc\(100vw - 4rem\),47\.25rem\);gap:var\(--space-3\);margin:var\(--space-5\) auto 0\}/);
   assert.match(styles, /\.hero-action-group\{display:grid;grid-auto-rows:3\.75rem;gap:var\(--space-3\);align-items:stretch\}/);
   assert.match(styles, /\.download-actions\{grid-template-columns:repeat\(2,15\.25rem\)\}/);
   assert.match(styles, /\.local-actions,\.documentation-actions\{grid-template-columns:repeat\(2,15\.25rem\)\}/);
@@ -82,14 +83,10 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, new RegExp(`${previousDistributions.length} earlier Windows ZIPs`));
   assert.match(html, /Verified historical releases are retained for reference and future agent studies\./);
   assert.match(styles, /\.release-history details/);
-  assert.match(styles, /margin-right: clamp\(8rem, 15vw, 16rem\)/);
-  // The 3-column card grid has one gap between the second and third columns;
-  // (container width + grid gap) / 3 is the right margin required for alignment.
-  assert.match(styles, /@media \(min-width: 80rem\) \{\s*\.header-actions \{ margin-right: calc\(\(100% \+ var\(--space-5\)\) \/ 3\); \}/);
-  assert.doesNotMatch(styles, /margin-right: clamp\(15rem, 24vw, 26rem\)/);
-  assert.match(styles, /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
-  assert.match(styles, /\.card-grid \{ display: grid; grid-template-columns: repeat\(3, minmax\(0, 1fr\)\); gap: var\(--space-5\); \}/);
-  assert.match(styles, /\.simple-section \{ max-width: var\(--content-narrow\); margin-top: var\(--space-12\); \}/);
+  assert.doesNotMatch(styles, /margin-right: clamp\(8rem, 15vw, 16rem\)|margin-right: calc\(\(100% \+ var\(--space-5\)\) \/ 3\)/);
+  assert.match(styles, /\.card-grid \{ display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); gap: var\(--space-5\); \}/);
+  assert.match(styles, /\.simple-section \{ max-width: none; margin-top: var\(--space-12\); \}/);
+  assert.match(styles, /\.simple-section > \.eyebrow, \.simple-section > h2 \{ text-align: center; \}/);
   assert.match(styles, /\.release-history summary \{ display: flex; align-items: baseline; justify-content: space-between;/);
   assert.match(styles, /\.steps ol \{ display: grid; gap: var\(--space-4\); padding-left: var\(--space-5\); \}/);
   assert.match(styles, /#overview \.dashboard-card \{ min-height: 17rem; \}/);
