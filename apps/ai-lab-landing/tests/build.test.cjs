@@ -61,6 +61,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /class="hero-action-group download-actions"/);
   assert.match(html, /class="hero-action-group local-actions"/);
   assert.match(html, /class="hero-action-group documentation-actions"/);
+  assert.match(styles, /\.main-content \{ flex: 1; padding-block: var\(--space-12\); text-align: center; \}/);
   assert.match(styles, /\.hero \{ max-width: none; margin-bottom: var\(--space-12\); \}/);
   assert.match(styles, /\.hero > \.eyebrow, \.hero h1 \{ text-align: center; \}/);
   assert.match(styles, /\.hero-actions\{display:grid;width:min\(calc\(100vw - 4rem\),47\.25rem\);gap:var\(--space-3\);margin:var\(--space-5\) auto 0\}/);
@@ -87,8 +88,10 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(styles, /\.card-grid \{ display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); gap: var\(--space-5\); \}/);
   assert.match(styles, /\.simple-section \{ max-width: none; margin-top: var\(--space-12\); \}/);
   assert.match(styles, /\.simple-section > \.eyebrow, \.simple-section > h2 \{ text-align: center; \}/);
-  assert.match(styles, /\.release-history summary \{ display: flex; align-items: baseline; justify-content: space-between;/);
-  assert.match(styles, /\.steps ol \{ display: grid; gap: var\(--space-4\); padding-left: var\(--space-5\); \}/);
+  assert.match(styles, /\.release-history summary \{ display: flex; align-items: baseline; justify-content: center;/);
+  assert.match(styles, /\.release-history li \{ min-width: 0; display: flex; align-items: baseline; justify-content: center;/);
+  assert.match(styles, /\.engine-card \.primary-button \{ width: fit-content; margin: auto auto 0; \}/);
+  assert.match(styles, /\.steps ol \{ display: grid; gap: var\(--space-4\); padding-left: 0; list-style-position: inside; \}/);
   assert.match(styles, /#overview \.dashboard-card \{ min-height: 17rem; \}/);
   assert.match(styles, /\.engine-card \{ min-height: 15rem; \}/);
   assert.match(styles, /\.footer-inner \{ display: grid; justify-items: center; gap: var\(--space-1\); padding-block: var\(--space-5\); color: var\(--color-text-muted\); font-size: var\(--font-size-sm\); text-align: center; \}/);
