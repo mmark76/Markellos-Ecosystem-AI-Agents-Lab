@@ -380,6 +380,10 @@ test('GitHub BETA archive filters R2 versions and invalid assets without duplica
   assert.deepEqual(result.map(item => item.version), ['2.0.19','2.0.18','2.0.17']);
   assert.ok(result.every(item => item.sha256 === 'a'.repeat(64)));
   assert.ok(result.every(item => item.url.startsWith('https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v')));
+  const headers = readFileSync(join(app, '_headers'), 'utf8');
+  assert.match(headers, /connect-src '[^;]*https:\/\/api\.github\.com;/);
+  assert.match(headers, /default-src 'self'/);
+  assert.match(headers, /script-src 'self' https:\/\/www\.googletagmanager\.com/);
   const source = readFileSync(join(app, 'src', 'github-release-archive.js'), 'utf8');
   assert.match(source, /archive\.addEventListener\('toggle'/);
   assert.match(source, /if \(!archive\.open \|\| requested\) return/);
