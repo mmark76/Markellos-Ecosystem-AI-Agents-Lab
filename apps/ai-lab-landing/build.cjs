@@ -36,6 +36,14 @@ for (const release of releaseHistory) {
   seenVersions.add(release.version);
 }
 const [currentRelease, ...previousReleases] = releaseHistory;
+// A separately verified GitHub BETA release can be newer than the R2 public ZIP.
+// Keep the R2 registry and its primary download unchanged until R2 publication.
+const githubBetaRelease = Object.freeze({
+  version: '2.0.17',
+  sha256: 'fd19ca26c78a2baf374389edf8c3b210c47afab6d2fb9e66d995b18340f40c73',
+});
+if (!/^\d+\.\d+\.\d+$/.test(githubBetaRelease.version) || !/^[a-f0-9]{64}$/.test(githubBetaRelease.sha256))
+  throw new Error('Invalid verified GitHub BETA release metadata');
 const commit = git(['rev-parse', '--short=7', 'HEAD']);
 const buildId = `v${releaseVersion}_${cyprusTimestamp(new Date())}_${commit}`;
 const indexPath = join(output, 'index.html');
@@ -47,7 +55,7 @@ const milestoneButton=(version,scope)=>{
 const legacyButton=[milestoneButton('2.0.15','Previous milestone · local + optional internet connections'),milestoneButton('2.0.4','Local only')].join('');
 const releaseLinks = previousReleases.map(({ version, url, sha256 }) => `<li><a data-zip-version="v${version}" data-zip-sha256="${sha256}" href="${url}">v${version}</a><code title="SHA-256: ${sha256}">${sha256.slice(0, 7)}</code></li>`).join('');
 const injectPageIdentity = html => html.replaceAll('{{BUILD_ID}}', buildId).replaceAll('{{RELEASE_VERSION}}', `v${currentRelease.version}`);
-writeFileSync(indexPath, injectPageIdentity(readFileSync(indexPath, 'utf8')).replaceAll('{{DISTRIBUTION_URL}}', currentRelease.url).replaceAll('{{GITHUB_RELEASE_URL}}', githubReleaseAssetUrl(currentRelease.version)).replaceAll('{{RELEASE_SHA256}}', currentRelease.sha256).replaceAll('{{LEGACY_DOWNLOAD_BUTTON}}', legacyButton).replaceAll('{{ARCHIVE_COUNT}}', String(previousReleases.length)).replaceAll('{{RELEASE_HISTORY}}', releaseLinks));
+writeFileSync(indexPath, injectPageIdentity(readFileSync(indexPath, 'utf8')).replaceAll('{{DISTRIBUTION_URL}}', currentRelease.url).replaceAll('{{GITHUB_RELEASE_URL}}', githubReleaseAssetUrl(githubBetaRelease.version)).replaceAll('{{GITHUB_RELEASE_VERSION}}', 'v'+githubBetaRelease.version).replaceAll('{{GITHUB_RELEASE_SHA256}}', githubBetaRelease.sha256).replaceAll('{{RELEASE_SHA256}}', currentRelease.sha256).replaceAll('{{LEGACY_DOWNLOAD_BUTTON}}', legacyButton).replaceAll('{{ARCHIVE_COUNT}}', String(previousReleases.length)).replaceAll('{{RELEASE_HISTORY}}', releaseLinks));
 for (const page of ['simple-guide.html', 'app-description.html']) {
   const pagePath = join(output, page);
   writeFileSync(pagePath, injectPageIdentity(readFileSync(pagePath, 'utf8')));
