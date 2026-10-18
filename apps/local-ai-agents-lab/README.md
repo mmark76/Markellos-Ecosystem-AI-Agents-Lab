@@ -48,19 +48,14 @@ role prompt.
 
 ## Automatic offline exercises (optional text input)
 
-The five existing Labs can now select a safe, original, text-only exercise
-without asking the user to find or paste one: leave the optional topic field
-blank and press **Start**. The Local Lab rotates through two pre-reviewed,
-locally packaged practice tasks per Lab. The chosen exercise and its
-methodology-reference URL appear in the local conversation history. A user
-may still type a custom topic to use the unmodified manual workflow.
+Only the **Training Lab** can select an original, text-only exercise when its topic is blank and the user presses **Start**. It rotates between two locally packaged, reviewed training tasks. The chosen exercise and its methodology-reference URL appear in local conversation history. A custom Training topic follows the unchanged manual workflow. In **Conference Room, Evaluation Lab, Advisory Lab and Optimization Lab**, the topic remains required and those four Labs cannot use automatic exercise selection.
 
 Selection occurs inside the local server, after normal model and session
 validation; the existing fifteen role system prompts and flows are not
 modified. This is automatic **task selection**, not autonomous web browsing,
 GitHub/Hugging Face fetching, remote code execution, scoring calibration,
 new model training, scheduled background work, or real-time benchmark execution.
-Only the explicitly started Lab session runs; nothing launches automatically
+Only an explicitly started Training Lab session uses this feature; nothing launches automatically
 when the application opens. The trusted exercise bank lives in
 `exercise_library.py`. It contains independently authored examples and
 methodology citations rather than copied third-party dataset records.
