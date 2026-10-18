@@ -49,9 +49,9 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.doesNotMatch(html, /available without GitHub sign-in/);
   assert.doesNotMatch(html, /Download access note|private GitHub repository.*authorized GitHub access/);
   assert.match(html, new RegExp(`id="zip-download" class="primary-button release-download" data-zip-version="v${escapedDistributionVersion}" data-zip-sha256="${currentDistribution.sha256}"`));
-  const expectedGitHubFallback = 'https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v2.0.17/AI-Agents-Lab-Windows.zip';
-  assert.ok(html.includes(`id="github-release-download" class="secondary-button release-download github-release-download" data-zip-version="v2.0.17" data-zip-sha256="fd19ca26c78a2baf374389edf8c3b210c47afab6d2fb9e66d995b18340f40c73" data-download-source="github-release" href="${expectedGitHubFallback}"`));
-  assert.match(html, /<span>Download v2\.0\.17 BETA<\/span><small>GitHub · newer BETA ZIP<\/small>/);
+  const expectedGitHubFallback = 'https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v2.0.18/AI-Agents-Lab-Windows.zip';
+  assert.ok(html.includes(`id="github-release-download" class="secondary-button release-download github-release-download" data-zip-version="v2.0.18" data-zip-sha256="8ab769da535517d5f02a3e6b7e1e24b1e81e62221aa5fde3fe29b65be2e05c0e" data-download-source="github-release" href="${expectedGitHubFallback}"`));
+  assert.match(html, /<span>Download v2\.0\.18 BETA<\/span><small>GitHub · newer BETA ZIP<\/small>/);
   assert.match(html, new RegExp(`Download v${escapedDistributionVersion} <span aria-hidden="true">↓<\/span><\/span><small>Local \\+ optional internet connections<\/small>`));
   // While a new package is being published, the distribution manifest still
   // names v2.0.15 as current.  It becomes the secondary milestone only when
