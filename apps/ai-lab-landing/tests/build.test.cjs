@@ -211,7 +211,9 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.doesNotMatch(script, /checkForZipUpdate|scheduleZipUpdateChecks|downloaded-zip-version/);
   assert.match(script, /const ANALYTICS_CONSENT_KEY = 'markellos\.ai-lab\.analytics-consent\.v1'/);
   assert.match(script, /const GA_MEASUREMENT_ID = 'G-ZEPZK1T1YQ'/);
-  assert.match(script, /gtag\(\)\('consent','default',CONSENT_DENIED\)/);
+  const analyticsBootstrap = readFileSync(join(output, 'analytics-consent.js'), 'utf8');
+  assert.match(analyticsBootstrap, /window\.gtag\('consent', 'default', \{/);
+  assert.match(analyticsBootstrap, /analytics_storage: 'denied'/);
   assert.match(script, /send\('consent','update',CONSENT_GRANTED\)/);
   assert.match(script, /script\.src=`https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=\$\{encodeURIComponent\(GA_MEASUREMENT_ID\)\}`/);
   assert.match(script, /window\.gtag\('config',GA_MEASUREMENT_ID,\{send_page_view:false\}\)/);
@@ -220,7 +222,9 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(script, /window\.addEventListener\('hashchange',trackPageView\)/);
   assert.match(script, /window\[`ga-disable-\$\{GA_MEASUREMENT_ID\}`\]=true/);
   assert.match(script, /typeof module !== 'undefined'/);
-  for (const file of ['styles.css', 'tokens.css', 'dashboard.js', '_headers', 'README.md', 'simple-guide.html', 'app-description.html', 'ai-training-lab-mark.png']) assert.equal(existsSync(join(output, file)), true, `${file} is missing`);
+  for (const file of ['styles.css', 'tokens.css', 'analytics-consent.js', 'dashboard.js', '_headers', 'README.md', 'simple-guide.html', 'app-description.html', 'ai-training-lab-mark.png']) assert.equal(existsSync(join(output, file)), true, `${file} is missing`);
+  assert.match(html, /<script src="\.\/analytics-consent\.js"><\/script>/);
+  assert.ok(html.indexOf('analytics-consent.js') < html.indexOf('dashboard.js'), 'consent defaults must load before the application script');
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /public current-state documentation/);
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Quick Start \(Windows\)/);
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Understanding the three Windows \.bat files/);
@@ -264,8 +268,11 @@ test('analytics stays unloaded until consent and sends only approved events afte
     createElement, head: { append: script => scripts.push(script) },
   };
   try {
+    const consentModulePath = resolve(output, 'analytics-consent.js');
     const modulePath = resolve(output, 'dashboard.js');
+    delete require.cache[consentModulePath];
     delete require.cache[modulePath];
+    require(consentModulePath);
     require(modulePath);
     assert.equal(scripts.length, 0, 'Google tag must not load before consent');
     assert.deepEqual(Array.from(window.dataLayer[0]), ['consent', 'default', {analytics_storage:'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'}]);
