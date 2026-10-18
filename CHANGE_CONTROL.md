@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-080
+
+```text
+Change ID: AI-LAB-CC-080
+Requested by: User
+Date: 2026-10-18
+Description: Centre the public landing page's main content blocks and their visible content, including hero, action controls, release archive, cards, installation guidance, and privacy section.
+Reason: Establish one centred visual composition across the landing page rather than centring only the footer.
+Affected objective IDs: AI-LAB-OBJ-002, AI-LAB-OBJ-003
+Architecture impact: Static landing-page CSS only. The header's established brand-and-utility control grouping remains functional and unchanged.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Landing build regression asserts centred hero, section, card, archive, and installation-list layout rules.
+Cost and schedule impact: None.
+Decision: APPROVED (UI CLARITY)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```
+
 ## Approved change record — AI-LAB-CC-079
 
 ```text
