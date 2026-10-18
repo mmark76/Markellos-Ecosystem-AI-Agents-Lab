@@ -33,8 +33,9 @@ class AutoExerciseCatalogTests(unittest.TestCase):
         for count in (-1, "1", True):
             with self.subTest(count=count), self.assertRaises(ValueError):
                 select_exercise("training", count)
-        with self.assertRaises(ValueError):
-            select_exercise("unknown", 0)
+        for room in ("conference", "evaluation", "advisory", "optimization", "unknown"):
+            with self.subTest(room=room), self.assertRaises(ValueError):
+                select_exercise(room, 0)
 
     def test_static_ui_and_future_packaging_have_automatic_mode(self):
         html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
