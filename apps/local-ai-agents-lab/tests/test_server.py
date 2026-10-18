@@ -381,7 +381,10 @@ class HttpIntegrationTests(unittest.TestCase):
     def test_http_auto_run_selects_local_exercise_without_manual_topic(self):
         from http.server import ThreadingHTTPServer
         from urllib.request import Request, build_opener, ProxyHandler
-        original_port = campus.PORT
+        original_port, original_db = campus.PORT, campus.DB_PATH
+        temp = tempfile.TemporaryDirectory()
+        campus.DB_PATH = Path(temp.name) / "data" / "campus.sqlite3"
+        campus.initialize()
         server = ThreadingHTTPServer(("127.0.0.1", 0), campus.Handler)
         campus.PORT = server.server_address[1]
         thread = Thread(target=server.serve_forever, daemon=True)
@@ -431,7 +434,8 @@ class HttpIntegrationTests(unittest.TestCase):
             server.shutdown()
             server.server_close()
             thread.join(timeout=4)
-            campus.PORT = original_port
+            campus.DB_PATH, campus.PORT = original_db, original_port
+            temp.cleanup()
 
 
 if __name__ == "__main__":
