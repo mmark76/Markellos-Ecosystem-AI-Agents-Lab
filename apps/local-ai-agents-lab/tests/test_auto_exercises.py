@@ -1,4 +1,5 @@
 """Offline automatic exercise-selection regressions; no real Ollama calls."""
+import importlib.util
 import json
 import sys
 import tempfile
@@ -14,7 +15,9 @@ from urllib.request import Request, ProxyHandler, build_opener
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 import exercise_library
-import server as campus
+SPEC = importlib.util.spec_from_file_location("auto_exercise_server", ROOT / "server.py")
+campus = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(campus)
 
 
 class AutoExerciseTests(unittest.TestCase):
