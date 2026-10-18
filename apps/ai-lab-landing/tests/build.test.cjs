@@ -75,10 +75,9 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(styles, /\.hero \{ max-width: none; margin-bottom: var\(--space-3\); \}/);
   assert.match(styles, /\.shell-notice \{ width: fit-content; max-width: 100%; margin: var\(--space-5\) auto 0; padding: var\(--space-3\) var\(--space-4\); border-inline-start: 3px solid var\(--app-accent\);/);
   assert.match(styles, /\.hero > \.eyebrow, \.hero h1 \{ text-align: center; \}/);
-  assert.match(styles, /\.hero-actions\{display:grid;width:min\(100%,31\.25rem\);gap:var\(--space-3\);margin:var\(--space-5\) auto 0\}/);
-  assert.match(styles, /\.hero-action-group\{display:grid;grid-auto-rows:3\.75rem;gap:var\(--space-3\);align-items:stretch;justify-content:center\}/);
-  assert.match(styles, /\.download-actions\{grid-template-columns:repeat\(2,15\.25rem\)\}/);
-  assert.match(styles, /\.local-actions,\.documentation-actions\{grid-template-columns:repeat\(2,15\.25rem\)\}/);
+  assert.match(styles, /\.hero-actions\{display:grid;width:min\(100%,50rem\);gap:var\(--space-4\);margin:var\(--space-5\) auto 0\}/);
+  assert.match(styles, /\.hero-action-group\{display:grid;grid-auto-rows:3\.75rem;gap:var\(--space-4\);align-items:stretch;justify-content:center\}/);
+  assert.match(styles, /\.download-actions,\.local-actions,\.documentation-actions\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)\}/);
   assert.match(styles, /\.hero-action-group \.primary-button,\.hero-action-group \.secondary-button\{justify-content:center;text-align:center\}/);
   assert.match(styles, /\.hero-action-group \.release-download,\.hero-action-group #refresh-local-server\{align-items:center;justify-content:center;text-align:center\}/);
   assert.match(styles, /@media \(max-width:48rem\) \{ \.hero-actions \{ width:min\(100%,26rem\); \} \.download-actions, \.local-actions, \.documentation-actions \{ grid-template-columns: minmax\(0, 1fr\); width: 100%; \}/);
