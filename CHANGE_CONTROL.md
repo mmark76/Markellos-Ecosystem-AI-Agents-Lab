@@ -1,5 +1,43 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-088
+
+```text
+Change ID: AI-LAB-CC-088
+Requested by: User
+Date: 2026-10-18
+Description: Reduce vertical section spacing and the fixed minimum heights of the overview and Easy Start component cards.
+Reason: Remove excessive vertical whitespace while retaining the centered, two-column card layout.
+Affected objective IDs: AI-LAB-OBJ-002, AI-LAB-OBJ-003
+Architecture impact: Static landing-page CSS and regression assertions only. No text, link, application, analytics, build, or deployment behavior changes.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Landing build regression verifies the compact section spacing and card heights.
+Cost and schedule impact: None.
+Decision: APPROVED (UI DENSITY)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```
+
+## Approved change record — AI-LAB-CC-087
+
+```text
+Change ID: AI-LAB-CC-087
+Requested by: User
+Date: 2026-10-18
+Description: Constrain the landing-page header inner container to the same 54rem width used by the body card rows.
+Reason: Align the header's visual width with the compact body layout.
+Affected objective IDs: AI-LAB-OBJ-002, AI-LAB-OBJ-003
+Architecture impact: Static landing-page CSS and regression assertion only. No text, link, application, analytics, build, or deployment behavior changes.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Landing build regression verifies the 54rem header container.
+Cost and schedule impact: None.
+Decision: APPROVED (UI GEOMETRY)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```
+
 ## Approved change record — AI-LAB-CC-086
 
 ```text
