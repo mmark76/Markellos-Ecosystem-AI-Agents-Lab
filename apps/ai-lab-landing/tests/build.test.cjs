@@ -230,7 +230,8 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Manual update checking inside the Local App: not implemented/);
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /version-matched direct GitHub Release asset as a fallback/);
   assert.match(readFileSync(join(output, '_headers'), 'utf8'), /script-src 'self' https:\/\/www\.googletagmanager\.com/);
-  assert.match(readFileSync(join(output, '_headers'), 'utf8'), /connect-src 'self' https:\/\/www\.google-analytics\.com https:\/\/region1\.google-analytics\.com/);
+  assert.match(readFileSync(join(output, '_headers'), 'utf8'), /img-src 'self' data: https:\/\/www\.googletagmanager\.com https:\/\/\*\.google-analytics\.com/);
+  assert.match(readFileSync(join(output, '_headers'), 'utf8'), /connect-src 'self' https:\/\/www\.googletagmanager\.com https:\/\/\*\.google-analytics\.com https:\/\/www\.google\.com/);
 });
 
 test('analytics stays unloaded until consent and sends only approved events after acceptance', () => {
