@@ -90,6 +90,10 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(styles, /\.release-history details/);
   assert.doesNotMatch(styles, /margin-right: clamp\(8rem, 15vw, 16rem\)|margin-right: calc\(\(100% \+ var\(--space-5\)\) \/ 3\)/);
   assert.match(styles, /\.card-grid \{ width: min\(100%, 54rem\); display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); gap: var\(--space-4\); margin-inline: auto; \}/);
+  assert.ok(styles.includes('.card-grid .dashboard-card, .content-card-grid .dashboard-card { text-align: justify; }'));
+  assert.ok(styles.includes('.card-grid .dashboard-card h2, .content-card-grid .dashboard-card h2, .card-grid .card-label { text-align: left; }'));
+  assert.match(html, /<section id="overview" class="card-grid"/);
+  assert.match(html, /<div class="content-card-grid">/);
   assert.match(styles, /\.simple-section \{ max-width: none; margin-top: var\(--space-3\); \}/);
   assert.match(styles, /\.simple-section > \.eyebrow, \.simple-section > h2 \{ text-align: center; \}/);
   assert.match(styles, /\.release-history summary \{ display: flex; align-items: baseline; justify-content: center;/);
@@ -203,6 +207,10 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(description, /Five workspaces, fifteen specialized agents/);
   for (const role of ["Strategist → Analyst → Engineer", "Tutor → Student → Evaluator → Improver", "Assessor → Scorer → Benchmarker", "Analyst → Advisor", "Diagnostician → Optimizer → Validator"]) assert.ok(description.includes(role), `Missing agent workflow: ${role}`);
   assert.match(description, /fine-tuning \(including LoRA training\) is <strong>not enabled<\/strong>/);
+  const optionalServices = description.slice(description.indexOf('<h2>Optional external services</h2>'), description.indexOf('<h2>Local-first design and privacy</h2>'));
+  assert.match(optionalServices, /Using the optional ChatGPT Advisor may require an eligible paid ChatGPT subscription\./);
+  assert.match(optionalServices, /Availability and usage limits are determined by OpenAI\./);
+  assert.match(optionalServices, /AI Training Lab's local Ollama-powered features remain free to use without a ChatGPT subscription\./);
   for (const page of [guide, description]) {
     assert.match(page, new RegExp(`v${escapedDistributionVersion}`));
     assert.match(page, new RegExp(`v${escapedReleaseVersion}_\\d{8}_\\d{4}_[0-9a-f]{7}`));
