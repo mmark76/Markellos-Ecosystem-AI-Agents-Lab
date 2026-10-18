@@ -378,5 +378,61 @@ class HttpIntegrationTests(unittest.TestCase):
                 server.shutdown(); server.server_close(); thread.join(timeout=4); campus.DB_PATH, campus.PORT = original_db, original_port
 
 
+    def test_http_auto_run_selects_local_exercise_without_manual_topic(self):
+        from http.server import ThreadingHTTPServer
+        from urllib.request import Request, build_opener, ProxyHandler
+        original_port = campus.PORT
+        server = ThreadingHTTPServer(("127.0.0.1", 0), campus.Handler)
+        campus.PORT = server.server_address[1]
+        thread = Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        origin = f"http://127.0.0.1:{campus.PORT}"
+        opener = build_opener(ProxyHandler({}))
+        assignments = {role: "test-local:1" for role in campus.FLOW["training"]}
+
+        def request(path, body):
+            req = Request(origin + path, data=json.dumps(body).encode("utf-8"),
+                          headers={"Origin": origin, "Content-Type": "application/json"}, method="POST")
+            with opener.open(req, timeout=5) as response:
+                return response.status, json.load(response)
+
+        try:
+            with patch.object(campus, "local_models", return_value=["test-local:1"]), \
+                 patch.object(campus, "provider_chat", side_effect=lambda provider, model, room, role, transcript, language: role), \
+                 patch.object(campus.PROVIDERS, "unload"):
+                response_code, started = request("/api/auto-run", {
+                    "room": "training", "provider": "ollama", "models": assignments, "language": "en"})
+                self.assertEqual(response_code, 202)
+                self.assertEqual(started["autoExercise"]["id"], "train-evidence-01")
+                for _ in range(80):
+                    with opener.open(origin + "/api/training-sessions/" + str(started["session_id"])) as response:
+                        session = json.load(response)
+                    if session["status"] != "running":
+                        break
+                    time.sleep(.05)
+                self.assertEqual(session["status"], "completed")
+                for _ in range(40):
+                    if not campus.RUN_LOCK.locked():
+                        break
+                    time.sleep(.05)
+                self.assertFalse(campus.RUN_LOCK.locked())
+                saved = campus.history("training")
+                self.assertTrue(saved[0]["content"].startswith("[AUTO EXERCISE: train-evidence-01]"))
+                self.assertEqual([stage["agent_role"] for stage in session["stages"]],
+                                 list(campus.FLOW["training"]))
+                self.assertEqual(campus.auto_exercise_for_room("training")[0]["id"], "train-dialogue-02")
+                campus.add_message("training", "You", "Manual user topic")
+                self.assertEqual(campus.auto_exercise_for_room("training")[0]["id"], "train-dialogue-02")
+                with self.assertRaises(HTTPError) as invalid:
+                    request("/api/auto-run", {"room": "training", "provider": "ollama",
+                           "models": assignments, "prompt": "Disallowed override"})
+                self.assertEqual(invalid.exception.code, 400)
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=4)
+            campus.PORT = original_port
+
+
 if __name__ == "__main__":
     unittest.main()
