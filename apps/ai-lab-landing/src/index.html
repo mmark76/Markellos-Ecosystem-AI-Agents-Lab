@@ -16,7 +16,7 @@
       <div class="identity-row">
         <a class="brand-lockup" href="#home" aria-label="AI Lab home">
         <img class="brand-mark" src="./ai-training-lab-mark.png" alt="AI Lab">
-          <span class="brand-copy"><span class="project-label">MARKELLOS ECOSYSTEM</span><span class="project-name">AI Lab <span class="beta-badge">BETA</span></span></span>
+          <span class="brand-copy"><span class="project-label">MARKELLOS ECOSYSTEM</span><span class="project-name">AI Lab</span></span>
         </a>
         <div class="header-actions" aria-label="Dashboard utilities">
           <a class="ecosystem-link" href="https://markellosecosystem.com/">Back to markellosecosystem</a>
@@ -34,7 +34,7 @@
       <article class="dashboard-card content-card hero-card">
       <p class="eyebrow">CURRENT RELEASE · {{RELEASE_VERSION}} · LOCAL + OPTIONAL INTERNET CONNECTIONS</p>
       <h1 id="page-title">AI Lab {{RELEASE_VERSION}}</h1>
-      <p class="shell-notice"><strong>Public BETA download:</strong> The {{RELEASE_VERSION}} Windows ZIP is available.</p>
+      <p class="shell-notice"><strong>Milestone download:</strong> The {{RELEASE_VERSION}} Windows ZIP is available via Cloudflare R2. For the latest BETA, use the GitHub {{GITHUB_RELEASE_VERSION}} button.</p>
       <div class="hero-actions" aria-label="Download, local launch, and documentation actions">
         <div class="hero-action-group download-actions"><a id="zip-download" class="primary-button release-download" data-zip-version="{{RELEASE_VERSION}}" data-zip-sha256="{{RELEASE_SHA256}}" data-download-source="cloudflare-r2" href="{{DISTRIBUTION_URL}}"><span>Download {{RELEASE_VERSION}} <span aria-hidden="true">↓</span></span><small>Local + optional internet connections</small></a><a id="github-release-download" class="secondary-button release-download github-release-download" data-zip-version="{{GITHUB_RELEASE_VERSION}}" data-zip-sha256="{{GITHUB_RELEASE_SHA256}}" data-download-source="github-release" href="{{GITHUB_RELEASE_URL}}"><span>Download {{GITHUB_RELEASE_VERSION}} BETA</span><small>GitHub · newer BETA ZIP</small></a>{{LEGACY_DOWNLOAD_BUTTON}}</div>
         <div class="hero-action-group local-actions"><a id="refresh-local-server" class="secondary-button" href="markellos-ai-training-lab-refresh://open"><span>Refresh Local Server</span><small>Before launching the app</small></a><a id="launch-local-lab" class="secondary-button" href="markellos-ai-training-lab://open">Launch Local Lab after download and extract zip</a></div>

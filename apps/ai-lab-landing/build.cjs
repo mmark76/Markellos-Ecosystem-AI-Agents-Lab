@@ -39,8 +39,8 @@ const [currentRelease, ...previousReleases] = releaseHistory;
 // A separately verified GitHub BETA release can be newer than the R2 public ZIP.
 // Keep the R2 registry and its primary download unchanged until R2 publication.
 const githubBetaRelease = Object.freeze({
-  version: '2.0.17',
-  sha256: 'fd19ca26c78a2baf374389edf8c3b210c47afab6d2fb9e66d995b18340f40c73',
+  version: '2.0.18',
+  sha256: '8ab769da535517d5f02a3e6b7e1e24b1e81e62221aa5fde3fe29b65be2e05c0e',
 });
 if (!/^\d+\.\d+\.\d+$/.test(githubBetaRelease.version) || !/^[a-f0-9]{64}$/.test(githubBetaRelease.sha256))
   throw new Error('Invalid verified GitHub BETA release metadata');
