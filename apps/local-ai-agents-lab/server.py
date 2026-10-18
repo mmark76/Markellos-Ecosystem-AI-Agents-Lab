@@ -44,6 +44,7 @@ from openai_connection import OpenAIConnectionError, OpenAIConnectionService, Op
 from model_install import ModelInstallError, ModelInstallBusy, OllamaModelInstaller
 from evaluation_lab.http_api import EvaluationAPIError, EvaluationHTTPService
 from evaluation_lab.repository import EvaluationRepository, EvaluationRepositoryError
+from exercise_library import select_exercise, format_exercise
 
 PROVIDERS = InferenceProviders()
 TRAINING = TrainingService(ROOT)
@@ -157,6 +158,17 @@ def initialize():
 
     # The Evaluation Lab owns only additive tables; legacy migrations run first.
     EvaluationRepository(DB_PATH).initialize()
+
+
+def auto_exercise_for_room(room: str) -> tuple[dict, str]:
+    """Choose next trusted offline exercise using only prior auto-run entries."""
+    with closing(connect()) as db:
+        count = db.execute(
+            "SELECT COUNT(*) FROM messages WHERE room=? AND agent='You' AND content LIKE '[AUTO EXERCISE:%'",
+            (room,),
+        ).fetchone()[0]
+    exercise = select_exercise(room, count)
+    return exercise, format_exercise(exercise)
 
 
 def add_message(room: str, agent: str, content: str, session_id: Optional[int] = None, model: Optional[str] = None):
@@ -686,9 +698,10 @@ class Handler(BaseHTTPRequestHandler):
             except (TrainingError, ValueError, TypeError, json.JSONDecodeError) as err:
                 self._json({"error": str(err)}, 400)
             return
-        if self.path != "/api/run":
+        if self.path not in {"/api/run", "/api/auto-run"}:
             self._json({"error": "Unknown endpoint"}, 404)
             return
+        auto_mode = self.path == "/api/auto-run"
         try:
             size = int(self.headers.get("Content-Length", "0"))
             if size < 2 or size > 16000:
@@ -706,8 +719,10 @@ class Handler(BaseHTTPRequestHandler):
             if not isinstance(raw_prompt, str):
                 raise ValueError("Invalid prompt")
             prompt = raw_prompt.strip()
-            if room not in ROOMS or provider != "ollama" or not 1 <= len(prompt) <= 2500:
+            if room not in ROOMS or provider != "ollama" or (not auto_mode and not 1 <= len(prompt) <= 2500):
                 raise ValueError("Select a Lab and a topic of up to 2,500 characters.")
+            if auto_mode and "prompt" in body:
+                raise ValueError("Automatic Lab sessions select their exercise from the trusted local catalog.")
             if not isinstance(assignments, dict) or set(assignments) != set(FLOW[room]) or not all(isinstance(value, str) and value for value in assignments.values()):
                 raise ValueError("Select one installed local model for every Lab agent.")
             PROVIDERS.get(provider)
@@ -725,6 +740,9 @@ class Handler(BaseHTTPRequestHandler):
             if missing:
                 self._json({"error": "Unavailable local " + ", ".join(missing) + ". Refresh the model list and choose an available model."}, 400)
                 return
+            auto_exercise = None
+            if auto_mode:
+                auto_exercise, prompt = auto_exercise_for_room(room)
             if room == "training":
                 session_id = create_training_session(provider, assignments)
                 cancel = Event()
@@ -733,7 +751,8 @@ class Handler(BaseHTTPRequestHandler):
                 Thread(target=run_training_session, args=(session_id, prompt, assignments, cancel),
                        name=f"training-session-{session_id}", daemon=True).start()
                 session_owns_lock = True
-                self._json({"room": room, "session_id": session_id, "status": "running"}, 202)
+                self._json({"room": room, "session_id": session_id, "status": "running",
+                            "autoExercise": {"id": auto_exercise["id"], "title": auto_exercise["title"]} if auto_exercise else None}, 202)
                 return
             add_message(room, "You", prompt)
             transcript = history(room, 14)
@@ -744,7 +763,8 @@ class Handler(BaseHTTPRequestHandler):
                 item = {"agent": agent, "content": answer, "created_at": utc_now(), "model": assignments[agent]}
                 completed.append(item)
                 transcript.append(item)
-            self._json({"messages": completed, "room": room, "session_id": None})
+            self._json({"messages": completed, "room": room, "session_id": None,
+                        "autoExercise": {"id": auto_exercise["id"], "title": auto_exercise["title"]} if auto_exercise else None})
         except (TimeoutError, HTTPError, URLError, OSError, ValueError, KeyError, ProviderError) as err:
             self._json({"error": f"The session stopped. Answers already produced were saved. {err}"}, 502)
         finally:
