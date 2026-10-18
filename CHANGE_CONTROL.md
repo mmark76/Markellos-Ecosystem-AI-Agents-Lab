@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-090
+
+```text
+Change ID: AI-LAB-CC-090
+Requested by: User
+Date: 2026-10-18
+Description: Widen the introductory body card to the same 54rem maximum width as the header inner container.
+Reason: Align the first body card with the header geometry.
+Affected objective IDs: AI-LAB-OBJ-002, AI-LAB-OBJ-003
+Architecture impact: Static landing-page CSS and regression assertion only. No text, link, application, analytics, build, or deployment behavior changes.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Landing build regression verifies the introductory card width.
+Cost and schedule impact: None.
+Decision: APPROVED (UI GEOMETRY)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```
+
 ## Approved change record — AI-LAB-CC-089
 
 ```text
