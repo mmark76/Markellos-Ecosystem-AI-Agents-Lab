@@ -46,13 +46,13 @@ test('build truthfully presents the current public state of the Local Lab', () =
     assert.match(release.url, new RegExp(`/releases/v${release.version.replaceAll('.', '\\.')}/AI-Agents-Lab-Windows\\.zip$`));
     assert.match(release.sha256, /^[a-f0-9]{64}$/);
   }
-  assert.ok(html.includes(`<p class="shell-notice"><strong>Milestone download:</strong> The v${currentDistribution.version} Windows ZIP is available via Cloudflare R2. For the latest BETA, use the GitHub v2.0.18 button.</p>`));
+  assert.ok(html.includes(`<p class="shell-notice"><strong>Milestone download:</strong> The v${currentDistribution.version} Windows ZIP is available via Cloudflare R2. For the latest BETA, use the GitHub v2.0.19 button.</p>`));
   assert.doesNotMatch(html, /available without GitHub sign-in/);
   assert.doesNotMatch(html, /Download access note|private GitHub repository.*authorized GitHub access/);
   assert.match(html, new RegExp(`id="zip-download" class="primary-button release-download" data-zip-version="v${escapedDistributionVersion}" data-zip-sha256="${currentDistribution.sha256}"`));
-  const expectedGitHubFallback = 'https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v2.0.18/AI-Agents-Lab-Windows.zip';
-  assert.ok(html.includes(`id="github-release-download" class="secondary-button release-download github-release-download" data-zip-version="v2.0.18" data-zip-sha256="8ab769da535517d5f02a3e6b7e1e24b1e81e62221aa5fde3fe29b65be2e05c0e" data-download-source="github-release" href="${expectedGitHubFallback}"`));
-  assert.match(html, /<span>Download v2\.0\.18 BETA<\/span><small>GitHub · newer BETA ZIP<\/small>/);
+  const expectedGitHubFallback = 'https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v2.0.19/AI-Agents-Lab-Windows.zip';
+  assert.ok(html.includes(`id="github-release-download" class="secondary-button release-download github-release-download" data-zip-version="v2.0.19" data-zip-sha256="f8e31d3f93aef88121482a9b4e161f55fa7b975eea28a7248b66c5d8b4f122d5" data-download-source="github-release" href="${expectedGitHubFallback}"`));
+  assert.match(html, /<span>Download v2\.0\.19 BETA<\/span><small>GitHub · newer BETA ZIP<\/small>/);
   const downloadGroup = html.match(/<div class="hero-action-group download-actions">([\s\S]*?)<\/div>/)?.[1];
   assert.ok(downloadGroup, 'Download group must remain present');
   const buttonOrder = [...downloadGroup.matchAll(/id="([^"]+)" class="(?:primary|secondary)-button release-download/g)].map(match => match[1]);
