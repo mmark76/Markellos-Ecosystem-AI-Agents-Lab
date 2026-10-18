@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-086
+
+```text
+Change ID: AI-LAB-CC-086
+Requested by: User
+Date: 2026-10-18
+Description: Remove the version labels from the Local Agent Training and Agent Collaboration overview cards and reduce the vertical spacing between landing-page card groups.
+Reason: The version labels are not needed in those two cards, and the current layout has excessive vertical gaps between cards.
+Affected objective IDs: AI-LAB-OBJ-002, AI-LAB-OBJ-003
+Architecture impact: Static landing-page HTML/CSS and regression assertions only. No link, application, analytics, build, or deployment behavior changes.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Landing build regression verifies that overview cards contain no version labels and the compact vertical spacing rules.
+Cost and schedule impact: None.
+Decision: APPROVED (UI COPY SIMPLIFICATION)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```
+
 ## Approved change record — AI-LAB-CC-085
 
 ```text
