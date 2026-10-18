@@ -11,6 +11,7 @@ class EcosystemShellTests(unittest.TestCase):
         self.html = (STATIC / "index.html").read_text(encoding="utf-8")
         self.app = (STATIC / "app.js").read_text(encoding="utf-8")
         self.css = (STATIC / "style.css").read_text(encoding="utf-8")
+        self.settings = (STATIC / "settings.js").read_text(encoding="utf-8")
 
     def test_five_active_lab_navigation_has_no_unavailable_room(self):
         navigation = self.html.split('<div class="room-navigation"', 1)[1].split('</div>', 1)[0]
@@ -48,6 +49,14 @@ class EcosystemShellTests(unittest.TestCase):
             self.assertIn(item, self.html + self.app)
         self.assertIn('/static/ecosystem-tokens.css', self.html)
         self.assertIn('var(--font-sans', self.css)
+
+    def test_font_choices_remain_accessible_without_native_hover_labels(self):
+        for name in ("System", "Modern", "Serif", "Monospace"):
+            with self.subTest(name=name):
+                self.assertIn(f'aria-label="{name}"', self.html)
+        self.assertIn("storageWrite(fontKey, font)", self.settings)
+        self.assertIn("el.setAttribute('aria-label',label.fonts[el.dataset.font])", self.settings)
+        self.assertNotIn("el.setAttribute('title',label.fonts[el.dataset.font])", self.settings)
 
     def test_active_training_stage_has_subtle_full_frame_signal(self):
         self.assertIn("training-stage status-${String(stage.status||'').toLowerCase().replace(/\\s+/g,'-')}", self.app)
