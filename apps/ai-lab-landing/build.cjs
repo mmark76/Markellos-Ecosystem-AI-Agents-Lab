@@ -39,14 +39,15 @@ const [currentRelease, ...previousReleases] = releaseHistory;
 const commit = git(['rev-parse', '--short=7', 'HEAD']);
 const buildId = `v${releaseVersion}_${cyprusTimestamp(new Date())}_${commit}`;
 const indexPath = join(output, 'index.html');
+const githubReleaseAssetUrl = version => `https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v${version}/AI-Agents-Lab-Windows.zip`;
 const milestoneButton=(version,scope)=>{
   const release=currentRelease.version===version?null:releaseHistory.find(entry=>entry.version===version);
-  return release?'<a id="zip-download-v'+version.replaceAll('.','')+'" class="secondary-button release-download" data-zip-version="v'+version+'" data-zip-sha256="'+release.sha256+'" href="'+release.url+'"><span>Download v'+version+'</span><small>'+scope+'</small></a>':'';
+  return release?'<a id="zip-download-v'+version.replaceAll('.','')+'" class="secondary-button release-download" data-zip-version="v'+version+'" data-zip-sha256="'+release.sha256+'" data-download-source="cloudflare-r2" href="'+release.url+'"><span>Download v'+version+'</span><small>'+scope+'</small></a>':'';
 };
 const legacyButton=[milestoneButton('2.0.15','Previous milestone · local + optional internet connections'),milestoneButton('2.0.4','Local only')].join('');
 const releaseLinks = previousReleases.map(({ version, url, sha256 }) => `<li><a data-zip-version="v${version}" data-zip-sha256="${sha256}" href="${url}">v${version}</a><code title="SHA-256: ${sha256}">${sha256.slice(0, 7)}</code></li>`).join('');
 const injectPageIdentity = html => html.replaceAll('{{BUILD_ID}}', buildId).replaceAll('{{RELEASE_VERSION}}', `v${currentRelease.version}`);
-writeFileSync(indexPath, injectPageIdentity(readFileSync(indexPath, 'utf8')).replaceAll('{{DISTRIBUTION_URL}}', currentRelease.url).replaceAll('{{RELEASE_SHA256}}', currentRelease.sha256).replaceAll('{{LEGACY_DOWNLOAD_BUTTON}}', legacyButton).replaceAll('{{ARCHIVE_COUNT}}', String(previousReleases.length)).replaceAll('{{RELEASE_HISTORY}}', releaseLinks));
+writeFileSync(indexPath, injectPageIdentity(readFileSync(indexPath, 'utf8')).replaceAll('{{DISTRIBUTION_URL}}', currentRelease.url).replaceAll('{{GITHUB_RELEASE_URL}}', githubReleaseAssetUrl(currentRelease.version)).replaceAll('{{RELEASE_SHA256}}', currentRelease.sha256).replaceAll('{{LEGACY_DOWNLOAD_BUTTON}}', legacyButton).replaceAll('{{ARCHIVE_COUNT}}', String(previousReleases.length)).replaceAll('{{RELEASE_HISTORY}}', releaseLinks));
 for (const page of ['simple-guide.html', 'app-description.html']) {
   const pagePath = join(output, page);
   writeFileSync(pagePath, injectPageIdentity(readFileSync(pagePath, 'utf8')));

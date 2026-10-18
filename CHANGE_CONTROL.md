@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-078
+
+```text
+Change ID: AI-LAB-CC-078
+Requested by: User
+Date: 2026-10-18
+Description: Add a clearly labelled direct GitHub Release ZIP fallback beside the primary public Cloudflare R2 download.
+Reason: A user must still be able to install the current verified ZIP when the R2 distribution endpoint is temporarily unavailable.
+Affected objective IDs: AI-LAB-OBJ-003
+Architecture impact: The static landing build derives an immutable version-matched GitHub Release asset URL from the reviewed current distribution version. R2 remains the primary public distribution path.
+Security and privacy impact: No credential, personal data, Local Lab content, API, or new runtime dependency is introduced. The direct asset is public and receives only the browser request initiated by the visitor.
+Data impact: No local data or release archive object is changed.
+Testing impact: Landing regression verifies both delivery URLs use the reviewed version and checksum metadata; source and build checks retain the public/local boundary.
+Cost and schedule impact: No new paid service or resource is created.
+Decision: APPROVED (DISTRIBUTION RELIABILITY)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```
+
 ## Approved change record — AI-LAB-CC-077
 
 ```text

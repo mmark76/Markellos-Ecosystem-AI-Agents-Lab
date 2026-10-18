@@ -46,10 +46,10 @@ function trackPageView() {
   lastTrackedLocation=location;
   window.gtag('event','page_view',{page_location:location,page_title:document.title});
 }
-function trackZipDownload() {
+function trackZipDownload(event) {
   if (!analyticsInitialized || window[`ga-disable-${GA_MEASUREMENT_ID}`]) return;
-  const link=document.getElementById('zip-download');
-  window.gtag('event','zip_download',{release_version:link?.dataset.zipVersion || 'unknown'});
+  const link=event?.currentTarget;
+  window.gtag('event','zip_download',{release_version:link?.dataset.zipVersion || 'unknown',delivery_source:link?.dataset.downloadSource || 'unknown'});
 }
 function configureAnalytics() {
   if (analyticsInitialized || window[`ga-disable-${GA_MEASUREMENT_ID}`]) return;
@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('accept-analytics-dialog')?.addEventListener('click',()=>applyAnalyticsConsent('granted'));
   document.getElementById('reject-analytics-dialog')?.addEventListener('click',()=>applyAnalyticsConsent('denied'));
   ['manage-analytics','privacy-analytics-choices'].forEach(id=>document.getElementById(id)?.addEventListener('click',()=>analyticsDialog?.showModal()));
-  document.getElementById('zip-download')?.addEventListener('click',trackZipDownload);
+  document.querySelectorAll('.release-download').forEach(link=>link.addEventListener('click',trackZipDownload));
   window.addEventListener('hashchange',trackPageView);
 });
 if (typeof module !== 'undefined') module.exports={DEFAULT,normalizeAppearance,syncThemeToggle,analyticsConsent};
