@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-089
+
+```text
+Change ID: AI-LAB-CC-089
+Requested by: User
+Date: 2026-10-18
+Description: Further reduce the vertical gaps between large landing-page card rows and reduce the invisible vertical padding of the transparent Easy Start section heading.
+Reason: The previous compact spacing still left excessive visible whitespace between large card groups.
+Affected objective IDs: AI-LAB-OBJ-002, AI-LAB-OBJ-003
+Architecture impact: Static landing-page CSS and regression assertions only. No text, link, application, analytics, build, or deployment behavior changes.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Landing build regression verifies the compact card-row spacing and section-heading padding.
+Cost and schedule impact: None.
+Decision: APPROVED (UI DENSITY)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```
+
 ## Approved change record — AI-LAB-CC-088
 
 ```text

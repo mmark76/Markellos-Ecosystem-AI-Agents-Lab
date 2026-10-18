@@ -45,14 +45,14 @@ a:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 4px; }
 .content-card { width: min(100%, var(--content-narrow)); min-height: 0; margin-inline: auto; }
 .hero-card { margin-bottom: 0; }
 .archive-card, .section-intro-card { border-color: transparent; background: transparent; }
-.section-intro-card { margin-bottom: var(--space-4); }
-.content-card-grid { width: min(100%, 54rem); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); margin: var(--space-6) auto 0; }
+.section-intro-card { padding-block: var(--space-3); margin-bottom: var(--space-2); }
+.content-card-grid { width: min(100%, 54rem); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); margin: var(--space-3) auto 0; }
 .content-card-grid .simple-section { margin-top: 0; }
 .content-card-grid .content-card { width: 100%; height: 100%; }
 #overview .dashboard-card { min-height: 15rem; }
 .dashboard-card h2 { margin-bottom: var(--space-3); font-size: var(--font-size-xl); }
 .dashboard-card p:not(.card-label), .simple-section p:last-child { margin-top: 0; margin-bottom: 0; color: var(--color-text-muted); }
-.simple-section { max-width: none; margin-top: var(--space-6); }
+.simple-section { max-width: none; margin-top: var(--space-3); }
 .simple-section > .eyebrow, .simple-section > h2 { text-align: center; }
 .simple-section h2 { margin-bottom: var(--space-4); font-size: var(--font-size-2xl); }
 .engine-downloads { max-width: var(--content-wide); }
