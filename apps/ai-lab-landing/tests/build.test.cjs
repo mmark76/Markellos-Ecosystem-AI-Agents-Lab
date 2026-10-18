@@ -62,6 +62,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /class="hero-action-group local-actions"/);
   assert.match(html, /class="hero-action-group documentation-actions"/);
   assert.match(styles, /\.header-inner \{ width: min\(calc\(100% - 2rem\), 54rem\); margin-inline: auto; padding-top: var\(--space-5\); \}/);
+  assert.match(styles, /\.hero-card \{ width: min\(100%, 54rem\); margin-bottom: 0; \}/);
   assert.match(styles, /\.main-content \{ flex: 1; padding-block: var\(--space-8\); text-align: center; \}/);
   assert.match(styles, /\.hero \{ max-width: none; margin-bottom: var\(--space-8\); \}/);
   assert.match(styles, /\.hero > \.eyebrow, \.hero h1 \{ text-align: center; \}/);
