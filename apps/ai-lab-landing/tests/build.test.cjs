@@ -214,8 +214,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(script, /send\('consent','default',CONSENT_DENIED\)/);
   assert.match(script, /send\('consent','update',CONSENT_GRANTED\)/);
   assert.match(script, /script\.src=`https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=\$\{encodeURIComponent\(GA_MEASUREMENT_ID\)\}`/);
-  assert.doesNotMatch(script, /send\('config',GA_MEASUREMENT_ID,\{send_page_view:false\}\)/);
-  assert.match(script, /window\.gtag\('config',GA_MEASUREMENT_ID\)/);
+  assert.match(script, /window\.gtag\('config',GA_MEASUREMENT_ID,\{send_page_view:false\}\)/);
   assert.match(script, /window\.gtag\('event','page_view'/);
   assert.match(script, /window\.gtag\('event','zip_download'/);
   assert.match(script, /window\.addEventListener\('hashchange',trackPageView\)/);
@@ -270,10 +269,7 @@ test('analytics stays unloaded until consent and sends only approved events afte
     assert.equal(scripts.length, 0, 'Google tag must not load before consent');
     elements['accept-analytics'].listeners.get('click')();
     assert.equal(scripts.length, 1, 'acceptance loads one Google tag');
-    window.gtag = (...args) => {
-      window.dataLayer.push(args);
-      if (args[0] === 'config') window.dataLayer.push(['event', 'page_view']);
-    };
+    window.gtag = (...args) => window.dataLayer.push(args);
     scripts[0].listeners.get('load')();
     elements['zip-download'].listeners.get('click')({currentTarget:elements['zip-download']});
     const events = window.dataLayer.filter(entry => entry[0] === 'event');

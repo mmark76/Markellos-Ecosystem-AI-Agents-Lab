@@ -54,7 +54,8 @@ function trackZipDownload(event) {
 function configureAnalytics() {
   if (analyticsInitialized || window[`ga-disable-${GA_MEASUREMENT_ID}`]) return;
   analyticsInitialized=true;
-  window.gtag('config',GA_MEASUREMENT_ID);
+  window.gtag('config',GA_MEASUREMENT_ID,{send_page_view:false});
+  trackPageView();
 }
 function enableAnalytics() {
   if (analyticsInitialized) { trackPageView(); return Promise.resolve(); }
