@@ -9,6 +9,7 @@ const output = join(app, 'dist');
 const distributionMonitor = resolve(app, '..', '..', '.github', 'workflows', 'verify-public-ai-lab-distribution.yml');
 const releaseVersion = readFileSync(join(app, '..', 'local-ai-agents-lab', 'VERSION'), 'utf8').trim();
 const distribution = JSON.parse(readFileSync(join(app, 'release-distribution.json'), 'utf8'));
+const betaDistribution = JSON.parse(readFileSync(join(app, 'github-beta-releases.json'), 'utf8'));
 const escapedReleaseVersion = releaseVersion.replaceAll('.', '\\.');
 const [currentDistribution, ...previousDistributions] = distribution.releases;
 const escapedDistributionVersion = currentDistribution.version.replaceAll('.', '\\.');
@@ -98,8 +99,17 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /<span>Refresh Local Server<\/span><small>Before launching the app<\/small><\/a>/);
   assert.match(html, new RegExp(currentDistribution.url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.match(html, /Release archive/);
-  assert.match(html, new RegExp(`${previousDistributions.length} earlier Windows ZIPs`));
-  assert.match(html, /Verified historical releases are retained for reference and future agent studies\./);
+  assert.match(html, /Cloudflare R2 milestones · GitHub BETA/);
+  assert.match(html, /Milestones · Cloudflare R2/);
+  assert.match(html, /BETA releases · GitHub/);
+  assert.match(html, /Earlier Cloudflare R2 releases/);
+  assert.match(html, /id="r2-milestone-history"/);
+  assert.match(html, /id="r2-legacy-history"/);
+  assert.match(html, /id="github-beta-history"/);
+  assert.match(html, /id="github-beta-status"/);
+  assert.match(html, /github-release-archive\.js/);
+  assert.match(html, new RegExp(`${distribution.releases.length - 3} ZIPs`));
+  assert.match(html, /Earlier verified R2 releases are retained without treating them as new milestones\./);
   assert.match(styles, /\.release-history \{ margin-top: 0; \}/);
   assert.match(styles, /\.release-history details/);
   assert.doesNotMatch(styles, /margin-right: clamp\(8rem, 15vw, 16rem\)|margin-right: calc\(\(100% \+ var\(--space-5\)\) \/ 3\)/);
@@ -133,6 +143,26 @@ test('build truthfully presents the current public state of the Local Lab', () =
     assert.match(html, new RegExp(`<code title="SHA-256: ${release.sha256}">${release.sha256.slice(0, 7)}</code>`));
     assert.doesNotMatch(html, new RegExp(`<code>${release.sha256}</code>`));
   }
+  // The R2 manifest is unchanged: three featured milestones and all older R2 entries.
+  const milestoneSection = html.split('id="r2-milestone-history">', 2)[1].split('</ul>', 1)[0];
+  const olderR2Section = html.split('id="r2-legacy-history">', 2)[1].split('</ul>', 1)[0];
+  for (const version of ['2.0.16', '2.0.15', '2.0.4']) {
+    assert.match(milestoneSection, new RegExp('data-zip-version="v' + version.replaceAll('.', '\\.') + '"'));
+    assert.doesNotMatch(olderR2Section, new RegExp('data-zip-version="v' + version.replaceAll('.', '\\.') + '"'));
+  }
+  assert.equal((milestoneSection.match(/<li>/g) || []).length, 3);
+  assert.equal((olderR2Section.match(/<li>/g) || []).length, distribution.releases.length - 3);
+  // The initial GitHub history works without a network request.
+  const betaSection = html.split('id="github-beta-history">', 2)[1].split('</ul>', 1)[0];
+  assert.equal((betaSection.match(/<li>/g) || []).length, betaDistribution.releases.length);
+  for (const release of betaDistribution.releases) {
+    assert.ok(!distribution.releases.some(item => item.version === release.version), 'GitHub BETA must not duplicate R2 versions');
+    assert.match(release.version, /^\d+\.\d+\.\d+$/);
+    assert.match(release.sha256, /^[a-f0-9]{64}$/);
+    assert.ok(betaSection.includes('releases/download/v' + release.version + '/AI-Agents-Lab-Windows.zip'));
+    assert.ok(betaSection.includes('data-zip-sha256="' + release.sha256 + '"'));
+  }
+  assert.equal(betaDistribution.releases[0].version, '2.0.19');
   assert.doesNotMatch(html, /id="zip-update"/);
   assert.match(html, /Trainer → Student → Evaluator → Improver/);
   const overview = html.slice(html.indexOf('<section id="overview"'), html.indexOf('</section>', html.indexOf('<section id="overview"')));
@@ -140,7 +170,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /Agent Collaboration \/ Conference Room/);
   assert.match(html, /Start in three simple steps/);
   assert.match(html, /<section class="hero"[^>]*>\s*<article class="dashboard-card content-card hero-card">/);
-  assert.match(html, /<details class="dashboard-card content-card archive-card">/);
+  assert.match(html, /<details class="dashboard-card content-card archive-card" id="release-archive">/);
   assert.match(html, /<header class="dashboard-card content-card section-intro-card"><p class="eyebrow">EASY START COMPONENTS/);
   assert.match(html, /<section id="start" class="simple-section steps"[^>]*>\s*<article class="dashboard-card content-card">/);
   assert.match(html, /<section id="privacy" class="simple-section"[^>]*>\s*<article class="dashboard-card content-card">/);
@@ -334,4 +364,29 @@ test('public distribution monitoring verifies the reviewed current R2 ZIP on a s
   assert.match(monitor, /application\/x-zip-compressed/);
   assert.match(monitor, /Public ZIP SHA-256 mismatch/);
   assert.match(monitor, /Public ZIP length mismatch/);
+});
+
+test('GitHub BETA archive filters R2 versions and invalid assets without duplicates', () => {
+  const {githubOnlyReleases} = require(join(app, 'src', 'github-release-archive.js'));
+  const digest = 'sha256:' + 'a'.repeat(64);
+  const valid = version => ({tag_name:'v'+version, draft:false, assets:[{name:'AI-Agents-Lab-Windows.zip',state:'uploaded',digest}]});
+  const result = githubOnlyReleases([
+    valid('2.0.17'), valid('2.0.16'), valid('2.0.19'), valid('2.0.19'),
+    valid('2.0.18'), {tag_name:'v2.0.20',draft:true,assets:valid('2.0.20').assets},
+    {tag_name:'unsafe',draft:false,assets:valid('2.0.20').assets},
+    {tag_name:'v2.0.21',draft:false,assets:[{name:'AI-Agents-Lab-Windows.zip',state:'uploaded',digest:'sha256:bad'}]},
+    {tag_name:'v2.0.22',draft:false,assets:[{name:'other.zip',state:'uploaded',digest}]},
+  ], new Set(['2.0.16']));
+  assert.deepEqual(result.map(item => item.version), ['2.0.19','2.0.18','2.0.17']);
+  assert.ok(result.every(item => item.sha256 === 'a'.repeat(64)));
+  assert.ok(result.every(item => item.url.startsWith('https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v')));
+  const headers = readFileSync(join(app, '_headers'), 'utf8');
+  assert.match(headers, /connect-src '[^;]*https:\/\/api\.github\.com;/);
+  assert.match(headers, /default-src 'self'/);
+  assert.match(headers, /script-src 'self' https:\/\/www\.googletagmanager\.com/);
+  const source = readFileSync(join(app, 'src', 'github-release-archive.js'), 'utf8');
+  assert.match(source, /archive\.addEventListener\('toggle'/);
+  assert.match(source, /if \(!archive\.open \|\| requested\) return/);
+  assert.match(source, /Showing verified BETA snapshot/);
+  assert.match(source, /list\.replaceChildren/);
 });

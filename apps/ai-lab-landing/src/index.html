@@ -45,10 +45,25 @@
     </section>
 
     <section class="simple-section release-history" aria-labelledby="release-history-title">
-      <details class="dashboard-card content-card archive-card">
-        <summary id="release-history-title">Release archive <span>{{ARCHIVE_COUNT}} earlier Windows ZIPs</span></summary>
-        <p>Verified historical releases are retained for reference and future agent studies.</p>
-        <ul>{{RELEASE_HISTORY}}</ul>
+      <details class="dashboard-card content-card archive-card" id="release-archive">
+        <summary id="release-history-title">Release archive <span>Cloudflare R2 milestones · GitHub BETA</span></summary>
+        <div class="release-archive-group" id="release-history-r2">
+          <h3>Milestones · Cloudflare R2</h3>
+          <p>Reviewed milestone ZIPs stay available from Cloudflare R2.</p>
+          <ul id="r2-milestone-history">{{R2_MILESTONE_HISTORY}}</ul>
+          <details class="legacy-r2-history">
+            <summary>Earlier Cloudflare R2 releases <span>{{R2_LEGACY_COUNT}} ZIPs</span></summary>
+            <p>Earlier verified R2 releases are retained without treating them as new milestones.</p>
+            <ul id="r2-legacy-history">{{RELEASE_HISTORY}}</ul>
+          </details>
+        </div>
+        <div class="release-archive-group" id="release-history-github">
+          <h3>BETA releases · GitHub</h3>
+          <p>GitHub ZIPs are listed separately from R2. Opening the archive refreshes the public release list from GitHub.</p>
+          <ul id="github-beta-history">{{GITHUB_BETA_HISTORY}}</ul>
+          <p id="github-beta-status" role="status" aria-live="polite">Showing verified GitHub BETA releases.</p>
+          <p><a href="https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases" target="_blank" rel="noopener noreferrer">All GitHub Releases ↗</a></p>
+        </div>
       </details>
     </section>
 
@@ -93,5 +108,6 @@
   <dialog id="analytics-dialog" class="shell-dialog" aria-labelledby="analytics-dialog-title"><div class="dialog-header"><h2 id="analytics-dialog-title">Analytics choices</h2><button class="dialog-close" type="button" data-close-dialog aria-label="Close">×</button></div><p>Google Analytics 4 is optional. If accepted, it records page views, navigation, traffic source, approximate geographic distribution, and Windows ZIP download interactions. It never receives Local Lab conversations, prompts, model data, or sensitive personal information from this website.</p><div class="dialog-actions"><button id="reject-analytics-dialog" type="button">Reject analytics</button><button id="accept-analytics-dialog" class="primary-button" type="button">Accept analytics</button></div></dialog>
   <dialog id="info-dialog" class="shell-dialog" aria-labelledby="info-title"><div class="dialog-header"><h2 id="info-title">Important Info</h2><button class="dialog-close" type="button" data-close-dialog aria-label="Close">×</button></div><details open><summary>Privacy</summary><p>Appearance preferences are stored in this browser. Google Analytics 4 is optional, disabled by default, and loaded only after you accept analytics. Use Analytics choices to change or withdraw consent.</p></details><details><summary>Feedback</summary><p>No public feedback channel is configured.</p></details><p>© 2026 Markellos Markides. All rights reserved.</p><p class="build-id">{{BUILD_ID}}</p></dialog>
   <script src="./dashboard.js"></script>
+  <script src="./github-release-archive.js"></script>
 </body>
 </html>
