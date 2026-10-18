@@ -46,7 +46,7 @@
     $('font-options').setAttribute('aria-label',label.font);
     $('settings-toggle').setAttribute('aria-label',label.settings);
     document.querySelectorAll('[data-accent]').forEach(el => { el.setAttribute('aria-label',label.colors[el.dataset.accent]); el.setAttribute('title',label.colors[el.dataset.accent]); });
-    document.querySelectorAll('[data-background]').forEach(el => { el.setAttribute('aria-label',label.backgrounds[el.dataset.background]); el.setAttribute('title',label.backgrounds[el.dataset.background]); });
+    document.querySelectorAll('[data-background]').forEach(el => { el.setAttribute('aria-label',label.backgrounds[el.dataset.background]); });
     document.querySelectorAll('[data-font]').forEach(el => { el.setAttribute('aria-label',label.fonts[el.dataset.font]); });
   }
   function setOpen(open) {
