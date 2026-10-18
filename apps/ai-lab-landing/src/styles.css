@@ -33,6 +33,7 @@ a:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 4px; }
 .guide { max-width: 52rem; }
 .guide h2 { margin-top: var(--space-6); }
 .guide li { margin-block: var(--space-2); line-height: var(--line-height-relaxed); }
+.guide > p:not(.eyebrow):not(.guide-navigation), .guide li { text-align: justify; }
 .hero > .eyebrow, .hero h1 { text-align: center; }
 .hero h1 { margin-bottom: var(--space-4); font-size: clamp(2rem, 5vw, 3.4rem); letter-spacing: -.025em; }
 .hero-copy { margin: 0; color: var(--color-text-muted); font-size: var(--font-size-lg); line-height: var(--line-height-relaxed); }
