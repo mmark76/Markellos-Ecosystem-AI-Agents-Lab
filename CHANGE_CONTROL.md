@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-091
+
+```text
+Change ID: AI-LAB-CC-091
+Requested by: User
+Date: 2026-10-18
+Description: Align the public BETA notice border with its text and remove the compounded vertical spacing before Release archive.
+Reason: The yellow notice marker was detached from the centered text, and the Release archive remained too far below the introductory card.
+Affected objective IDs: AI-LAB-OBJ-002, AI-LAB-OBJ-003
+Architecture impact: Static landing-page CSS and regression assertions only. No text, link, application, analytics, build, or deployment behavior changes.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Landing build regression verifies the compact notice grouping and archive spacing.
+Cost and schedule impact: None.
+Decision: APPROVED (UI GEOMETRY)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```
+
 ## Approved change record — AI-LAB-CC-090
 
 ```text
