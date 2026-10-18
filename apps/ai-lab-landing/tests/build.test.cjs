@@ -23,7 +23,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   const styles = readFileSync(join(output, 'styles.css'), 'utf8');
 
   assert.match(html, new RegExp(`v${escapedReleaseVersion}_\\d{8}_\\d{4}_[0-9a-f]{7}`));
-  assert.doesNotMatch(html, /\{\{BUILD_ID\}\}|\{\{RELEASE_VERSION\}\}/);
+  assert.doesNotMatch(html, /\{\{BUILD_ID\}\}|\{\{RELEASE_VERSION\}\}|\{\{GITHUB_RELEASE_URL\}\}/);
   assert.match(html, /styles\.css\?v=v\d+\.\d+\.\d+_\d{8}_\d{4}_[a-f0-9]{7}/);
   assert.match(html, new RegExp(`CURRENT RELEASE · v${escapedDistributionVersion} · LOCAL \\+ OPTIONAL INTERNET CONNECTIONS`));
   assert.match(html, new RegExp(`<h1 id="page-title">AI Lab v${escapedDistributionVersion}<\\/h1>`));
@@ -41,6 +41,9 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.doesNotMatch(html, /available without GitHub sign-in/);
   assert.doesNotMatch(html, /Download access note|private GitHub repository.*authorized GitHub access/);
   assert.match(html, new RegExp(`id="zip-download" class="primary-button release-download" data-zip-version="v${escapedDistributionVersion}" data-zip-sha256="${currentDistribution.sha256}"`));
+  const expectedGitHubFallback = `https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v${currentDistribution.version}/AI-Agents-Lab-Windows.zip`;
+  assert.match(html, new RegExp(`id="github-release-download" class="secondary-button release-download github-release-download" data-zip-version="v${escapedDistributionVersion}" data-zip-sha256="${currentDistribution.sha256}" data-download-source="github-release" href="${expectedGitHubFallback.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`));
+  assert.match(html, /<span>Alternative download<\/span><small>GitHub release mirror<\/small>/);
   assert.match(html, new RegExp(`Download v${escapedDistributionVersion} <span aria-hidden="true">↓<\/span><\/span><small>Local \\+ optional internet connections<\/small>`));
   // While a new package is being published, the distribution manifest still
   // names v2.0.15 as current.  It becomes the secondary milestone only when
@@ -60,7 +63,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /class="hero-action-group documentation-actions"/);
   assert.match(styles, /\.hero-actions\{display:grid;width:min\(calc\(100vw - 4rem\),47\.25rem\);gap:var\(--space-3\);margin-top:var\(--space-5\)\}/);
   assert.match(styles, /\.hero-action-group\{display:grid;grid-auto-rows:3\.75rem;gap:var\(--space-3\);align-items:stretch\}/);
-  assert.match(styles, /\.download-actions\{grid-template-columns:repeat\(3,15\.25rem\)\}/);
+  assert.match(styles, /\.download-actions\{grid-template-columns:repeat\(2,15\.25rem\)\}/);
   assert.match(styles, /\.local-actions,\.documentation-actions\{grid-template-columns:repeat\(2,15\.25rem\)\}/);
   assert.match(styles, /\.hero-action-group \.primary-button,\.hero-action-group \.secondary-button\{justify-content:center;text-align:center\}/);
   assert.match(styles, /\.hero-action-group \.release-download,\.hero-action-group #refresh-local-server\{align-items:center;justify-content:center;text-align:center\}/);
@@ -203,6 +206,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.doesNotMatch(readFileSync(join(output, 'README.md'), 'utf8'), /Start AI Agents Lab\.bat/);
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Technical documentation/);
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Manual update checking inside the Local App: not implemented/);
+  assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /version-matched direct GitHub Release asset as a fallback/);
   assert.match(readFileSync(join(output, '_headers'), 'utf8'), /script-src 'self' https:\/\/www\.googletagmanager\.com/);
   assert.match(readFileSync(join(output, '_headers'), 'utf8'), /connect-src 'self' https:\/\/www\.google-analytics\.com https:\/\/region1\.google-analytics\.com/);
 });
@@ -215,9 +219,12 @@ test('analytics stays unloaded until consent and sends only approved events afte
     setAttribute() {}, querySelector() { return null; }, closest() { return this; },
     close() {}, showModal() {}, value: '',
   });
-  const ids = ['theme-toggle','accent-color','font-choice','text-size','spacing-choice','appearance-status','reset-appearance','settings-button','info-button','analytics-consent-banner','analytics-dialog','analytics-consent-status','accept-analytics','reject-analytics','accept-analytics-dialog','reject-analytics-dialog','manage-analytics','privacy-analytics-choices','zip-download'];
+  const ids = ['theme-toggle','accent-color','font-choice','text-size','spacing-choice','appearance-status','reset-appearance','settings-button','info-button','analytics-consent-banner','analytics-dialog','analytics-consent-status','accept-analytics','reject-analytics','accept-analytics-dialog','reject-analytics-dialog','manage-analytics','privacy-analytics-choices','zip-download','github-release-download'];
   const elements = Object.fromEntries(ids.map(id => [id, createElement()]));
   elements['zip-download'].dataset.zipVersion = 'v1.1.0';
+  elements['zip-download'].dataset.downloadSource = 'cloudflare-r2';
+  elements['github-release-download'].dataset.zipVersion = 'v1.1.0';
+  elements['github-release-download'].dataset.downloadSource = 'github-release';
   const scripts = [];
   const values = new Map();
   const originalWindow = global.window;
@@ -230,7 +237,7 @@ test('analytics stays unloaded until consent and sends only approved events afte
   global.document = {
     title: 'AI Lab', documentElement: { dataset: {}, style: { setProperty() {} } },
     addEventListener(type, handler) { if (type === 'DOMContentLoaded') handler(); },
-    getElementById: id => elements[id] || null, querySelectorAll: () => [], querySelector: () => null,
+    getElementById: id => elements[id] || null, querySelectorAll: selector => selector === '.release-download' ? [elements['zip-download'], elements['github-release-download']] : [], querySelector: () => null,
     createElement, head: { append: script => scripts.push(script) },
   };
   try {
@@ -245,13 +252,16 @@ test('analytics stays unloaded until consent and sends only approved events afte
       if (args[0] === 'config') window.dataLayer.push(['event', 'page_view']);
     };
     scripts[0].listeners.get('load')();
-    elements['zip-download'].listeners.get('click')();
+    elements['zip-download'].listeners.get('click')({currentTarget:elements['zip-download']});
     const events = window.dataLayer.filter(entry => entry[0] === 'event');
     assert.deepEqual(events.map(entry => entry[1]), ['page_view', 'zip_download']);
+    assert.deepEqual(events[1][2], {release_version:'v1.1.0',delivery_source:'cloudflare-r2'});
+    elements['github-release-download'].listeners.get('click')({currentTarget:elements['github-release-download']});
+    assert.deepEqual(window.dataLayer.filter(entry => entry[0] === 'event' && entry[1] === 'zip_download').map(entry => entry[2].delivery_source), ['cloudflare-r2','github-release']);
     elements['reject-analytics'].listeners.get('click')();
     assert.equal(window['ga-disable-G-ZEPZK1T1YQ'], true, 'rejection disables future analytics events');
-    elements['zip-download'].listeners.get('click')();
-    assert.equal(window.dataLayer.filter(entry => entry[0] === 'event' && entry[1] === 'zip_download').length, 1);
+    elements['zip-download'].listeners.get('click')({currentTarget:elements['zip-download']});
+    assert.equal(window.dataLayer.filter(entry => entry[0] === 'event' && entry[1] === 'zip_download').length, 2);
   } finally {
     global.window = originalWindow;
     global.document = originalDocument;

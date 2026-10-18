@@ -22,7 +22,7 @@ For a more accessible explanation, use the linked `simple-guide.html` page. The 
 
 ## Public distribution
 
-`AI-Agents-Lab-Windows.zip` for `v1.0.0` is distributed through the public Cloudflare R2 BETA channel, without GitHub authentication. The GitHub repository remains private. The dashboard displays the stable versioned URL and SHA-256 checksum (`98d5b560e5bdbdd6888adcef29c820d793d389fcfda022a56a326a0365af9fc5`) for verification.
+The dashboard distributes each current `AI-Agents-Lab-Windows.zip` through the public Cloudflare R2 BETA channel. It also presents a clearly labelled, version-matched direct GitHub Release asset as a fallback if the R2 download is temporarily unavailable. Both links identify the same reviewed release version and SHA-256 checksum; a GitHub account is not required to download the public asset.
 
 ## Available now
 
