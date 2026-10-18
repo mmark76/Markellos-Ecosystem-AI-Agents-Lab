@@ -5,6 +5,8 @@ const GA_MEASUREMENT_ID = 'G-ZEPZK1T1YQ';
 const DEFAULT = Object.freeze({colorMode:'dark',accent:'#f2c230',font:'system',textSize:'100',spacing:'comfortable'});
 const CONSENT_DENIED = Object.freeze({analytics_storage:'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});
 const CONSENT_GRANTED = Object.freeze({...CONSENT_DENIED,analytics_storage:'granted'});
+function gtag() { window.dataLayer=window.dataLayer||[]; window.gtag=window.gtag||function(){window.dataLayer.push(arguments);}; return window.gtag; }
+gtag()('consent','default',CONSENT_DENIED);
 let analyticsInitialized = false;
 let lastTrackedLocation = null;
 const validHex = value => typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value) ? value.toLowerCase() : null;
@@ -31,7 +33,6 @@ function applyAppearance(value) {
 function saveAppearance(p) { try { storage()?.setItem(KEY,JSON.stringify(normalizeAppearance(p))); return true; } catch { return false; } }
 function analyticsConsent() { try { const value=storage()?.getItem(ANALYTICS_CONSENT_KEY); return value === 'granted' || value === 'denied' ? value : null; } catch { return null; } }
 function saveAnalyticsConsent(value) { try { storage()?.setItem(ANALYTICS_CONSENT_KEY,value); } catch {} }
-function gtag() { window.dataLayer=window.dataLayer||[]; window.gtag=window.gtag||function(){window.dataLayer.push(arguments);}; return window.gtag; }
 function analyticsDisabled() {
   window[`ga-disable-${GA_MEASUREMENT_ID}`]=true;
   analyticsInitialized=false;
@@ -61,13 +62,13 @@ function enableAnalytics() {
   if (analyticsInitialized) { trackPageView(); return Promise.resolve(); }
   window[`ga-disable-${GA_MEASUREMENT_ID}`]=false;
   const send=gtag();
-  send('consent','default',CONSENT_DENIED);
   send('consent','update',CONSENT_GRANTED);
   send('js',new Date());
+  configureAnalytics();
   const existing=document.querySelector(`script[data-ga4-measurement-id="${GA_MEASUREMENT_ID}"]`);
-  if (existing?.dataset.ga4Ready === 'true') { configureAnalytics(); return Promise.resolve(); }
+  if (existing?.dataset.ga4Ready === 'true') return Promise.resolve();
   if (existing) return new Promise((resolve,reject)=>{
-    existing.addEventListener('load',()=>{existing.dataset.ga4Ready='true';configureAnalytics();resolve();},{once:true});
+    existing.addEventListener('load',()=>{existing.dataset.ga4Ready='true';resolve();},{once:true});
     existing.addEventListener('error',()=>reject(new Error('Google Analytics could not be loaded.')),{once:true});
   });
   return new Promise((resolve,reject)=>{
@@ -75,7 +76,7 @@ function enableAnalytics() {
     script.async=true;
     script.src=`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(GA_MEASUREMENT_ID)}`;
     script.dataset.ga4MeasurementId=GA_MEASUREMENT_ID;
-    script.addEventListener('load',()=>{script.dataset.ga4Ready='true';configureAnalytics();resolve();},{once:true});
+    script.addEventListener('load',()=>{script.dataset.ga4Ready='true';resolve();},{once:true});
     script.addEventListener('error',()=>reject(new Error('Google Analytics could not be loaded.')),{once:true});
     document.head.append(script);
   });
