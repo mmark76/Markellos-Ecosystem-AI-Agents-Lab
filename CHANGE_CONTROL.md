@@ -1,9 +1,9 @@
 # Change Control
 
-## Approved change record — AI-LAB-CC-076
+## Approved change record — AI-LAB-CC-077
 
 ```text
-Change ID: AI-LAB-CC-076
+Change ID: AI-LAB-CC-077
 Requested by: User
 Date: 2026-10-18
 Description: Publish AI Lab v2.0.16 with the separate local ChatGPT Advisor history, the completed Local Lab UI fixes, and the curated v2.0.16/v2.0.15/v2.0.4 public milestone selection.
@@ -19,10 +19,10 @@ Approved by: Direct user request
 Target release: AI Lab v2.0.16
 ```
 
-## Approved change record — AI-LAB-CC-075
+## Approved change record — AI-LAB-CC-076
 
 ```text
-Change ID: AI-LAB-CC-075
+Change ID: AI-LAB-CC-076
 Requested by: User
 Date: 2026-10-18
 Description: Retain the proven v2.0.15 public ZIP as a prominent milestone alongside the newest release and the v2.0.4 local-only milestone, and remove v1.1.8 and v2.0.10 from that prominent milestone row.
@@ -30,7 +30,7 @@ Reason: The user considers v2.0.15 a successful milestone and no longer wants th
 Affected objective IDs: AI-LAB-OBJ-003
 Architecture impact: Static landing-page release-selection copy and test contract only. The complete immutable release archive, R2 object URLs, ZIPs, and Local Lab runtime are unchanged.
 Security and privacy impact: None; the public page remains static and the Local Lab remains loopback-only.
-Data impact: None. v1.1.8 remains retained in the full release archive.
+Data impact: None. v1.1.8 and v2.0.10 remain retained in the full release archive.
 Testing impact: Landing build regression asserts the v2.0.15 and v2.0.4 secondary milestones and verifies that v1.1.8 and v2.0.10 are not rendered as prominent milestone buttons.
 Cost and schedule impact: None.
 Decision: APPROVED (RELEASE MILESTONE CURATION)
@@ -38,10 +38,10 @@ Approved by: Direct user request
 Target release: Current public landing page presentation
 ```
 
-## Approved change record — AI-LAB-CC-074
+## Approved change record — AI-LAB-CC-075
 
 ```text
-Change ID: AI-LAB-CC-074
+Change ID: AI-LAB-CC-075
 Requested by: User
 Date: 2026-10-18
 Description: Retain only completed ChatGPT Advisor questions and answers submitted from the Local Lab in a separate, locally clearable SQLite history on the user's PC.
@@ -54,7 +54,26 @@ Testing impact: SQLite boundary/clear, mocked loopback persistence/clear, static
 Cost and schedule impact: No additional provider call, model selection, or background request.
 Decision: APPROVED (LOCAL ADVISOR HISTORY)
 Approved by: Direct user request
-Target release: Next Local Lab release
+Target release: AI Lab v2.0.16
+```
+
+## Approved change record — AI-LAB-CC-074
+
+```text
+Change ID: AI-LAB-CC-074
+Requested by: User
+Date: 2026-10-18
+Description: Increase the equal width of the introductory landing-page action buttons and centre every visible button label.
+Reason: Prevent long existing labels from wrapping onto three lines while preserving aligned action controls.
+Affected objective IDs: AI-LAB-OBJ-002, AI-LAB-OBJ-003
+Architecture impact: Static landing-page CSS layout only. No text, URL, build, protocol, application, or deployment behavior changes.
+Security and privacy impact: None.
+Data impact: None.
+Testing impact: Landing build regression asserts the widened uniform desktop grid, centred labels, and mobile fallback.
+Cost and schedule impact: None.
+Decision: APPROVED (UI CLARITY)
+Approved by: Direct user request
+Target release: Next public landing deployment
 ```
 
 ## Approved change record — AI-LAB-CC-073
@@ -63,17 +82,17 @@ Target release: Next Local Lab release
 Change ID: AI-LAB-CC-073
 Requested by: User
 Date: 2026-10-18
-Description: Give an actively working local agent a restrained full-card visual distinction in the Training Lab, visibly label the optional Internet connections and fine-tuning control as a new feature, and preserve agent-response scroll position through live status refreshes.
-Reason: The user needs the currently working agent to be easier to notice without making the workspace visually intense, the newly added connections feature to be discoverable, and completed agent text to remain readable while another local agent is running.
-Affected objective IDs: AI-LAB-OBJ-018
-Architecture impact: Presentation-only state mapping from the existing training-stage status to existing CSS status selectors, a local connection-control badge, and scroll restoration after each reconstructed response card is attached to the DOM; no API, orchestration, model, or persistence contract changes.
-Security and privacy impact: None; the fixed-loopback, local-only workflow is unchanged.
+Description: Give every introductory landing-page action button the same desktop width and height.
+Reason: Equal button dimensions improve visual alignment across download, local-launch, and documentation actions.
+Affected objective IDs: AI-LAB-OBJ-002, AI-LAB-OBJ-003
+Architecture impact: Static landing-page CSS layout only. No text, URL, build, protocol, application, or deployment behavior changes.
+Security and privacy impact: None.
 Data impact: None.
-Testing impact: Static shell regression verifies that active status is mapped to the card and uses the restrained active-frame CSS, that the connections control retains its labelled badge, and that saved response scrolling is restored after card attachment.
+Testing impact: Landing build regression asserts the fixed desktop grid dimensions and narrow-screen fallback.
 Cost and schedule impact: None.
 Decision: APPROVED (UI CLARITY)
 Approved by: Direct user request
-Target release: Next Local Lab release
+Target release: Next public landing deployment
 ```
 
 ## Approved change record — AI-LAB-CC-071

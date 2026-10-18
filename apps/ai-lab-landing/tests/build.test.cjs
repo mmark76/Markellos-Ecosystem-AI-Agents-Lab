@@ -50,9 +50,13 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /class="hero-action-group download-actions"/);
   assert.match(html, /class="hero-action-group local-actions"/);
   assert.match(html, /class="hero-action-group documentation-actions"/);
-  assert.match(styles, /\.hero-actions\{display:grid;gap:var\(--space-3\);margin-top:var\(--space-5\)\}/);
-  assert.match(styles, /\.download-actions\{grid-template-columns:minmax\(14rem,1\.45fr\) repeat\(2,minmax\(9\.5rem,1fr\)\);width:min\(100%,38rem\)\}/);
-  assert.match(styles, /@media \(max-width: 42rem\) \{ \.download-actions, \.local-actions, \.documentation-actions \{ grid-template-columns: minmax\(0, 1fr\);/);
+  assert.match(styles, /\.hero-actions\{display:grid;width:min\(calc\(100vw - 4rem\),47\.25rem\);gap:var\(--space-3\);margin-top:var\(--space-5\)\}/);
+  assert.match(styles, /\.hero-action-group\{display:grid;grid-auto-rows:3\.75rem;gap:var\(--space-3\);align-items:stretch\}/);
+  assert.match(styles, /\.download-actions\{grid-template-columns:repeat\(3,15\.25rem\)\}/);
+  assert.match(styles, /\.local-actions,\.documentation-actions\{grid-template-columns:repeat\(2,15\.25rem\)\}/);
+  assert.match(styles, /\.hero-action-group \.primary-button,\.hero-action-group \.secondary-button\{justify-content:center;text-align:center\}/);
+  assert.match(styles, /\.hero-action-group \.release-download,\.hero-action-group #refresh-local-server\{align-items:center;justify-content:center;text-align:center\}/);
+  assert.match(styles, /@media \(max-width:48rem\) \{ \.hero-actions \{ width:min\(100%,26rem\); \} \.download-actions, \.local-actions, \.documentation-actions \{ grid-template-columns: minmax\(0, 1fr\); width: 100%; \}/);
   assert.match(styles, /#launch-local-lab,html\[data-color-mode="light"\] #launch-local-lab/);
   assert.match(styles, /background:#2563eb;color:#ffffff;border-color:#2563eb/);
   assert.match(styles, /#launch-local-lab:hover,html\[data-color-mode="light"\] #launch-local-lab:hover/);
