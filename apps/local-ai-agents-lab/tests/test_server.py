@@ -407,6 +407,13 @@ class HttpIntegrationTests(unittest.TestCase):
                     "room": "training", "provider": "ollama", "models": assignments, "language": "en"})
                 self.assertEqual(response_code, 202)
                 self.assertEqual(started["autoExercise"]["id"], "train-evidence-01")
+                for excluded in ("conference", "evaluation", "advisory", "optimization"):
+                    with self.subTest(room=excluded), self.assertRaises(HTTPError) as rejected:
+                        request("/api/auto-run", {
+                            "room": excluded, "provider": "ollama",
+                            "models": {role: "test-local:1" for role in campus.FLOW[excluded]},
+                            "language": "en"})
+                    self.assertEqual(rejected.exception.code, 400)
                 for _ in range(80):
                     with opener.open(origin + "/api/training-sessions/" + str(started["session_id"])) as response:
                         session = json.load(response)
