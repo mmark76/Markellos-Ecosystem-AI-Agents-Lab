@@ -31,6 +31,14 @@ It asks for a separate, explicit approval before it can:
 
 No package, service, or model download begins before its own approval dialog. Easy Start reuses compatible Python, Ollama, and local models already on the computer, and does not reinstall them. The first setup requires an Internet connection, Windows Package Manager, and at least 3 GiB of free disk space. Windows may show its own confirmation prompts for package installation.
 
+## Bundled educational reference library
+
+The next Windows ZIP includes two documentation-only Markdown files in the
+`docs/learning/` folder: `EDUCATIONAL_RESOURCE_LIBRARY.md` and
+`STARTER_EXERCISES.md`. You can read them without downloading any external
+datasets. These references are not connected to runtime Agent selection,
+fine-tuning, benchmarking or executable dependencies.
+
 ## Agent system prompts
 
 All fifteen Lab-scoped system prompts are independently maintained as UTF-8 text

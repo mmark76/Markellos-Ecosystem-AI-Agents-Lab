@@ -10,7 +10,7 @@ This is an educational index of third-party **prompt libraries**, **training dat
 - Source links point to the original publishers. No external prompt or dataset is copied into this repository.
 - Nothing is installed, downloaded, executed, synchronized, or loaded by the Local Lab as a result of these documents.
 - The existing fifteen UTF-8 agent system prompts under [the local application's `prompts/` folder](../../apps/local-ai-agents-lab/prompts/) remain authoritative and unchanged.
-- The five Lab workflows, fixed-loopback Ollama inference, local SQLite history, current service boundaries, and ZIP release packaging remain unchanged.
+- The five Lab workflows, fixed-loopback Ollama inference, local SQLite history, and current service boundaries remain unchanged. The two Markdown guides are bundled as inert reference documents in the next Windows ZIP; they are never loaded or executed by any Agent.
 - Always inspect dataset cards, provenance, current usage rights, individual examples, privacy implications, and licensing **before** local reuse or redistribution.
 - Do not submit secrets, personal data, copyrighted material without permission, or operationally sensitive records to unreviewed third-party services.
 - In-session exercises and feedback **do not update model weights**. Real fine-tuning is a separate process, not enabled by adding a resource link.
