@@ -90,6 +90,10 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(styles, /\.release-history details/);
   assert.doesNotMatch(styles, /margin-right: clamp\(8rem, 15vw, 16rem\)|margin-right: calc\(\(100% \+ var\(--space-5\)\) \/ 3\)/);
   assert.match(styles, /\.card-grid \{ width: min\(100%, 54rem\); display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); gap: var\(--space-4\); margin-inline: auto; \}/);
+  assert.ok(styles.includes('.card-grid .dashboard-card, .content-card-grid .dashboard-card { text-align: justify; }'));
+  assert.ok(styles.includes('.card-grid .dashboard-card h2, .content-card-grid .dashboard-card h2, .card-grid .card-label { text-align: left; }'));
+  assert.match(html, /<section id="overview" class="card-grid"/);
+  assert.match(html, /<div class="content-card-grid">/);
   assert.match(styles, /\.simple-section \{ max-width: none; margin-top: var\(--space-3\); \}/);
   assert.match(styles, /\.simple-section > \.eyebrow, \.simple-section > h2 \{ text-align: center; \}/);
   assert.match(styles, /\.release-history summary \{ display: flex; align-items: baseline; justify-content: center;/);
