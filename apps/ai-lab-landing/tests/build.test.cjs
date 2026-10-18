@@ -170,7 +170,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /Agent Collaboration \/ Conference Room/);
   assert.match(html, /Start in three simple steps/);
   assert.match(html, /<section class="hero"[^>]*>\s*<article class="dashboard-card content-card hero-card">/);
-  assert.match(html, /<details class="dashboard-card content-card archive-card">/);
+  assert.match(html, /<details class="dashboard-card content-card archive-card" id="release-archive">/);
   assert.match(html, /<header class="dashboard-card content-card section-intro-card"><p class="eyebrow">EASY START COMPONENTS/);
   assert.match(html, /<section id="start" class="simple-section steps"[^>]*>\s*<article class="dashboard-card content-card">/);
   assert.match(html, /<section id="privacy" class="simple-section"[^>]*>\s*<article class="dashboard-card content-card">/);
