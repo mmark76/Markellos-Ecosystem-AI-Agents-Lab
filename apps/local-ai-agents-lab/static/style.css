@@ -139,3 +139,12 @@ button,textarea,select{font-family:inherit}
 .exercise-feature-heading strong{font-size:12px;font-weight:650;color:var(--fg)}
 .exercise-feature-heading .nav-status{margin-left:0;text-transform:none;white-space:normal;border-color:#f2c230;border-radius:999px;background:#f2c230;color:#1d2c38;font-weight:800;padding:3px 7px}
 .exercise-feature p{font-size:11px;line-height:1.55;margin:7px 0 0;color:var(--muted)}
+
+/* The viewport-wide fixed footer is independent of the resizable three-panel workspace. */
+:root{--app-footer-height:30px}
+.shell{height:calc(100dvh - var(--app-footer-height));min-height:0}
+.app-fixed-footer{position:fixed;left:0;right:0;bottom:0;z-index:40;min-height:var(--app-footer-height);display:flex;align-items:center;justify-content:center;gap:12px;padding:4px 12px;border-top:1px solid var(--border);background:var(--sidebar);color:var(--muted);font-size:10px;line-height:1.2;text-align:center}
+.app-footer-version{display:inline-flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap}
+.app-footer-beta{display:inline-block;padding:1px 5px;border:1px solid var(--border);border-radius:3px;background:var(--field);color:var(--fg);font-size:9px;font-weight:800;letter-spacing:.08em;line-height:1.2}
+@media(max-width:900px){.workspace-main.main{height:calc(100dvh - var(--app-footer-height))}.sidebar,.inspector{height:calc(100dvh - var(--app-footer-height));bottom:var(--app-footer-height)}}
+@media(max-width:600px){:root{--app-footer-height:42px}.app-fixed-footer{flex-wrap:wrap;gap:2px 8px;padding:3px 8px;font-size:9px}.app-fixed-footer .app-footer-copyright{flex-basis:100%}}
