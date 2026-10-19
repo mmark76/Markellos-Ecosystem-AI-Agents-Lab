@@ -1,6 +1,10 @@
 {
   "releases": [
     {
+      "version": "2.0.21",
+      "sha256": "9a0c6abbd7f0f4f15c1872d754e876fc25f4500b37961b92dcec00ffeb69b89b"
+    },
+    {
       "version": "2.0.19",
       "sha256": "f8e31d3f93aef88121482a9b4e161f55fa7b975eea28a7248b66c5d8b4f122d5"
     },
