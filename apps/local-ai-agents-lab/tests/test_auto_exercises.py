@@ -38,6 +38,15 @@ class AutoExerciseCatalogTests(unittest.TestCase):
             with self.subTest(room=room), self.assertRaises(ValueError):
                 select_exercise(room, 0)
 
+    def test_platform_badge_and_unavailable_status_colors(self):
+        html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+        css = (ROOT / "static" / "style.css").read_text(encoding="utf-8")
+        self.assertIn('<span class="platform-badge">EXPERIMENTAL PLATFORM</span>', html)
+        self.assertNotIn('<span class="beta-badge">BETA</span>', html)
+        self.assertIn('<span class="nav-status">Unavailable - Under Construction</span>', html)
+        self.assertIn('.exercise-feature-heading .nav-status{', css)
+        self.assertIn('border-color:#f2c230;border-radius:999px;background:#f2c230;color:#1d2c38;font-weight:800', css)
+
     def test_status_is_visible_but_auto_start_is_disabled(self):
         html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
         app = (ROOT / "static" / "app.js").read_text(encoding="utf-8")
