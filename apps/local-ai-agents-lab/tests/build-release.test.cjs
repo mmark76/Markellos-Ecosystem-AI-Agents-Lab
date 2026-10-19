@@ -236,7 +236,9 @@ test('beginner fine-tuning guide and personal provider planner are bundled while
   assert.doesNotMatch(html,/openai-review-content/);
   assert.doesNotMatch(html,/openai-review-model/);
   assert.match(html,/id="open-openai-platform"[^>]*href="https:\/\/platform\.openai\.com\/"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/);
-  assert.doesNotMatch(html,/Under Construction/);
+  assert.match(html,/id="auto-exercise-feature"[\s\S]*?Unavailable - Under Construction/);
+  assert.equal((html.match(/Under Construction/g)||[]).length,1);
+  assert.doesNotMatch(page,/Under Construction/);
   assert.match(page,/Fine-Tuning versus the Learning Lab/);
 });
 
