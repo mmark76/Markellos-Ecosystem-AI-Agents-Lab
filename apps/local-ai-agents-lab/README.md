@@ -46,20 +46,22 @@ files under `prompts/`. The local server loads them on startup; restart the Lab
 to apply an edited prompt. The packaged Windows release includes every active
 role prompt.
 
-## Automatic offline exercises (optional text input)
+## Automatic Exercise Engine — future feature
 
-Only the **Training Lab** can select an original, text-only exercise when its topic is blank and the user presses **Start**. It rotates between two locally packaged, reviewed training tasks. The chosen exercise and its methodology-reference URL appear in local conversation history. A custom Training topic follows the unchanged manual workflow. In **Conference Room, Evaluation Lab, Advisory Lab and Optimization Lab**, the topic remains required and those four Labs cannot use automatic exercise selection.
+The Training Lab displays **Unavailable - Under Construction** for its planned
+automatic exercise selection feature. The runtime catalog in `exercise_library.py`
+is deliberately **empty**: no active exercises, datasets or automated starts
+are shipped. Training Topic is **required**; pressing Start uses only the
+existing manual `POST /api/run` workflow (Tutor → Student → Evaluator → Improver).
+The reserved `POST /api/auto-run` endpoint returns HTTP 503 for Training Lab
+without creating a session; the other four Labs reject automatic requests.
 
-Selection occurs inside the local server, after normal model and session
-validation; the existing fifteen role system prompts and flows are not
-modified. This is automatic **task selection**, not autonomous web browsing,
-GitHub/Hugging Face fetching, remote code execution, scoring calibration,
-new model training, scheduled background work, or real-time benchmark execution.
-Only an explicitly started Training Lab session uses this feature; nothing launches automatically
-when the application opens. The trusted exercise bank lives in
-`exercise_library.py`. It contains independently authored examples and
-methodology citations rather than copied third-party dataset records.
-See [Automatic exercise selection](../../docs/learning/AUTO_SELECTION.md).
+The room-keyed selector, exercise formatting and additive nullable SQLite
+`exercise_id` provenance field remain as inactive, reusable infrastructure.
+There is no automatic selection, dataset import, model training, background
+work or modification to the five Labs and fifteen system prompts. Existing
+SQLite history remains readable.
+See [Future Exercise Engine](../../docs/learning/AUTO_SELECTION.md).
 
 ## Inference engine
 

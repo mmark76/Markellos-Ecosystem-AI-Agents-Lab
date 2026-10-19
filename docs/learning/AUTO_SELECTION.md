@@ -1,41 +1,55 @@
-# Automatic Exercise Selection — Controlled Local Implementation
+# Automatic Exercise Engine — Future Feature (Under Construction)
 
-**Decision (2026-10-18):** Remove the user's need to find, choose, copy or paste practice exercises, while retaining the existing 5 Labs, 15 agent identities and their role-specific system prompts. This implementation is **automatic task selection when a Training Lab session starts**, not a scheduled or autonomous inference service.
+**Decision (2026-10-19):** Keep only the foundational, extensible automatic exercise
+selection mechanism and **remove all active exercises** from the Training Lab runtime
+library. The visible status in the Training Lab is **Unavailable - Under Construction**.
+This is not an active automatic training feature.
 
-## Actual behavior
+## Current behavior
 
-1. User selects **Training Lab** and installed local Ollama models using the existing controls (or their saved browser selections).
-2. Only the Training Lab topic field is optional. With a custom topic, the existing `POST /api/run` workflow is unchanged. The other four Labs require a user-supplied topic.
-3. When the topic is empty and **Start** is pressed, the UI sends `POST /api/auto-run` with the existing room, provider and model assignments, but no prompt.
-4. The server validates the same fixed local provider, model assignments, request origin and single-session lock.
-5. It chooses a task using deterministic Training-only rotation, counting only prior Training user messages with a server-assigned, non-null SQLite `exercise_id`. Manual topic text, even if it starts with `[AUTO EXERCISE:`, cannot advance the rotation.
-6. The selected original text-only exercise is persisted as the user's task in local SQLite history, with an explicit `exercise_id` field and its methodology reference URL in the recorded task. The existing Tutor → Student → Evaluator → Improver prompts and stage storage are unchanged.
-7. Every subsequent automatically started Training Lab session chooses the next local example. There are **two starter exercises, both for Training Lab**.
+1. Training Lab shows the status **Unavailable - Under Construction** and
+   **Exercise Library: 0 exercises available**. The status is informational;
+   there is no automatic Start control.
+2. Training Topic is required. Submitting a topic or question uses the
+   existing `POST /api/run` flow with local Ollama and the unchanged
+   **Tutor → Student → Evaluator → Improver** roles.
+3. `POST /api/auto-run` remains a reserved, disabled interface: Training Lab
+   requests receive HTTP 503 and a clear status message **before** any session
+   or inference starts. Requests for the other four Labs remain rejected with
+   HTTP 400. No empty-topic session starts.
+4. `exercise_library.py` retains its room-keyed `EXERCISES` registry,
+   `select_exercise(room, count)` and `format_exercise(exercise)`, but
+   the shipped catalog is empty. Selection without an exercise raises a
+   clear `ValueError`; no runtime worker calls the selector.
+5. The SQLite `messages.exercise_id` nullable provenance field and related
+   server helpers are retained for future adoption; previously saved history,
+   including any prior experimental automatic records, is not deleted.
+   Ordinary manual messages have a NULL exercise ID.
 
-The existing Training Lab remains Tutor → Student → Evaluator → Improver. Evaluation Lab, Advisory Lab, Conference Room and Optimization Lab retain their own workflows **without automatic exercise selection**. The `select_exercise(room, count)` catalog interface is already room-keyed and reusable later, but no routes, exercise banks, or automatic execution are enabled in the other Labs by this change. The user may cancel Training using its existing cancellation control.
+## Scope and boundaries
 
-## Sources versus actual runtime assets
+- Exactly five Labs and fifteen existing independent role prompts remain.
+- Only Training Lab shows the future-feature status. Conference Room,
+  Evaluation Lab, Advisory Lab and Optimization Lab keep manual workflows.
+- No embedded exercise contents or runtime fetching from GitHub/Hugging Face;
+  educational reference documents from PR #171 remain documentation only.
+- No new fine-tuning, autonomous recurrence, model-weight modifications,
+  cloud inference or external resource execution.
+- The generic room-keyed selection interface can be activated for a Lab
+  only in a later separately approved change. This PR activates **no Lab**.
+- The future Windows release packaging list includes `exercise_library.py`
+  as inactive source code. The existing distributed ZIP and Cloudflare Pages
+  production deployment are unchanged by this PR.
 
-`apps/local-ai-agents-lab/exercise_library.py` is a **trusted, bundled, independently authored** exercise bank. Original references from Dolly 15k and UltraChat 200k are **methodology citations, not live dataset downloads or embedded upstream examples**. No source code or data is imported from these external projects.
+## Verification and next activation
 
-This is deliberately the first phase of automation: the user does not curate tasks, while source ingestion stays offline-reviewed and reproducible. Future direct ingestion of actual open-source samples requires a separate source- and license-aware import design, test/holdout isolation, data-size caps, provenance records, and explicit security review. Live pulling from external services is not present.
+Regression tests use temporary synthetic fixtures to verify the inactive
+selector's behavior without shipping exercises. API tests verify Training
+`/api/auto-run` returns 503, other Labs reject auto-run, blank manual topics
+are invalid and a real manual Training session can still complete with mocked
+local models. CI verification does not constitute a real Ollama test.
 
-The new automatic endpoint rejects requests targeting any other Lab, even if called directly. Conference Room, Evaluation Lab, Advisory Lab and Optimization Lab continue to use the original manual `POST /api/run` route.
-
-## Unchanged guarantees
-
-- Exactly five Labs with fifteen independently editable role prompts.
-- Existing `POST /api/run` validation for supplied topics and existing role sequences.
-- Fixed-loopback Ollama only for agent inference; no cloud inference fallback.
-- No automatic third-party downloads, API keys, dependency installs, external code, or network access for the agents.
-- No new training worker, fine-tuning, model-weight changes, or new timer/background recurrence.
-- No change to the currently published Windows ZIP or Cloudflare Pages landing; the release packaging manifest **will include** the new module when a future ZIP is intentionally built.
-- Existing session history and evaluations stay intact; the additive nullable SQLite `messages.exercise_id` column is the authoritative automatic-selection marker. The `[AUTO EXERCISE: ...]` prefix is display text only. Legacy rows remain unmarked and readable.
-
-## Testing and rollout
-
-New regression tests cover the bank shape, constraints, deterministic rotation, legacy database migration, manual topics (including spoofed `[AUTO EXERCISE:` prefixes), two sequential automatic runs, the automatic HTTP route, unchanged manual route, and UI/packager inclusion.
-
-Before an updated Windows ZIP is released: on a local Windows PC with Ollama running, open Training Lab, select installed models for all four roles, leave the topic empty, press Start, and verify completed stages, saved `exercise_id`, response history, and the next rotated exercise. Then verify a custom Training topic still uses the manual route and each of the other four Labs still requires a topic. CI uses mocked Ollama and does not replace this manual check.
-
-Review and merge this feature independently of the documentation-only educational-catalog PR.
+To activate later: approve suitable content, source/provenance handling,
+runtime route/UI behavior, test coverage and a controlled Windows Ollama
+smoke test in a **separate** change. Keep this PR open until reviewed and
+explicitly approved for merge.

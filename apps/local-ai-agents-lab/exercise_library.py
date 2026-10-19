@@ -1,7 +1,6 @@
-"""Trusted, original, offline learning tasks; no remote fetching or third-party execution.
+"""Inactive, room-keyed exercise selection scaffold; the runtime catalog is empty.
 
-These are user-task examples, not system prompts, training weights or external datasets.
-The source links are methodological references; none of their content is imported.
+Exercises, datasets and external resources are not bundled or imported.
 """
 from __future__ import annotations
 
@@ -16,48 +15,16 @@ class Exercise(TypedDict):
     task: str
 
 
-EXERCISES: dict[str, tuple[Exercise, ...]] = {
-    "training": (
-        {
-            "id": "train-evidence-01",
-            "title": "Evidence versus assumptions",
-            "source_type": "instruction dataset methodology",
-            "reference": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
-            "task": (
-                "Topic: evidence, assumptions and unknowns. Tutor: teach the distinction with one brief "
-                "example; then set one text-only classification exercise using these *hypothetical* statements: "
-                "(A) a project brief claims Ollama is local; (B) laptop RAM is 32 GB but no measurement is "
-                "provided; (C) a test record claims a 12-second run; (D) one fast run proves all future runs "
-                "will be fast. Student: attempt the exercise. Evaluator: check against explicit criteria "
-                "and uncertainty. Improver: correct errors and suggest one follow-up. Do not independently "
-                "validate the scenario claims."
-            ),
-        },
-        {
-            "id": "train-dialogue-02",
-            "title": "Follow-up question accuracy",
-            "source_type": "dialogue dataset methodology",
-            "reference": "https://huggingface.co/datasets/HuggingFaceH4/ultrachat_200k",
-            "task": (
-                "Topic: consistent multi-turn reasoning. Tutor: teach how follow-up questions retain "
-                "previous constraints, and set one small text-only dialogue exercise with a changed "
-                "requirement. Student: answer while identifying retained and changed constraints. "
-                "Evaluator: use clear observable criteria and cite the supplied dialogue. "
-                "Improver: address weaknesses without assuming missing details."
-            ),
-        },
-    ),
-
-}
-
+# Future per-Lab catalog. No exercise content is shipped or activated yet.
+EXERCISES: dict[str, tuple[Exercise, ...]] = {}
 
 def select_exercise(room: str, completed_auto_selections: int) -> Exercise:
     """Deterministically rotate the room's vetted tasks; selection needs no user input."""
+    if type(completed_auto_selections) is not int or completed_auto_selections < 0:
+        raise ValueError("Invalid exercise selection count.")
     options = EXERCISES.get(room)
     if not options:
         raise ValueError("No curated exercises for the selected Lab.")
-    if type(completed_auto_selections) is not int or completed_auto_selections < 0:
-        raise ValueError("Invalid exercise selection count.")
     return options[completed_auto_selections % len(options)]
 
 

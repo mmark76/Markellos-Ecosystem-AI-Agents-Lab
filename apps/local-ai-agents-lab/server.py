@@ -733,6 +733,10 @@ class Handler(BaseHTTPRequestHandler):
         except (ValueError, TypeError, json.JSONDecodeError) as err:
             self._json({"error": str(err)}, 400)
             return
+        if auto_mode:
+            # Reserved endpoint: no exercises are available and no session may start.
+            self._json({"error": "Unavailable - Under Construction"}, 503)
+            return
         if not RUN_LOCK.acquire(blocking=False):
             self._json({"error": "Another session is already running."}, 409)
             return
@@ -744,22 +748,15 @@ class Handler(BaseHTTPRequestHandler):
             if missing:
                 self._json({"error": "Unavailable local " + ", ".join(missing) + ". Refresh the model list and choose an available model."}, 400)
                 return
-            auto_exercise = None
-            if auto_mode:
-                auto_exercise, prompt = auto_exercise_for_room(room)
             if room == "training":
                 session_id = create_training_session(provider, assignments)
                 cancel = Event()
                 with SESSION_CANCELS_LOCK:
                     SESSION_CANCELS[session_id] = cancel
-                Thread(target=run_training_session, args=(session_id, prompt, assignments, cancel,
-                                                          auto_exercise["id"] if auto_exercise else None),
+                Thread(target=run_training_session, args=(session_id, prompt, assignments, cancel),
                        name=f"training-session-{session_id}", daemon=True).start()
                 session_owns_lock = True
-                result = {"room": room, "session_id": session_id, "status": "running"}
-                if auto_exercise:
-                    result["autoExercise"] = {"id": auto_exercise["id"], "title": auto_exercise["title"]}
-                self._json(result, 202)
+                self._json({"room": room, "session_id": session_id, "status": "running"}, 202)
                 return
             add_message(room, "You", prompt)
             transcript = history(room, 14)
@@ -770,10 +767,7 @@ class Handler(BaseHTTPRequestHandler):
                 item = {"agent": agent, "content": answer, "created_at": utc_now(), "model": assignments[agent]}
                 completed.append(item)
                 transcript.append(item)
-            result = {"messages": completed, "room": room, "session_id": None}
-            if auto_exercise:
-                result["autoExercise"] = {"id": auto_exercise["id"], "title": auto_exercise["title"]}
-            self._json(result)
+            self._json({"messages": completed, "room": room, "session_id": None})
         except (TimeoutError, HTTPError, URLError, OSError, ValueError, KeyError, ProviderError) as err:
             self._json({"error": f"The session stopped. Answers already produced were saved. {err}"}, 502)
         finally:

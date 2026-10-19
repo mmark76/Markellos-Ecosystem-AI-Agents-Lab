@@ -382,7 +382,7 @@ class HttpIntegrationTests(unittest.TestCase):
                 server.shutdown(); server.server_close(); thread.join(timeout=4); campus.DB_PATH, campus.PORT = original_db, original_port
 
 
-    def test_http_auto_run_selects_local_exercise_without_manual_topic(self):
+    def test_auto_run_is_unavailable_and_manual_training_still_works(self):
         from http.server import ThreadingHTTPServer
         from urllib.request import Request, build_opener, ProxyHandler
         original_port, original_db = campus.PORT, campus.DB_PATH
@@ -407,10 +407,12 @@ class HttpIntegrationTests(unittest.TestCase):
             with patch.object(campus, "local_models", return_value=["test-local:1"]), \
                  patch.object(campus, "provider_chat", side_effect=lambda provider, model, room, role, transcript, language: role), \
                  patch.object(campus.PROVIDERS, "unload"):
-                response_code, started = request("/api/auto-run", {
-                    "room": "training", "provider": "ollama", "models": assignments, "language": "en"})
-                self.assertEqual(response_code, 202)
-                self.assertEqual(started["autoExercise"]["id"], "train-evidence-01")
+                with self.assertRaises(HTTPError) as disabled:
+                    request("/api/auto-run", {
+                        "room": "training", "provider": "ollama", "models": assignments, "language": "en"})
+                self.assertEqual(disabled.exception.code, 503)
+                self.assertIn("Unavailable - Under Construction",
+                              json.loads(disabled.exception.read())["error"])
                 for excluded in ("conference", "evaluation", "advisory", "optimization"):
                     with self.subTest(room=excluded), self.assertRaises(HTTPError) as rejected:
                         request("/api/auto-run", {
@@ -418,6 +420,23 @@ class HttpIntegrationTests(unittest.TestCase):
                             "models": {role: "test-local:1" for role in campus.FLOW[excluded]},
                             "language": "en"})
                     self.assertEqual(rejected.exception.code, 400)
+                with self.assertRaises(HTTPError) as invalid:
+                    request("/api/auto-run", {"room": "training", "provider": "ollama",
+                                               "models": assignments, "prompt": "Override"})
+                self.assertEqual(invalid.exception.code, 400)
+                self.assertEqual(campus.history("training"), [])
+                with campus.closing(campus.connect()) as db:
+                    self.assertEqual(db.execute("SELECT COUNT(*) FROM training_sessions").fetchone()[0], 0)
+
+                with self.assertRaises(HTTPError) as blank:
+                    request("/api/run", {"room": "training", "provider": "ollama",
+                                         "models": assignments, "prompt": "   ", "language": "en"})
+                self.assertEqual(blank.exception.code, 400)
+
+                status, started = request("/api/run", {
+                    "room": "training", "provider": "ollama", "models": assignments,
+                    "prompt": "[AUTO EXERCISE: fixture] Manual user topic", "language": "en"})
+                self.assertEqual(status, 202)
                 for _ in range(80):
                     with opener.open(origin + "/api/training-sessions/" + str(started["session_id"])) as response:
                         session = json.load(response)
@@ -430,46 +449,17 @@ class HttpIntegrationTests(unittest.TestCase):
                         break
                     time.sleep(.05)
                 self.assertFalse(campus.RUN_LOCK.locked())
-                saved = campus.history("training")
-                self.assertTrue(saved[0]["content"].startswith("[AUTO EXERCISE: train-evidence-01]"))
-                self.assertEqual(saved[0]["exercise_id"], "train-evidence-01")
                 self.assertEqual([stage["agent_role"] for stage in session["stages"]],
                                  list(campus.FLOW["training"]))
-                self.assertEqual(campus.auto_exercise_for_room("training")[0]["id"], "train-dialogue-02")
-                campus.add_message("training", "You", "Manual user topic")
-                campus.add_message("training", "You", "[AUTO EXERCISE: train-dialogue-02] User-written topic")
-                self.assertIsNone(campus.history("training")[-1]["exercise_id"])
-                campus.initialize()  # A restart must preserve the rotation and manual-topic boundary.
-                self.assertEqual(campus.auto_exercise_for_room("training")[0]["id"], "train-dialogue-02")
-                response_code, next_started = request("/api/auto-run", {
-                    "room": "training", "provider": "ollama", "models": assignments, "language": "en"})
-                self.assertEqual(response_code, 202)
-                self.assertEqual(next_started["autoExercise"]["id"], "train-dialogue-02")
-                for _ in range(80):
-                    with opener.open(origin + "/api/training-sessions/" + str(next_started["session_id"])) as response:
-                        next_session = json.load(response)
-                    if next_session["status"] != "running":
-                        break
-                    time.sleep(.05)
-                self.assertEqual(next_session["status"], "completed")
-                for _ in range(40):
-                    if not campus.RUN_LOCK.locked():
-                        break
-                    time.sleep(.05)
-                self.assertFalse(campus.RUN_LOCK.locked())
-                self.assertEqual(campus.history("training")[-5]["exercise_id"], "train-dialogue-02")
-                self.assertEqual(campus.auto_exercise_for_room("training")[0]["id"], "train-evidence-01")
-                with self.assertRaises(HTTPError) as invalid:
-                    request("/api/auto-run", {"room": "training", "provider": "ollama",
-                           "models": assignments, "prompt": "Disallowed override"})
-                self.assertEqual(invalid.exception.code, 400)
+                self.assertIsNone(campus.history("training")[0]["exercise_id"])
+                with self.assertRaisesRegex(ValueError, "No curated exercises"):
+                    campus.auto_exercise_for_room("training")
         finally:
             server.shutdown()
             server.server_close()
             thread.join(timeout=4)
-            campus.DB_PATH, campus.PORT = original_db, original_port
+            campus.DB_PATH, campus.PORT = original_port, original_db
             temp.cleanup()
-
 
 if __name__ == "__main__":
     unittest.main()

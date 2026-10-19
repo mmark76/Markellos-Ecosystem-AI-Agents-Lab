@@ -1,7 +1,8 @@
-"""Offline automatic learning-catalog contracts; no Ollama or server import."""
+"""Inactive exercise engine contracts: no live content or agent inference."""
 import sys
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -9,45 +10,49 @@ from exercise_library import EXERCISES, select_exercise, format_exercise
 
 
 class AutoExerciseCatalogTests(unittest.TestCase):
-    def test_catalog_has_training_exercises_only(self):
-        self.assertEqual(set(EXERCISES), {"training"})
-        all_ids = set()
-        for room, options in EXERCISES.items():
-            self.assertGreaterEqual(len(options), 2, room)
-            for item in options:
-                self.assertNotIn(item["id"], all_ids)
-                all_ids.add(item["id"])
-                self.assertTrue(item["reference"].startswith("https://"))
-                prompt = format_exercise(item)
-                self.assertTrue(prompt.startswith("[AUTO EXERCISE:"))
-                self.assertIn("not downloaded", prompt)
-                self.assertLessEqual(len(prompt), 1500)
+    def test_shipped_catalog_is_empty(self):
+        self.assertEqual(EXERCISES, {})
+        with self.assertRaisesRegex(ValueError, "No curated exercises"):
+            select_exercise("training", 0)
 
-    def test_selector_rotates_training_exercises(self):
-        for room, options in EXERCISES.items():
-            self.assertEqual(select_exercise(room, 0), options[0])
-            self.assertEqual(select_exercise(room, 1), options[1])
-            self.assertEqual(select_exercise(room, len(options)), options[0])
+    def test_selector_can_rotate_synthetic_fixtures_when_activated_in_future(self):
+        fixtures = (
+            {"id": "fixture-one", "title": "Synthetic A", "reference": "https://example.org/a",
+             "source_type": "test only", "task": "Synthetic text only."},
+            {"id": "fixture-two", "title": "Synthetic B", "reference": "https://example.org/b",
+             "source_type": "test only", "task": "Synthetic text only."},
+        )
+        with patch.dict(EXERCISES, {"training": fixtures}):
+            self.assertEqual(select_exercise("training", 0), fixtures[0])
+            self.assertEqual(select_exercise("training", 1), fixtures[1])
+            self.assertEqual(select_exercise("training", 2), fixtures[0])
+            text = format_exercise(fixtures[0])
+            self.assertIn("[AUTO EXERCISE: fixture-one]", text)
+            self.assertIn("not downloaded", text)
 
-    def test_selector_rejects_invalid_arguments(self):
-        for count in (-1, "1", True):
-            with self.subTest(count=count), self.assertRaises(ValueError):
-                select_exercise("training", count)
+    def test_selector_rejects_invalid_arguments_and_rooms(self):
+        for value in (-1, "1", True):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                select_exercise("training", value)
         for room in ("conference", "evaluation", "advisory", "optimization", "unknown"):
             with self.subTest(room=room), self.assertRaises(ValueError):
                 select_exercise(room, 0)
 
-    def test_static_ui_and_future_packaging_have_automatic_mode(self):
+    def test_status_is_visible_but_auto_start_is_disabled(self):
         html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
         app = (ROOT / "static" / "app.js").read_text(encoding="utf-8")
         server = (ROOT / "server.py").read_text(encoding="utf-8")
         packager = (ROOT / "scripts" / "build-release.cjs").read_text(encoding="utf-8")
-        self.assertNotIn('id="prompt" rows="3" maxlength="2500" required', html)
-        self.assertIn("/api/auto-run", app)
-        self.assertIn("const automatic=room==='training'&&!prompt", app)
-        self.assertIn("auto_mode and room != \"training\"", server)
-        self.assertIn("required=room!==", app)
-        self.assertIn("auto_exercise_for_room", server)
+        css = (ROOT / "static" / "style.css").read_text(encoding="utf-8")
+        self.assertIn('id="auto-exercise-feature"', html)
+        self.assertIn("Unavailable - Under Construction", html)
+        self.assertIn('id="prompt" rows="3" maxlength="2500" required', html)
+        self.assertIn("$('auto-exercise-feature').hidden=room!=='training'", app)
+        self.assertIn("$('prompt').required=true", app)
+        self.assertIn("fetch('/api/run'", app)
+        self.assertNotIn("fetch('/api/auto-run'", app)
+        self.assertIn('self._json({"error": "Unavailable - Under Construction"}, 503)', server)
+        self.assertIn("exercise-feature[hidden]", css)
         self.assertIn("'exercise_library.py'", packager)
 
 
