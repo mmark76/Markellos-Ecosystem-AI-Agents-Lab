@@ -1,6 +1,6 @@
 # AI Agents Lab public landing page
 
-This is a static Cloudflare Pages landing page for `ai-lab.markellosecosystem.com`. It describes how to run the local-only AI Agents Lab; it does not host the application, an LLM, chat input, accounts, or Local Lab data. It optionally loads GA4 only after a visitor explicitly accepts analytics.
+This is a static Cloudflare Pages landing page for `ai-lab.markellosecosystem.com`. It describes how to run the local-only AI Agents Lab; it does not host the application, an LLM, chat input, accounts, or Local Lab data. It uses the central cookie-less aggregate analytics collector only on the production hostname.
 
 Its dashboard shell follows the Ecosystem Framework visual structure: project identity, a BETA label on the GitHub download button (not the logo), a compact ChatGPT Advisor eligibility note instead of redundant single-page anchor navigation, ecosystem return path, responsive content cards, and a two-line footer with the generated build identity. It stores only validated local appearance preferences.
 
@@ -14,7 +14,7 @@ The site states that Ollama is the only supported inference provider, the Confer
 
 ## Analytics and consent
 
-The landing page uses GA4 property `G-ZEPZK1T1YQ` for page views, hash navigation, traffic-source and geographic reporting supplied by GA4, and the non-sensitive `zip_download` event. It does not load Google's tag or make a Google request before consent. Accepting analytics dynamically loads the tag once; Reject and withdrawal disable future analytics events. The implementation uses Consent Mode v2 signals, stores only the visitor's choice in local storage, and never sends Local Lab conversations, prompts, model data, or sensitive personal information.
+The landing page does not use analytics cookies, consent persistence, events, identifiers, page paths, referrers, device data, or download tracking. The central collector retains only aggregate visit counts by UTC hour, domain, and transient country, solely so the administrator can understand overall traffic. It never receives Local Lab conversations, prompts, model data, names, email addresses, or other sensitive personal information.
 
 ## Detailed application description
 
