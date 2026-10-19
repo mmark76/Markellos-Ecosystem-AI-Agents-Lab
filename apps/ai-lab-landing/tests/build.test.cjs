@@ -126,6 +126,8 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(description, /<p class="guide-navigation"><a class="inline-link" href="\.\/simple-guide\.html">/);
   assert.match(styles, /\.release-history summary \{ display: flex; align-items: baseline; justify-content: center;/);
   assert.match(styles, /\.release-history li \{ min-width: 0; display: flex; align-items: baseline; justify-content: center;/);
+  assert.ok(html.includes('Ollama supports AI Training Lab which is currently available for Windows only and connects to local Ollama at <code>127.0.0.1:11434</code>.'));
+  assert.doesNotMatch(html, /A local runtime for Windows, macOS, and Linux/);
   assert.match(styles, /\.engine-card \.primary-button \{ width: fit-content; margin: auto auto 0; \}/);
   assert.match(styles, /\.steps ol \{ display: grid; gap: var\(--space-4\); padding-left: 0; list-style-position: inside; \}/);
   assert.match(styles, /#overview \.dashboard-card \{ min-height: 15rem; \}/);
