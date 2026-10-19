@@ -13,6 +13,17 @@ class EcosystemShellTests(unittest.TestCase):
         self.css = (STATIC / "style.css").read_text(encoding="utf-8")
         self.settings = (STATIC / "settings.js").read_text(encoding="utf-8")
 
+    def test_centered_viewport_footer_and_beta_version(self):
+        self.assertIn('<span class="platform-badge">EXPERIMENTAL PLATFORM</span>', self.html)
+        self.assertEqual(self.html.count('class="app-fixed-footer"'), 1)
+        self.assertIn('<span class="app-footer-version"><span class="build-id">ZIP version: ZIP_VERSION</span><span class="app-footer-beta">BETA</span></span>', self.html)
+        self.assertEqual(self.html.count("ZIP version: ZIP_VERSION"), 2)
+        self.assertLess(self.html.index('</div>\n<footer class="app-fixed-footer"'), self.html.index('<dialog id="connections-hub-dialog"'))
+        self.assertIn('.app-fixed-footer{position:fixed;left:0;right:0;bottom:0;', self.css)
+        self.assertIn('align-items:center;justify-content:center;', self.css)
+        self.assertIn('.shell{height:calc(100dvh - var(--app-footer-height));min-height:0}', self.css)
+        self.assertIn('@media(max-width:600px){:root{--app-footer-height:42px}', self.css)
+
     def test_five_active_lab_navigation_has_no_unavailable_room(self):
         navigation = self.html.split('<div class="room-navigation"', 1)[1].split('</div>', 1)[0]
         rooms = ("conference", "training", "evaluation", "advisory", "optimization")
