@@ -201,14 +201,9 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.equal((html.match(/Open Local Lab/g) || []).length, 1);
   assert.match(html, /id="settings-dialog"/);
   assert.match(html, /id="info-dialog"/);
-  assert.match(html, /id="analytics-consent-banner"/);
-  assert.match(html, /id="accept-analytics"/);
-  assert.match(html, /id="reject-analytics"/);
-  assert.match(html, /id="analytics-dialog"/);
-  assert.match(html, /id="manage-analytics"/);
-  assert.match(html, /Google Analytics 4 measures page use, traffic source, approximate geographic distribution, and Windows ZIP download interactions/);
-  assert.match(styles, /\.analytics-consent-banner\[hidden\] \{ display: none !important; \}/);
-  assert.doesNotMatch(html, /googletagmanager\.com\/gtag/);
+  assert.match(html, /No analytics cookies are used/);
+  assert.match(html, /aggregate visit counts by UTC hour, domain, and country/);
+  assert.doesNotMatch(html, /Google Analytics|Analytics choices|accept-analytics|reject-analytics/);
   assert.doesNotMatch(html, /data-language|language-selector|language-button|Lab Assistant|assistant-button|assistant-dialog/);
   assert.match(guide, /Before you begin/);
   assert.match(guide, /Install or update in five steps \(Windows\)/);
@@ -269,22 +264,12 @@ test('build truthfully presents the current public state of the Local Lab', () =
     assert.doesNotMatch(page, /\{\{RELEASE_VERSION\}\}|\{\{BUILD_ID\}\}/);
   }
   assert.doesNotMatch(script, /checkForZipUpdate|scheduleZipUpdateChecks|downloaded-zip-version/);
-  assert.match(script, /const ANALYTICS_CONSENT_KEY = 'markellos\.ai-lab\.analytics-consent\.v1'/);
-  assert.match(script, /const GA_MEASUREMENT_ID = 'G-ZEPZK1T1YQ'/);
-  const analyticsBootstrap = readFileSync(join(output, 'analytics-consent.js'), 'utf8');
-  assert.match(analyticsBootstrap, /window\.gtag\('consent', 'default', \{/);
-  assert.match(analyticsBootstrap, /analytics_storage: 'denied'/);
-  assert.match(script, /send\('consent','update',CONSENT_GRANTED\)/);
-  assert.match(script, /script\.src=`https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=\$\{encodeURIComponent\(GA_MEASUREMENT_ID\)\}`/);
-  assert.match(script, /window\.gtag\('config',GA_MEASUREMENT_ID,\{send_page_view:false\}\)/);
-  assert.match(script, /window\.gtag\('event','page_view'/);
-  assert.match(script, /window\.gtag\('event','zip_download'/);
-  assert.match(script, /window\.addEventListener\('hashchange',trackPageView\)/);
-  assert.match(script, /window\[`ga-disable-\$\{GA_MEASUREMENT_ID\}`\]=true/);
+  assert.match(script, /const ANALYTICS_SCRIPT_URL = 'https:\/\/analytics\.markellosecosystem\.com\/v1\/script\.js'/);
+  assert.match(script, /const PRODUCTION_HOSTNAME = 'ai-lab\.markellosecosystem\.com'/);
+  assert.match(script, /function initializeAnalytics\(\)/);
+  assert.doesNotMatch(script, /googletagmanager|gtag\(|dataLayer|zip_download|ANALYTICS_CONSENT_KEY/);
   assert.match(script, /typeof module !== 'undefined'/);
-  for (const file of ['styles.css', 'tokens.css', 'analytics-consent.js', 'dashboard.js', '_headers', 'README.md', 'simple-guide.html', 'app-description.html', 'ai-training-lab-mark.png']) assert.equal(existsSync(join(output, file)), true, `${file} is missing`);
-  assert.match(html, /<script src="\.\/analytics-consent\.js"><\/script>/);
-  assert.ok(html.indexOf('analytics-consent.js') < html.indexOf('dashboard.js'), 'consent defaults must load before the application script');
+  for (const file of ['styles.css', 'tokens.css', 'dashboard.js', '_headers', 'README.md', 'simple-guide.html', 'app-description.html', 'ai-training-lab-mark.png']) assert.equal(existsSync(join(output, file)), true, `${file} is missing`);
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /public current-state documentation/);
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Quick Start \(Windows\)/);
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Understanding the three Windows \.bat files/);
@@ -293,12 +278,11 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Technical documentation/);
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Manual update checking inside the Local App: not implemented/);
   assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /version-matched direct GitHub Release asset as a fallback/);
-  assert.match(readFileSync(join(output, '_headers'), 'utf8'), /script-src 'self' https:\/\/www\.googletagmanager\.com/);
-  assert.match(readFileSync(join(output, '_headers'), 'utf8'), /img-src 'self' data: https:\/\/www\.googletagmanager\.com https:\/\/\*\.google-analytics\.com/);
-  assert.match(readFileSync(join(output, '_headers'), 'utf8'), /connect-src 'self' https:\/\/www\.googletagmanager\.com https:\/\/\*\.google-analytics\.com https:\/\/www\.google\.com/);
+  assert.match(readFileSync(join(output, '_headers'), 'utf8'), /script-src 'self' https:\/\/analytics\.markellosecosystem\.com/);
+  assert.match(readFileSync(join(output, '_headers'), 'utf8'), /connect-src 'self' https:\/\/analytics\.markellosecosystem\.com https:\/\/api\.github\.com/);
 });
 
-test('analytics stays unloaded until consent and sends only approved events after acceptance', () => {
+test('cookie-less analytics loads once only on the production hostname', () => {
   const listeners = new Map();
   const createElement = () => ({
     dataset: {}, hidden: true, style: { setProperty() {} }, listeners: new Map(),
@@ -306,50 +290,29 @@ test('analytics stays unloaded until consent and sends only approved events afte
     setAttribute() {}, querySelector() { return null; }, closest() { return this; },
     close() {}, showModal() {}, value: '',
   });
-  const ids = ['theme-toggle','accent-color','font-choice','text-size','spacing-choice','appearance-status','reset-appearance','settings-button','info-button','analytics-consent-banner','analytics-dialog','analytics-consent-status','accept-analytics','reject-analytics','accept-analytics-dialog','reject-analytics-dialog','manage-analytics','privacy-analytics-choices','zip-download','github-release-download'];
+  const ids = ['theme-toggle','accent-color','font-choice','text-size','spacing-choice','appearance-status','reset-appearance','settings-button','info-button'];
   const elements = Object.fromEntries(ids.map(id => [id, createElement()]));
-  elements['zip-download'].dataset.zipVersion = 'v1.1.0';
-  elements['zip-download'].dataset.downloadSource = 'cloudflare-r2';
-  elements['github-release-download'].dataset.zipVersion = 'v1.1.0';
-  elements['github-release-download'].dataset.downloadSource = 'github-release';
   const scripts = [];
-  const values = new Map();
   const originalWindow = global.window;
   const originalDocument = global.document;
   global.window = {
-    location: { href: 'https://example.test/' }, dataLayer: [],
-    localStorage: { getItem: key => values.get(key) || null, setItem: (key, value) => values.set(key, value), removeItem: key => values.delete(key) },
+    location: { href: 'https://ai-lab.markellosecosystem.com/', hostname: 'ai-lab.markellosecosystem.com', protocol: 'https:' },
+    localStorage: { getItem: () => null, setItem() {}, removeItem() {} },
     addEventListener(type, handler) { listeners.set(type, handler); },
   };
   global.document = {
     title: 'AI Lab', documentElement: { dataset: {}, style: { setProperty() {} } },
     addEventListener(type, handler) { if (type === 'DOMContentLoaded') handler(); },
-    getElementById: id => elements[id] || null, querySelectorAll: selector => selector === '.release-download' ? [elements['zip-download'], elements['github-release-download']] : [], querySelector: () => null,
-    createElement, head: { append: script => scripts.push(script) },
+    getElementById: id => elements[id] || null, querySelectorAll: () => [], querySelector: () => null,
+    createElement, head: { append: script => { scripts.push(script); elements[script.id] = script; } },
   };
   try {
-    const consentModulePath = resolve(output, 'analytics-consent.js');
     const modulePath = resolve(output, 'dashboard.js');
-    delete require.cache[consentModulePath];
     delete require.cache[modulePath];
-    require(consentModulePath);
-    require(modulePath);
-    assert.equal(scripts.length, 0, 'Google tag must not load before consent');
-    assert.deepEqual(Array.from(window.dataLayer[0]), ['consent', 'default', {analytics_storage:'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'}]);
-    elements['accept-analytics'].listeners.get('click')();
-    assert.equal(scripts.length, 1, 'acceptance loads one Google tag');
-    window.gtag = (...args) => window.dataLayer.push(args);
-    scripts[0].listeners.get('load')();
-    elements['zip-download'].listeners.get('click')({currentTarget:elements['zip-download']});
-    const events = window.dataLayer.filter(entry => entry[0] === 'event');
-    assert.deepEqual(events.map(entry => entry[1]), ['page_view', 'zip_download']);
-    assert.deepEqual(events[1][2], {release_version:'v1.1.0',delivery_source:'cloudflare-r2'});
-    elements['github-release-download'].listeners.get('click')({currentTarget:elements['github-release-download']});
-    assert.deepEqual(window.dataLayer.filter(entry => entry[0] === 'event' && entry[1] === 'zip_download').map(entry => entry[2].delivery_source), ['cloudflare-r2','github-release']);
-    elements['reject-analytics'].listeners.get('click')();
-    assert.equal(window['ga-disable-G-ZEPZK1T1YQ'], true, 'rejection disables future analytics events');
-    elements['zip-download'].listeners.get('click')({currentTarget:elements['zip-download']});
-    assert.equal(window.dataLayer.filter(entry => entry[0] === 'event' && entry[1] === 'zip_download').length, 2);
+    const {initializeAnalytics} = require(modulePath);
+    assert.equal(scripts.length, 1, 'production initialization adds one collector script');
+    assert.equal(scripts[0].src, 'https://analytics.markellosecosystem.com/v1/script.js');
+    assert.equal(initializeAnalytics(), false, 'collector is not inserted twice');
   } finally {
     global.window = originalWindow;
     global.document = originalDocument;
@@ -387,7 +350,7 @@ test('GitHub BETA archive filters R2 versions and invalid assets without duplica
   const headers = readFileSync(join(app, '_headers'), 'utf8');
   assert.match(headers, /connect-src '[^;]*https:\/\/api\.github\.com;/);
   assert.match(headers, /default-src 'self'/);
-  assert.match(headers, /script-src 'self' https:\/\/www\.googletagmanager\.com/);
+  assert.match(headers, /script-src 'self' https:\/\/analytics\.markellosecosystem\.com/);
   const source = readFileSync(join(app, 'src', 'github-release-archive.js'), 'utf8');
   assert.match(source, /archive\.addEventListener\('toggle'/);
   assert.match(source, /if \(!archive\.open \|\| requested\) return/);

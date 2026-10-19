@@ -23,7 +23,7 @@
 | AI-LAB-SCOPE-011 | Extend Learning Lab to a strictly sequential four-stage Trainer, Student, Evaluator, Improver learning cycle with independent local Ollama model assignments and durable per-stage results. | High | Repository maintainer | Approved by direct user request on 2026-10-12 |
 | AI-LAB-SCOPE-012 | Provide a Windows Easy Start bootstrap that checks prerequisites and requests a separate explicit user approval before installing Python, installing Ollama, starting Ollama, or downloading the initial local model. | High | Repository maintainer | Approved by direct user request on 2026-10-13 |
 | AI-LAB-SCOPE-013 | Provide optional, vendor-neutral informational Model Guidance for the four Learning Lab roles without changing model selection or execution. | Medium | Repository maintainer | Approved by direct user request on 2026-10-13 |
-| AI-LAB-SCOPE-014 | Add consented Google Analytics 4 to the public Cloudflare Pages landing page only, including page/navigation and ZIP-download measurement, withdrawal controls, and accurate privacy information. | High | Repository maintainer | Approved by direct user request on 2026-10-13 |
+| AI-LAB-SCOPE-014 | Use the central cookie-less aggregate analytics collector on the public Cloudflare Pages landing page only. It records only UTC hour, domain, and transient country aggregation, with no events, identifiers, paths, referrers, device data, or consent persistence. | High | Repository maintainer | Replaced by direct user request on 2026-10-19 |
 | AI-LAB-SCOPE-015 | Retain and provide the public Windows ZIP archive from v1.0.0 onward in a compact, collapsed release-history control for future agent studies. | Medium | Repository maintainer | Approved by direct user request on 2026-10-14 |
 | AI-LAB-SCOPE-016 | Establish the additive, independent Evaluation Lab persistence foundation for read-only evaluation of completed Training Room records. | High | Repository maintainer | Approved by direct user request on 2026-10-14 |
 | AI-LAB-SCOPE-017 | Add an independent, fixed-loopback local Evaluator execution engine for persisted Evaluation Lab runs without changing Training Room behavior. | High | Repository maintainer | Approved by direct user request on 2026-10-14 |
@@ -40,7 +40,7 @@
 ## Out of scope
 
 - Hosting the local AI Agents Lab, Ollama, SQLite data, or a chat API.
-- Authentication, accounts, telemetry, or user-data collection beyond AI-LAB-SCOPE-014. Local browser appearance preferences are permitted for AI-LAB-SCOPE-005 only; GA4 is permitted only after explicit consent under AI-LAB-SCOPE-014.
+- Authentication, accounts, telemetry, or user-data collection beyond AI-LAB-SCOPE-014. Local browser appearance preferences are permitted for AI-LAB-SCOPE-005 only; the sole analytics use is the aggregate cookie-less collector under AI-LAB-SCOPE-014.
 - Remote inference, arbitrary provider URLs, RunPod, Cloud Core, credentials, or payment functionality.
 - Remote training, cloud API keys, automatic training-model/dataset downloads, distributed training, DPO, and RLHF.
 - Cloud model pulls, unmanaged model URLs, arbitrary network endpoints, and in-app downloads for non-Ollama engines; AI-LAB-SCOPE-008 permits only explicit owner-confirmed Ollama pulls through fixed loopback.
@@ -54,4 +54,4 @@
 - Applicable `ENG-*` requirements record: `ENG-ARCH-001`, `ENG-DEP-001`, `ENG-SEC-001`, `ENG-TEST-001`, and `ENG-DOC-001` are mapped in the traceability matrix.
 - Applicable Shield requirements/baseline record: static public-site browser and deployment controls, recorded in the security plan and threat model.
 - Infrastructure profile: `DEPLOYED_SERVICE` (Cloudflare Pages).
-- Material architecture, security, or infrastructure change review required: Yes; the interactive local-preferences boundary is recorded under AI-LAB-SCOPE-005 and the consented GA4 boundary under AI-LAB-SCOPE-014.
+- Material architecture, security, or infrastructure change review required: Yes; the interactive local-preferences boundary is recorded under AI-LAB-SCOPE-005 and the cookie-less aggregate analytics boundary under AI-LAB-SCOPE-014.
