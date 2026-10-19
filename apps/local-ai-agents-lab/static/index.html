@@ -114,14 +114,18 @@ Completeness</textarea>
       <h3>Selected assessment</h3>
       <div id="evaluation-details" class="evaluation-details" aria-live="polite">Select a run to inspect scores, findings, and provenance.</div>
     </section>
+    <section id="auto-exercise-feature" class="exercise-feature" aria-label="Automatic Exercise Engine">
+      <div class="exercise-feature-heading"><strong>Automatic Exercise Engine</strong><span class="nav-status">Unavailable - Under Construction</span></div>
+      <p>Future feature · Exercise Library: 0 exercises available. Manual Training Lab sessions remain available.</p>
+    </section>
     <form id="composer" class="composer">
       <label for="prompt" id="prompt-label">Training Topic</label>
-      <textarea id="prompt" rows="3" maxlength="2500" required placeholder="e.g. Teach your AI agent how to..."></textarea>
+      <textarea id="prompt" rows="3" maxlength="2500" required placeholder="Enter a training topic or question..."></textarea>
       <div class="actions"><div><span id="hint">Agents have no access to files or commands.</span><button id="clear-conversation" class="clear-conversation" type="button">Clear conversation / Start new session</button></div><div class="run-actions"><button id="cancel-training" class="cancel-training" type="button" hidden>Cancel after current stage</button><button id="send" type="submit">Start Training ↗</button></div></div>
     </form>
     <section class="chat-panel" aria-live="polite">
       <section id="training-stages" class="training-stages" aria-live="polite" hidden></section>
-      <div id="messages" class="messages"><div class="empty">No training sessions yet. Enter a topic above.</div></div>
+      <div id="messages" class="messages"><div class="empty">No training sessions yet. Enter a training topic to begin.</div></div>
       <p id="execution-status" class="execution-status" role="status" aria-live="polite" hidden></p>
     </section>
     <footer><span>© <span class="copyright-year"></span> Markellos Markides. All rights reserved.</span><span class="build-id">ZIP version: ZIP_VERSION</span></footer>

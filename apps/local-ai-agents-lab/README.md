@@ -46,6 +46,23 @@ files under `prompts/`. The local server loads them on startup; restart the Lab
 to apply an edited prompt. The packaged Windows release includes every active
 role prompt.
 
+## Automatic Exercise Engine — future feature
+
+The Training Lab displays **Unavailable - Under Construction** for its planned
+automatic exercise selection feature. The runtime catalog in `exercise_library.py`
+is deliberately **empty**: no active exercises, datasets or automated starts
+are shipped. Training Topic is **required**; pressing Start uses only the
+existing manual `POST /api/run` workflow (Tutor → Student → Evaluator → Improver).
+The reserved `POST /api/auto-run` endpoint returns HTTP 503 for Training Lab
+without creating a session; the other four Labs reject automatic requests.
+
+The room-keyed selector, exercise formatting and additive nullable SQLite
+`exercise_id` provenance field remain as inactive, reusable infrastructure.
+There is no automatic selection, dataset import, model training, background
+work or modification to the five Labs and fifteen system prompts. Existing
+SQLite history remains readable.
+See [Future Exercise Engine](../../docs/learning/AUTO_SELECTION.md).
+
 ## Inference engine
 
 The Lab uses **only Ollama** at the fixed loopback address

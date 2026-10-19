@@ -131,3 +131,11 @@ button,textarea,select{font-family:inherit}
 
 /* Keep both panel identities close to their upper edge; reserve the lower left area for optional connections. */
 @media(min-width:901px){.sidebar .panel-content,.inspector .panel-content{margin-top:32px}.sidebar .brand-stack{margin-top:0}.sidebar .beta-badge{margin-bottom:4px}.sidebar .connection-area{margin-top:auto}.sidebar .connection-area+.sidebar-footer{margin-top:20px}.inspector .inspector-heading{padding-top:0}}
+
+/* Reserved Training Lab feature; read-only status and no automatic execution control. */
+.exercise-feature{border:1px solid var(--border);border-radius:10px;background:var(--surface);padding:11px 14px;margin-top:10px;color:var(--subtle)}
+.exercise-feature[hidden]{display:none}
+.exercise-feature-heading{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+.exercise-feature-heading strong{font-size:12px;font-weight:650;color:var(--fg)}
+.exercise-feature-heading .nav-status{margin-left:0;text-transform:none;white-space:normal}
+.exercise-feature p{font-size:11px;line-height:1.55;margin:7px 0 0;color:var(--muted)}

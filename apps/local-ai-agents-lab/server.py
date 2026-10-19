@@ -44,6 +44,7 @@ from openai_connection import OpenAIConnectionError, OpenAIConnectionService, Op
 from model_install import ModelInstallError, ModelInstallBusy, OllamaModelInstaller
 from evaluation_lab.http_api import EvaluationAPIError, EvaluationHTTPService
 from evaluation_lab.repository import EvaluationRepository, EvaluationRepositoryError
+from exercise_library import select_exercise, format_exercise
 
 PROVIDERS = InferenceProviders()
 TRAINING = TrainingService(ROOT)
@@ -107,6 +108,8 @@ def initialize():
             db.execute("ALTER TABLE messages ADD COLUMN session_id INTEGER")
         if "model" not in columns:
             db.execute("ALTER TABLE messages ADD COLUMN model TEXT")
+        if "exercise_id" not in columns:
+            db.execute("ALTER TABLE messages ADD COLUMN exercise_id TEXT")
         db.execute("UPDATE messages SET room='training' WHERE room=?", (LEGACY_TRAINING_ROOM,))
         db.execute("""CREATE TABLE IF NOT EXISTS training_sessions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -159,11 +162,23 @@ def initialize():
     EvaluationRepository(DB_PATH).initialize()
 
 
-def add_message(room: str, agent: str, content: str, session_id: Optional[int] = None, model: Optional[str] = None):
+def auto_exercise_for_room(room: str) -> tuple[dict, str]:
+    """Choose next trusted offline exercise using only prior auto-run entries."""
+    with closing(connect()) as db:
+        count = db.execute(
+            "SELECT COUNT(*) FROM messages WHERE room=? AND agent='You' AND exercise_id IS NOT NULL",
+            (room,),
+        ).fetchone()[0]
+    exercise = select_exercise(room, count)
+    return exercise, format_exercise(exercise)
+
+
+def add_message(room: str, agent: str, content: str, session_id: Optional[int] = None, model: Optional[str] = None,
+                exercise_id: Optional[str] = None):
     with closing(connect()) as db, db:
         db.execute(
-            "INSERT INTO messages(room,agent,content,created_at,session_id,model) VALUES(?,?,?,?,?,?)",
-            (room, agent, content[:12000], utc_now(), session_id, model),
+            "INSERT INTO messages(room,agent,content,created_at,session_id,model,exercise_id) VALUES(?,?,?,?,?,?,?)",
+            (room, agent, content[:12000], utc_now(), session_id, model, exercise_id),
         )
 
 
@@ -187,12 +202,12 @@ def create_training_session(provider: str, assignments: dict[str, str]) -> int:
 def history(room: str, limit: int = 80) -> list[dict]:
     with closing(connect()) as db, db:
         rows = db.execute(
-            "SELECT messages.id,messages.agent,messages.content,messages.created_at,messages.session_id,"
+            "SELECT messages.id,messages.agent,messages.content,messages.created_at,messages.session_id,messages.exercise_id,"
             " COALESCE(messages.model, CASE messages.agent WHEN 'Trainer' THEN training_sessions.trainer_model WHEN 'Tutor' THEN training_sessions.trainer_model"
             " WHEN 'Student' THEN training_sessions.student_model"
             " WHEN 'Evaluator' THEN training_sessions.evaluator_model"
             " WHEN 'Improver' THEN training_sessions.improver_model END) AS model"
-            " FROM (SELECT id,agent,content,created_at,session_id,model FROM messages WHERE room=?"
+            " FROM (SELECT id,agent,content,created_at,session_id,model,exercise_id FROM messages WHERE room=?"
             " ORDER BY id DESC LIMIT ?) AS messages"
             " LEFT JOIN training_sessions ON training_sessions.id=messages.session_id"
             " ORDER BY messages.id ASC", (room, limit)
@@ -262,10 +277,11 @@ def evaluation_fields(response: str) -> tuple[Optional[int], Optional[str]]:
     return score, result
 
 
-def run_training_session(session_id: int, prompt: str, assignments: dict[str, str], cancel: Event):
+def run_training_session(session_id: int, prompt: str, assignments: dict[str, str], cancel: Event,
+                         exercise_id: Optional[str] = None):
     """Run one four-stage cycle serially; completed stages are durable immediately."""
     transcript = [{"agent": "You", "content": prompt}]
-    add_message("training", "You", prompt, session_id)
+    add_message("training", "You", prompt, session_id, exercise_id=exercise_id)
     try:
         for agent in FLOW["training"]:
             if cancel.is_set():
@@ -686,9 +702,10 @@ class Handler(BaseHTTPRequestHandler):
             except (TrainingError, ValueError, TypeError, json.JSONDecodeError) as err:
                 self._json({"error": str(err)}, 400)
             return
-        if self.path != "/api/run":
+        if self.path not in {"/api/run", "/api/auto-run"}:
             self._json({"error": "Unknown endpoint"}, 404)
             return
+        auto_mode = self.path == "/api/auto-run"
         try:
             size = int(self.headers.get("Content-Length", "0"))
             if size < 2 or size > 16000:
@@ -706,13 +723,19 @@ class Handler(BaseHTTPRequestHandler):
             if not isinstance(raw_prompt, str):
                 raise ValueError("Invalid prompt")
             prompt = raw_prompt.strip()
-            if room not in ROOMS or provider != "ollama" or not 1 <= len(prompt) <= 2500:
+            if room not in ROOMS or provider != "ollama" or (auto_mode and room != "training") or (not auto_mode and not 1 <= len(prompt) <= 2500):
                 raise ValueError("Select a Lab and a topic of up to 2,500 characters.")
+            if auto_mode and "prompt" in body:
+                raise ValueError("Automatic Lab sessions select their exercise from the trusted local catalog.")
             if not isinstance(assignments, dict) or set(assignments) != set(FLOW[room]) or not all(isinstance(value, str) and value for value in assignments.values()):
                 raise ValueError("Select one installed local model for every Lab agent.")
             PROVIDERS.get(provider)
         except (ValueError, TypeError, json.JSONDecodeError) as err:
             self._json({"error": str(err)}, 400)
+            return
+        if auto_mode:
+            # Reserved endpoint: no exercises are available and no session may start.
+            self._json({"error": "Unavailable - Under Construction"}, 503)
             return
         if not RUN_LOCK.acquire(blocking=False):
             self._json({"error": "Another session is already running."}, 409)
