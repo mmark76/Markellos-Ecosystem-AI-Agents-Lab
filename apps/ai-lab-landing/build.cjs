@@ -36,6 +36,16 @@ for (const release of releaseHistory) {
   seenVersions.add(release.version);
 }
 const [currentRelease, ...previousReleases] = releaseHistory;
+// README.md is generated from the existing public Technical README source.
+// Display the local source version independently from the featured R2 milestone.
+const technicalReadmePath = join(output, 'README.md');
+const technicalReadmeSource = readFileSync(technicalReadmePath, 'utf8');
+for (const placeholder of ['{{LOCAL_LAB_VERSION}}', '{{PUBLIC_MILESTONE_VERSION}}']) {
+  if (!technicalReadmeSource.includes(placeholder)) throw new Error(`Technical README missing ${placeholder}`);
+}
+writeFileSync(technicalReadmePath, technicalReadmeSource
+  .replaceAll('{{LOCAL_LAB_VERSION}}', `v${releaseVersion}`)
+  .replaceAll('{{PUBLIC_MILESTONE_VERSION}}', `v${currentRelease.version}`));
 // The public R2 manifest and the GitHub-only BETA manifest have separate ownership.
 const betaDistribution = JSON.parse(readFileSync(join(__dirname, 'github-beta-releases.json'), 'utf8'));
 if (!Array.isArray(betaDistribution.releases) || betaDistribution.releases.length === 0)

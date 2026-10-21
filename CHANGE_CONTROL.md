@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-092
+
+```text
+Change ID: AI-LAB-CC-092
+Requested by: User
+Date: 2026-10-21
+Description: Expand the already-linked public Technical README with verified software compatibility, local architecture, supported workflows, optional integrations, fine-tuning limits, privacy and system requirements.
+Reason: The existing Technical README link inside README / Installation Guide already has a destination; update that source rather than adding a redundant page or landing button.
+Affected objective IDs: AI-LAB-OBJ-001, AI-LAB-OBJ-003, AI-LAB-OBJ-018
+Architecture impact: Static Markdown documentation, build-time version injection, build regression and traceability only. No Local Lab runtime, provider, data model, endpoint or landing navigation change.
+Security and privacy impact: Documentation only; no new network requests or data collection.
+Data impact: None.
+Testing impact: Verify existing guide-to-README link, generated content, distinct local/R2 versions and release-boundary descriptions.
+Cost and schedule impact: None.
+Decision: APPROVED (PUBLIC TECHNICAL DOCUMENTATION)
+Approved by: Direct user request and follow-up clarification
+Target release: Next reviewed Cloudflare Pages landing deployment
+```
+
 ## Approved change record — AI-LAB-CC-091
 
 ```text
