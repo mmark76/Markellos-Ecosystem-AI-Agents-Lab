@@ -270,14 +270,32 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.doesNotMatch(script, /googletagmanager|gtag\(|dataLayer|zip_download|ANALYTICS_CONSENT_KEY/);
   assert.match(script, /typeof module !== 'undefined'/);
   for (const file of ['styles.css', 'tokens.css', 'dashboard.js', '_headers', 'README.md', 'simple-guide.html', 'app-description.html', 'ai-training-lab-mark.png']) assert.equal(existsSync(join(output, file)), true, `${file} is missing`);
-  assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /public current-state documentation/);
-  assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Quick Start \(Windows\)/);
-  assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Understanding the three Windows \.bat files/);
-  assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Start AI Training Lab\.bat/);
-  assert.doesNotMatch(readFileSync(join(output, 'README.md'), 'utf8'), /Start AI Agents Lab\.bat/);
-  assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Technical documentation/);
-  assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /Manual update checking inside the Local App: not implemented/);
-  assert.match(readFileSync(join(output, 'README.md'), 'utf8'), /version-matched direct GitHub Release asset as a fallback/);
+  const technical = readFileSync(join(output, 'README.md'), 'utf8');
+  assert.match(guide, /href="\.\/README\.md">public technical README<\/a>/);
+  assert.match(technical, /^# AI Training Lab — Technical README/m);
+  assert.match(technical, /Public current-state documentation/);
+  assert.ok(technical.includes('**Local application source version:** v' + releaseVersion));
+  assert.ok(technical.includes('**Featured Cloudflare R2 milestone:** v' + currentDistribution.version));
+  assert.doesNotMatch(technical, /\{\{LOCAL_LAB_VERSION\}\}|\{\{PUBLIC_MILESTONE_VERSION\}\}/);
+  assert.match(technical, /Quick Start \(Windows\)/);
+  assert.match(technical, /Understanding the three Windows \.bat files/);
+  assert.match(technical, /Start AI Training Lab\.bat/);
+  assert.doesNotMatch(technical, /Start AI Agents Lab\.bat/);
+  assert.match(technical, /Technical README/);
+  for (const topic of [
+    'Only supported agent inference engine',
+    'Conference Room', 'Training Lab', 'Evaluation Lab', 'Advisory Lab', 'Optimization Lab',
+    'Tutor → Student → Evaluator → Improver',
+    'ChatGPT Advisor', 'RunPod', 'Windows DPAPI', 'SQLite',
+    'PyTorch', 'Transformers', 'PEFT', 'TRL', 'Accelerate', 'Datasets',
+    'LM Studio', 'vLLM', 'Cloudflare Pages', 'GitHub Actions',
+    'Automatic Exercise Engine',
+  ]) assert.ok(technical.includes(topic), 'Technical README missing: ' + topic);
+  assert.match(technical, /PyJWT\[crypto\]==2\.10\.1/);
+  assert.match(technical, /training-job endpoint remains \*\*locked\*\*/);
+  assert.match(technical, /Manual update checking inside the Local App: not implemented/);
+  assert.match(technical, /GitHub BETA releases have their \*\*own independently verified versions/);
+  assert.doesNotMatch(technical, /v0\.1\.30|Trainer → Student → Evaluator → Improver/);
   assert.match(readFileSync(join(output, '_headers'), 'utf8'), /script-src 'self' https:\/\/analytics\.markellosecosystem\.com/);
   assert.match(readFileSync(join(output, '_headers'), 'utf8'), /connect-src 'self' https:\/\/analytics\.markellosecosystem\.com https:\/\/api\.github\.com/);
 });
