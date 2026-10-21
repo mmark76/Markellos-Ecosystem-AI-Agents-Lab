@@ -306,16 +306,18 @@ test('cookie-less analytics loads once only on the production hostname', () => {
     dataset: {}, hidden: true, style: { setProperty() {} }, listeners: new Map(),
     addEventListener(type, handler) { this.listeners.set(type, handler); },
     setAttribute() {}, querySelector() { return null; }, closest() { return this; },
-    close() {}, showModal() {}, value: '',
+    close() { this.open = false; }, showModal() { this.open = true; }, value: '',
   });
-  const ids = ['theme-toggle','accent-color','font-choice','text-size','spacing-choice','appearance-status','reset-appearance','settings-button','info-button'];
+  const ids = ['theme-toggle','accent-color','font-choice','text-size','spacing-choice','appearance-status','reset-appearance','settings-button','info-button','info-dialog','analytics-notice-dialog','analytics-notice-button','analytics-notice-close','analytics-notice-acknowledge'];
   const elements = Object.fromEntries(ids.map(id => [id, createElement()]));
   const scripts = [];
+  const storedValues = new Map();
   const originalWindow = global.window;
   const originalDocument = global.document;
   global.window = {
     location: { href: 'https://ai-lab.markellosecosystem.com/', hostname: 'ai-lab.markellosecosystem.com', protocol: 'https:' },
-    localStorage: { getItem: () => null, setItem() {}, removeItem() {} },
+    localStorage: { getItem: key => storedValues.get(key) || null, setItem(key, value) { storedValues.set(key, String(value)); }, removeItem(key) { storedValues.delete(key); } },
+    requestAnimationFrame(callback) { callback(); },
     addEventListener(type, handler) { listeners.set(type, handler); },
   };
   global.document = {
@@ -327,10 +329,21 @@ test('cookie-less analytics loads once only on the production hostname', () => {
   try {
     const modulePath = resolve(output, 'dashboard.js');
     delete require.cache[modulePath];
-    const {initializeAnalytics} = require(modulePath);
+    const {ANALYTICS_NOTICE_KEY, dismissAnalyticsNotice, initializeAnalytics, initializeAnalyticsNotice, isAnalyticsNoticeDismissed} = require(modulePath);
     assert.equal(scripts.length, 1, 'production initialization adds one collector script');
     assert.equal(scripts[0].src, 'https://analytics.markellosecosystem.com/v1/script.js');
     assert.equal(initializeAnalytics(), false, 'collector is not inserted twice');
+    assert.equal(elements['analytics-notice-dialog'].open, true, 'first visit opens the informational notice');
+    elements['analytics-notice-close'].listeners.get('click')();
+    assert.equal(storedValues.get(ANALYTICS_NOTICE_KEY), 'true', 'closing persists only notice dismissal');
+    assert.equal(elements['analytics-notice-dialog'].open, false);
+    assert.equal(initializeAnalyticsNotice(), true, 'dismissed notice remains initialized for manual reopening');
+    assert.equal(elements['analytics-notice-dialog'].open, false, 'dismissed notice does not reopen automatically');
+    elements['analytics-notice-button'].listeners.get('click')();
+    assert.equal(elements['analytics-notice-dialog'].open, true, 'Important Info reopens the notice without clearing dismissal');
+    global.window.localStorage = { getItem() { throw new Error('storage blocked'); }, setItem() { throw new Error('storage blocked'); } };
+    assert.equal(isAnalyticsNoticeDismissed(), false, 'blocked storage is treated as a first visit');
+    assert.doesNotThrow(() => dismissAnalyticsNotice(), 'blocked storage does not break dismissal');
   } finally {
     global.window = originalWindow;
     global.document = originalDocument;

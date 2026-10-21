@@ -5,7 +5,7 @@
 | Level | Scope | Command | Evidence |
 |---|---|---|---|
 | Landing build | Static public guide artifact and headers. | `node apps/ai-lab-landing/build.cjs` | Generated `apps/ai-lab-landing/dist/` artifact. |
-| Landing test | Static artifact, consent-gated GA4, ZIP event, privacy text, and header contracts. | `node --test apps/ai-lab-landing/tests/build.test.cjs` | Node test output. |
+| Landing test | Static artifact, cookie-less collector, informational-notice persistence, privacy text, and header contracts. | `node --test apps/ai-lab-landing/tests/build.test.cjs` | Node test output. |
 | Public ZIP monitor | Current reviewed R2 ZIP availability, content type, exact content length, and SHA-256. | `node apps/ai-lab-landing/scripts/verify-public-distribution.cjs` | Manual release check and scheduled GitHub Actions workflow every six hours. |
 | Local package test | Windows package metadata and release verification. | `node --test apps/local-ai-agents-lab/tests/build-release.test.cjs` | Node test output. |
 | Local server tests | Loopback server, SQLite behavior, fixed-provider discovery/routing, and local data behavior. | `py -3 -m unittest discover -s apps/local-ai-agents-lab/tests` | Python test output. |
@@ -18,7 +18,7 @@
 
 - Confirm the Local Lab starts only on `127.0.0.1:8765` and calls only Ollama at fixed loopback port `11434`.
 - Before an approved Pages deployment, inspect the preview for responsive layout, keyboard navigation, HTTPS, headers, and absence of local-Lab routes.
-- In a local or Pages preview, confirm no request to Google occurs before consent; accept analytics and confirm one GA4 tag request, one initial page view, hash-navigation page views, and one `zip_download` event per click; reject and withdraw and confirm no further events. Use GA4 DebugView only when property access is available.
+- In a local or Pages preview, confirm that the informational notice appears on the first visit, close persists across reload, the Info control reopens it without changing the stored dismissal, cleared site data shows it again, and unavailable storage remains usable. Confirm that the central collector remains limited to one production-host script and that no Google, GA4, or download-event request is made.
 - Before releasing a Windows package, verify its generated build ID and preserve the existing local SQLite data during upgrade.
 - Press **Check for updates** once with network access and confirm it reports the release or a non-destructive error; it must not download or alter files.
 - Run a controlled CUDA training job only on a supported local GPU; mocked checks do not prove actual CUDA training.
