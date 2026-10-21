@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-093
+
+```text
+Change ID: AI-LAB-CC-093
+Requested by: User
+Date: 2026-10-21
+Description: Add a persistent informational cookie-less analytics notice to the public landing page, with manual reopening through Important Info.
+Reason: Standardise the Ecosystem's informational analytics notice while keeping it distinct from consent.
+Affected objective IDs: AI-LAB-OBJ-014
+Architecture impact: Static landing-page dialog, first-party dismissal state, and deterministic regression coverage only. The collector and Local Lab boundary remain unchanged.
+Security and privacy impact: The dismissal is not consent and cannot enable, disable, or modify the collector. No new event, identifier, route, referrer, device, or download data is collected.
+Data impact: One site-specific local dismissal flag; unavailable browser storage is handled without blocking the page.
+Testing impact: Landing regression verifies first visit, dismissal persistence, manual reopening, unavailable storage, and unchanged collector behavior.
+Cost and schedule impact: None.
+Decision: APPROVED (STANDARDIZATION)
+Approved by: Direct user request
+Target release: Next public landing deployment
+```
+
 ## Approved change record — AI-LAB-CC-091
 
 ```text

@@ -19,13 +19,13 @@ A discoverable, HTTPS-protected guide at `ai-lab.markellosecosystem.com` that cl
 
 ## Constraints
 - Technology: static HTML, CSS, and minimal first-party JavaScript; Cloudflare Pages.
-- Privacy: no chat, account, AI API, or Local Lab data collection. Optional GA4 analytics is disabled until the visitor gives explicit consent.
+- Privacy: no chat, account, AI API, or Local Lab data collection. The public landing page uses only cookie-less aggregate analytics and an informational notice whose local dismissal does not affect collection.
 - Operational: the Lab remains bound to loopback and is never routed through Pages.
 
 ## Criticality
 - Business criticality: low.
 - Safety impact: none.
-- Data sensitivity: no application or Local Lab data is processed by the landing page; consented analytics receives only standard website usage data and the non-sensitive ZIP-download event.
+- Data sensitivity: no application or Local Lab data is processed by the landing page; analytics receives only aggregate UTC hour, domain, and country counts, without download tracking.
 
 ## Build / Buy Decision
 A small static page is sufficient and avoids changing the local Lab's security and privacy boundary.
