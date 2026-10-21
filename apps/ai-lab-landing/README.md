@@ -22,6 +22,12 @@ The public dashboard places a **Detailed App Description** link immediately afte
 
 The landing build injects the confirmed current release version and build identity into the dashboard, installation guide, and overview. It does not create or publish a Windows ZIP. The R2 milestone download version comes from the reviewed `release-distribution.json` entry; the top-right GitHub BETA comes from the separately verified `github-beta-releases.json` entry, each with its source-specific ZIP URL and checksum. Do not claim a new BETA in the button until that GitHub asset has been published and its checksum verified.
 
+## Technical README (existing guide link)
+
+The **README / Installation Guide** (`src/simple-guide.html`) already links to `./README.md` as the **public technical README**. That published Markdown artifact is generated from `src/PUBLIC_DOCUMENTATION.md` by `build.cjs`; it is not a new landing-page button or a separate HTML page. Its software compatibility matrix, local/offline architecture, five Lab workflows, optional ChatGPT and RunPod boundaries, locked fine-tuning stack, supported Windows requirements, and source references describe verified source capabilities and known limitations.
+
+The build injects **independent version values** for the current Local Lab source and the featured R2 milestone into the generated Technical README. GitHub BETA releases remain separately verified and listed. Edit the Markdown source, not the generated `dist/README.md`. The landing build regression checks its existing guide link, version injection, and required compatibility sections.
+
 ## Installation guidance
 
 The landing page links only to the official download pages for the required Windows prerequisites:
