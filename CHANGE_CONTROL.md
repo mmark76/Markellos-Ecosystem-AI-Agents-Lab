@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-094
+
+```text
+Change ID: AI-LAB-CC-094
+Requested by: User
+Date: 2026-10-27
+Description: Correct mojibake in Windows Easy Start dialog titles and progress messages by preserving its UTF-8 text with a BOM.
+Reason: Windows PowerShell 5.1 interprets UTF-8 scripts without a BOM using the legacy system code page, distorting the em dash and ellipsis shown in the setup UI.
+Affected objective IDs: AI-LAB-OBJ-012
+Architecture impact: Encoding marker only in the existing Easy Start script; no launcher logic, dependencies, providers, or data changes.
+Security and privacy impact: None; explicit approval prompts and local-only boundaries are unchanged.
+Data impact: None.
+Testing impact: Regression check for the UTF-8 BOM and representative Unicode labels, release packaging checks, and manual Windows visual smoke test when available.
+Cost and schedule impact: None.
+Decision: APPROVED (WINDOWS UI DEFECT)
+Approved by: Direct user request on 2026-10-27
+Target release: Next reviewed Windows ZIP release; no automatic publication.
+```
+
 ## Approved change record — AI-LAB-CC-092
 
 ```text

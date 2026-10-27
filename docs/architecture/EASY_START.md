@@ -1,5 +1,13 @@
 # Windows Easy Start
 
+## Text encoding
+
+`start-windows.bat` launches `easy-start.ps1` with Windows PowerShell
+(`powershell.exe`). Keep `easy-start.ps1` encoded as UTF-8 **with BOM** so that
+Windows PowerShell 5.1 reads punctuation in dialog titles and progress messages
+correctly. The release builder copies the original script bytes unchanged;
+`apps/local-ai-agents-lab/tests/build-release.test.cjs` guards the BOM.
+
 ## Purpose
 
 Easy Start makes the Windows ZIP usable by a beginner without hiding device

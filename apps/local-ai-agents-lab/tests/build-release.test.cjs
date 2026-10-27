@@ -112,6 +112,14 @@ test('Easy Start is packaged, readiness-first, and requires explicit approval fo
     assert.doesNotMatch(easyStart,new RegExp(forbidden));
   }
 });
+test('Windows PowerShell 5.1 can decode Easy Start Unicode labels',()=>{
+  const root=path.resolve(__dirname,'..');
+  const script=fs.readFileSync(path.join(root,'scripts','easy-start.ps1'));
+  assert.equal(script.subarray(0,3).toString('hex'),'efbbbf','powershell.exe requires a UTF-8 BOM to read non-ASCII script text correctly');
+  const source=script.toString('utf8');
+  assert.match(source,/AI Lab — Easy Start/);
+  assert.match(source,/Starting Ollama locally…/);
+});
 test('three-panel interaction script is included in the Windows release',()=>{
   const root=path.resolve(__dirname,'..');
   const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
