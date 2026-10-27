@@ -152,6 +152,8 @@
   });
 
   document.addEventListener('lab-room-change', event => {
-    trigger.hidden = event.detail.room !== 'training';
+    const inTraining = event.detail.room === 'training';
+    trigger.hidden = !inTraining;
+    $('student-alpha-study-feature').hidden = !inTraining;
   });
 })();
