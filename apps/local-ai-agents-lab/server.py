@@ -45,6 +45,7 @@ from model_install import ModelInstallError, ModelInstallBusy, OllamaModelInstal
 from evaluation_lab.http_api import EvaluationAPIError, EvaluationHTTPService
 from evaluation_lab.repository import EvaluationRepository, EvaluationRepositoryError
 from exercise_library import select_exercise, format_exercise
+from student_study_space import StudentStudySpace, StudySpaceError
 
 PROVIDERS = InferenceProviders()
 TRAINING = TrainingService(ROOT)
@@ -52,6 +53,7 @@ MODEL_INSTALLER = OllamaModelInstaller(OPENER)
 CREDENTIAL_VAULT = CredentialVault()
 RUNPOD_CONNECTION = RunpodReadOnlyService(CREDENTIAL_VAULT)
 OPENAI_CONNECTION = OpenAIConnectionService(CREDENTIAL_VAULT, ROOT)
+STUDENT_STUDY_SPACE = StudentStudySpace(DB_PATH)
 
 LABS = {
     "conference": {"name": "Conference Room", "workflow": "Strategist → Analyst → Engineer",
@@ -160,6 +162,7 @@ def initialize():
 
     # The Evaluation Lab owns only additive tables; legacy migrations run first.
     EvaluationRepository(DB_PATH).initialize()
+    STUDENT_STUDY_SPACE.initialize()
 
 
 def auto_exercise_for_room(room: str) -> tuple[dict, str]:
@@ -433,6 +436,9 @@ class Handler(BaseHTTPRequestHandler):
             except (OpenAIConnectionError, ValueError) as err:
                 self._html(f"<!doctype html><title>Connection not completed</title><main><h1>ChatGPT connection not completed</h1><p>{str(err)}</p><p>You may close this tab and return to the Local Lab.</p></main>", 400)
             return
+        if parsed.path == "/api/study-space":
+            self._json(STUDENT_STUDY_SPACE.get())
+            return
         if self.path == "/api/status":
             status = provider_status("ollama")
             self._json({"ollama": status["available"], "models": status["models"],
@@ -446,6 +452,30 @@ class Handler(BaseHTTPRequestHandler):
                 self._json(CREDENTIAL_VAULT.status("runpod"))
             except CredentialVaultError as err:
                 self._json({"error": str(err)}, 503)
+            return
+        if self.path == "/api/study-space/notes":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if not 2 <= size <= 2500:
+                    raise StudySpaceError("Invalid Study Space notes request size.")
+                body = json.loads(self.rfile.read(size))
+                if not isinstance(body, dict) or set(body) != {"notes"}:
+                    raise StudySpaceError("Provide only Student Alpha's notes.")
+                self._json(STUDENT_STUDY_SPACE.save_notes(body["notes"]))
+            except (StudySpaceError, ValueError, TypeError, json.JSONDecodeError) as err:
+                self._json({"error": str(err)}, 400)
+            return
+        if self.path == "/api/study-space/materials":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if not 2 <= size <= 7000:
+                    raise StudySpaceError("Invalid Study Space material request size.")
+                body = json.loads(self.rfile.read(size))
+                if not isinstance(body, dict) or set(body) != {"title", "content"}:
+                    raise StudySpaceError("Provide a title and study material.")
+                self._json(STUDENT_STUDY_SPACE.add_material(body["title"], body["content"]), 201)
+            except (StudySpaceError, ValueError, TypeError, json.JSONDecodeError) as err:
+                self._json({"error": str(err)}, 400)
             return
         if self.path == "/api/openai/connection":
             try:
@@ -499,6 +529,7 @@ class Handler(BaseHTTPRequestHandler):
                  "/fine-tuning-guide": ("fine-tuning-guide.html", "text/html; charset=utf-8"),
                  "/static/fine-tuning-guide.css": ("fine-tuning-guide.css", "text/css; charset=utf-8"),
                  "/static/style.css": ("style.css", "text/css; charset=utf-8"),
+                 "/static/study-space.js": ("study-space.js", "text/javascript; charset=utf-8"),
                  "/static/evaluation.css": ("evaluation.css", "text/css; charset=utf-8"),
                  "/static/app.js": ("app.js", "text/javascript; charset=utf-8"),
                  "/static/settings.js": ("settings.js", "text/javascript; charset=utf-8"),
@@ -777,6 +808,16 @@ class Handler(BaseHTTPRequestHandler):
     def do_DELETE(self):
         if not self._host_valid() or not self._origin_valid():
             self._json({"error": "Cross-origin writes blocked"}, 403)
+            return
+        if self.path.startswith("/api/study-space/materials/"):
+            try:
+                material_id = int(self.path.rsplit("/", 1)[-1])
+                size = int(self.headers.get("Content-Length", "0"))
+                if not 2 <= size <= 128 or json.loads(self.rfile.read(size)) != {"confirmRemoval": True}:
+                    raise StudySpaceError("Confirm removal of the study material.")
+                self._json(STUDENT_STUDY_SPACE.delete_material(material_id))
+            except (StudySpaceError, ValueError, TypeError, json.JSONDecodeError) as err:
+                self._json({"error": str(err)}, 400)
             return
         if self.path == "/api/openai/connection":
             try:
