@@ -4,6 +4,10 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 
 ## [Unreleased]
 
+### Changed
+
+- Display the existing Training Lab Student role as Student Alpha in the workflow, model guidance, session stages, and local history while preserving its canonical role identity and stored records.
+
 ## [2.0.7] - 2026-10-17
 
 ### Fixed
