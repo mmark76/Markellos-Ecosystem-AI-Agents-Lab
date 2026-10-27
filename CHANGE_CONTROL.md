@@ -16,7 +16,7 @@ Testing impact: Source and Windows launcher regression, release manifest/build, 
 Cost and schedule impact: No infrastructure cost. New ZIP names apply only to future GitHub releases; existing published asset links remain intact.
 Decision: APPROVED (WINDOWS SETUP UX AND RELEASE NAMING)
 Approved by: Direct user request in current conversation.
-Target release: Next reviewed Windows ZIP; no automatic release publication or deployment.
+Target release: v2.0.24 Windows ZIP, after mandatory Windows acceptance; the VERSION bump on main triggers the existing GitHub release workflow.
 ```
 
 ## Approved change record — AI-LAB-CC-097
