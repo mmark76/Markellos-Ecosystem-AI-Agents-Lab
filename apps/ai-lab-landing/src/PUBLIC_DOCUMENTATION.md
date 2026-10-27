@@ -174,17 +174,16 @@ Likewise, the optional **ChatGPT Advisor** is a separate, user-triggered externa
 
 ### Quick Start (Windows)
 
-1. Download the verified `AI-Agents-Lab-Windows.zip` from the [landing page](https://ai-lab.markellosecosystem.com/).
+1. Download the verified Windows ZIP from the [landing page](https://ai-lab.markellosecosystem.com/). New packages include the version in the filename (for example, `AI-Agents-Lab-Windows-vX.Y.Z.zip`); older assets retain their existing names.
 2. Extract it into a new folder on the Windows computer (do not run a BAT file from within the ZIP).
 3. Start `Start AI Training Lab.bat` and approve each missing prerequisite or initial model download separately.
 4. Once ready, open `http://127.0.0.1:8765/` and choose an installed Ollama model.
 5. For upgrades, stop the old server first and back up `data/campus.sqlite3` before transferring history to the new extracted folder.
 
-### Understanding the three Windows .bat files
+### Understanding the two Windows .bat files
 
-- **`Start AI Training Lab.bat`:** Recommended first-time and subsequent launcher with readiness checks.
-- **`start-windows.bat`:** Alternative launcher with the same required checks.
-- **`setup-training-windows.bat`:** Separate advanced training-dependency setup; **not** needed to start the Lab and **does not unlock fine-tuning**.
+- **`Start AI Training Lab.bat`:** The single normal launcher with readiness checks and an optional first-run Desktop shortcut choice.
+- **`setup-training-environment.bat`:** Separate advanced training-dependency setup; **not** needed to start the Lab and **does not unlock fine-tuning**.
 
 ## 10. Development, deployment and release boundaries
 

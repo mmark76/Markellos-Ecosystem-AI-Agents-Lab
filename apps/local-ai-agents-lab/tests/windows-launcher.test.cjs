@@ -9,7 +9,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 
 const sourceRoot=path.resolve(__dirname,'..');
-const launcherNames=['start-windows.bat','Start AI Training Lab.bat'];
+const launcherNames=['Start AI Training Lab.bat'];
 const testDirectories=[
   ['AI-Lab'],
   ['My Projects','AI Training Lab'],
@@ -21,6 +21,7 @@ const testDirectories=[
 
 function writeFixture(root){
   fs.mkdirSync(path.join(root,'scripts'),{recursive:true});
+  fs.copyFileSync(path.join(sourceRoot,'VERSION'),path.join(root,'VERSION'));
   for(const launcher of launcherNames){
     fs.copyFileSync(path.join(sourceRoot,launcher),path.join(root,launcher));
   }
@@ -45,6 +46,20 @@ function writeFixture(root){
     '[System.IO.File]::WriteAllLines((Join-Path $PSScriptRoot "..\\shortcut-paths.txt"), @($LabRoot, $normalized), $encoding)',
     'exit 0'
   ].join('\r\n')+'\r\n',{encoding:'utf8'});
+  fs.writeFileSync(path.join(root,'scripts','finish-setup.ps1'),[
+    'param([string]$LabRoot)',
+    '$normalized = [System.IO.Path]::GetFullPath($LabRoot)',
+    '$encoding = [System.Text.UTF8Encoding]::new($false)',
+    '[System.IO.File]::WriteAllLines((Join-Path $PSScriptRoot "..\\finish-paths.txt"), @($LabRoot, $normalized), $encoding)',
+    'exit 0'
+  ].join('\r\n')+'\r\n',{encoding:'utf8'});
+  fs.writeFileSync(path.join(root,'scripts','register-dashboard-protocols.ps1'),[
+    'param([string]$LabRoot)',
+    '$normalized = [System.IO.Path]::GetFullPath($LabRoot)',
+    '$encoding = [System.Text.UTF8Encoding]::new($false)',
+    '[System.IO.File]::WriteAllLines((Join-Path $PSScriptRoot "..\\protocol-paths.txt"), @($LabRoot, $normalized), $encoding)',
+    'exit 0'
+  ].join('\r\n')+'\r\n',{encoding:'utf8'});
   fs.writeFileSync(path.join(root,'py.cmd'),'@echo off\r\necho %*>> "%~dp0python-invocation.txt"\r\nexit /b 0\r\n',{encoding:'ascii'});
 }
 
@@ -52,34 +67,58 @@ function readPaths(root,file){
   return fs.readFileSync(path.join(root,file),'utf8').trimEnd().split(/\r?\n/);
 }
 
-test('Windows launchers pass a non-trailing LabRoot to PowerShell and preserve its normalized path',
+test('Windows launcher passes a non-trailing LabRoot to every setup and integration script',
   {skip:process.platform!=='win32'},()=>{
     const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'ai-training-lab-launcher-'));
     try {
       for(const segments of testDirectories){
         const root=path.join(workspace,...segments);
         writeFixture(root);
-        execFileSync('cmd.exe',['/d','/c','Start AI Training Lab.bat'],{
+        const output=execFileSync('cmd.exe',['/d','/c','Start AI Training Lab.bat'],{
           cwd:root,
           encoding:'utf8',
           input:'\r\n',
           timeout:15000
         });
+        assert.match(output,new RegExp(`AI Training Lab v${fs.readFileSync(path.join(root,'VERSION'),'utf8').trim().replaceAll('.', '\\.')}\\b`));
         const expected=fs.realpathSync.native(root);
         const preflight=readPaths(root,'preflight-paths.txt');
         assert.match(preflight[0],/\\\.$/);
         assert.equal(preflight[1],expected);
         const easyStart=readPaths(root,'easy-start-paths.txt');
+        const finish=readPaths(root,'finish-paths.txt');
         const shortcut=readPaths(root,'shortcut-paths.txt');
+        const protocols=readPaths(root,'protocol-paths.txt');
         assert.match(easyStart[0],/\\\.$/);
         assert.equal(easyStart[1],expected);
+        assert.match(finish[0],/\\\.$/);
+        assert.equal(finish[1],expected);
         assert.match(shortcut[0],/\\\.$/);
         assert.equal(shortcut[1],expected);
+        assert.match(protocols[0],/\\\.$/);
+        assert.equal(protocols[1],expected);
         assert.ok(fs.readFileSync(path.join(root,'python-invocation.txt'),'utf8').includes(path.join(root,'server.py')));
       }
     } finally {
       fs.rmSync(workspace,{recursive:true,force:true});
     }
+  });
+
+test('Windows PowerShell setup scripts parse and read the packaged release version',
+  {skip:process.platform!=='win32'},()=>{
+    const files=[
+      'get-lab-version.ps1','easy-start.ps1','finish-setup.ps1',
+      'create-desktop-shortcut.ps1','register-dashboard-protocols.ps1',
+      'prepare-local-server.ps1','setup-training.ps1'
+    ].map(name=>path.join(sourceRoot,'scripts',name));
+    const quote=value=>value.replaceAll("'","''");
+    const expression=[
+      ...files.map(file=>`$tokens=$null; $errors=$null; [System.Management.Automation.Language.Parser]::ParseFile('${quote(file)}',[ref]$tokens,[ref]$errors) | Out-Null; if($errors.Count){ throw "PowerShell parse error: ${path.basename(file)}" }`),
+      `. '${quote(files[0])}'`,
+      `Get-LabVersion '${quote(sourceRoot)}'`
+    ].join('; ');
+    const output=execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-Command',expression],{encoding:'utf8'}).trim();
+    assert.equal(output,fs.readFileSync(path.join(sourceRoot,'VERSION'),'utf8').trim());
   });
 
 

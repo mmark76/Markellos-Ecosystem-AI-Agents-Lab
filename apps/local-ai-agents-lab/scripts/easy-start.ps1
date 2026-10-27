@@ -141,14 +141,14 @@ function Assert-FreeSpace([string]$Root) {
     }
 }
 
-function Start-EasySetup([string]$Root) {
+function Start-EasySetup([string]$Root, [string]$Version) {
     Add-Type -AssemblyName System.Windows.Forms
     Add-Type -AssemblyName System.Drawing
     $initial = Get-SetupStatus
     if ($initial.PythonVersion -and $initial.OllamaRunning -and $initial.DefaultModelReady) { return $true }
 
     $form = New-Object System.Windows.Forms.Form
-    $form.Text = 'AI Lab — Easy Start'
+    $form.Text = "AI Training Lab v$version — Easy Start"
     $form.StartPosition = 'CenterScreen'
     $form.ClientSize = New-Object System.Drawing.Size(580, 355)
     $form.FormBorderStyle = 'FixedDialog'
@@ -157,7 +157,7 @@ function Start-EasySetup([string]$Root) {
     $form.Font = New-Object System.Drawing.Font('Segoe UI', 10)
 
     $title = New-Object System.Windows.Forms.Label
-    $title.Text = 'Set up AI Lab'
+    $title.Text = "Set up AI Training Lab v$version"
     $title.Font = New-Object System.Drawing.Font('Segoe UI Semibold', 18)
     $title.Location = New-Object System.Drawing.Point(24, 20)
     $title.Size = New-Object System.Drawing.Size(530, 38)
@@ -243,10 +243,14 @@ function Start-EasySetup([string]$Root) {
 }
 
 try {
-    if (Start-EasySetup ([System.IO.Path]::GetFullPath($LabRoot))) { exit 0 }
+    $root = [System.IO.Path]::GetFullPath($LabRoot)
+    . (Join-Path $PSScriptRoot 'get-lab-version.ps1')
+    $version = Get-LabVersion $root
+    if (Start-EasySetup $root $version) { exit 0 }
     exit 1
 } catch {
     Add-Type -AssemblyName System.Windows.Forms
-    [System.Windows.Forms.MessageBox]::Show($_.Exception.Message, 'AI Lab — Easy Start', 'OK', 'Error') | Out-Null
+    $dialogTitle = if ($version) { "AI Training Lab v$version — Easy Start" } else { 'AI Training Lab — Easy Start' }
+    [System.Windows.Forms.MessageBox]::Show($_.Exception.Message, $dialogTitle, 'OK', 'Error') | Out-Null
     exit 1
 }

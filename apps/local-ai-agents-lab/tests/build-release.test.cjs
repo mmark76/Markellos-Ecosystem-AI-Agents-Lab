@@ -49,7 +49,7 @@ test('next Windows ZIP bundles both approved learning documents without runtime 
 
 test('Windows training wizard is packaged and opt-in',()=>{
   const root=path.resolve(__dirname,'..');
-  const launcher=fs.readFileSync(path.join(root,'setup-training-windows.bat'),'utf8');
+  const launcher=fs.readFileSync(path.join(root,'setup-training-environment.bat'),'utf8');
   const wizard=fs.readFileSync(path.join(root,'scripts','setup-training.ps1'),'utf8');
   const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
   assert.match(launcher,/setup-training\.ps1/);
@@ -72,15 +72,17 @@ test('packaged README is English only',()=>{
 });
 test('Windows launcher packages the AI Lab desktop shortcut and valid icon',()=>{
   const root=path.resolve(__dirname,'..');
-  const launcher=fs.readFileSync(path.join(root,'start-windows.bat'),'utf8');
+  const launcher=fs.readFileSync(path.join(root,'Start AI Training Lab.bat'),'utf8');
   const shortcut=fs.readFileSync(path.join(root,'scripts','create-desktop-shortcut.ps1'),'utf8');
   const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
   assert.match(launcher,/create-desktop-shortcut\.ps1/);
   const icon=fs.readFileSync(path.join(root,'assets','ai-training-lab.ico'));
-  assert.match(shortcut,/Markellos Ecosystem AI Lab\.lnk/);
+  assert.match(shortcut,/AI Training Lab v\$version\.lnk/);
+  assert.match(shortcut,/Get-LabVersion \$root/);
   assert.match(shortcut,/assets\\ai-training-lab\.ico/);
   assert.match(packager,/'assets\/ai-training-lab\.ico'/);
   assert.match(packager,/'assets\/chatgpt-advisor-avatar\.png'/);
+  assert.match(packager,/'scripts\/get-lab-version\.ps1'/);
   assert.match(packager,/RELEASE_FILE_MAX_BUFFER=16\*1024\*1024/);
   assert.match(packager,/maxBuffer:RELEASE_FILE_MAX_BUFFER/);
   assert.equal(icon.readUInt16LE(0),0);
@@ -90,15 +92,17 @@ test('Windows launcher packages the AI Lab desktop shortcut and valid icon',()=>
 });
 test('Easy Start is packaged, readiness-first, and requires explicit approval for each device change',()=>{
   const root=path.resolve(__dirname,'..');
-  const launcher=fs.readFileSync(path.join(root,'start-windows.bat'),'utf8');
-  const friendlyLauncher=fs.readFileSync(path.join(root,'Start AI Training Lab.bat'),'utf8');
+  const launcher=fs.readFileSync(path.join(root,'Start AI Training Lab.bat'),'utf8');
   const easyStart=fs.readFileSync(path.join(root,'scripts','easy-start.ps1'),'utf8');
   const shortcut=fs.readFileSync(path.join(root,'scripts','create-desktop-shortcut.ps1'),'utf8');
   const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
   assert.match(launcher,/easy-start\.ps1/);
   assert.match(launcher,/-LabRoot "%~dp0\."/g);
   assert.match(launcher,/--launch-server/);
-  assert.match(friendlyLauncher,/start-windows\.bat/);
+  assert.doesNotMatch(launcher,/start-windows\.bat/);
+  assert.doesNotMatch(packager,/'start-windows\.bat'/);
+  assert.doesNotMatch(packager,/'setup-training-windows\.bat'/);
+  assert.match(packager,/'setup-training-environment\.bat'/);
   assert.match(shortcut,/Start AI Training Lab\.bat/);
   assert.match(packager,/Start AI Training Lab\.bat/);
   assert.match(packager,/easy-start\.ps1/);
@@ -112,12 +116,58 @@ test('Easy Start is packaged, readiness-first, and requires explicit approval fo
     assert.doesNotMatch(easyStart,new RegExp(forbidden));
   }
 });
+test('first-run setup remembers the optional shortcut choice and leaves dashboard protocols independent',()=>{
+  const root=path.resolve(__dirname,'..');
+  const launcher=fs.readFileSync(path.join(root,'Start AI Training Lab.bat'),'utf8');
+  const finish=fs.readFileSync(path.join(root,'scripts','finish-setup.ps1'),'utf8');
+  const shortcut=fs.readFileSync(path.join(root,'scripts','create-desktop-shortcut.ps1'),'utf8');
+  const protocols=fs.readFileSync(path.join(root,'scripts','register-dashboard-protocols.ps1'),'utf8');
+  const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
+  assert.match(launcher,/finish-setup\.ps1/);
+  assert.match(launcher,/register-dashboard-protocols\.ps1/);
+  assert.match(launcher,/create-desktop-shortcut\.ps1/);
+  assert.match(finish,/setup-preferences\.json/);
+  assert.match(finish,/Create a Desktop shortcut/);
+  assert.match(finish,/Finish & Start/);
+  assert.match(finish,/DialogResult\]::Cancel/);
+  assert.match(finish,/if \(\$result -ne \[System\.Windows\.Forms\.DialogResult\]::OK\) \{ exit 1 \}/);
+  assert.match(finish,/desktopShortcut = \$createShortcut/);
+  assert.match(shortcut,/if \(-not \$preferences\.desktopShortcut\) \{ exit 0 \}/);
+  assert.doesNotMatch(shortcut,/HKCU:\\Software\\Classes/);
+  assert.match(protocols,/HKCU:\\Software\\Classes/);
+  assert.match(packager,/'scripts\/finish-setup\.ps1'/);
+  assert.match(packager,/'scripts\/register-dashboard-protocols\.ps1'/);
+});
+test('Windows installer and shortcut display the version from the packaged VERSION file',()=>{
+  const root=path.resolve(__dirname,'..');
+  const read=name=>fs.readFileSync(path.join(root,name),'utf8');
+  const versionReader=read('scripts/get-lab-version.ps1');
+  const shortcut=read('scripts/create-desktop-shortcut.ps1');
+  const finish=read('scripts/finish-setup.ps1');
+  const easyStart=read('scripts/easy-start.ps1');
+  const training=read('scripts/setup-training.ps1');
+  const protocols=read('scripts/register-dashboard-protocols.ps1');
+  const preflight=read('scripts/prepare-local-server.ps1');
+  const launcher=read('Start AI Training Lab.bat');
+  assert.match(versionReader,/Join-Path \$Root 'VERSION'/);
+  assert.match(versionReader,/\^\\d\+\\\.\\d\+\\\.\\d\+\$/);
+  for(const script of [shortcut,finish,easyStart,training,protocols,preflight]){
+    assert.match(script,/get-lab-version\.ps1/);
+    assert.match(script,/Get-LabVersion/);
+    assert.match(script,/v\$version/);
+  }
+  assert.match(shortcut,/"AI Training Lab v\$version\.lnk"/);
+  assert.match(shortcut,/\$shortcut\.Description = "Set up and open AI Training Lab v\$version/);
+  assert.match(finish,/Create a Desktop shortcut: AI Training Lab v\$version/);
+  assert.match(launcher,/%%V in \("%~dp0VERSION"\)/);
+  assert.match(launcher,/AI Training Lab v%LAB_VERSION%/);
+});
 test('Windows PowerShell 5.1 can decode Easy Start Unicode labels',()=>{
   const root=path.resolve(__dirname,'..');
   const script=fs.readFileSync(path.join(root,'scripts','easy-start.ps1'));
   assert.equal(script.subarray(0,3).toString('hex'),'efbbbf','powershell.exe requires a UTF-8 BOM to read non-ASCII script text correctly');
   const source=script.toString('utf8');
-  assert.match(source,/AI Lab — Easy Start/);
+  assert.match(source,/AI Training Lab v\$version — Easy Start/);
   assert.match(source,/Starting Ollama locally…/);
 });
 test('three-panel interaction script is included in the Windows release',()=>{
@@ -179,13 +229,15 @@ test('a VERSION bump on main automatically creates the matching release ZIP',()=
   assert.match(workflow,/'apps\/local-ai-agents-lab\/VERSION'/);
   assert.match(workflow,/gh release create/);
   assert.match(workflow,/--target "\$GITHUB_SHA"/);
-  assert.match(workflow,/AI-Agents-Lab-Windows\.zip/);
+  assert.match(workflow,/AI-Agents-Lab-Windows-v\$\{version\}\.zip/);
+  assert.match(workflow,/AI-Agents-Lab-Windows-\$\{\{ steps\.version\.outputs\.tag \}\}\.zip/);
+  assert.doesNotMatch(workflow,/AI-Agents-Lab-Windows\.zip/);
 });
 
 
 test('Dashboard launcher uses fixed per-user protocols for opening and safely refreshing the existing Windows starter',()=>{
   const root=path.resolve(__dirname,'..');
-  const register=fs.readFileSync(path.join(root,'scripts','create-desktop-shortcut.ps1'),'utf8');
+  const register=fs.readFileSync(path.join(root,'scripts','register-dashboard-protocols.ps1'),'utf8');
   const handler=fs.readFileSync(path.join(root,'scripts','launch-from-dashboard.ps1'),'utf8');
   const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
   assert.match(register,/HKCU:\\Software\\Classes\\' \+ \$registration\.Name/);
@@ -253,7 +305,7 @@ test('beginner fine-tuning guide and personal provider planner are bundled while
 
 test('Windows replacement preflight is bundled and never indiscriminately kills port owners',()=>{
   const root=path.resolve(__dirname,'..');
-  const launcher=fs.readFileSync(path.join(root,'start-windows.bat'),'utf8');
+  const launcher=fs.readFileSync(path.join(root,'Start AI Training Lab.bat'),'utf8');
   const preflight=fs.readFileSync(path.join(root,'scripts','prepare-local-server.ps1'),'utf8');
   const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
   assert.match(packager,/'scripts\/prepare-local-server\.ps1'/);

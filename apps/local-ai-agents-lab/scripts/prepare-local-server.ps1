@@ -47,6 +47,8 @@ try {
         throw 'Windows TCP ownership inspection is unavailable. The server was not changed.'
     }
     $root = [IO.Path]::GetFullPath($LabRoot)
+    . (Join-Path $PSScriptRoot 'get-lab-version.ps1')
+    $version = Get-LabVersion $root
     $listeners = @(Get-NetTCPConnection -LocalPort 8765 -State Listen -ErrorAction SilentlyContinue)
     if ($listeners.Count -eq 0) { exit 0 }
 
@@ -71,7 +73,7 @@ try {
         $message = "PID $ownerPid belongs to $description.`r`n`r`nScript: $($identity.ScriptPath)`r`n`r`nReplacing the server interrupts any active agent run. Close it and start this copy?"
     }
     $choice = [System.Windows.Forms.MessageBox]::Show(
-        $message, 'AI Training Lab - Local server replacement',
+        $message, "AI Training Lab v$version - Local server replacement",
         [System.Windows.Forms.MessageBoxButtons]::YesNo,
         [System.Windows.Forms.MessageBoxIcon]::Warning,
         [System.Windows.Forms.MessageBoxDefaultButton]::Button2

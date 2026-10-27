@@ -3,6 +3,8 @@ param()
 
 $ErrorActionPreference = 'Stop'
 $appRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $PSScriptRoot 'get-lab-version.ps1')
+$version = Get-LabVersion $appRoot
 $venv = Join-Path $appRoot 'training\.venv'
 $requirements = Join-Path $appRoot 'training\requirements.txt'
 $python = $null
@@ -22,7 +24,7 @@ function Invoke-VenvPython([string[]]$Arguments) {
 }
 
 Write-Host ''
-Write-Host 'Markellos Ecosystem AI Lab - Training Setup Wizard' -ForegroundColor Cyan
+Write-Host "AI Training Lab v$version - Training Setup Wizard" -ForegroundColor Cyan
 Write-Host 'This optional wizard configures only local Python training libraries.'
 Write-Host 'It does not change Ollama, SQLite data, models, or datasets.'
 

@@ -3,7 +3,7 @@
 (() => {
   const API = 'https://api.github.com/repos/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases';
   const DOWNLOAD = 'https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/';
-  const ZIP = 'AI-Agents-Lab-Windows.zip';
+  const LEGACY_ZIP = 'AI-Agents-Lab-Windows.zip';
   const versionPattern = /^v\d+\.\d+\.\d+$/;
   const digestPattern = /^sha256:[a-f0-9]{64}$/;
 
@@ -15,11 +15,12 @@
       if (!release || release.draft || !versionPattern.test(release.tag_name)) continue;
       const version = release.tag_name.slice(1);
       if (r2Versions.has(version) || found.has(version)) continue;
+      const versionedZip = 'AI-Agents-Lab-Windows-' + release.tag_name + '.zip';
       const asset = Array.isArray(release.assets) && release.assets.find(item =>
-        item.name === ZIP && item.state === 'uploaded' && digestPattern.test(item.digest));
+        (item.name === versionedZip || item.name === LEGACY_ZIP) && item.state === 'uploaded' && digestPattern.test(item.digest));
       if (!asset) continue;
       found.add(version);
-      items.push({version, sha256: asset.digest.slice(7), url: DOWNLOAD + release.tag_name + '/' + ZIP});
+      items.push({version, sha256: asset.digest.slice(7), url: DOWNLOAD + release.tag_name + '/' + asset.name});
     }
     return items.sort((a, b) => {
       const x = a.version.split('.').map(Number);

@@ -56,22 +56,24 @@ for (const release of betaHistory) {
   if (!/^\d+\.\d+\.\d+$/.test(release.version) || betaVersions.has(release.version) || seenVersions.has(release.version))
     throw new Error('Invalid, duplicate or R2-overlapping GitHub BETA version');
   if (!/^[a-f0-9]{64}$/.test(release.sha256)) throw new Error('Invalid GitHub BETA SHA-256');
+  if (release.assetName !== undefined && release.assetName !== `AI-Agents-Lab-Windows-v${release.version}.zip`)
+    throw new Error('Invalid GitHub BETA versioned ZIP asset name');
   betaVersions.add(release.version);
 }
 const githubBetaRelease = betaHistory[0];
 const commit = git(['rev-parse', '--short=7', 'HEAD']);
 const buildId = `v${releaseVersion}_${cyprusTimestamp(new Date())}_${commit}`;
 const indexPath = join(output, 'index.html');
-const githubReleaseAssetUrl = version => `https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v${version}/AI-Agents-Lab-Windows.zip`;
+const githubReleaseAssetUrl = release => `https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v${release.version}/${release.assetName || 'AI-Agents-Lab-Windows.zip'}`;
 const releaseItem = ({ version, url, sha256 }) => `<li><a data-zip-version="v${version}" data-zip-sha256="${sha256}" href="${url}">v${version}</a><code title="SHA-256: ${sha256}">${sha256.slice(0, 7)}</code></li>`;
 const featuredR2 = [currentRelease, ...['2.0.15', '2.0.4'].map(version => releaseHistory.find(release => release.version === version)).filter(Boolean)];
 const featuredVersions = new Set(featuredR2.map(release => release.version));
 const historicalR2 = releaseHistory.filter(release => !featuredVersions.has(release.version));
 const milestoneLinks = featuredR2.map(releaseItem).join('');
 const releaseLinks = historicalR2.map(releaseItem).join('');
-const betaLinks = betaHistory.map(({version,sha256}) => releaseItem({version, sha256, url:githubReleaseAssetUrl(version)})).join('');
+const betaLinks = betaHistory.map(release => releaseItem({...release, url:githubReleaseAssetUrl(release)})).join('');
 const injectPageIdentity = html => html.replaceAll('{{BUILD_ID}}', buildId).replaceAll('{{RELEASE_VERSION}}', `v${githubBetaRelease.version}`);
-writeFileSync(indexPath, injectPageIdentity(readFileSync(indexPath, 'utf8')).replaceAll('{{PUBLIC_MILESTONE_VERSION}}', `v${currentRelease.version}`).replaceAll('{{GITHUB_RELEASE_URL}}', githubReleaseAssetUrl(githubBetaRelease.version)).replaceAll('{{GITHUB_RELEASE_VERSION}}', 'v'+githubBetaRelease.version).replaceAll('{{GITHUB_RELEASE_SHA256}}', githubBetaRelease.sha256).replaceAll('{{R2_MILESTONE_HISTORY}}', milestoneLinks).replaceAll('{{R2_LEGACY_COUNT}}', String(historicalR2.length)).replaceAll('{{RELEASE_HISTORY}}', releaseLinks).replaceAll('{{GITHUB_BETA_HISTORY}}', betaLinks));
+writeFileSync(indexPath, injectPageIdentity(readFileSync(indexPath, 'utf8')).replaceAll('{{PUBLIC_MILESTONE_VERSION}}', `v${currentRelease.version}`).replaceAll('{{GITHUB_RELEASE_URL}}', githubReleaseAssetUrl(githubBetaRelease)).replaceAll('{{GITHUB_RELEASE_VERSION}}', 'v'+githubBetaRelease.version).replaceAll('{{GITHUB_RELEASE_SHA256}}', githubBetaRelease.sha256).replaceAll('{{R2_MILESTONE_HISTORY}}', milestoneLinks).replaceAll('{{R2_LEGACY_COUNT}}', String(historicalR2.length)).replaceAll('{{RELEASE_HISTORY}}', releaseLinks).replaceAll('{{GITHUB_BETA_HISTORY}}', betaLinks));
 for (const page of ['simple-guide.html', 'app-description.html']) {
   const pagePath = join(output, page);
   writeFileSync(pagePath, injectPageIdentity(readFileSync(pagePath, 'utf8')));

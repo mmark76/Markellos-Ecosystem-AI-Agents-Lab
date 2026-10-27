@@ -176,7 +176,9 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(guide, /Refresh Local Server/);
   assert.doesNotMatch(html, /\{\{LEGACY_DOWNLOAD_BUTTON\}\}/);
   assert.match(html, /Starter AI Model/);
-  assert.match(guide, /Easy Start creates or updates a Windows Desktop shortcut/);
+  assert.match(guide, /Easy Start remembers whether you requested a Windows Desktop shortcut/);
+  assert.match(guide, /setup-training-environment\.bat/);
+  assert.doesNotMatch(guide, /start-windows\.bat|setup-training-windows\.bat/);
 
   assert.match(html, /asks separately before installing Python, Ollama, or the initial local model/);
   assert.doesNotMatch(html, /You do not need a GitHub account/);
@@ -229,8 +231,8 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(guide, /Start AI Training Lab\.bat/);
   assert.doesNotMatch(html, /Start AI Agents Lab\.bat/);
   assert.doesNotMatch(guide, /Start AI Agents Lab\.bat/);
-  assert.match(guide, /start-windows\.bat/);
-  assert.match(guide, /setup-training-windows\.bat/);
+  assert.match(guide, /setup-training-environment\.bat/);
+  assert.doesNotMatch(guide, /start-windows\.bat|setup-training-windows\.bat/);
   assert.match(guide, /Technical Documentation/);
   assert.match(guide, /Advanced: Model Fine-Tuning/);
   assert.match(guide, /README\.md/);
@@ -266,7 +268,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.ok(technical.includes('**Featured Cloudflare R2 milestone:** v' + currentDistribution.version));
   assert.doesNotMatch(technical, /\{\{LOCAL_LAB_VERSION\}\}|\{\{PUBLIC_MILESTONE_VERSION\}\}/);
   assert.match(technical, /Quick Start \(Windows\)/);
-  assert.match(technical, /Understanding the three Windows \.bat files/);
+  assert.match(technical, /Understanding the two Windows \.bat files/);
   assert.match(technical, /Start AI Training Lab\.bat/);
   assert.doesNotMatch(technical, /Start AI Agents Lab\.bat/);
   assert.match(technical, /Technical README/);
@@ -362,8 +364,11 @@ test('GitHub BETA archive filters R2 versions and invalid assets without duplica
     {tag_name:'unsafe',draft:false,assets:valid('2.0.20').assets},
     {tag_name:'v2.0.21',draft:false,assets:[{name:'AI-Agents-Lab-Windows.zip',state:'uploaded',digest:'sha256:bad'}]},
     {tag_name:'v2.0.22',draft:false,assets:[{name:'other.zip',state:'uploaded',digest}]},
+    {tag_name:'v2.0.24',draft:false,assets:[{name:'AI-Agents-Lab-Windows-v2.0.24.zip',state:'uploaded',digest}]},
   ], new Set(['2.0.16']));
-  assert.deepEqual(result.map(item => item.version), ['2.0.19','2.0.18','2.0.17']);
+  assert.deepEqual(result.map(item => item.version), ['2.0.24','2.0.19','2.0.18','2.0.17']);
+  assert.ok(result[0].url.endsWith('/v2.0.24/AI-Agents-Lab-Windows-v2.0.24.zip'));
+  assert.ok(result[1].url.endsWith('/v2.0.19/AI-Agents-Lab-Windows.zip'));
   assert.ok(result.every(item => item.sha256 === 'a'.repeat(64)));
   assert.ok(result.every(item => item.url.startsWith('https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v')));
   const headers = readFileSync(join(app, '_headers'), 'utf8');
