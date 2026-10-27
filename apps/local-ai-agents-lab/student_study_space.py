@@ -50,7 +50,7 @@ class StudentStudySpace:
             db.execute("CREATE INDEX IF NOT EXISTS idx_student_study_materials_owner ON student_study_materials(owner_role,id)")
 
     def get(self):
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             row = db.execute("SELECT notes,updated_at FROM student_study_notes WHERE owner_role=?", (OWNER_ROLE,)).fetchone()
             materials = db.execute(
                 "SELECT id,title,content,created_at FROM student_study_materials WHERE owner_role=? ORDER BY id DESC",
@@ -68,7 +68,7 @@ class StudentStudySpace:
     def save_notes(self, notes):
         if not isinstance(notes, str) or len(notes) > MAX_NOTES:
             raise StudySpaceError(f"Notes must be no more than {MAX_NOTES} characters.")
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute(
                 """INSERT INTO student_study_notes(owner_role,notes,updated_at) VALUES(?,?,?)
                    ON CONFLICT(owner_role) DO UPDATE SET notes=excluded.notes,updated_at=excluded.updated_at""",
@@ -81,7 +81,7 @@ class StudentStudySpace:
             raise StudySpaceError(f"Enter a title of up to {MAX_TITLE} characters.")
         if not isinstance(content, str) or not 1 <= len(content.strip()) <= MAX_CONTENT:
             raise StudySpaceError(f"Enter material of up to {MAX_CONTENT} characters.")
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             count = db.execute("SELECT COUNT(*) FROM student_study_materials WHERE owner_role=?", (OWNER_ROLE,)).fetchone()[0]
             if count >= MAX_MATERIALS:
                 raise StudySpaceError(f"This study space can hold up to {MAX_MATERIALS} materials.")
