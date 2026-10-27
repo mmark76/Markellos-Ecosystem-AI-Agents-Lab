@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/static/ecosystem-tokens.css">
   <link rel="stylesheet" href="/static/style.css">
   <link rel="stylesheet" href="/static/evaluation.css">
+  <script defer src="/static/study-space.js"></script>
   <script defer src="/static/app.js"></script>
   <script defer src="/static/evaluation.js"></script>
   <script defer src="/static/settings.js"></script>
@@ -117,6 +118,10 @@ Completeness</textarea>
     <section id="auto-exercise-feature" class="exercise-feature" aria-label="Automatic Exercise Engine">
       <div class="exercise-feature-heading"><strong>Automatic Exercise Engine</strong><span class="nav-status">Unavailable - Under Construction</span></div>
       <p>Future feature · Exercise Library: 0 exercises available. Manual Training Lab sessions remain available.</p>
+    </section>
+    <section id="student-alpha-study-feature" class="student-study-feature" aria-label="Student Alpha Study Space">
+      <div><p class="eyebrow">TRAINING LAB · STUDENT ALPHA</p><h2>Student Alpha Study Space</h2><p>Keep short study material and notes on this device, then choose what to place in a Training Lab session.</p></div>
+      <button id="student-study-space-open" type="button" aria-haspopup="dialog" aria-controls="student-study-space-dialog" hidden>Open Student Alpha Study Space</button>
     </section>
     <form id="composer" class="composer">
       <label for="prompt" id="prompt-label">Training Topic</label>
@@ -267,5 +272,40 @@ Completeness</textarea>
   <div class="connection-dialog-heading"><div><p class="eyebrow">OPTIONAL CONNECTION</p><h2 id="personal-provider-dialog-title">Personal provider</h2></div><button type="button" class="dialog-close" data-dialog-close aria-label="Close personal provider">×</button></div>
   <div class="connection-dialog-content personal-provider-workspace" id="personal-provider-dialog-content"></div>
 </dialog>
+  <dialog id="student-study-space-dialog" class="student-study-dialog" aria-labelledby="student-study-space-title">
+    <div class="student-study-dialog-heading">
+      <div><p class="eyebrow">TRAINING LAB · training:Student</p><h2 id="student-study-space-title">Student Alpha Study Space</h2></div>
+      <button id="student-study-space-close" type="button" aria-label="Close Student Alpha Study Space">Close</button>
+    </div>
+    <div class="student-study-dialog-content">
+      <p>Materials and notes are stored in the local Lab database on this device. They are not synchronized with StudyApp. Saved database content is not encrypted by the Lab.</p>
+      <section aria-labelledby="student-study-materials-title">
+        <h3 id="student-study-materials-title">Study material</h3>
+        <div id="student-study-materials" class="student-study-materials" aria-live="polite"></div>
+        <form id="student-study-material-form" class="student-study-form">
+          <label for="student-study-material-title">Title</label>
+          <input id="student-study-material-title" maxlength="120" required autocomplete="off">
+          <label for="student-study-material-content">Paste a short excerpt (up to 1,400 characters)</label>
+          <textarea id="student-study-material-content" rows="5" maxlength="1400" required></textarea>
+          <span id="student-study-material-content-count" class="student-study-count">0 / 1,400</span>
+          <button type="submit">Add material</button>
+        </form>
+      </section>
+      <form id="student-study-notes-form" class="student-study-form student-study-notes-form">
+        <label for="student-study-notes">Student Alpha’s notes (up to 600 characters)</label>
+        <textarea id="student-study-notes" rows="3" maxlength="600"></textarea>
+        <span id="student-study-notes-count" class="student-study-count">0 / 600</span>
+        <button type="submit">Save notes</button>
+      </form>
+      <form id="student-study-start-form" class="student-study-form student-study-start">
+        <label for="student-study-focus">Focus question (optional)</label>
+        <input id="student-study-focus" maxlength="240" placeholder="What should Student Alpha focus on?">
+        <label class="student-study-checkbox"><input id="student-study-include-notes" type="checkbox"> Include saved notes in this study prompt</label>
+        <button type="submit">Place selected material in Training Topic</button>
+        <p>The text is not sent until you review it and select Start Training. Starting a session stores it in normal Training Lab history and sends it to the configured local Ollama model.</p>
+      </form>
+      <p id="student-study-space-status" class="student-study-status" role="status" aria-live="polite"></p>
+    </div>
+  </dialog>
 </body>
 </html>
