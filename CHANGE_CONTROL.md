@@ -6,10 +6,10 @@
 Change ID: AI-LAB-CC-098
 Requested by: User
 Date: 2026-10-28
-Description: Consolidate the Windows launcher into Start AI Training Lab.bat, rename the separate advanced setup to setup-training-environment.bat, provide a graphical first-run Desktop shortcut choice, and give new GitHub release ZIP assets versioned filenames.
-Reason: Remove two overlapping Start options, make the advanced setup purpose explicit, allow the user to decide whether a Desktop icon is created, and make downloaded ZIP versions identifiable.
+Description: Consolidate the Windows launcher into Start AI Training Lab.bat, rename the separate advanced setup to setup-training-environment.bat, provide a graphical first-run Desktop shortcut choice, label the Desktop shortcut and Windows setup/launch surfaces with the version read from VERSION, and give new GitHub release ZIP assets versioned filenames.
+Reason: Remove two overlapping Start options, make the advanced setup purpose explicit, allow the user to decide whether a Desktop icon is created, and make both downloaded ZIPs and Windows shortcuts/display surfaces identifiable by version.
 Affected objective IDs: AI-LAB-OBJ-003, AI-LAB-OBJ-012
-Architecture impact: One public BAT launcher; isolated first-run preference file and shortcut creation; independent dashboard protocol registration; future release workflow asset naming only. No Python server, AI engine, or public routing changes.
+Architecture impact: One public BAT launcher; isolated first-run preference file and shortcut creation; shared local VERSION reader for PowerShell display surfaces; independent dashboard protocol registration; future release workflow asset naming only. No Python server, AI engine, or public routing changes.
 Security and privacy impact: No new dependency, external service, telemetry, elevated privilege, or silent installation. Previous individual device-change approvals remain required. Desktop preference remains in the excluded local data folder.
 Data impact: One local non-secret data/setup-preferences.json file per extracted folder. No SQLite migration. No automatic removal of old Desktop shortcuts.
 Testing impact: Source and Windows launcher regression, release manifest/build, full repository validation, and pending manual Windows first-run/keyboard/scale smoke test.

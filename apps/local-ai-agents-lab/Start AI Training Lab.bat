@@ -1,6 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0"
+for /f "usebackq delims=" %%V in ("%~dp0VERSION") do set "LAB_VERSION=%%V"
 if /I not "%~1"=="--launch-server" (
   powershell.exe -NoProfile -ExecutionPolicy Bypass -STA -File "%~dp0scripts\easy-start.ps1" -LabRoot "%~dp0."
   if errorlevel 1 (
@@ -30,7 +31,7 @@ if errorlevel 1 echo Warning: Dashboard launch actions could not be registered.
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\create-desktop-shortcut.ps1" -LabRoot "%~dp0."
 if errorlevel 1 echo Warning: Desktop shortcut preference could not be applied.
 echo ==========================================
-echo Markellos Ecosystem AI Lab
+echo AI Training Lab v%LAB_VERSION%
 echo Open: http://127.0.0.1:8765/
 echo Close this window or press Ctrl+C to stop.
 echo ==========================================

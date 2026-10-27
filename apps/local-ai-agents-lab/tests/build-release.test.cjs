@@ -77,10 +77,12 @@ test('Windows launcher packages the AI Lab desktop shortcut and valid icon',()=>
   const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
   assert.match(launcher,/create-desktop-shortcut\.ps1/);
   const icon=fs.readFileSync(path.join(root,'assets','ai-training-lab.ico'));
-  assert.match(shortcut,/Markellos Ecosystem AI Lab\.lnk/);
+  assert.match(shortcut,/AI Training Lab v\$version\.lnk/);
+  assert.match(shortcut,/Get-LabVersion \$root/);
   assert.match(shortcut,/assets\\ai-training-lab\.ico/);
   assert.match(packager,/'assets\/ai-training-lab\.ico'/);
   assert.match(packager,/'assets\/chatgpt-advisor-avatar\.png'/);
+  assert.match(packager,/'scripts\/get-lab-version\.ps1'/);
   assert.match(packager,/RELEASE_FILE_MAX_BUFFER=16\*1024\*1024/);
   assert.match(packager,/maxBuffer:RELEASE_FILE_MAX_BUFFER/);
   assert.equal(icon.readUInt16LE(0),0);
@@ -136,12 +138,36 @@ test('first-run setup remembers the optional shortcut choice and leaves dashboar
   assert.match(packager,/'scripts\/finish-setup\.ps1'/);
   assert.match(packager,/'scripts\/register-dashboard-protocols\.ps1'/);
 });
+test('Windows installer and shortcut display the version from the packaged VERSION file',()=>{
+  const root=path.resolve(__dirname,'..');
+  const read=name=>fs.readFileSync(path.join(root,name),'utf8');
+  const versionReader=read('scripts/get-lab-version.ps1');
+  const shortcut=read('scripts/create-desktop-shortcut.ps1');
+  const finish=read('scripts/finish-setup.ps1');
+  const easyStart=read('scripts/easy-start.ps1');
+  const training=read('scripts/setup-training.ps1');
+  const protocols=read('scripts/register-dashboard-protocols.ps1');
+  const preflight=read('scripts/prepare-local-server.ps1');
+  const launcher=read('Start AI Training Lab.bat');
+  assert.match(versionReader,/Join-Path \$Root 'VERSION'/);
+  assert.match(versionReader,/\^\\d\+\\\.\\d\+\\\.\\d\+\$/);
+  for(const script of [shortcut,finish,easyStart,training,protocols,preflight]){
+    assert.match(script,/get-lab-version\.ps1/);
+    assert.match(script,/Get-LabVersion/);
+    assert.match(script,/v\$version/);
+  }
+  assert.match(shortcut,/"AI Training Lab v\$version\.lnk"/);
+  assert.match(shortcut,/\$shortcut\.Description = "Set up and open AI Training Lab v\$version/);
+  assert.match(finish,/Create a Desktop shortcut: AI Training Lab v\$version/);
+  assert.match(launcher,/%%V in \("%~dp0VERSION"\)/);
+  assert.match(launcher,/AI Training Lab v%LAB_VERSION%/);
+});
 test('Windows PowerShell 5.1 can decode Easy Start Unicode labels',()=>{
   const root=path.resolve(__dirname,'..');
   const script=fs.readFileSync(path.join(root,'scripts','easy-start.ps1'));
   assert.equal(script.subarray(0,3).toString('hex'),'efbbbf','powershell.exe requires a UTF-8 BOM to read non-ASCII script text correctly');
   const source=script.toString('utf8');
-  assert.match(source,/AI Lab — Easy Start/);
+  assert.match(source,/AI Training Lab v\$version — Easy Start/);
   assert.match(source,/Starting Ollama locally…/);
 });
 test('three-panel interaction script is included in the Windows release',()=>{

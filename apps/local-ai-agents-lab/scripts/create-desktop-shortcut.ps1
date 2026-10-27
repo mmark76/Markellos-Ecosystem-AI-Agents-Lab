@@ -7,6 +7,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $root = [System.IO.Path]::GetFullPath($LabRoot)
+. (Join-Path $PSScriptRoot 'get-lab-version.ps1')
+$version = Get-LabVersion $root
 $launcher = Join-Path $root 'Start AI Training Lab.bat'
 $icon = Join-Path $root 'assets\ai-training-lab.ico'
 $preferencesFile = Join-Path $root 'data\setup-preferences.json'
@@ -24,10 +26,10 @@ if (-not (Test-Path -LiteralPath $icon -PathType Leaf)) {
 
 $shell = New-Object -ComObject WScript.Shell
 $desktop = $shell.SpecialFolders('Desktop')
-$shortcutPath = Join-Path $desktop 'Markellos Ecosystem AI Lab.lnk'
+$shortcutPath = Join-Path $desktop "AI Training Lab v$version.lnk"
 $shortcut = $shell.CreateShortcut($shortcutPath)
 $shortcut.TargetPath = $launcher
 $shortcut.WorkingDirectory = $root
 $shortcut.IconLocation = "$icon,0"
-$shortcut.Description = 'Set up and open the local Markellos AI Lab.'
+$shortcut.Description = "Set up and open AI Training Lab v$version (local)."
 $shortcut.Save()

@@ -128,10 +128,12 @@ untouched.
 
 ### Desktop shortcut
 
-The first successful Easy Start run asks whether to create a **Markellos Ecosystem
-AI Lab** shortcut on the current user's Desktop. If chosen, it uses the included
+The first successful Easy Start run asks whether to create a version-labeled
+**AI Training Lab vX.Y.Z** shortcut on the current user's Desktop (using the
+version read from this folder's `VERSION` file). If chosen, it uses the included
 AI Lab icon and points to **`Start AI Training Lab.bat`**, so it repeats the same
-readiness check. The choice is saved in `data/setup-preferences.json` and reused
+readiness check. The setup dialogs and optional training setup wizard also show
+this version. The choice is saved in `data/setup-preferences.json` and reused
 for subsequent starts from this extracted folder. Choosing no does not delete
 a shortcut belonging to an older installation. The dashboard Launch/Refresh
 handlers work independently of this choice. Shortcut creation is local only.
@@ -139,8 +141,9 @@ handlers work independently of this choice. Shortcut creation is local only.
 The Lab folder is the folder where the user extracted
 the downloaded Windows ZIP; no separate or hidden installation folder is
 created. After manually updating to a new extracted folder, run that folder's
-`Start AI Training Lab.bat` once to choose whether the shortcut should point
-to the new copy, and to update the dashboard launch handlers.
+`Start AI Training Lab.bat` once to choose whether to create that version's
+shortcut and to update the dashboard launch handlers. Old version shortcuts are
+not removed automatically, so remove those you no longer need manually.
 
 ## Updates
 

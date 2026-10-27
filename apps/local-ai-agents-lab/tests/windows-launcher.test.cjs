@@ -21,6 +21,7 @@ const testDirectories=[
 
 function writeFixture(root){
   fs.mkdirSync(path.join(root,'scripts'),{recursive:true});
+  fs.copyFileSync(path.join(sourceRoot,'VERSION'),path.join(root,'VERSION'));
   for(const launcher of launcherNames){
     fs.copyFileSync(path.join(sourceRoot,launcher),path.join(root,launcher));
   }
@@ -73,12 +74,13 @@ test('Windows launcher passes a non-trailing LabRoot to every setup and integrat
       for(const segments of testDirectories){
         const root=path.join(workspace,...segments);
         writeFixture(root);
-        execFileSync('cmd.exe',['/d','/c','Start AI Training Lab.bat'],{
+        const output=execFileSync('cmd.exe',['/d','/c','Start AI Training Lab.bat'],{
           cwd:root,
           encoding:'utf8',
           input:'\r\n',
           timeout:15000
         });
+        assert.match(output,new RegExp(`AI Training Lab v${fs.readFileSync(path.join(root,'VERSION'),'utf8').trim().replaceAll('.', '\\.')}\\b`));
         const expected=fs.realpathSync.native(root);
         const preflight=readPaths(root,'preflight-paths.txt');
         assert.match(preflight[0],/\\\.$/);
@@ -100,6 +102,23 @@ test('Windows launcher passes a non-trailing LabRoot to every setup and integrat
     } finally {
       fs.rmSync(workspace,{recursive:true,force:true});
     }
+  });
+
+test('Windows PowerShell setup scripts parse and read the packaged release version',
+  {skip:process.platform!=='win32'},()=>{
+    const files=[
+      'get-lab-version.ps1','easy-start.ps1','finish-setup.ps1',
+      'create-desktop-shortcut.ps1','register-dashboard-protocols.ps1',
+      'prepare-local-server.ps1','setup-training.ps1'
+    ].map(name=>path.join(sourceRoot,'scripts',name));
+    const quote=value=>value.replaceAll("'","''");
+    const expression=[
+      ...files.map(file=>`$tokens=$null; $errors=$null; [System.Management.Automation.Language.Parser]::ParseFile('${quote(file)}',[ref]$tokens,[ref]$errors) | Out-Null; if($errors.Count){ throw "PowerShell parse error: ${path.basename(file)}" }`),
+      `. '${quote(files[0])}'`,
+      `Get-LabVersion '${quote(sourceRoot)}'`
+    ].join('; ');
+    const output=execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-Command',expression],{encoding:'utf8'}).trim();
+    assert.equal(output,fs.readFileSync(path.join(sourceRoot,'VERSION'),'utf8').trim());
   });
 
 

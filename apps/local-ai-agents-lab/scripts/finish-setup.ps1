@@ -9,6 +9,8 @@ $ErrorActionPreference = 'Stop'
 
 try {
     $root = [System.IO.Path]::GetFullPath($LabRoot)
+    . (Join-Path $PSScriptRoot 'get-lab-version.ps1')
+    $version = Get-LabVersion $root
     $dataDir = Join-Path $root 'data'
     $preferencesFile = Join-Path $dataDir 'setup-preferences.json'
 
@@ -24,7 +26,7 @@ try {
     Add-Type -AssemblyName System.Drawing
 
     $form = New-Object System.Windows.Forms.Form
-    $form.Text = 'AI Training Lab - Finish setup'
+    $form.Text = "AI Training Lab v$version - Finish setup"
     $form.StartPosition = 'CenterScreen'
     $form.ClientSize = New-Object System.Drawing.Size(540, 265)
     $form.MinimumSize = New-Object System.Drawing.Size(460, 305)
@@ -34,7 +36,7 @@ try {
     $form.AutoScaleMode = [System.Windows.Forms.AutoScaleMode]::Font
 
     $title = New-Object System.Windows.Forms.Label
-    $title.Text = 'Your Lab is ready'
+    $title.Text = "AI Training Lab v$version is ready"
     $title.Font = New-Object System.Drawing.Font('Segoe UI Semibold', 17)
     $title.Location = New-Object System.Drawing.Point(24, 18)
     $title.Size = New-Object System.Drawing.Size(490, 38)
@@ -49,7 +51,7 @@ try {
     $form.Controls.Add($description)
 
     $desktop = New-Object System.Windows.Forms.CheckBox
-    $desktop.Text = 'Create a Desktop shortcut'
+    $desktop.Text = "Create a Desktop shortcut: AI Training Lab v$version"
     $desktop.Checked = $true
     $desktop.Location = New-Object System.Drawing.Point(26, 141)
     $desktop.Size = New-Object System.Drawing.Size(470, 34)
@@ -86,6 +88,7 @@ try {
     exit 0
 } catch {
     Add-Type -AssemblyName System.Windows.Forms
-    [System.Windows.Forms.MessageBox]::Show($_.Exception.Message, 'AI Training Lab - Setup', 'OK', 'Error') | Out-Null
+    $dialogTitle = if ($version) { "AI Training Lab v$version - Setup" } else { 'AI Training Lab - Setup' }
+    [System.Windows.Forms.MessageBox]::Show($_.Exception.Message, $dialogTitle, 'OK', 'Error') | Out-Null
     exit 1
 }
