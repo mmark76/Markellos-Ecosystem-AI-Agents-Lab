@@ -453,30 +453,6 @@ class Handler(BaseHTTPRequestHandler):
             except CredentialVaultError as err:
                 self._json({"error": str(err)}, 503)
             return
-        if self.path == "/api/study-space/notes":
-            try:
-                size = int(self.headers.get("Content-Length", "0"))
-                if not 2 <= size <= 2500:
-                    raise StudySpaceError("Invalid Study Space notes request size.")
-                body = json.loads(self.rfile.read(size))
-                if not isinstance(body, dict) or set(body) != {"notes"}:
-                    raise StudySpaceError("Provide only Student Alpha's notes.")
-                self._json(STUDENT_STUDY_SPACE.save_notes(body["notes"]))
-            except (StudySpaceError, ValueError, TypeError, json.JSONDecodeError) as err:
-                self._json({"error": str(err)}, 400)
-            return
-        if self.path == "/api/study-space/materials":
-            try:
-                size = int(self.headers.get("Content-Length", "0"))
-                if not 2 <= size <= 7000:
-                    raise StudySpaceError("Invalid Study Space material request size.")
-                body = json.loads(self.rfile.read(size))
-                if not isinstance(body, dict) or set(body) != {"title", "content"}:
-                    raise StudySpaceError("Provide a title and study material.")
-                self._json(STUDENT_STUDY_SPACE.add_material(body["title"], body["content"]), 201)
-            except (StudySpaceError, ValueError, TypeError, json.JSONDecodeError) as err:
-                self._json({"error": str(err)}, 400)
-            return
         if self.path == "/api/openai/connection":
             try:
                 self._json(OPENAI_CONNECTION.status())
@@ -566,6 +542,30 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not self._host_valid() or not self._origin_valid():
             self._json({"error": "Cross-origin writes blocked"}, 403)
+            return
+        if self.path == "/api/study-space/notes":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if not 2 <= size <= 2500:
+                    raise StudySpaceError("Invalid Study Space notes request size.")
+                body = json.loads(self.rfile.read(size))
+                if not isinstance(body, dict) or set(body) != {"notes"}:
+                    raise StudySpaceError("Provide only Student Alpha's notes.")
+                self._json(STUDENT_STUDY_SPACE.save_notes(body["notes"]))
+            except (StudySpaceError, ValueError, TypeError, json.JSONDecodeError) as err:
+                self._json({"error": str(err)}, 400)
+            return
+        if self.path == "/api/study-space/materials":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if not 2 <= size <= 7000:
+                    raise StudySpaceError("Invalid Study Space material request size.")
+                body = json.loads(self.rfile.read(size))
+                if not isinstance(body, dict) or set(body) != {"title", "content"}:
+                    raise StudySpaceError("Provide a title and study material.")
+                self._json(STUDENT_STUDY_SPACE.add_material(body["title"], body["content"]), 201)
+            except (StudySpaceError, ValueError, TypeError, json.JSONDecodeError) as err:
+                self._json({"error": str(err)}, 400)
             return
         if self.path == "/api/openai/connection":
             try:
