@@ -51,7 +51,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.ok(html.includes(`<p class="shell-notice"><strong>Latest BETA:</strong> Download the verified v${latestBeta.version} Windows ZIP from GitHub. The earlier v${currentDistribution.version} Cloudflare R2 milestone remains available in the Release archive.</p>`));
   assert.doesNotMatch(html, /available without GitHub sign-in/);
   assert.doesNotMatch(html, /Download access note|private GitHub repository.*authorized GitHub access/);
-  const expectedGitHubFallback = `https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v${latestBeta.version}/AI-Agents-Lab-Windows.zip`;
+  const expectedGitHubFallback = `https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v${latestBeta.version}/${latestBeta.assetName || 'AI-Agents-Lab-Windows.zip'}`;
   assert.ok(html.includes(`id="github-release-download" class="primary-button release-download github-release-download" data-zip-version="v${latestBeta.version}" data-zip-sha256="${latestBeta.sha256}" data-download-source="github-release" href="${expectedGitHubFallback}"`));
   assert.ok(html.includes(`<span>Download v${latestBeta.version} BETA <span aria-hidden="true">↓</span></span><small>GitHub · latest verified BETA ZIP</small>`));
   const downloadGroup = html.match(/<div class="hero-action-group download-actions">([\s\S]*?)<\/div>/)?.[1];
@@ -150,11 +150,12 @@ test('build truthfully presents the current public state of the Local Lab', () =
     assert.ok(!distribution.releases.some(item => item.version === release.version), 'GitHub BETA must not duplicate R2 versions');
     assert.match(release.version, /^\d+\.\d+\.\d+$/);
     assert.match(release.sha256, /^[a-f0-9]{64}$/);
-    assert.ok(betaSection.includes('releases/download/v' + release.version + '/AI-Agents-Lab-Windows.zip'));
+    assert.ok(betaSection.includes('releases/download/v' + release.version + '/' + (release.assetName || 'AI-Agents-Lab-Windows.zip')));
     assert.ok(betaSection.includes('data-zip-sha256="' + release.sha256 + '"'));
   }
-  assert.equal(betaDistribution.releases[0].version, '2.0.23');
-  assert.equal(betaDistribution.releases[0].sha256, '8953210e8798f38f64514f07c38a20ebea336bf7e4f747218e07d6dc1e187ad0');
+  assert.equal(betaDistribution.releases[0].version, '2.0.24');
+  assert.equal(betaDistribution.releases[0].sha256, 'a6f3b0ed736901ddb0516b93b75c9e5696ba96f4b4cfe86da80248a535d5e5e3');
+  assert.equal(betaDistribution.releases[0].assetName, 'AI-Agents-Lab-Windows-v2.0.24.zip');
   assert.doesNotMatch(html, /id="zip-update"/);
   assert.match(html, /Trainer → Student → Evaluator → Improver/);
   const overview = html.slice(html.indexOf('<section id="overview"'), html.indexOf('</section>', html.indexOf('<section id="overview"')));
