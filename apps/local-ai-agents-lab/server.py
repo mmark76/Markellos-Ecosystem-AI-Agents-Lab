@@ -162,6 +162,7 @@ def initialize():
 
     # The Evaluation Lab owns only additive tables; legacy migrations run first.
     EvaluationRepository(DB_PATH).initialize()
+    STUDENT_STUDY_SPACE.database_path = DB_PATH
     STUDENT_STUDY_SPACE.initialize()
 
 
