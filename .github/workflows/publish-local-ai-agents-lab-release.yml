@@ -30,11 +30,13 @@ jobs:
       - name: Create public Windows ZIP
         run: |
           cd "$RUNNER_TEMP/ai-lab-release"
-          zip -r "$RUNNER_TEMP/AI-Agents-Lab-Windows.zip" local-ai-agents-lab
+          version="$(tr -d '\r\n' < local-ai-agents-lab/VERSION)"
+          test "v$version" = "${{ github.event.release.tag_name }}"
+          zip -r "$RUNNER_TEMP/AI-Agents-Lab-Windows-v${version}.zip" local-ai-agents-lab
       - name: Upload release asset
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "${{ github.event.release.tag_name }}" "$RUNNER_TEMP/AI-Agents-Lab-Windows.zip" --clobber
+        run: gh release upload "${{ github.event.release.tag_name }}" "$RUNNER_TEMP/AI-Agents-Lab-Windows-${{ github.event.release.tag_name }}.zip" --clobber
 
   publish-version-bump:
     if: github.event_name == 'push'
@@ -67,12 +69,12 @@ jobs:
       - name: Create public Windows ZIP
         run: |
           cd "$RUNNER_TEMP/ai-lab-release"
-          zip -r "$RUNNER_TEMP/AI-Agents-Lab-Windows.zip" local-ai-agents-lab
+          zip -r "$RUNNER_TEMP/AI-Agents-Lab-Windows-${{ steps.version.outputs.tag }}.zip" local-ai-agents-lab
       - name: Create release and upload ZIP
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${{ steps.version.outputs.tag }}" "$RUNNER_TEMP/AI-Agents-Lab-Windows.zip" \
+          gh release create "${{ steps.version.outputs.tag }}" "$RUNNER_TEMP/AI-Agents-Lab-Windows-${{ steps.version.outputs.tag }}.zip" \
             --repo "${{ github.repository }}" \
             --target "$GITHUB_SHA" \
             --title "AI Lab ${{ steps.version.outputs.tag }}" \

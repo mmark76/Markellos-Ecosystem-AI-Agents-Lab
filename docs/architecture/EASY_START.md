@@ -2,7 +2,7 @@
 
 ## Text encoding
 
-`start-windows.bat` launches `easy-start.ps1` with Windows PowerShell
+`Start AI Training Lab.bat` launches `easy-start.ps1` with Windows PowerShell
 (`powershell.exe`). Keep `easy-start.ps1` encoded as UTF-8 **with BOM** so that
 Windows PowerShell 5.1 reads punctuation in dialog titles and progress messages
 correctly. The release builder copies the original script bytes unchanged;
@@ -11,7 +11,7 @@ correctly. The release builder copies the original script bytes unchanged;
 ## Purpose
 
 Easy Start makes the Windows ZIP usable by a beginner without hiding device
-changes. `Start AI Agents Lab.bat` runs a readiness-first PowerShell dialog
+changes. `Start AI Training Lab.bat` runs a readiness-first PowerShell dialog
 before it starts the local server.
 
 ## Fixed boundary
@@ -41,7 +41,18 @@ later device-changing action after a required approval is refused.
 
 Existing compatible software and the initial model are reused. The dialog
 checks for at least 3 GiB free space before setup. Once all requirements are
-ready, the existing launcher creates the desktop shortcut and starts the
-loopback Lab. The companion package and source tests inspect the fixed IDs,
-loopback URLs, consent prompts, and packaged files. A clean Windows smoke test
-remains required before declaring a release verified for a new device.
+ready, `finish-setup.ps1` displays a native checkbox asking whether to create
+a Desktop shortcut. The choice is recorded in `data/setup-preferences.json`
+inside the extracted Lab folder (excluded from ZIPs). A cancellation stops
+launch; subsequent starts from the same folder reuse the choice without asking.
+New extracted folders ask again unless the user preserves these preferences.
+
+`create-desktop-shortcut.ps1` creates or refreshes the shortcut only when
+chosen, without deleting shortcuts belonging to older folders. Independently,
+`register-dashboard-protocols.ps1` registers the dashboard Launch and Refresh
+handlers for the current Windows user. The launcher then starts the loopback
+Lab. Neither local action requires administrator privileges or a network call.
+
+Source and package tests inspect fixed IDs, loopback URLs, approvals,
+conditional shortcut creation, and packaged files. A clean Windows smoke test,
+including keyboard and display-scaling review, remains required before release.

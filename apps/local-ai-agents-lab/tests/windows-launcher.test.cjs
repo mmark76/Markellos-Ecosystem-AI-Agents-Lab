@@ -9,7 +9,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 
 const sourceRoot=path.resolve(__dirname,'..');
-const launcherNames=['start-windows.bat','Start AI Training Lab.bat'];
+const launcherNames=['Start AI Training Lab.bat'];
 const testDirectories=[
   ['AI-Lab'],
   ['My Projects','AI Training Lab'],
@@ -45,6 +45,20 @@ function writeFixture(root){
     '[System.IO.File]::WriteAllLines((Join-Path $PSScriptRoot "..\\shortcut-paths.txt"), @($LabRoot, $normalized), $encoding)',
     'exit 0'
   ].join('\r\n')+'\r\n',{encoding:'utf8'});
+  fs.writeFileSync(path.join(root,'scripts','finish-setup.ps1'),[
+    'param([string]$LabRoot)',
+    '$normalized = [System.IO.Path]::GetFullPath($LabRoot)',
+    '$encoding = [System.Text.UTF8Encoding]::new($false)',
+    '[System.IO.File]::WriteAllLines((Join-Path $PSScriptRoot "..\\finish-paths.txt"), @($LabRoot, $normalized), $encoding)',
+    'exit 0'
+  ].join('\r\n')+'\r\n',{encoding:'utf8'});
+  fs.writeFileSync(path.join(root,'scripts','register-dashboard-protocols.ps1'),[
+    'param([string]$LabRoot)',
+    '$normalized = [System.IO.Path]::GetFullPath($LabRoot)',
+    '$encoding = [System.Text.UTF8Encoding]::new($false)',
+    '[System.IO.File]::WriteAllLines((Join-Path $PSScriptRoot "..\\protocol-paths.txt"), @($LabRoot, $normalized), $encoding)',
+    'exit 0'
+  ].join('\r\n')+'\r\n',{encoding:'utf8'});
   fs.writeFileSync(path.join(root,'py.cmd'),'@echo off\r\necho %*>> "%~dp0python-invocation.txt"\r\nexit /b 0\r\n',{encoding:'ascii'});
 }
 
@@ -52,7 +66,7 @@ function readPaths(root,file){
   return fs.readFileSync(path.join(root,file),'utf8').trimEnd().split(/\r?\n/);
 }
 
-test('Windows launchers pass a non-trailing LabRoot to PowerShell and preserve its normalized path',
+test('Windows launcher passes a non-trailing LabRoot to every setup and integration script',
   {skip:process.platform!=='win32'},()=>{
     const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'ai-training-lab-launcher-'));
     try {
@@ -70,11 +84,17 @@ test('Windows launchers pass a non-trailing LabRoot to PowerShell and preserve i
         assert.match(preflight[0],/\\\.$/);
         assert.equal(preflight[1],expected);
         const easyStart=readPaths(root,'easy-start-paths.txt');
+        const finish=readPaths(root,'finish-paths.txt');
         const shortcut=readPaths(root,'shortcut-paths.txt');
+        const protocols=readPaths(root,'protocol-paths.txt');
         assert.match(easyStart[0],/\\\.$/);
         assert.equal(easyStart[1],expected);
+        assert.match(finish[0],/\\\.$/);
+        assert.equal(finish[1],expected);
         assert.match(shortcut[0],/\\\.$/);
         assert.equal(shortcut[1],expected);
+        assert.match(protocols[0],/\\\.$/);
+        assert.equal(protocols[1],expected);
         assert.ok(fs.readFileSync(path.join(root,'python-invocation.txt'),'utf8').includes(path.join(root,'server.py')));
       }
     } finally {

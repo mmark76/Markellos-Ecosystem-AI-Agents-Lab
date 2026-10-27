@@ -18,9 +18,9 @@ The **Training Lab** uses the internal API id `training`. Existing local history
 
 ## Easy Start for Windows
 
-For a first-time setup, extract the ZIP and double-click **`Start AI Training Lab.bat`**. Easy Start checks the computer, then starts the Lab when everything is ready.
+For a first-time setup, extract the ZIP and double-click **`Start AI Training Lab.bat`**. Easy Start checks the computer, then asks whether to create a Desktop shortcut before launching the Lab. The choice is saved for the extracted folder, so it is not asked at each start.
 
-After the initial setup, start the Lab from its Desktop shortcut or the public dashboard's Launch Local Lab button. The dashboard also has **Refresh Local Server Before Launch**: it starts a clean local server without opening the app, so you can then choose Launch Local Lab. The browser may request confirmation before opening either installed local action.
+After the initial setup, start the Lab from its optional Desktop shortcut, the BAT file, or the public dashboard's Launch Local Lab button. The dashboard also has **Refresh Local Server Before Launch**: it starts a clean local server without opening the app, so you can then choose Launch Local Lab. The browser may request confirmation before opening either installed local action.
 
 It asks for a separate, explicit approval before it can:
 
@@ -97,12 +97,12 @@ the PyTorch training wizard.
 
 ## Run the Lab on a laptop
 
-1. Extract `AI-Agents-Lab-Windows.zip` into a folder you control, for example `C:\Markellos-Ecosystem-AI-Agents-Lab`.
+1. Extract the downloaded Windows ZIP (new releases use names such as `AI-Agents-Lab-Windows-v2.0.24.zip`) into a folder you control, for example `C:\Markellos-Ecosystem-AI-Agents-Lab`.
 2. Double-click **`Start AI Training Lab.bat`**.
 3. If Easy Start finds missing components, review each approval dialog. You can decline any step; the Lab will not start until its required local components are ready.
 4. After setup, the Lab starts automatically at **http://127.0.0.1:8765/**.
 
-Experienced users may run `start-windows.bat`; it performs the same readiness check before starting the server.
+`Start AI Training Lab.bat` is the only Windows launcher. The separate `setup-training-environment.bat` prepares optional training dependencies but does not start the Lab or unlock fine-tuning.
 
 Stop the service with `Ctrl+C` in its PowerShell window. When starting
 a freshly extracted ZIP, the Windows launcher first checks port `8765`. If a
@@ -128,21 +128,26 @@ untouched.
 
 ### Desktop shortcut
 
-The first successful Easy Start run creates or refreshes a **Markellos Ecosystem
-AI Lab** shortcut on the current user's Desktop. It uses the
-included AI Lab icon and opens the extracted copy of the Lab. This
-shortcut points to **`Start AI Training Lab.bat`**, so it repeats the same safe
-readiness check. Shortcut creation itself is local only and makes no network request.
+The first successful Easy Start run asks whether to create a **Markellos Ecosystem
+AI Lab** shortcut on the current user's Desktop. If chosen, it uses the included
+AI Lab icon and points to **`Start AI Training Lab.bat`**, so it repeats the same
+readiness check. The choice is saved in `data/setup-preferences.json` and reused
+for subsequent starts from this extracted folder. Choosing no does not delete
+a shortcut belonging to an older installation. The dashboard Launch/Refresh
+handlers work independently of this choice. Shortcut creation is local only.
 
 The Lab folder is the folder where the user extracted
-`AI-Agents-Lab-Windows.zip`; no separate or hidden installation folder is
+the downloaded Windows ZIP; no separate or hidden installation folder is
 created. After manually updating to a new extracted folder, run that folder's
-`Start AI Training Lab.bat` once so the shortcut points to the new copy.
+`Start AI Training Lab.bat` once to choose whether the shortcut should point
+to the new copy, and to update the dashboard launch handlers.
 
 ## Updates
 
 The Local Lab has no in-app update check. Visit the public dashboard to learn
-when a newer `AI-Agents-Lab-Windows.zip` is available and download it manually.
+when a newer Windows ZIP is available and download it manually. New GitHub
+releases include their version in the filename (`AI-Agents-Lab-Windows-vX.Y.Z.zip`);
+previously published filenames and download URLs are unchanged.
 To update, first stop the Lab, back up `data/campus.sqlite3`, extract the new
 ZIP into a new folder, move the database only while both servers are stopped if
 you want to keep the history, and start the new version. Keep the old folder
