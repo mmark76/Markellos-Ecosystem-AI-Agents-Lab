@@ -16,6 +16,11 @@ function verify(dir,expectedSha){
   const version=fs.readFileSync(path.join(dir,'VERSION'),'utf8').trim();
   if(version!==manifest.version)throw Error('Package VERSION mismatch');
   if(fs.existsSync(path.join(dir,'data')))throw Error('Runtime data bundled');
+  for(const file of ['student_study_space.py','static/study-space.js']){
+    const packaged=path.join(dir,file);
+    if(!fs.existsSync(packaged)||!fs.readFileSync(packaged,'utf8').trim())
+      throw Error('Missing or empty Student Alpha Study Space asset: '+file);
+  }
   for(const role of [
     "conference-strategist","conference-analyst","conference-engineer",
     "training-tutor","training-student","training-evaluator","training-improver",
