@@ -63,6 +63,14 @@ work or modification to the five Labs and fifteen system prompts. Existing
 SQLite history remains readable.
 See [Future Exercise Engine](../../docs/learning/AUTO_SELECTION.md).
 
+## Student Alpha Study Space
+
+Open **Student Alpha Study Space** from the Training Lab. Add short text excerpts (up to 1,400 characters) and save notes (up to 600 characters) for the canonical Student role `training:Student`. The Study Space keeps its material separate from conversation history and lets you remove saved excerpts. Clearing notes and saving them removes the note text.
+
+Study material and notes are stored in the local Lab SQLite database on this device. The Lab does not encrypt this database at rest; access depends on the Windows account and device protections. The Study Space does not import files or synchronize with StudyApp.
+
+To use material in a session, select it and choose **Place selected material in Training Topic**. Review the prompt in the Training Lab, then explicitly choose **Start Training**. Only then is it saved in normal Training Lab history and sent to the configured local Ollama model. Saved material and notes are not sent automatically; notes are included only when selected.
+
 ## Inference engine
 
 The Lab uses **only Ollama** at the fixed loopback address
