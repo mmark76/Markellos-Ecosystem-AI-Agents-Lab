@@ -12,7 +12,8 @@ const distribution = JSON.parse(readFileSync(join(app, 'release-distribution.jso
 const betaDistribution = JSON.parse(readFileSync(join(app, 'github-beta-releases.json'), 'utf8'));
 const escapedReleaseVersion = releaseVersion.replaceAll('.', '\\.');
 const [currentDistribution, ...previousDistributions] = distribution.releases;
-const escapedDistributionVersion = currentDistribution.version.replaceAll('.', '\\.');
+const latestBeta = betaDistribution.releases[0];
+const escapedBetaVersion = latestBeta.version.replaceAll('.', '\\.');
 
 test('build truthfully presents the current public state of the Local Lab', () => {
   rmSync(output, { recursive: true, force: true });
@@ -24,10 +25,10 @@ test('build truthfully presents the current public state of the Local Lab', () =
   const styles = readFileSync(join(output, 'styles.css'), 'utf8');
 
   assert.match(html, new RegExp(`v${escapedReleaseVersion}_\\d{8}_\\d{4}_[0-9a-f]{7}`));
-  assert.doesNotMatch(html, /\{\{BUILD_ID\}\}|\{\{RELEASE_VERSION\}\}|\{\{GITHUB_RELEASE_URL\}\}|\{\{GITHUB_RELEASE_VERSION\}\}|\{\{GITHUB_RELEASE_SHA256\}\}/);
+  assert.doesNotMatch(html, /\{\{BUILD_ID\}\}|\{\{RELEASE_VERSION\}\}|\{\{PUBLIC_MILESTONE_VERSION\}\}|\{\{GITHUB_RELEASE_URL\}\}|\{\{GITHUB_RELEASE_VERSION\}\}|\{\{GITHUB_RELEASE_SHA256\}\}/);
   assert.match(html, /styles\.css\?v=v\d+\.\d+\.\d+_\d{8}_\d{4}_[a-f0-9]{7}/);
-  assert.match(html, new RegExp(`CURRENT RELEASE · v${escapedDistributionVersion} · LOCAL \\+ OPTIONAL INTERNET CONNECTIONS`));
-  assert.match(html, new RegExp(`<h1 id="page-title">AI Lab v${escapedDistributionVersion}<\\/h1>`));
+  assert.match(html, new RegExp(`LATEST BETA · v${escapedBetaVersion} · LOCAL \\+ OPTIONAL INTERNET CONNECTIONS`));
+  assert.match(html, new RegExp(`<h1 id="page-title">AI Lab v${escapedBetaVersion}<\\/h1>`));
   assert.match(html, /<img class="brand-mark" src="\.\/ai-training-lab-mark\.png" alt="AI Lab">/);
   assert.match(html, /<span class="project-name">AI Lab<\/span>/);
   assert.doesNotMatch(html, /class="beta-badge"/);
@@ -47,46 +48,33 @@ test('build truthfully presents the current public state of the Local Lab', () =
     assert.match(release.url, new RegExp(`/releases/v${release.version.replaceAll('.', '\\.')}/AI-Agents-Lab-Windows\\.zip$`));
     assert.match(release.sha256, /^[a-f0-9]{64}$/);
   }
-  assert.ok(html.includes(`<p class="shell-notice"><strong>Milestone download:</strong> The v${currentDistribution.version} Windows ZIP is available via Cloudflare R2. For the latest BETA, use the GitHub v${betaDistribution.releases[0].version} button.</p>`));
+  assert.ok(html.includes(`<p class="shell-notice"><strong>Latest BETA:</strong> Download the verified v${latestBeta.version} Windows ZIP from GitHub. The earlier v${currentDistribution.version} Cloudflare R2 milestone remains available in the Release archive.</p>`));
   assert.doesNotMatch(html, /available without GitHub sign-in/);
   assert.doesNotMatch(html, /Download access note|private GitHub repository.*authorized GitHub access/);
-  assert.match(html, new RegExp(`id="zip-download" class="primary-button release-download" data-zip-version="v${escapedDistributionVersion}" data-zip-sha256="${currentDistribution.sha256}"`));
-  const latestBeta = betaDistribution.releases[0];
   const expectedGitHubFallback = `https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v${latestBeta.version}/AI-Agents-Lab-Windows.zip`;
-  assert.ok(html.includes(`id="github-release-download" class="secondary-button release-download github-release-download" data-zip-version="v${latestBeta.version}" data-zip-sha256="${latestBeta.sha256}" data-download-source="github-release" href="${expectedGitHubFallback}"`));
-  assert.ok(html.includes(`<span>Download v${latestBeta.version} BETA</span><small>GitHub · newer BETA ZIP</small>`));
+  assert.ok(html.includes(`id="github-release-download" class="primary-button release-download github-release-download" data-zip-version="v${latestBeta.version}" data-zip-sha256="${latestBeta.sha256}" data-download-source="github-release" href="${expectedGitHubFallback}"`));
+  assert.ok(html.includes(`<span>Download v${latestBeta.version} BETA <span aria-hidden="true">↓</span></span><small>GitHub · latest verified BETA ZIP</small>`));
   const downloadGroup = html.match(/<div class="hero-action-group download-actions">([\s\S]*?)<\/div>/)?.[1];
   assert.ok(downloadGroup, 'Download group must remain present');
   const buttonOrder = [...downloadGroup.matchAll(/id="([^"]+)" class="(?:primary|secondary)-button release-download/g)].map(match => match[1]);
-  assert.deepEqual(buttonOrder, ['zip-download','github-release-download','zip-download-v2015','zip-download-v204'], 'Keep the four buttons in their existing 2x2 positions');
-  assert.equal((downloadGroup.match(/data-download-source="cloudflare-r2"/g) || []).length, 3, 'Three R2 milestone buttons must be unchanged');
-  assert.equal((downloadGroup.match(/data-download-source="github-release"/g) || []).length, 1, 'Only top-right BETA uses GitHub');
-  assert.match(html, new RegExp(`Download v${escapedDistributionVersion} <span aria-hidden="true">↓<\/span><\/span><small>Local \\+ optional internet connections<\/small>`));
-  // While a new package is being published, the distribution manifest still
-  // names v2.0.15 as current.  It becomes the secondary milestone only when
-  // v2.0.16 is published to the manifest in the follow-up deployment.
-  const v2015Milestone = /id="zip-download-v2015" class="secondary-button release-download" data-zip-version="v2\.0\.15"[^>]*><span>Download v2\.0\.15<\/span><small>Previous milestone · local \+ optional internet connections<\/small><\/a>/;
-  if (currentDistribution.version === '2.0.15') {
-    assert.doesNotMatch(html, v2015Milestone);
-  } else {
-    assert.match(html, v2015Milestone);
-  }
-  assert.match(html, /id="zip-download-v204" class="secondary-button release-download" data-zip-version="v2\.0\.4"[^>]*><span>Download v2\.0\.4<\/span><small>Local only<\/small><\/a>/);
-  assert.doesNotMatch(html, /id="zip-download-v2010"/);
-  assert.doesNotMatch(html, /id="zip-download-v118"/);
+  assert.deepEqual(buttonOrder, ['github-release-download'], 'The featured download must be only the latest GitHub BETA');
+  assert.equal((downloadGroup.match(/data-download-source="cloudflare-r2"/g) || []).length, 0, 'R2 milestones stay in Release archive');
+  assert.equal((downloadGroup.match(/data-download-source="github-release"/g) || []).length, 1);
+  assert.doesNotMatch(html, /id="zip-download(?:-|\")/);
   assert.match(html, /class="hero-actions" aria-label="Download, local launch, and documentation actions"/);
   assert.match(html, /class="hero-action-group download-actions"/);
   assert.match(html, /class="hero-action-group local-actions"/);
   assert.match(html, /class="hero-action-group documentation-actions"/);
-  assert.match(styles, /\.header-inner \{ width: min\(calc\(100% - 2rem\), 54rem\); margin-inline: auto; padding-top: var\(--space-5\); \}/);
-  assert.match(styles, /\.hero-card \{ width: min\(100%, 54rem\); margin-bottom: 0; \}/);
+  assert.match(styles, /\.header-inner \{ width: min\(calc\(100% - 2rem\), 72rem\); margin-inline: auto; padding-top: var\(--space-5\); \}/);
+  assert.match(styles, /\.hero-card \{ width: min\(100%, 72rem\); margin-bottom: 0; \}/);
   assert.match(styles, /\.main-content \{ flex: 1; padding-block: var\(--space-8\); text-align: center; \}/);
   assert.match(styles, /\.hero \{ max-width: none; margin-bottom: var\(--space-3\); \}/);
   assert.match(styles, /\.shell-notice \{ width: fit-content; max-width: 100%; margin: var\(--space-5\) auto 0; padding: var\(--space-3\) var\(--space-4\); border-inline-start: 3px solid var\(--app-accent\);/);
   assert.match(styles, /\.hero > \.eyebrow, \.hero h1 \{ text-align: center; \}/);
-  assert.match(styles, /\.hero-actions\{display:grid;width:min\(100%,50rem\);gap:var\(--space-4\);margin:var\(--space-5\) auto 0\}/);
+  assert.match(styles, /\.hero-actions\{display:grid;width:min\(100%,64rem\);gap:var\(--space-4\);margin:var\(--space-5\) auto 0\}/);
   assert.match(styles, /\.hero-action-group\{display:grid;grid-auto-rows:3\.75rem;gap:var\(--space-4\);align-items:stretch;justify-content:center\}/);
-  assert.match(styles, /\.download-actions,\.local-actions,\.documentation-actions\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)\}/);
+  assert.match(styles, /\.download-actions\{grid-template-columns:minmax\(0,1fr\);width:min\(100%,28rem\);justify-self:center\}/);
+  assert.match(styles, /\.local-actions,\.documentation-actions\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)\}/);
   assert.match(styles, /\.hero-action-group \.primary-button,\.hero-action-group \.secondary-button\{justify-content:center;text-align:center\}/);
   assert.match(styles, /\.hero-action-group \.release-download,\.hero-action-group #refresh-local-server\{align-items:center;justify-content:center;text-align:center\}/);
   assert.match(styles, /@media \(max-width:48rem\) \{ \.hero-actions \{ width:min\(100%,26rem\); \} \.download-actions, \.local-actions, \.documentation-actions \{ grid-template-columns: minmax\(0, 1fr\); width: 100%; \}/);
@@ -114,7 +102,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(styles, /\.release-history \{ margin-top: 0; \}/);
   assert.match(styles, /\.release-history details/);
   assert.doesNotMatch(styles, /margin-right: clamp\(8rem, 15vw, 16rem\)|margin-right: calc\(\(100% \+ var\(--space-5\)\) \/ 3\)/);
-  assert.match(styles, /\.card-grid \{ width: min\(100%, 54rem\); display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); gap: var\(--space-4\); margin-inline: auto; \}/);
+  assert.match(styles, /\.card-grid \{ width: min\(100%, 72rem\); display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); gap: var\(--space-4\); margin-inline: auto; \}/);
   assert.ok(styles.includes('.card-grid .dashboard-card, .content-card-grid .dashboard-card { text-align: justify; }'));
   assert.ok(styles.includes('.card-grid .dashboard-card h2, .content-card-grid .dashboard-card h2, .card-grid .card-label { text-align: left; }'));
   assert.match(html, /<section id="overview" class="card-grid"/);
@@ -131,12 +119,12 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.doesNotMatch(html, /A local runtime for Windows, macOS, and Linux/);
   assert.match(styles, /\.engine-card \.primary-button \{ width: fit-content; margin: auto auto 0; \}/);
   assert.match(styles, /\.steps ol \{ display: grid; gap: var\(--space-4\); padding-left: 0; list-style-position: inside; \}/);
-  assert.match(styles, /#overview \.dashboard-card \{ min-height: 15rem; \}/);
+  assert.match(styles, /#overview \.dashboard-card \{ min-height: 12rem; \}/);
   assert.match(styles, /\.content-card \{ width: min\(100%, var\(--content-narrow\)\); min-height: 0; margin-inline: auto; \}/);
   assert.match(styles, /\.archive-card, \.section-intro-card \{ border-color: transparent; background: transparent; \}/);
   assert.match(styles, /\.section-intro-card \{ padding-block: var\(--space-3\); margin-bottom: var\(--space-2\); \}/);
-  assert.match(styles, /\.content-card-grid \{ width: min\(100%, 54rem\); display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); gap: var\(--space-4\); margin: var\(--space-3\) auto 0; \}/);
-  assert.match(styles, /\.engine-card \{ min-height: 13\.5rem; \}/);
+  assert.match(styles, /\.content-card-grid \{ width: min\(100%, 72rem\); display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); gap: var\(--space-4\); margin: var\(--space-3\) auto 0; \}/);
+  assert.match(styles, /\.engine-card \{ min-height: 12rem; \}/);
   assert.match(styles, /\.footer-inner \{ display: grid; justify-items: center; gap: var\(--space-1\); padding-block: var\(--space-5\); color: var\(--color-text-muted\); font-size: var\(--font-size-sm\); text-align: center; \}/);
   for (const release of previousDistributions) {
     const escapedVersion = release.version.replaceAll('.', '\\.');
@@ -231,7 +219,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(guide, /Evaluation Lab - available/);
   assert.match(guide, /Advisory Lab - available/);
   assert.match(guide, /Optimization Lab - available/);
-  assert.match(guide, new RegExp(`Rooms and their current status \\(v${escapedDistributionVersion}\\)`));
+  assert.match(guide, new RegExp(`Rooms and their current status \\(v${escapedBetaVersion}\\)`));
   assert.match(guide, /Tutor → Student → Evaluator → Improver/);
   assert.doesNotMatch(guide, /Under Construction|v2\.0\.2(?!\d)/);
   assert.match(guide, /What is Fine-Tuning\? A simple guide/);
@@ -259,7 +247,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(optionalServices, /Availability and usage limits are determined by OpenAI\./);
   assert.match(optionalServices, /AI Training Lab's local Ollama-powered features remain free to use without a ChatGPT subscription\./);
   for (const page of [guide, description]) {
-    assert.match(page, new RegExp(`v${escapedDistributionVersion}`));
+    assert.match(page, new RegExp(`v${escapedBetaVersion}`));
     assert.match(page, new RegExp(`v${escapedReleaseVersion}_\\d{8}_\\d{4}_[0-9a-f]{7}`));
     assert.doesNotMatch(page, /\{\{RELEASE_VERSION\}\}|\{\{BUILD_ID\}\}/);
   }
