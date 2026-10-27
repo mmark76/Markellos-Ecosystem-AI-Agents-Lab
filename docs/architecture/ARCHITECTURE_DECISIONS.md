@@ -101,3 +101,12 @@ Lab and without a RunPod, cloud SDK, public route, or credential in the
 repository. A future executor is responsible for explicitly approved transport,
 authentication, artifact staging, timeout, cost, and teardown controls. This
 decision does not implement remote execution or activate training.
+## AI-LAB-ADR-008 — Keep Student Alpha Study Space inside the local Training Lab
+
+- Status: Accepted
+- Date: 2026-10-28
+- Related requirements: AI-LAB-OBJ-026, AI-LAB-AC-028, AI-LAB-SEC-015
+
+The current Student Alpha is the canonical Training Lab role `training:Student`. Its Study Space is a nested Training Lab workspace, not a sixth Lab or a new agent identity. Additive SQLite tables own bounded pasted materials and notes for that fixed role. Only material explicitly selected by the user may be placed in the standard Training Topic; notes are opt-in, and the user must review the prompt and start the existing local Ollama session. The Study Space does not import files, synchronize with StudyApp, call a remote service, or automatically send saved content.
+
+Consequences: the display label may change without losing ownership; saved materials remain private local-device data in unencrypted-at-rest SQLite. Removal is available within the UI, and no cross-app data migration is implied. Any future StudyApp connection requires a separate approved integration contract and data-transfer decision.
