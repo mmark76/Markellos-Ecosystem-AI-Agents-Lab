@@ -165,8 +165,8 @@ test('build truthfully presents the current public state of the Local Lab', () =
     assert.ok(betaSection.includes('releases/download/v' + release.version + '/AI-Agents-Lab-Windows.zip'));
     assert.ok(betaSection.includes('data-zip-sha256="' + release.sha256 + '"'));
   }
-  assert.equal(betaDistribution.releases[0].version, '2.0.22');
-  assert.equal(betaDistribution.releases[0].sha256, '3ede5ad9007860eb641a372f6b562b44cc0707b58a5f92c0a8de4e90a22afb60');
+  assert.equal(betaDistribution.releases[0].version, '2.0.23');
+  assert.equal(betaDistribution.releases[0].sha256, '8953210e8798f38f64514f07c38a20ebea336bf7e4f747218e07d6dc1e187ad0');
   assert.doesNotMatch(html, /id="zip-update"/);
   assert.match(html, /Trainer → Student → Evaluator → Improver/);
   const overview = html.slice(html.indexOf('<section id="overview"'), html.indexOf('</section>', html.indexOf('<section id="overview"')));

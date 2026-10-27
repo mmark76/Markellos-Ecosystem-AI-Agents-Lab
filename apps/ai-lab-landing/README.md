@@ -4,7 +4,7 @@ This is a static Cloudflare Pages landing page for `ai-lab.markellosecosystem.co
 
 Its dashboard shell follows the Ecosystem Framework visual structure: project identity, a BETA label on the GitHub download button (not the logo), a compact ChatGPT Advisor eligibility note instead of redundant single-page anchor navigation, ecosystem return path, responsive content cards, and a two-line footer with the generated build identity. It stores only validated local appearance preferences.
 
-The four top download buttons are unchanged: the prominent verified R2 milestone (currently v2.0.16), the current checksum-verified GitHub BETA (currently v2.0.22), and two previous R2 milestone buttons (v2.0.15 and v2.0.4). The public page does not create or distribute the Windows ZIP itself.
+The four top download buttons are unchanged: the prominent verified R2 milestone (currently v2.0.16), the current checksum-verified GitHub BETA (currently v2.0.23), and two previous R2 milestone buttons (v2.0.15 and v2.0.4). The public page does not create or distribute the Windows ZIP itself.
 
 **Release archive:** It separates **Milestones · Cloudflare R2**, **Earlier Cloudflare R2 releases**, and **BETA releases · GitHub**, so the old R2 ZIPs are not lost or incorrectly labelled as milestones. The original `release-distribution.json` remains the read-only registry of verified historical R2 ZIP URLs and SHA-256 hashes. The independent `github-beta-releases.json` provides a checksum-verified offline fallback for the newest GitHub-only releases; the first entry also sets the top-right BETA button and prevents the button and fallback archive getting out of sync. The build rejects duplicate versions across either registry and invalid checksums.
 

@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-095
+
+```text
+Change ID: AI-LAB-CC-095
+Requested by: User
+Date: 2026-10-27
+Description: Show the published, checksum-verified AI Lab v2.0.23 Windows ZIP as the newest GitHub BETA download on the public Cloudflare Pages landing page.
+Reason: The v2.0.23 release contains the Windows Easy Start text-encoding fix, but the public BETA button and verified fallback still identify v2.0.22.
+Affected objective IDs: AI-LAB-OBJ-003
+Architecture impact: Update the existing GitHub BETA manifest, landing documentation, regression expectations, and traceability only; retain the separate v2.0.16 R2 milestone and its archive.
+Security and privacy impact: Public link and checksum only; no new collection, application endpoint, script execution, or Local Lab exposure.
+Data impact: None.
+Testing impact: Validate landing build and exact BETA URL/SHA-256, preserved R2 manifest/history, and live Cloudflare Pages publication.
+Cost and schedule impact: No new infrastructure or runtime cost.
+Decision: APPROVED (PUBLIC BETA DISTRIBUTION UPDATE)
+Approved by: Direct user request on 2026-10-27
+Target release: Next reviewed Cloudflare Pages production deployment.
+```
+
 ## Approved change record — AI-LAB-CC-094
 
 ```text
