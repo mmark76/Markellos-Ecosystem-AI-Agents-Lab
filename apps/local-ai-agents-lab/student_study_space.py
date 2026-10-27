@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import sqlite3
+from contextlib import closing
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -33,7 +34,7 @@ class StudentStudySpace:
         return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
     def initialize(self):
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute("""CREATE TABLE IF NOT EXISTS student_study_notes (
                 owner_role TEXT PRIMARY KEY CHECK(owner_role='training:Student'),
                 notes TEXT NOT NULL DEFAULT '',
@@ -93,7 +94,7 @@ class StudentStudySpace:
     def delete_material(self, material_id):
         if not isinstance(material_id, int) or isinstance(material_id, bool) or material_id < 1:
             raise StudySpaceError("Select one valid study material.")
-        with self._connect() as db, db:
+        with closing(self._connect()) as db, db:
             cursor = db.execute("DELETE FROM student_study_materials WHERE id=? AND owner_role=?", (material_id, OWNER_ROLE))
         if cursor.rowcount != 1:
             raise StudySpaceError("That study material is no longer available.")
