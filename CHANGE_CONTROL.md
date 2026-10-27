@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-099
+
+```text
+Change ID: AI-LAB-CC-099
+Requested by: User
+Date: 2026-10-28
+Description: Show the published and checksum-verified v2.0.24 GitHub BETA as the featured ZIP on the Cloudflare Pages landing page, retaining the historical v2.0.23 asset and unchanged R2 milestones.
+Reason: The Windows v2.0.24 GitHub release succeeded, but the static featured-BETA manifest remained at v2.0.23 after PR #201 merged.
+Affected objective IDs: AI-LAB-OBJ-001, AI-LAB-OBJ-003
+Architecture impact: Landing-page verified-BETA registry, test expectations, and documentation only. The existing build reads assetName for new versioned ZIP filenames and preserves legacy filenames.
+Security and privacy impact: Use only the published official GitHub Release asset and its verified SHA-256; no new service, tracking, executable code or local-app exposure.
+Data impact: None.
+Testing impact: Landing build regression, checksum/versioned download URL verification, and public Cloudflare Pages deployment check.
+Cost and schedule impact: No new infrastructure or dependencies.
+Decision: APPROVED (FEATURED BETA UPDATE)
+Approved by: Direct user request on 2026-10-28.
+Target release: Next reviewed Cloudflare Pages deployment; independent of the already published v2.0.24 Windows ZIP.
+```
+
 ## Approved change record — AI-LAB-CC-098
 
 ```text
