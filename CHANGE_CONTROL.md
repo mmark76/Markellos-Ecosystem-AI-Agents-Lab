@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-098
+
+```text
+Change ID: AI-LAB-CC-098
+Requested by: User
+Date: 2026-10-28
+Description: Add a visible Student Alpha Study Space nested in Training Lab, with bounded manually pasted materials and notes stored in local SQLite and an explicit selected-material handoff to the existing Training workflow.
+Reason: Give the sole current student a dedicated place to study within the Training Lab.
+Affected objective IDs: AI-LAB-OBJ-026
+Architecture impact: Adds an additive local persistence module/API and a Training Lab-only UI surface. Ownership remains the canonical training:Student role; no sixth Lab or new role is created.
+Security and privacy impact: Existing loopback Host/Origin checks remain required; new writes have exact field, size, and item-count limits. Content is not automatically sent or synchronized with StudyApp. SQLite is unencrypted at rest by the Lab; selected text reaches local Ollama and normal session history only after user review and explicit Start Training.
+Data impact: Adds user-controlled, clearable local study materials and notes in SQLite; no import, export, sync, or migration from StudyApp.
+Testing impact: Automated and browser verification not run in this task; CI and local UI/security review remain pending.
+Cost and schedule impact: No dependency, new service, or external API.
+Decision: APPROVED (SCOPE INCREASE)
+Approved by: Direct user request on 2026-10-28.
+Target release: Next reviewed Local Lab package; no automatic publication.
+```
+
 ## Approved change record — AI-LAB-CC-097
 
 ```text
