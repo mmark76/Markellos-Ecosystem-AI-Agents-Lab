@@ -148,3 +148,42 @@ button,textarea,select{font-family:inherit}
 .app-footer-beta{display:inline-block;padding:1px 5px;border:1px solid var(--border);border-radius:3px;background:var(--field);color:var(--fg);font-size:9px;font-weight:800;letter-spacing:.08em;line-height:1.2}
 @media(max-width:900px){.workspace-main.main{height:calc(100dvh - var(--app-footer-height))}.sidebar,.inspector{height:calc(100dvh - var(--app-footer-height));bottom:var(--app-footer-height)}}
 @media(max-width:600px){:root{--app-footer-height:42px}.app-fixed-footer{flex-wrap:wrap;gap:2px 8px;padding:3px 8px;font-size:9px}.app-fixed-footer .app-footer-copyright{flex-basis:100%}}
+
+/* Student Alpha Study Space remains a nested Training Lab workspace. */
+.student-study-feature{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;margin-top:12px;padding:14px;border:1px solid var(--accent-border,var(--border));border-radius:10px;background:linear-gradient(135deg,var(--surface),var(--field));}
+.student-study-feature[hidden],#student-study-space-open[hidden]{display:none}
+.student-study-feature .eyebrow{margin:0 0 5px;color:var(--accent);font-size:10px;font-weight:800;letter-spacing:.08em}
+.student-study-feature h2{margin:0;color:var(--fg);font-size:16px}
+.student-study-feature p:not(.eyebrow){margin:5px 0 0;color:var(--subtle);font-size:12px;line-height:1.5}
+.student-study-feature button,.student-study-dialog button{min-height:44px;padding:9px 13px;border:1px solid var(--accent-border,var(--border));border-radius:8px;background:var(--selected-bg,var(--field));color:var(--fg);font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.student-study-feature button:hover,.student-study-dialog button:hover{border-color:var(--accent);color:var(--accent)}
+.student-study-dialog{width:min(92vw,760px);max-height:min(88dvh,850px);overflow:auto;padding:20px;border:1px solid var(--border);border-radius:14px;background:var(--surface);color:var(--fg)}
+.student-study-dialog::backdrop{background:rgb(0 0 0 / 68%)}
+.student-study-dialog :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.student-study-dialog-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.student-study-dialog-heading .eyebrow{margin:0 0 4px;color:var(--accent);font-size:10px;font-weight:800;letter-spacing:.08em}
+.student-study-dialog-heading h2{margin:0;font-size:20px}
+.student-study-dialog-content{display:grid;gap:16px;margin-top:14px}
+.student-study-dialog-content>p:first-child,.student-study-dialog-content section>p{margin:0;color:var(--subtle);font-size:12px;line-height:1.55}
+.student-study-dialog-content section h3{margin:0 0 8px;font-size:15px}
+.student-study-materials{display:grid;gap:8px}
+.student-study-empty{margin:0;padding:12px;border:1px dashed var(--border);border-radius:8px;color:var(--muted);font-size:12px}
+.student-study-material{display:grid;gap:8px;padding:11px;border:1px solid var(--border);border-radius:8px;background:var(--field)}
+.student-study-material-choice{display:flex;align-items:center;gap:9px}
+.student-study-material-choice input,.student-study-checkbox input{width:18px;height:18px;accent-color:var(--accent)}
+.student-study-material-choice strong{font-size:13px}
+.student-study-material>p{max-height:110px;overflow:auto;margin:0;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--subtle);font-size:12px;line-height:1.5}
+.student-study-dialog .student-study-remove{justify-self:start;min-height:36px;padding:6px 9px;border-color:var(--color-error);color:var(--color-error)}
+.student-study-form{display:grid;gap:8px}
+.student-study-form label{font-size:12px;font-weight:700}
+.student-study-form input:not([type=checkbox]),.student-study-form textarea{width:100%;box-sizing:border-box;min-height:44px;padding:9px;border:1px solid var(--border);border-radius:7px;background:var(--input);color:var(--fg);font:inherit;font-size:13px}
+.student-study-form textarea{resize:vertical;line-height:1.5}
+.student-study-count{justify-self:end;color:var(--muted);font-size:10px}
+.student-study-notes-form,.student-study-start{padding-top:14px;border-top:1px solid var(--border)}
+.student-study-checkbox{display:flex;align-items:center;gap:8px;font-weight:500!important}
+.student-study-checkbox input{flex:none}
+.student-study-start p{margin:0;color:var(--muted);font-size:11px;line-height:1.5}
+.student-study-status{min-height:1.4em;margin:0;color:var(--muted);font-size:12px}
+.student-study-status[data-state=error]{color:var(--color-error)}
+.student-study-status[data-state=success]{color:var(--accent)}
+@media(max-width:600px){.student-study-feature{grid-template-columns:1fr}.student-study-feature button{width:100%}.student-study-dialog{width:calc(100vw - 24px);padding:14px}.student-study-dialog-heading h2{font-size:17px}}
