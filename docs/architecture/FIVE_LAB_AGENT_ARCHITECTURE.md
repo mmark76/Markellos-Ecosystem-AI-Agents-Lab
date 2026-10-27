@@ -2,7 +2,7 @@
 
 ## Decision
 
-AI Training Lab has exactly five active local workspaces. Each workspace owns its workflow, role prompts, browser model selections, and conversation history. Internal prompt identities use the form lab:role, preventing role-name collisions.
+AI Training Lab has exactly five active local workspaces. Each workspace owns its workflow, role prompts, browser model selections, and conversation history. Internal prompt identities use the form lab:role, preventing role-name collisions. The current Training Lab Student is displayed in the local UI as Student Alpha; this is a presentation alias only, and the canonical prompt, API, and persisted stage identity remains `training:Student`.
 
 | Lab | Workflow | Agent identifiers |
 |---|---|---|
