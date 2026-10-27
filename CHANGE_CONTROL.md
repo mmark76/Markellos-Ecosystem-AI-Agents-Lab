@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-097
+
+```text
+Change ID: AI-LAB-CC-097
+Requested by: User
+Date: 2026-10-27
+Description: Display the existing Training Lab Student as Student Alpha throughout the Local Lab interface.
+Reason: Give the sole current student a clear individual name in the Training Lab experience.
+Affected objective IDs: AI-LAB-OBJ-018
+Architecture impact: Presentation alias in workflow, model guidance, stage results, and local history only. Canonical role identity training:Student, model preference key, prompt, API contract, and SQLite records remain unchanged.
+Security and privacy impact: No new capabilities, external connections, data collection, or persistence.
+Data impact: None; existing Training history remains readable and unchanged.
+Testing impact: Automated and browser verification not run in this task; local UI verification remains pending.
+Cost and schedule impact: None; no dependency or service changes.
+Decision: APPROVED (DISPLAY NAME)
+Approved by: Direct user request on 2026-10-27.
+Target release: Next reviewed Local Lab package; no automatic publication.
+```
+
 ## Approved change record — AI-LAB-CC-096
 
 ```text
