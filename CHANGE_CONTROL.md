@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-096
+
+```text
+Change ID: AI-LAB-CC-096
+Requested by: User
+Date: 2026-10-27
+Description: Make the verified v2.0.23 BETA the featured release on the public AI Lab landing page, retain the verified v2.0.16 R2 milestone in Release archive, and make the desktop presentation wider and less vertically stretched.
+Reason: The previous hero still showed v2.0.16 as CURRENT RELEASE and featured its ZIP, while the newer v2.0.23 was secondary. The 54rem desktop content and four prominent download buttons made the page needlessly narrow and tall.
+Affected objective IDs: AI-LAB-OBJ-001, AI-LAB-OBJ-003
+Architecture impact: Landing HTML, build-time featured-version injection, responsive layout styles, focused regression tests and documentation only. The verified R2 and GitHub manifests remain separate and unchanged.
+Security and privacy impact: Official verified GitHub ZIP as featured download; unchanged Cloudflare R2 history, static hosting, aggregate analytics, and Local Lab privacy boundary. No new external service or data collection.
+Data impact: None.
+Testing impact: Landing regression verifies featured BETA identity and SHA, R2 milestone archive preservation, responsive CSS widths, and production Pages deployment.
+Cost and schedule impact: None.
+Decision: APPROVED (FEATURED BETA AND RESPONSIVE PRESENTATION)
+Approved by: Direct user request on 2026-10-27.
+Target release: Next reviewed Cloudflare Pages production deployment.
+```
+
 ## Approved change record — AI-LAB-CC-095
 
 ```text
