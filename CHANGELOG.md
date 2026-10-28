@@ -6,6 +6,7 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 
 ### Changed
 
+- Feature the independently verified v2.0.26 Windows STABLE ZIP on the public landing page; retain v2.0.16 as PREVIOUS STABLE and v2.0.25 in the release archive. Change the left button to Stop Local Server (available after v2.0.26 setup) while preserving the right Open AI Lab action.
 - Display the existing Training Lab Student role as Student Alpha in the workflow, model guidance, session stages, and local history while preserving its canonical role identity and stored records.
 - Simplify the Windows entry points to a single normal launcher and a separate optional training setup. Add a first-run Desktop shortcut choice, version-labeled Windows setup and shortcut, and versioned future release ZIP filenames.
 

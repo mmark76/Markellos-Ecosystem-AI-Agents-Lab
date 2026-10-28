@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-107
+
+```text
+Change ID: AI-LAB-CC-107
+Requested by: User
+Date: 2026-10-28
+Description: Make the newly published v2.0.26 Windows ZIP visible as CURRENT STABLE on the public landing, preserving v2.0.16 as PREVIOUS STABLE, and replace the left Restart Local Server button with the newly supported Stop Local Server protocol. Preserve the right Open AI Lab button.
+Reason: Owner reported that the published update was not visible on the public page; a downloadable compatible ZIP is required for the new Stop protocol.
+Affected objective IDs: AI-LAB-OBJ-001, AI-LAB-OBJ-003, AI-LAB-OBJ-012
+Architecture impact: Pinned public version/channel and verified GitHub archive metadata, static labels and URI, landing style selector and documentation/tests only; Windows v2.0.26 behavior was shipped separately by AI-LAB-CC-106.
+Security and privacy impact: Versioned ZIP SHA-256 independently verified against GitHub release metadata (32639b2c8da3df5ac0c3e0ffb078c5f3aafa5ba160187d9e6731393a42878584). The public site does not call or expose loopback APIs; the custom URI operates only after local setup and asks before shutdown.
+Data impact: No database changes or automatic installation; v2.0.25 remains downloadable in history.
+Testing impact: Build and pinned-channel/hash tests, Stop vs Open protocol/order regression, unchanged right action, production Pages verification after merge.
+Cost and schedule impact: Existing GitHub CI and Cloudflare Pages pipeline. No additional Windows ZIP.
+Decision: APPROVED (DISPLAY PUBLISHED STOP-CAPABLE STABLE)
+Approved by: Owner's direct request to make the newly published ZIP visible on 2026-10-28 following the approved v2.0.26 publication.
+Target release: Public landing only.
+```
+
 ## Approved change record — AI-LAB-CC-106
 
 ```text

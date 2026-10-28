@@ -81,7 +81,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(styles, /\.download-actions\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\);width:100%;justify-self:center\}/);
   assert.match(styles, /\.local-actions,\.documentation-actions\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)\}/);
   assert.match(styles, /\.hero-action-group \.primary-button,\.hero-action-group \.secondary-button\{justify-content:center;text-align:center\}/);
-  assert.match(styles, /\.hero-action-group \.release-download,\.hero-action-group #refresh-local-server\{align-items:center;justify-content:center;text-align:center\}/);
+  assert.match(styles, /\.hero-action-group \.release-download,\.hero-action-group #stop-local-server\{align-items:center;justify-content:center;text-align:center\}/);
   assert.match(styles, /@media \(max-width:48rem\) \{ \.hero-actions \{ width:min\(100%,26rem\); \} \.download-actions, \.local-actions, \.documentation-actions \{ grid-template-columns: minmax\(0, 1fr\); width: 100%; \}/);
   assert.match(styles, /#launch-local-lab,html\[data-color-mode="light"\] #launch-local-lab/);
   assert.match(styles, /background:#2563eb;color:#ffffff;border-color:#2563eb/);
@@ -90,9 +90,10 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(styles, /#launch-local-lab:focus-visible\{outline:3px solid #93c5fd/);
   assert.match(styles, /#launch-local-lab\{flex-direction:column;gap:1px;padding-block:var\(--space-2\)\}/);
   assert.match(styles, /#launch-local-lab small\{font-size:var\(--font-size-xs\)/);
-  assert.match(styles, /#refresh-local-server\{align-items:flex-start;flex-direction:column/);
-  assert.match(html, /id="refresh-local-server" class="secondary-button" href="markellos-ai-training-lab-refresh:\/\/open"/);
-  assert.match(html, /<span>Restart Local Server<\/span><small>Only if the Lab isn't responding<\/small><\/a>/);
+  assert.match(styles, /#stop-local-server\{align-items:flex-start;flex-direction:column/);
+  assert.match(html, /id="stop-local-server" class="secondary-button" href="markellos-ai-training-lab-stop:\/\/open"/);
+  assert.match(html, /<span>Stop Local Server<\/span><small>No automatic restart<\/small><\/a>/);
+  assert.doesNotMatch(html, /id="refresh-local-server"|markellos-ai-training-lab-refresh:\/\/open/);
   assert.match(html, new RegExp(currentDistribution.url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.match(html, /Release archive/);
   assert.match(html, /Cloudflare R2 milestones · GitHub releases/);
@@ -160,12 +161,13 @@ test('build truthfully presents the current public state of the Local Lab', () =
     assert.ok(betaSection.includes('releases/download/v' + release.version + '/' + (release.assetName || 'AI-Agents-Lab-Windows.zip')));
     assert.ok(betaSection.includes('data-zip-sha256="' + release.sha256 + '"'));
   }
-  assert.equal(channels.currentStableGithubVersion, '2.0.25', 'the approved STABLE channel must be pinned independently of GitHub release order');
+  assert.equal(channels.currentStableGithubVersion, '2.0.26', 'the approved STABLE channel must be pinned independently of GitHub release order');
   assert.equal(channels.previousStableR2Version, '2.0.16', 'preserve the owner-approved previous STABLE');
-  assert.equal(currentStable.sha256, '85d601d697ecf2afa1b98db6c7b1a62cfb24aafa701612efca7da7d2bf2d8964');
-  assert.equal(currentStable.assetName, 'AI-Agents-Lab-Windows-v2.0.25.zip');
+  assert.equal(currentStable.sha256, '32639b2c8da3df5ac0c3e0ffb078c5f3aafa5ba160187d9e6731393a42878584');
+  assert.equal(currentStable.assetName, 'AI-Agents-Lab-Windows-v2.0.26.zip');
   assert.equal(previousStable.sha256, 'da636fae45b7547f002a0ea72c55cf5041ef59a3bfc3feea9c0d3199f1a0af72');
   assert.ok(betaDistribution.releases.some(release => release.version === '2.0.24' && release.sha256 === 'a6f3b0ed736901ddb0516b93b75c9e5696ba96f4b4cfe86da80248a535d5e5e3'), 'retain the previously featured ZIP in the archive');
+  assert.ok(betaDistribution.releases.some(release => release.version === '2.0.25' && release.sha256 === '85d601d697ecf2afa1b98db6c7b1a62cfb24aafa701612efca7da7d2bf2d8964'), 'retain the earlier stable ZIP in the archive');
   assert.doesNotMatch(html, /id="zip-update"/);
   assert.match(html, /Trainer → Student → Evaluator → Improver/);
   const overview = html.slice(html.indexOf('<section id="overview"'), html.indexOf('</section>', html.indexOf('<section id="overview"')));
@@ -183,9 +185,10 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /<span>Open AI Lab<\/span><small>Quick start after first-time setup<\/small><\/a>/);
   assert.doesNotMatch(html, /Launch Local Lab <span aria-hidden="true">\?<\/span>/);
   assert.match(html, /<strong>First setup \(Easy Start\):<\/strong> After extracting the ZIP, run <code>Start AI Training Lab\.bat<\/code>\./);
-  assert.match(guide, /Restart Local Server/);
+  assert.match(guide, /Stop Local Server/);
+  assert.match(guide, /Stop action requires v2\.0\.26 or later/);
   const localActions = html.split('class="hero-action-group local-actions">', 2)[1].split('</div>', 1)[0];
-  assert.ok(localActions.indexOf('id="refresh-local-server"') < localActions.indexOf('id="launch-local-lab"'), 'preserve Restart left / Open right');
+  assert.ok(localActions.indexOf('id="stop-local-server"') < localActions.indexOf('id="launch-local-lab"'), 'preserve Stop left / Open right');
   assert.doesNotMatch(html, /\{\{LEGACY_DOWNLOAD_BUTTON\}\}/);
   assert.match(html, /Starter AI Model/);
   assert.match(guide, /Easy Start remembers your Windows Desktop shortcut choice/);

@@ -4,7 +4,7 @@ This is a static Cloudflare Pages landing page for `ai-lab.markellosecosystem.co
 
 Its dashboard shell follows the Ecosystem Framework visual structure: project identity, explicit STABLE labels on the two owner-approved featured downloads (not the logo), a compact ChatGPT Advisor eligibility note instead of redundant single-page anchor navigation, ecosystem return path, responsive content cards, and a two-line footer with the generated build identity. It stores only validated local appearance preferences.
 
-Two permanently visible download buttons point to the independently checksum-verified v2.0.25 GitHub release (owner-approved **CURRENT STABLE**) and v2.0.16 Cloudflare R2 milestone (owner-approved **PREVIOUS STABLE**). These statuses are the owner's distribution choices, not defect-free guarantees. There is no currently designated BETA download; a future test release must be separately verified and approved before a BETA button is added. Earlier R2 milestones (v2.0.15 and v2.0.4) remain available in the collapsed Release archive alongside older R2 and GitHub versions. The responsive layout stacks both downloads on narrow screens. The public page does not create or distribute the Windows ZIP itself.
+Two permanently visible download buttons point to the independently checksum-verified v2.0.26 GitHub release (**CURRENT STABLE**, including Stop Local Server) and v2.0.16 Cloudflare R2 milestone (**PREVIOUS STABLE**). These statuses are the owner's distribution choices, not defect-free guarantees. There is no currently designated BETA download; a future test release must be separately verified and approved before a BETA button is added. Earlier v2.0.25 GitHub and R2 milestones (v2.0.15 and v2.0.4) remain in the collapsed Release archive alongside older ZIPs. The responsive layout stacks both downloads on narrow screens. The public page does not create or distribute the Windows ZIP itself.
 
 **Release archive:** It separates **Milestones · Cloudflare R2**, **Earlier Cloudflare R2 releases**, and **Releases · GitHub**, so historical ZIPs remain accessible and correctly identified. The original `release-distribution.json` remains the read-only registry of verified historical R2 ZIP URLs and SHA-256 hashes. The independent, legacy-named `github-beta-releases.json` provides a checksum-verified offline snapshot of the newest GitHub-only releases; its first entry sets the CURRENT STABLE button after explicit owner approval. The build rejects duplicate versions across either registry and invalid checksums.
 
@@ -30,7 +30,7 @@ The build injects **independent version values** for the current Local Lab sourc
 
 ## Installation guidance
 
-The public page states: **First setup (Easy Start):** After extracting the ZIP, run `Start AI Training Lab.bat`. The existing left and right dashboard actions are labeled **Restart Local Server** (troubleshooting) and **Open AI Lab** (normal use), and both require that initial setup.
+The public page states: **First setup (Easy Start):** After extracting the ZIP, run `Start AI Training Lab.bat`. The left action **Stop Local Server** invokes the dedicated per-user stop-only handler available from v2.0.26, with confirmation before terminating a recognized Lab process; it never restarts the server or stops Ollama. The right **Open AI Lab** action is unchanged and opens or starts the Lab as needed. Both require that initial setup in the latest extracted folder.
 
 The landing page links only to the official download pages for the required Windows prerequisites:
 

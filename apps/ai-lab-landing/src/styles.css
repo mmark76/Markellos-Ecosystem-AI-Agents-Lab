@@ -34,7 +34,7 @@ a:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 4px; }
 .hero h1 { margin-bottom: var(--space-4); font-size: clamp(2rem, 5vw, 3.4rem); letter-spacing: -.025em; }
 .hero-copy { margin: 0; color: var(--color-text-muted); font-size: var(--font-size-lg); line-height: var(--line-height-relaxed); }
 .shell-notice { width: fit-content; max-width: 100%; margin: var(--space-5) auto 0; padding: var(--space-3) var(--space-4); border-inline-start: 3px solid var(--app-accent); background: var(--color-surface); color: var(--color-text-muted); font-size: var(--font-size-sm); }
-.hero-actions{display:grid;width:min(100%,64rem);gap:var(--space-4);margin:var(--space-5) auto 0}.hero-action-group{display:grid;grid-auto-rows:3.75rem;gap:var(--space-4);align-items:stretch;justify-content:center}.download-actions{grid-template-columns:repeat(2,minmax(0,1fr));width:100%;justify-self:center}.local-actions,.documentation-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-action-group .primary-button,.hero-action-group .secondary-button{justify-content:center;text-align:center}.hero-action-group .release-download,.hero-action-group #refresh-local-server{align-items:center;justify-content:center;text-align:center}.primary-button,.secondary-button { min-height: var(--touch-target-min); display: inline-flex; align-items: center; gap: var(--space-2); padding-inline: var(--space-4); border: 1px solid var(--app-accent); border-radius: var(--radius-md); font-weight: var(--font-weight-bold); text-decoration: none; }.primary-button { background: var(--app-accent); color: var(--app-on-accent); }.secondary-button{background:var(--color-surface);color:var(--color-text)}
+.hero-actions{display:grid;width:min(100%,64rem);gap:var(--space-4);margin:var(--space-5) auto 0}.hero-action-group{display:grid;grid-auto-rows:3.75rem;gap:var(--space-4);align-items:stretch;justify-content:center}.download-actions{grid-template-columns:repeat(2,minmax(0,1fr));width:100%;justify-self:center}.local-actions,.documentation-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-action-group .primary-button,.hero-action-group .secondary-button{justify-content:center;text-align:center}.hero-action-group .release-download,.hero-action-group #stop-local-server{align-items:center;justify-content:center;text-align:center}.primary-button,.secondary-button { min-height: var(--touch-target-min); display: inline-flex; align-items: center; gap: var(--space-2); padding-inline: var(--space-4); border: 1px solid var(--app-accent); border-radius: var(--radius-md); font-weight: var(--font-weight-bold); text-decoration: none; }.primary-button { background: var(--app-accent); color: var(--app-on-accent); }.secondary-button{background:var(--color-surface);color:var(--color-text)}
 .release-download{align-items:flex-start;flex-direction:column;gap:1px;padding-block:var(--space-2)}.release-download small{font-size:var(--font-size-xs);font-weight:var(--font-weight-regular);line-height:1.25}
 .primary-button:hover { filter: brightness(.94); }
 .card-grid { width: min(100%, 72rem); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); margin-inline: auto; }
@@ -115,10 +115,10 @@ html[data-color-mode="light"] .secondary-button { background:#ffffff; color:#172
 }
 #launch-local-lab:focus-visible{outline:3px solid #93c5fd;outline-offset:3px}
 
-/* Server preparation is intentionally distinct from opening the local app. */
-#refresh-local-server{align-items:flex-start;flex-direction:column;gap:1px;padding-block:var(--space-2);border-color:#0f766e;color:#115e59}
-#refresh-local-server small{font-size:var(--font-size-xs);font-weight:var(--font-weight-regular);line-height:1.25}
-#refresh-local-server:hover{background:#ccfbf1;border-color:#0f766e;filter:none}
-html[data-color-mode="dark"] #refresh-local-server{background:#123c3a;border-color:#2dd4bf;color:#ecfeff}
-html[data-color-mode="dark"] #refresh-local-server:hover{background:#155e59;border-color:#5eead4}
-#refresh-local-server:focus-visible{outline:3px solid #5eead4;outline-offset:3px}
+/* Server shutdown is intentionally distinct from opening the local app. */
+#stop-local-server{align-items:flex-start;flex-direction:column;gap:1px;padding-block:var(--space-2);border-color:#0f766e;color:#115e59}
+#stop-local-server small{font-size:var(--font-size-xs);font-weight:var(--font-weight-regular);line-height:1.25}
+#stop-local-server:hover{background:#ccfbf1;border-color:#0f766e;filter:none}
+html[data-color-mode="dark"] #stop-local-server{background:#123c3a;border-color:#2dd4bf;color:#ecfeff}
+html[data-color-mode="dark"] #stop-local-server:hover{background:#155e59;border-color:#5eead4}
+#stop-local-server:focus-visible{outline:3px solid #5eead4;outline-offset:3px}
