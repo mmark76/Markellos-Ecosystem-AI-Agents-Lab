@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-110
+
+```text
+Change ID: AI-LAB-CC-110
+Requested by: User
+Date: 2026-10-28
+Description: Designate v2.0.26 as CURRENT STABLE and the published, independently checksum-verified v2.0.27 as CURRENT BETA. Show one STABLE and one BETA download on the public landing. Keep v2.0.16 as the archived previous STABLE, without altering its ZIP.
+Reason: The owner wants to distinguish the proven release from the new experimental hidden-server/log-view release while allowing both to be downloaded.
+Affected objective IDs: AI-LAB-OBJ-001, AI-LAB-OBJ-003
+Architecture impact: Explicit GitHub STABLE/BETA channel pins, verified GitHub release snapshot, landing build/templates/tests, installation guide, and a narrowly scoped GitHub Actions release-label sync. The local Lab, public launch URI handlers, and ZIP binaries remain unchanged.
+Security and privacy impact: Independently downloaded v2.0.27 ZIP SHA-256 bb86e96de628a5c4e4b0bd8e10792281c846138e8edda12ee74f5790694827c4. No new network endpoint, executable distribution asset, user tracking, or localhost exposure. GitHub release updates use the built-in GitHub Actions token only on changes to the reviewed channel pin file.
+Data impact: No migration, installation, or local SQLite change.
+Testing impact: Two visible versioned download links, verified hashes, mutually exclusive channel assignments, archived older stable releases, unchanged Stop/Open controls, landing build/CI, GitHub metadata and published Pages checks.
+Cost and schedule impact: Existing GitHub CI and Cloudflare Pages deployment only; no new ZIP.
+Decision: APPROVED (V2.0.26 STABLE / V2.0.27 BETA)
+Approved by: Owner's direct request on 2026-10-28.
+Target release: Public landing channel display plus GitHub Release prerelease/latest labels only.
+```
+
 ## Approved change record — AI-LAB-CC-109
 
 ```text
