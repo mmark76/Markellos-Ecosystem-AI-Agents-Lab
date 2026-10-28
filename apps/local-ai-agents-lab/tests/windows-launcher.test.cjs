@@ -171,8 +171,18 @@ test('background launcher leaves a reachable Python server running after PowerSh
         '    def log_message(self, *args): pass',
         'ThreadingHTTPServer(("127.0.0.1", 8765), Handler).serve_forever()'
       ].join('\n')+'\n',{encoding:'utf8'});
-      const output=execFileSync('powershell.exe',['-NoProfile','-ExecutionPolicy','Bypass','-File',
-        path.join(scripts,'start-background-server.ps1'),'-LabRoot',root],{encoding:'utf8',timeout:40000});
+      let output;
+      try{
+        output=execFileSync('powershell.exe',['-NoProfile','-ExecutionPolicy','Bypass','-File',
+          path.join(scripts,'start-background-server.ps1'),'-LabRoot',root],{encoding:'utf8',timeout:15000});
+      }catch(error){
+        let service='unreachable';
+        try{
+          const response=await fetch('http://127.0.0.1:8765/',{signal:AbortSignal.timeout(2000)});
+          service=String(response.status)+' '+await response.text();
+        }catch{}
+        throw new Error(`Background launcher did not exit: ${error.message}; service=${service}; stdout=${String(error.stdout||'')}; stderr=${String(error.stderr||'')}`);
+      }
       const match=output.match(/background \(PID (\d+)\)/);
       assert.ok(match,'The launcher must report the detached Python server PID');
       childPid=Number(match[1]);
@@ -180,16 +190,20 @@ test('background launcher leaves a reachable Python server running after PowerSh
       assert.equal(response.status,200);
       assert.equal(await response.text(),'BACKGROUND_OK');
     }finally{
-      if(childPid){
-        const quoted=serverPath.replaceAll("'","''");
-        const ps=`$p=Get-CimInstance Win32_Process -Filter "ProcessId=${childPid}"; if($p -and $p.CommandLine -and $p.CommandLine.Contains('${quoted}')) { 'OWNED' }`;
-        const identity=execFileSync('powershell.exe',['-NoProfile','-Command',ps],{encoding:'utf8',timeout:15000}).trim();
-        if(identity==='OWNED'){
-          try{process.kill(childPid);}catch(error){if(error.code!=='ESRCH')throw error;}
-          await new Promise(resolve=>setTimeout(resolve,500));
-        }
+      const quoted=serverPath.replaceAll("'","''");
+      const ps=[
+        '$owners = @(Get-NetTCPConnection -LocalPort 8765 -State Listen -ErrorAction SilentlyContinue)',
+        'foreach ($owner in $owners) {',
+        '  $p=Get-CimInstance Win32_Process -Filter "ProcessId=$($owner.OwningProcess)"',
+        `  if($p -and $p.CommandLine -and $p.CommandLine.Contains('${quoted}')) { $p.ProcessId }`,
+        '}'
+      ].join('\n');
+      const id=Number(execFileSync('powershell.exe',['-NoProfile','-Command',ps],{encoding:'utf8',timeout:15000}).trim());
+      if(id){
+        try{process.kill(id);}catch(error){if(error.code!=='ESRCH')throw error;}
+        await new Promise(resolve=>setTimeout(resolve,1000));
       }
-      fs.rmSync(root,{recursive:true,force:true});
+      fs.rmSync(root,{recursive:true,force:true,maxRetries:10,retryDelay:300});
     }
   });
 
