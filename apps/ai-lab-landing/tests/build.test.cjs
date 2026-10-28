@@ -51,8 +51,10 @@ test('build truthfully presents the current public state of the Local Lab', () =
     assert.match(release.url, new RegExp(`/releases/v${release.version.replaceAll('.', '\\.')}/AI-Agents-Lab-Windows\\.zip$`));
     assert.match(release.sha256, /^[a-f0-9]{64}$/);
   }
-  const easyStartNotice = '<p class="shell-notice"><strong>First setup (Easy Start):</strong> After extracting the ZIP, run <code>Start AI Training Lab.bat</code>.</p>';
+  const easyStartNotice = '<p class="shell-notice"><strong>First setup (Easy Start):</strong> After extracting, run <code>Start AI Training Lab.bat</code> (STABLE) or <code>Start Local Server.bat</code> (BETA).</p>';
   assert.ok(html.includes(easyStartNotice), 'First setup must appear in the highlighted notice');
+  assert.ok(easyStartNotice.includes('Start AI Training Lab.bat</code> (STABLE)'), 'Keep the correct STABLE filename');
+  assert.ok(easyStartNotice.includes('Start Local Server.bat</code> (BETA)'), 'Show the renamed BETA filename');
   assert.ok(html.indexOf(easyStartNotice) < html.indexOf('class="hero-actions"'), 'First setup must appear above the download buttons');
   assert.equal((html.match(/First setup \(Easy Start\):/g) || []).length, 1, 'Do not duplicate the Easy Start notice');
   assert.doesNotMatch(html, /Choose a stable release:/);
@@ -169,12 +171,13 @@ test('build truthfully presents the current public state of the Local Lab', () =
     assert.ok(betaSection.includes('data-zip-sha256="' + release.sha256 + '"'));
   }
   assert.equal(channels.currentStableGithubVersion, '2.0.26', 'the approved STABLE channel must be pinned independently of GitHub release order');
-  assert.equal(channels.currentBetaGithubVersion, '2.0.27', 'the approved BETA channel must be pinned independently of GitHub release order');
+  assert.equal(channels.currentBetaGithubVersion, '2.0.28', 'the approved BETA channel must be pinned independently of GitHub release order');
   assert.equal(channels.previousStableR2Version, '2.0.16', 'preserve the owner-approved previous STABLE');
   assert.equal(currentStable.sha256, '32639b2c8da3df5ac0c3e0ffb078c5f3aafa5ba160187d9e6731393a42878584');
   assert.equal(currentStable.assetName, 'AI-Agents-Lab-Windows-v2.0.26.zip');
-  assert.equal(currentBeta.sha256, 'bb86e96de628a5c4e4b0bd8e10792281c846138e8edda12ee74f5790694827c4');
-  assert.equal(currentBeta.assetName, 'AI-Agents-Lab-Windows-v2.0.27.zip');
+  assert.equal(currentBeta.sha256, '1fb0e033a9a49ae4439a4c5e8eccaebe58ec4c9c69a1037c8128efcc24f04b36');
+  assert.equal(currentBeta.assetName, 'AI-Agents-Lab-Windows-v2.0.28.zip');
+  assert.ok(betaDistribution.releases.some(release => release.version === '2.0.27' && release.sha256 === 'bb86e96de628a5c4e4b0bd8e10792281c846138e8edda12ee74f5790694827c4'), 'retain the previous BETA release in the archive');
   assert.notEqual(currentStable.version, currentBeta.version, 'STABLE and BETA cannot designate the same ZIP');
   const channelSync = readFileSync(join(app, '..', '..', '.github', 'workflows', 'sync-ai-lab-release-channels.yml'), 'utf8');
   assert.match(channelSync, /release-channels\.json/);
@@ -200,9 +203,9 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /id="launch-local-lab" class="secondary-button" href="markellos-ai-training-lab:\/\/open"/);
   assert.match(html, /<span>Open AI Lab<\/span><small>Quick start after first-time setup<\/small><\/a>/);
   assert.doesNotMatch(html, /Launch Local Lab <span aria-hidden="true">\?<\/span>/);
-  assert.match(html, /<strong>First setup \(Easy Start\):<\/strong> After extracting the ZIP, run <code>Start AI Training Lab\.bat<\/code>\./);
+  assert.match(html, /<strong>First setup \(Easy Start\):<\/strong> After extracting, run <code>Start AI Training Lab\.bat<\/code> \(STABLE\) or <code>Start Local Server\.bat<\/code> \(BETA\)\./);
   assert.match(guide, /Stop Local Server/);
-  assert.match(guide, /Stop action requires v2\.0\.26 or later/);
+  assert.match(guide, /Stop requires v2\.0\.26 or later/);
   const localActions = html.split('class="hero-action-group local-actions">', 2)[1].split('</div>', 1)[0];
   assert.ok(localActions.indexOf('id="stop-local-server"') < localActions.indexOf('id="launch-local-lab"'), 'preserve Stop left / Open right');
   assert.doesNotMatch(html, /\{\{LEGACY_DOWNLOAD_BUTTON\}\}/);
@@ -234,7 +237,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.ok(guide.indexOf(stepHeading) < guide.indexOf('Detailed App Description'), 'five steps should appear before other guide links');
   const fiveStepList = guide.slice(guide.indexOf('<ol>', guide.indexOf(stepHeading)), guide.indexOf('</ol>', guide.indexOf(stepHeading)) + 5);
   assert.equal((fiveStepList.match(/<li>/g) || []).length, 5);
-  const stepNames = ['Download.', 'Stop &amp; Backup.', 'Extract.', 'Start AI Training Lab.bat.', 'Launch.'];
+  const stepNames = ['Download.', 'Stop &amp; Backup.', 'Extract.', 'Start your server.', 'Launch.'];
   let previous = -1;
   for (const step of stepNames) {
     const index = fiveStepList.indexOf('<strong>' + step + '</strong>');
@@ -245,7 +248,9 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(fiveStepList, /new extracted folder/);
   assert.match(fiveStepList, /Open AI Lab/);
   assert.match(guide, /Start AI Training Lab\.bat/);
-  assert.match(guide, /asks separately before installing Python, Ollama, or the first local AI model when needed/);
+  assert.match(guide, /Start Local Server\.bat/);
+  assert.match(guide, /Open AI Lab\.bat/);
+  assert.match(guide, /requests separate approval before installing missing components or the initial local model/);
   assert.doesNotMatch(guide, /You do not need a GitHub account/);
   assert.match(guide, /Conference Room - available/);
   assert.match(guide, /Training Lab - available/);
@@ -299,8 +304,10 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.ok(technical.includes('**Previous STABLE Cloudflare R2 milestone:** v' + previousStable.version));
   assert.doesNotMatch(technical, /\{\{LOCAL_LAB_VERSION\}\}|\{\{PUBLIC_MILESTONE_VERSION\}\}/);
   assert.match(technical, /Quick Start \(Windows\)/);
-  assert.match(technical, /Understanding the two Windows \.bat files/);
+  assert.match(technical, /Understanding the Windows \.bat files/);
   assert.match(technical, /Start AI Training Lab\.bat/);
+  assert.match(technical, /Start Local Server\.bat/);
+  assert.match(technical, /Open AI Lab\.bat/);
   assert.doesNotMatch(technical, /Start AI Agents Lab\.bat/);
   assert.match(technical, /Technical README/);
   for (const topic of [

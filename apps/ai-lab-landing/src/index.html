@@ -33,7 +33,7 @@
       <article class="dashboard-card content-card hero-card">
       <p class="eyebrow">CURRENT STABLE · {{GITHUB_RELEASE_VERSION}} · LOCAL + OPTIONAL INTERNET CONNECTIONS</p>
       <h1 id="page-title">AI Lab {{GITHUB_RELEASE_VERSION}}</h1>
-      <p class="shell-notice"><strong>First setup (Easy Start):</strong> After extracting the ZIP, run <code>Start AI Training Lab.bat</code>.</p>
+      <p class="shell-notice"><strong>First setup (Easy Start):</strong> After extracting, run <code>Start AI Training Lab.bat</code> (STABLE) or <code>Start Local Server.bat</code> (BETA).</p>
       <div class="hero-actions" aria-label="Download, local launch, and documentation actions">
         <div class="hero-action-group download-actions"><a id="github-release-download" class="primary-button release-download github-release-download" data-zip-version="{{GITHUB_RELEASE_VERSION}}" data-zip-sha256="{{GITHUB_RELEASE_SHA256}}" data-download-source="github-release" href="{{GITHUB_RELEASE_URL}}"><span>Download {{GITHUB_RELEASE_VERSION}} STABLE <span aria-hidden="true">↓</span></span><small>GitHub · current stable release</small></a><a id="github-beta-download" class="secondary-button release-download github-beta-download" data-zip-version="{{BETA_RELEASE_VERSION}}" data-zip-sha256="{{BETA_RELEASE_SHA256}}" data-download-source="github-beta-release" href="{{BETA_RELEASE_URL}}"><span>Download {{BETA_RELEASE_VERSION}} BETA <span aria-hidden="true">↓</span></span><small>GitHub · testing release</small></a></div>
         <div class="hero-action-group local-actions"><a id="stop-local-server" class="secondary-button" href="markellos-ai-training-lab-stop://open"><span>Stop Local Server</span><small>No automatic restart</small></a><a id="launch-local-lab" class="secondary-button" href="markellos-ai-training-lab://open"><span>Open AI Lab</span><small>Quick start after first-time setup</small></a></div>
@@ -85,7 +85,7 @@
       <ol>
         <li><strong>Download the ZIP.</strong> Choose STABLE for normal use or BETA for testing.</li>
         <li><strong>Extract the ZIP.</strong> Extract it into a folder such as Documents.</li>
-        <li><strong>Set up and start.</strong> Double-click <code>Start AI Training Lab.bat</code>. Easy Start checks your device and asks separately before installing Python, Ollama, or the initial local model. It asks whether you want a Desktop shortcut and remembers your choice for that extracted folder. When ready, it starts the Lab at <a class="inline-link" href="http://127.0.0.1:8765/">Open Local Lab</a>.</li>
+        <li><strong>Set up and start.</strong> Run <code>Start AI Training Lab.bat</code> (STABLE) or <code>Start Local Server.bat</code> (BETA). Easy Start checks your device and asks separately before installing Python, Ollama, or the initial local model. It asks whether you want a Desktop shortcut and remembers your choice for that extracted folder. When ready, the server starts; click <a class="inline-link" href="http://127.0.0.1:8765/">Open Local Lab</a> to use the app.</li>
       </ol>
       </article>
     </section>

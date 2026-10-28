@@ -61,7 +61,7 @@ An **inference engine** serves model requests; a **model** produces the response
 
 ### Windows and Python
 
-Easy Start is launched using `Start AI Training Lab.bat`. It reuses compatible existing components; otherwise it requests **separate confirmation** before installing Python, installing Ollama, starting Ollama, or downloading the initial model. Its preferred Python installation is **3.12**; the base launcher accepts compatible **Python 3.9+** versions. The training-only environment has narrower requirements, described in Section 7.
+Easy Start is launched using `Start AI Training Lab.bat` in STABLE v2.0.26 or `Start Local Server.bat` in BETA v2.0.28. Both reuse compatible existing components; otherwise they request **separate confirmation** before installing Python, installing Ollama, starting Ollama, or downloading the initial model. The preferred Python installation is **3.12**; the base launcher accepts compatible **Python 3.9+** versions. The training-only environment has narrower requirements, described in Section 7.
 
 The normal Lab server uses the Python **standard library**, including local HTTP and SQLite support. **PyTorch is not required** for the five regular agent workspaces. The supported packaged setup is **Windows**: portable Python modules do not constitute an officially verified macOS or Linux application release.
 
@@ -177,13 +177,15 @@ Likewise, the optional **ChatGPT Advisor** is a separate, user-triggered externa
 
 1. Download the verified Windows ZIP from the [landing page](https://ai-lab.markellosecosystem.com/). New packages include the version in the filename (for example, `AI-Agents-Lab-Windows-vX.Y.Z.zip`); older assets retain their existing names.
 2. Extract it into a new folder on the Windows computer (do not run a BAT file from within the ZIP).
-3. Start `Start AI Training Lab.bat` and approve each missing prerequisite or initial model download separately.
+3. Run `Start AI Training Lab.bat` (STABLE v2.0.26) or `Start Local Server.bat` (BETA v2.0.28) and approve each missing prerequisite or initial model download separately.
 4. Once ready, open `http://127.0.0.1:8765/` and choose an installed Ollama model.
 5. For upgrades, stop the old server first and back up `data/campus.sqlite3` before transferring history to the new extracted folder.
 
-### Understanding the two Windows .bat files
+### Understanding the Windows .bat files
 
-- **`Start AI Training Lab.bat`:** The single normal launcher with readiness checks and an optional first-run Desktop shortcut choice.
+- **`Start AI Training Lab.bat` (STABLE v2.0.26):** Readiness-first setup and visible local server launcher, without automatic browser opening.
+- **`Start Local Server.bat` (BETA v2.0.28):** The renamed readiness-first setup/server launcher, with background startup and an optional Desktop shortcut choice.
+- **`Open AI Lab.bat` (BETA v2.0.28):** Uses the existing local Open action to start the server if absent and open the application in a browser.
 - **`setup-training-environment.bat`:** Separate advanced training-dependency setup; **not** needed to start the Lab and **does not unlock fine-tuning**.
 
 ## 10. Development, deployment and release boundaries
@@ -192,7 +194,7 @@ Likewise, the optional **ChatGPT Advisor** is a separate, user-triggered externa
 
 The public site is built into `apps/ai-lab-landing/dist`. The **Technical README you are reading** is generated from `apps/ai-lab-landing/src/PUBLIC_DOCUMENTATION.md` during that build; update the **source document**, not the generated `dist/README.md`.
 
-**Manual update checking inside the Local App: not implemented.** Releases must be reviewed and installed manually, preserving local data. The public page displays the owner-approved STABLE v2.0.26 and BETA v2.0.27 GitHub releases; the previous STABLE v2.0.16 R2 milestone remains available in the archive. The GitHub and R2 ZIPs are independently verified, not interchangeable version-matched fallback assets. BETA is a testing designation, not a recommendation to replace STABLE automatically.
+**Manual update checking inside the Local App: not implemented.** Releases must be reviewed and installed manually, preserving local data. The public page displays the owner-approved STABLE v2.0.26 and BETA v2.0.28 GitHub releases; the previous STABLE v2.0.16 R2 milestone remains available in the archive. The GitHub and R2 ZIPs are independently verified, not interchangeable version-matched fallback assets. BETA is a testing designation, not a recommendation to replace STABLE automatically.
 
 ## 11. Verification status and current limitations
 
