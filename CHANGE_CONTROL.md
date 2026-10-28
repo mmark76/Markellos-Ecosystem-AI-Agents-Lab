@@ -1,5 +1,23 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-111
+
+```text
+Change ID: AI-LAB-CC-111
+Requested by: User
+Date: 2026-10-28
+Description: Colour all text, including the subtitle, red in the featured v2.0.27 BETA download button on the public landing page, with readable dark/light shades.
+Reason: Visually distinguish the entire testing download control from the v2.0.26 STABLE button without changing its action.
+Affected objective IDs: AI-LAB-OBJ-001, AI-LAB-OBJ-003
+Architecture impact: Static landing markup, theme-aware text colour and one regression assertion only.
+Security and data impact: None; channel pins, ZIP checksums, binary releases, launch protocols, APIs, user data and tracking remain unchanged.
+Testing impact: Landing build and source/regression checks, GitHub CI, public Pages verification.
+Cost and schedule impact: Existing Pages deployment only; no new Windows ZIP.
+Decision: APPROVED (ALL BETA BUTTON TEXT RED)
+Approved by: Owner's direct request on 2026-10-28.
+Target release: Public landing-only visual update.
+```
+
 ## Approved change record — AI-LAB-CC-110
 
 ```text
