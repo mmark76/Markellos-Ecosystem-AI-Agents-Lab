@@ -64,6 +64,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   const expectedBetaUrl = `https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v${currentBeta.version}/${currentBeta.assetName}`;
   assert.ok(html.includes(`id="github-beta-download" class="secondary-button release-download github-beta-download" data-zip-version="v${currentBeta.version}" data-zip-sha256="${currentBeta.sha256}" data-download-source="github-beta-release" href="${expectedBetaUrl}"`));
   assert.ok(html.includes(`<span>Download v${currentBeta.version} BETA <span aria-hidden="true">↓</span></span><small>GitHub · testing release</small>`));
+  assert.match(styles, /\.github-beta-download\{color:#f87171\}html\[data-color-mode="light"\] \.github-beta-download\{color:#b91c1c\}/);
   const downloadGroup = html.match(/<div class="hero-action-group download-actions">([\s\S]*?)<\/div>/)?.[1];
   assert.ok(downloadGroup, 'Download group must remain present');
   const buttonOrder = [...downloadGroup.matchAll(/id="([^"]+)" class="(?:primary|secondary)-button release-download/g)].map(match => match[1]);

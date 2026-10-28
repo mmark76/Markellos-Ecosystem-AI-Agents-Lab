@@ -6,6 +6,7 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 
 ### Changed
 
+- Make all text in the featured v2.0.27 BETA download button red, with readable shades for dark and light modes; preserve channel assignments and download links.
 - Designate v2.0.26 as CURRENT STABLE and independently verified v2.0.27 as CURRENT BETA on the landing page. Keep v2.0.16 R2 in the archive and synchronize GitHub release labels without rebuilding either ZIP.
 - Feature the independently verified v2.0.26 Windows STABLE ZIP on the public landing page; retain v2.0.16 as PREVIOUS STABLE and v2.0.25 in the release archive. Change the left button to Stop Local Server (available after v2.0.26 setup) while preserving the right Open AI Lab action.
 - Display the existing Training Lab Student role as Student Alpha in the workflow, model guidance, session stages, and local history while preserving its canonical role identity and stored records.
