@@ -88,9 +88,11 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(styles, /#launch-local-lab:hover,html\[data-color-mode="light"\] #launch-local-lab:hover/);
   assert.match(styles, /background:#1d4ed8;border-color:#1d4ed8;filter:none/);
   assert.match(styles, /#launch-local-lab:focus-visible\{outline:3px solid #93c5fd/);
+  assert.match(styles, /#launch-local-lab\{flex-direction:column;gap:1px;padding-block:var\(--space-2\)\}/);
+  assert.match(styles, /#launch-local-lab small\{font-size:var\(--font-size-xs\)/);
   assert.match(styles, /#refresh-local-server\{align-items:flex-start;flex-direction:column/);
   assert.match(html, /id="refresh-local-server" class="secondary-button" href="markellos-ai-training-lab-refresh:\/\/open"/);
-  assert.match(html, /<span>Refresh Local Server<\/span><small>Before launching the app<\/small><\/a>/);
+  assert.match(html, /<span>Restart Local Server<\/span><small>Only if the Lab isn't responding<\/small><\/a>/);
   assert.match(html, new RegExp(currentDistribution.url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.match(html, /Release archive/);
   assert.match(html, /Cloudflare R2 milestones · GitHub releases/);
@@ -178,14 +180,15 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /<div class="content-card-grid">\s*<section id="start"/);
   assert.match(html, /Start AI Training Lab\.bat/);
   assert.match(html, /id="launch-local-lab" class="secondary-button" href="markellos-ai-training-lab:\/\/open"/);
-  assert.match(html, /Launch Local Lab after download and extract zip<\/a>/);
+  assert.match(html, /<span>Open AI Lab<\/span><small>Starts the server if needed<\/small><\/a>/);
   assert.doesNotMatch(html, /Launch Local Lab <span aria-hidden="true">\?<\/span>/);
-  assert.match(html, /Both actions work after the first Easy Start setup/);
-  assert.match(html, /Refresh starts a clean local server without opening the app\./);
-  assert.match(guide, /Refresh Local Server/);
+  assert.match(html, /<strong>First setup \(Easy Start\):<\/strong> After extracting the ZIP, run <code>Start AI Training Lab\.bat<\/code>\./);
+  assert.match(guide, /Restart Local Server/);
+  const localActions = html.split('class="hero-action-group local-actions">', 2)[1].split('</div>', 1)[0];
+  assert.ok(localActions.indexOf('id="refresh-local-server"') < localActions.indexOf('id="launch-local-lab"'), 'preserve Restart left / Open right');
   assert.doesNotMatch(html, /\{\{LEGACY_DOWNLOAD_BUTTON\}\}/);
   assert.match(html, /Starter AI Model/);
-  assert.match(guide, /Easy Start remembers whether you requested a Windows Desktop shortcut/);
+  assert.match(guide, /Easy Start remembers your Windows Desktop shortcut choice/);
   assert.match(guide, /setup-training-environment\.bat/);
   assert.doesNotMatch(guide, /start-windows\.bat|setup-training-windows\.bat/);
 
@@ -221,7 +224,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   }
   assert.match(fiveStepList, /data\/campus\.sqlite3/);
   assert.match(fiveStepList, /new extracted folder/);
-  assert.match(fiveStepList, /Refresh Local Server → Launch Local Lab/);
+  assert.match(fiveStepList, /Open AI Lab/);
   assert.match(guide, /Start AI Training Lab\.bat/);
   assert.match(guide, /asks separately before installing Python, Ollama, or the first local AI model when needed/);
   assert.doesNotMatch(guide, /You do not need a GitHub account/);
