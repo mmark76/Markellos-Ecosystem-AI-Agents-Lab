@@ -1,5 +1,23 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-114
+
+```text
+Change ID: AI-LAB-CC-114
+Requested by: User
+Date: 2026-10-28
+Description: Promote the independently verified Windows ZIP v2.0.28 to the public BETA channel while retaining v2.0.26 as STABLE and v2.0.27 in GitHub release history; update public installation instructions so both versions show their different first-setup BAT filename.
+Reason: The owner approved the v2.0.28 BETA rename but the pinned STABLE v2.0.26 retains the older launcher name. A single unconditional instruction would break setup for one version.
+Affected objective IDs: AI-LAB-OBJ-001, AI-LAB-OBJ-003, AI-LAB-OBJ-012
+Architecture impact: Landing HTML, guide/technical README, explicit release-channel pin and verified static GitHub release snapshot; release-label synchronization via existing GitHub Action.
+Security and data impact: No change to Local Lab, API, protocol handlers, ZIP binaries or stored data. The v2.0.28 ZIP SHA-256 1fb0e033a9a49ae4439a4c5e8eccaebe58ec4c9c69a1037c8128efcc24f04b36 was independently downloaded and matched GitHub asset metadata; both BAT filenames were verified in the archive. The STABLE checksum is unchanged.
+Testing impact: Landing build/source tests for channel pins, hashes and correct per-version first-setup BAT names; Cloudflare deployment and GitHub release prerelease/latest label checks after merge.
+Cost and schedule impact: Existing GitHub Actions and Cloudflare Pages pipelines. No additional Windows ZIP beyond v2.0.28.
+Decision: APPROVED (V2.0.28 BETA / V2.0.26 STABLE / DISTINCT SETUP BAT NAMES)
+Approved by: Owner's direct confirmation on 2026-10-28.
+Target release: Public landing update after independently verified v2.0.28 ZIP publication.
+```
+
 ## Approved change record — AI-LAB-CC-113
 
 ```text

@@ -1,6 +1,11 @@
 {
   "releases": [
     {
+      "version": "2.0.28",
+      "sha256": "1fb0e033a9a49ae4439a4c5e8eccaebe58ec4c9c69a1037c8128efcc24f04b36",
+      "assetName": "AI-Agents-Lab-Windows-v2.0.28.zip"
+    },
+    {
       "version": "2.0.27",
       "sha256": "bb86e96de628a5c4e4b0bd8e10792281c846138e8edda12ee74f5790694827c4",
       "assetName": "AI-Agents-Lab-Windows-v2.0.27.zip"
