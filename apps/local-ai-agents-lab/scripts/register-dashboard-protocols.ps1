@@ -17,7 +17,8 @@ if (-not (Test-Path -LiteralPath $handler -PathType Leaf)) { throw 'The dashboar
 $quotedHandler = '"' + $handler + '"'
 foreach ($registration in @(
     @{ Name = 'markellos-ai-training-lab'; Description = "URL:AI Training Lab v$version Protocol"; Action = 'Open' },
-    @{ Name = 'markellos-ai-training-lab-refresh'; Description = "URL:AI Training Lab v$version Server Refresh Protocol"; Action = 'Refresh' }
+    @{ Name = 'markellos-ai-training-lab-refresh'; Description = "URL:AI Training Lab v$version Server Refresh Protocol"; Action = 'Refresh' },
+    @{ Name = 'markellos-ai-training-lab-stop'; Description = "URL:AI Training Lab v$version Server Stop Protocol"; Action = 'Stop' }
 )) {
     $protocolKey = 'HKCU:\Software\Classes\' + $registration.Name
     $commandKey = Join-Path $protocolKey 'shell\open\command'
