@@ -270,12 +270,12 @@ test('Windows background server startup preserves process identity and bounded l
   const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
   assert.match(launcher,/start-background-server\.ps1/);
   assert.doesNotMatch(launcher,/py -3 "%~dp0server\.py"|python "%~dp0server\.py"/);
-  assert.match(startup,/Start-Process -FilePath \$python/);
-  assert.match(startup,/-WindowStyle Hidden/);
-  assert.match(startup,/-RedirectStandardError \$errors/);
-  assert.match(startup,/-RedirectStandardOutput \$output/);
+  assert.match(startup,/Win32_ProcessStartup/);
+  assert.match(startup,/\$startup\.ShowWindow = 0/);
+  assert.match(startup,/\$startup\.CreateFlags = 8/);
+  assert.match(startup,/Win32_Process'\)\.Create\(\$command, \$root, \$startup\)/);
   assert.match(startup,/Get-NetTCPConnection -LocalPort 8765/);
-  assert.match(startup,/\$listeners\[0\]\.OwningProcess -eq \$process\.Id/);
+  assert.match(startup,/\$listeners\[0\]\.OwningProcess -eq \$serverPid/);
   assert.match(preflight,/pythonw\.exe/);
   assert.match(server,/Markellos Ecosystem AI Lab/);
   assert.match(server,/RotatingFileHandler/);

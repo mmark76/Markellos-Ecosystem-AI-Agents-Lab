@@ -30,22 +30,27 @@ try {
 
     $logs = Join-Path $root 'data\logs'
     New-Item -Path $logs -ItemType Directory -Force | Out-Null
-    $errors = Join-Path $logs 'server-errors.log'
-    $output = Join-Path $logs 'server-output.log'
-    $arguments = @('-u', ('"' + $serverScript + '"'))
-    # This is a detached Windows process with no visible terminal window.
-    # Redirect both streams so the Python child cannot inherit the launcher's
-    # console pipe and keep its CMD/PowerShell caller waiting after startup.
-    # API metadata is independently logged to data\logs\api.log by server.py.
-    $process = Start-Process -FilePath $python -ArgumentList $arguments -WorkingDirectory $root -WindowStyle Hidden -RedirectStandardOutput $output -RedirectStandardError $errors -PassThru
+    # WMI's DETACHED_PROCESS (8) guarantees that Python inherits no console
+    # pipes from the caller. Start-Process -WindowStyle Hidden alone can leave
+    # the launcher's parent waiting for Python to exit (confirmed by Windows CI).
+    # Startup failures and bounded API metadata are written by server.py.
+    $startup = ([wmiclass]'Win32_ProcessStartup').CreateInstance()
+    $startup.ShowWindow = 0
+    $startup.CreateFlags = 8
+    $command = '"' + $python + '" -u "' + $serverScript + '"'
+    $launch = ([wmiclass]'Win32_Process').Create($command, $root, $startup)
+    if ($launch.ReturnValue -ne 0 -or -not $launch.ProcessId) {
+        throw "Cannot start the detached server (Windows code $($launch.ReturnValue))."
+    }
+    $serverPid = [int]$launch.ProcessId
     for ($attempt = 0; $attempt -lt 120; $attempt++) {
         Start-Sleep -Milliseconds 250
         $listeners = @(Get-NetTCPConnection -LocalPort 8765 -State Listen -ErrorAction SilentlyContinue)
-        if ($listeners.Count -eq 1 -and $listeners[0].LocalAddress -eq '127.0.0.1' -and [int]$listeners[0].OwningProcess -eq $process.Id) {
-            Write-Host "AI Lab server started in background (PID $($process.Id))."
+        if ($listeners.Count -eq 1 -and $listeners[0].LocalAddress -eq '127.0.0.1' -and [int]$listeners[0].OwningProcess -eq $serverPid) {
+            Write-Host "AI Lab server started in background (PID $serverPid)."
             exit 0
         }
-        if ($process.HasExited) { throw "AI Lab server exited during startup. Check data\logs\server-errors.log." }
+        if (-not (Get-Process -Id $serverPid -ErrorAction SilentlyContinue)) { throw 'AI Lab server exited during startup. Check data\logs\server-errors.log.' }
     }
     throw 'AI Lab server startup timed out. Check data\logs\server-errors.log.'
 } catch {

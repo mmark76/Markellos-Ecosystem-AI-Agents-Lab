@@ -16,6 +16,7 @@ from threading import Event, Lock, Thread
 from time import perf_counter
 from time import gmtime
 import re
+import traceback
 from typing import Optional
 from urllib.error import HTTPError, URLError
 from urllib.request import ProxyHandler, build_opener
@@ -875,4 +876,16 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception:
+        # Detached Windows processes have no console. Preserve startup failure
+        # diagnostics locally without printing them to a hidden terminal.
+        try:
+            errors = DB_PATH.parent / "logs" / "server-errors.log"
+            errors.parent.mkdir(parents=True, exist_ok=True)
+            with errors.open("a", encoding="utf-8") as output:
+                traceback.print_exc(file=output)
+        except OSError:
+            pass
+        raise
