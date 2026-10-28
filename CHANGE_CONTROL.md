@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-100
+
+```text
+Change ID: AI-LAB-CC-100
+Requested by: User
+Date: 2026-10-28
+Description: Repair the Local Lab model-install completion UI after an Ollama pull by removing the retired single-model selector lookup and verifying refresh behavior against independent per-agent model controls.
+Reason: A successfully installed llama3.1:latest model appeared in Ollama and in the Lab, but the installer displayed "Cannot read properties of null (reading 'options')" when reading the removed #model selector.
+Affected objective IDs: AI-LAB-OBJ-008, AI-LAB-OBJ-010
+Architecture impact: Model-install presentation only; retain the existing per-agent selectors, their saved assignments, and the fixed-loopback Ollama adapter.
+Security and privacy impact: No new endpoint, download, remote access, credential, or data collection. The original explicit user confirmation remains required for a pull.
+Data impact: None; no SQLite or model-storage changes.
+Testing impact: Behavioral Node regression reproduces the completion error before the fix and verifies completed and running-to-completed polls afterward; add it to Local Lab CI and retain existing Python installer tests.
+Cost and schedule impact: No dependencies or infrastructure changes.
+Decision: APPROVED (DEFECT FIX)
+Approved by: Direct user request on 2026-10-28.
+Target release: Next reviewed Local Lab Windows package; no automatic publication or deployment.
+```
+
 ## Approved change record — AI-LAB-CC-099
 
 ```text

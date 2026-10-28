@@ -28,8 +28,8 @@
       } else if (job.state === 'completed') {
         output.textContent = job.model + ' installed in Ollama. Ready to use.';
         if (wasRunning || lastCompleted !== job.model) {
+          // Refresh independent agent selectors without auto-changing their assignments.
           await refreshStatus();
-          if (Array.from($('model').options).some(option => option.value === job.model)) $('model').value = job.model;
         }
         lastCompleted = job.model;
         wasRunning = false;
