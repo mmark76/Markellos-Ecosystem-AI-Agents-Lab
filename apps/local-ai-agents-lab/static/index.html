@@ -11,6 +11,7 @@
   <script defer src="/static/app.js"></script>
   <script defer src="/static/evaluation.js"></script>
   <script defer src="/static/settings.js"></script>
+  <script defer src="/static/api-logs.js"></script>
   <script defer src="/static/ecosystem-shell.js"></script>
   <script defer src="/static/model-guidance-data.js"></script>
   <script defer src="/static/model-guidance.js"></script>
@@ -86,7 +87,14 @@
       <p id="lab-info-privacy">No analytics or external AI service is integrated into this app.</p>
       <p id="lab-info-rights">© <span class="copyright-year"></span> Markellos Markides. All rights reserved.</p>
       <p class="build-id">ZIP version: ZIP_VERSION</p>
+      <button type="button" id="view-api-logs" class="settings-toggle" aria-haspopup="dialog" aria-controls="api-logs-dialog">View API Logs</button>
       <button type="button" id="info-close" class="settings-toggle">Close</button>
+    </dialog>
+    <dialog id="api-logs-dialog" class="lab-info api-logs-dialog" aria-labelledby="api-logs-title">
+      <h2 id="api-logs-title">API Logs</h2>
+      <p>Local API requests only. No request bodies or URL query strings are recorded.</p>
+      <pre id="api-logs-content" tabindex="0" role="status" aria-live="polite">Select Refresh to load recent activity.</pre>
+      <div class="api-logs-actions"><button type="button" id="api-logs-refresh" class="settings-toggle">Refresh</button><button type="button" id="api-logs-close" class="settings-toggle">Close</button></div>
     </dialog>
     <dialog id="model-guidance-dialog" class="model-guidance-dialog" aria-labelledby="model-guidance-title" aria-describedby="model-guidance-disclaimer">
       <div class="model-guidance-heading"><div><p class="eyebrow">MODEL ADVISOR · PHASE 1</p><h2 id="model-guidance-title">Model Guidance</h2></div><button type="button" id="model-guidance-close" class="dialog-close" aria-label="Close Model Guidance">×</button></div>

@@ -60,7 +60,13 @@ function writeFixture(root){
     '[System.IO.File]::WriteAllLines((Join-Path $PSScriptRoot "..\\protocol-paths.txt"), @($LabRoot, $normalized), $encoding)',
     'exit 0'
   ].join('\r\n')+'\r\n',{encoding:'utf8'});
-  fs.writeFileSync(path.join(root,'py.cmd'),'@echo off\r\necho %*>> "%~dp0python-invocation.txt"\r\nexit /b 0\r\n',{encoding:'ascii'});
+  fs.writeFileSync(path.join(root,'scripts','start-background-server.ps1'),[
+    'param([string]$LabRoot)',
+    '$normalized = [System.IO.Path]::GetFullPath($LabRoot)',
+    '$encoding = [System.Text.UTF8Encoding]::new($false)',
+    '[System.IO.File]::WriteAllLines((Join-Path $PSScriptRoot "..\\background-paths.txt"), @($LabRoot, $normalized), $encoding)',
+    'exit 0'
+  ].join('\r\n')+'\r\n',{encoding:'utf8'});
 }
 
 function readPaths(root,file){
@@ -97,7 +103,9 @@ test('Windows launcher passes a non-trailing LabRoot to every setup and integrat
         assert.equal(shortcut[1],expected);
         assert.match(protocols[0],/\\\.$/);
         assert.equal(protocols[1],expected);
-        assert.ok(fs.readFileSync(path.join(root,'python-invocation.txt'),'utf8').includes(path.join(root,'server.py')));
+        const background=readPaths(root,'background-paths.txt');
+        assert.match(background[0],/\\\.$/);
+        assert.equal(background[1],expected);
       }
     } finally {
       fs.rmSync(workspace,{recursive:true,force:true});
@@ -109,7 +117,7 @@ test('Windows PowerShell setup scripts parse and read the packaged release versi
     const files=[
       'get-lab-version.ps1','easy-start.ps1','finish-setup.ps1',
       'create-desktop-shortcut.ps1','register-dashboard-protocols.ps1','launch-from-dashboard.ps1',
-      'prepare-local-server.ps1','setup-training.ps1'
+      'prepare-local-server.ps1','start-background-server.ps1','setup-training.ps1'
     ].map(name=>path.join(sourceRoot,'scripts',name));
     const quote=value=>value.replaceAll("'","''");
     const expression=[
@@ -140,6 +148,47 @@ test('dashboard Stop calls only the bounded local stop preflight, without starti
       assert.equal(fs.readFileSync(path.join(root,'stop-only.txt'),'utf8'),'STOP_ONLY');
       assert.equal(fs.existsSync(path.join(root,'started.txt')),false,'Stop must never start the server');
     }finally{
+      fs.rmSync(root,{recursive:true,force:true});
+    }
+  });
+
+test('background launcher leaves a reachable Python server running after PowerShell exits',
+  {skip:process.platform!=='win32'},async()=>{
+    const root=fs.mkdtempSync(path.join(os.tmpdir(),'ai-lab-background-'));
+    const scripts=path.join(root,'scripts');
+    const serverPath=path.join(root,'server.py');
+    let childPid=0;
+    try{
+      fs.mkdirSync(scripts,{recursive:true});
+      fs.copyFileSync(path.join(sourceRoot,'scripts','start-background-server.ps1'),path.join(scripts,'start-background-server.ps1'));
+      fs.writeFileSync(serverPath,[
+        'from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer',
+        'class Handler(BaseHTTPRequestHandler):',
+        '    def do_GET(self):',
+        '        self.send_response(200)',
+        '        self.end_headers()',
+        '        self.wfile.write(b"BACKGROUND_OK")',
+        '    def log_message(self, *args): pass',
+        'ThreadingHTTPServer(("127.0.0.1", 8765), Handler).serve_forever()'
+      ].join('\n')+'\n',{encoding:'utf8'});
+      const output=execFileSync('powershell.exe',['-NoProfile','-ExecutionPolicy','Bypass','-File',
+        path.join(scripts,'start-background-server.ps1'),'-LabRoot',root],{encoding:'utf8',timeout:40000});
+      const match=output.match(/background \(PID (\d+)\)/);
+      assert.ok(match,'The launcher must report the detached Python server PID');
+      childPid=Number(match[1]);
+      const response=await fetch('http://127.0.0.1:8765/',{signal:AbortSignal.timeout(3000)});
+      assert.equal(response.status,200);
+      assert.equal(await response.text(),'BACKGROUND_OK');
+    }finally{
+      if(childPid){
+        const quoted=serverPath.replaceAll("'","''");
+        const ps=`$p=Get-CimInstance Win32_Process -Filter "ProcessId=${childPid}"; if($p -and $p.CommandLine -and $p.CommandLine.Contains('${quoted}')) { 'OWNED' }`;
+        const identity=execFileSync('powershell.exe',['-NoProfile','-Command',ps],{encoding:'utf8',timeout:15000}).trim();
+        if(identity==='OWNED'){
+          try{process.kill(childPid);}catch(error){if(error.code!=='ESRCH')throw error;}
+          await new Promise(resolve=>setTimeout(resolve,500));
+        }
+      }
       fs.rmSync(root,{recursive:true,force:true});
     }
   });

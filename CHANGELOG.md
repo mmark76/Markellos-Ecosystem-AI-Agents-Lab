@@ -10,6 +10,13 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 - Display the existing Training Lab Student role as Student Alpha in the workflow, model guidance, session stages, and local history while preserving its canonical role identity and stored records.
 - Simplify the Windows entry points to a single normal launcher and a separate optional training setup. Add a first-run Desktop shortcut choice, version-labeled Windows setup and shortcut, and versioned future release ZIP filenames.
 
+## [2.0.27] - 2026-10-28
+
+### Added
+
+- Start the Windows API server as a hidden independent process, without requiring the CMD window to stay open; existing Open/Stop safety checks and fixed-loopback listener remain unchanged.
+- Add **Info → View API Logs** inside the local Lab, with a refreshable, bounded recent-request view; rotate local log files and omit request bodies, query strings and OAuth callback activity.
+
 ## [2.0.26] - 2026-10-28
 
 ### Added

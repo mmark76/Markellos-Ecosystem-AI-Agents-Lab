@@ -259,6 +259,37 @@ test('Dashboard launcher registers separate Open, Refresh and Stop actions with 
   assert.match(packager,/'scripts\/launch-from-dashboard\.ps1'/);
 });
 
+test('Windows background server startup preserves process identity and bounded local API log access',()=>{
+  const root=path.resolve(__dirname,'..');
+  const launcher=fs.readFileSync(path.join(root,'Start AI Training Lab.bat'),'utf8');
+  const startup=fs.readFileSync(path.join(root,'scripts','start-background-server.ps1'),'utf8');
+  const preflight=fs.readFileSync(path.join(root,'scripts','prepare-local-server.ps1'),'utf8');
+  const server=fs.readFileSync(path.join(root,'server.py'),'utf8');
+  const ui=fs.readFileSync(path.join(root,'static','index.html'),'utf8');
+  const script=fs.readFileSync(path.join(root,'static','api-logs.js'),'utf8');
+  const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
+  assert.match(launcher,/start-background-server\.ps1/);
+  assert.doesNotMatch(launcher,/py -3 "%~dp0server\.py"|python "%~dp0server\.py"/);
+  assert.match(startup,/Start-Process -FilePath \$python/);
+  assert.match(startup,/-WindowStyle Hidden/);
+  assert.match(startup,/-RedirectStandardError \$errors/);
+  assert.match(startup,/Get-NetTCPConnection -LocalPort 8765/);
+  assert.match(startup,/\$listeners\[0\]\.OwningProcess -eq \$process\.Id/);
+  assert.match(preflight,/pythonw\.exe/);
+  assert.match(server,/Markellos Ecosystem AI Lab/);
+  assert.match(server,/RotatingFileHandler/);
+  assert.match(server,/API_LOG_TAIL_BYTES = 24_000/);
+  assert.match(server,/"\/api\/system\/logs"/);
+  assert.match(ui,/id="view-api-logs"/);
+  assert.match(ui,/id="api-logs-dialog"/);
+  assert.match(ui,/<script defer src="\/static\/api-logs\.js"><\/script>/);
+  assert.match(script,/fetch\('\/api\/system\/logs'/);
+  assert.match(script,/output\.textContent/);
+  assert.doesNotMatch(script,/innerHTML/);
+  assert.match(packager,/'scripts\/start-background-server\.ps1'/);
+  assert.match(packager,/'static\/api-logs\.js'/);
+});
+
 
 test('beginner fine-tuning guide and personal provider planner are bundled while training remains locked',()=>{
   const root=path.resolve(__dirname,'..');
@@ -316,7 +347,7 @@ test('Windows replacement preflight is bundled and never indiscriminately kills 
   assert.match(packager,/'scripts\/prepare-local-server\.ps1'/);
   assert.match(launcher,/prepare-local-server\.ps1/);
   assert.match(launcher,/if errorlevel 1/);
-  assert.match(launcher,/py -3 "%~dp0server\.py"/);
+  assert.match(launcher,/start-background-server\.ps1/);
   assert.match(preflight,/Get-NetTCPConnection -LocalPort 8765/);
   assert.match(preflight,/Get-LabServerIdentity/);
   assert.match(preflight,/LEGACY_CANDIDATE/);

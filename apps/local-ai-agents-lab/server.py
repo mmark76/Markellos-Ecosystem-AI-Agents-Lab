@@ -1,7 +1,10 @@
 """Private local AI Training Lab with five bounded, local-only Lab workflows."""
+# Markellos Ecosystem AI Lab — process identity marker used by the safe Windows Stop handler.
 from __future__ import annotations
 
 import json
+import logging
+from logging.handlers import RotatingFileHandler
 import subprocess
 import sys
 from contextlib import closing
@@ -11,6 +14,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Event, Lock, Thread
 from time import perf_counter
+from time import gmtime
 import re
 from typing import Optional
 from urllib.error import HTTPError, URLError
@@ -22,6 +26,11 @@ PORT = 8765
 ROOT = Path(__file__).resolve().parent
 STATIC = ROOT / "static"
 DB_PATH = ROOT / "data" / "campus.sqlite3"
+API_LOGGER = logging.getLogger("markellos_ai_lab_api")
+API_LOGGER.setLevel(logging.INFO)
+API_LOGGER.propagate = False
+API_LOG_MAX_BYTES = 512_000
+API_LOG_TAIL_BYTES = 24_000
 OPENER = build_opener(ProxyHandler({}))  # No environment proxy; loopback only.
 RUN_LOCK = Lock()
 SESSION_CANCELS: dict[int, Event] = {}
@@ -85,6 +94,34 @@ def display_role(room: str, role: str) -> str:
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+
+
+def configure_api_logging() -> None:
+    """Keep bounded, local-only API request metadata; never log bodies or query strings."""
+    path = DB_PATH.parent / "logs" / "api.log"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    for existing in list(API_LOGGER.handlers):
+        API_LOGGER.removeHandler(existing)
+        existing.close()
+    handler = RotatingFileHandler(path, maxBytes=API_LOG_MAX_BYTES, backupCount=2, encoding="utf-8")
+    formatter = logging.Formatter("%(asctime)s UTC [HTTP] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+    formatter.converter = gmtime
+    handler.setFormatter(formatter)
+    API_LOGGER.addHandler(handler)
+
+
+def api_log_tail() -> str:
+    """Return only the newest bounded API log data, with no filesystem path exposure."""
+    path = DB_PATH.parent / "logs" / "api.log"
+    try:
+        with path.open("rb") as source:
+            source.seek(0, 2)
+            start = max(0, source.tell() - API_LOG_TAIL_BYTES)
+            source.seek(start)
+            content = source.read(API_LOG_TAIL_BYTES).decode("utf-8", errors="replace")
+        return content.split("\n", 1)[-1] if start else content
+    except FileNotFoundError:
+        return ""
 
 
 def connect():
@@ -397,8 +434,17 @@ class Handler(BaseHTTPRequestHandler):
     server_version = "LocalCampus/0.1"
 
     def log_message(self, fmt, *args):
-        # Deliberately avoid request bodies and OAuth callback query strings.
-        print("[HTTP]", self.command, self.path.split("?", 1)[0])
+        # Deliberately omit requests outside /api, bodies, query strings and path data beyond route identity.
+        route = urlsplit(self.path).path
+        if not route.startswith("/api/"):
+            return
+        for prefix in ("/api/training-sessions/", "/api/evaluation/runs/", "/api/training/jobs/"):
+            if route.startswith(prefix):
+                route = prefix + "{id}"
+                break
+        if len(route) > 120 or not re.fullmatch(r"/api/[A-Za-z0-9/_{}-]+", route):
+            route = "/api/other"
+        API_LOGGER.info("%s %s", self.command, route)
 
     def _headers(self, code=200, content_type="application/json; charset=utf-8"):
         self.send_response(code)
@@ -437,6 +483,9 @@ class Handler(BaseHTTPRequestHandler):
             status = provider_status("ollama")
             self._json({"ollama": status["available"], "models": status["models"],
                         "storage": "local SQLite", "cloud": False, "provider": status})
+            return
+        if self.path == "/api/system/logs":
+            self._json({"logs": api_log_tail(), "limitBytes": API_LOG_TAIL_BYTES})
             return
         if self.path == "/api/training/provider-options":
             self._json(provider_options())
@@ -502,6 +551,7 @@ class Handler(BaseHTTPRequestHandler):
                  "/static/evaluation.css": ("evaluation.css", "text/css; charset=utf-8"),
                  "/static/app.js": ("app.js", "text/javascript; charset=utf-8"),
                  "/static/settings.js": ("settings.js", "text/javascript; charset=utf-8"),
+                 "/static/api-logs.js": ("api-logs.js", "text/javascript; charset=utf-8"),
                  "/static/ecosystem-shell.js": ("ecosystem-shell.js", "text/javascript; charset=utf-8"),
                  "/static/model-guidance-data.js": ("model-guidance-data.js", "text/javascript; charset=utf-8"),
                  "/static/model-guidance.js": ("model-guidance.js", "text/javascript; charset=utf-8"),
@@ -812,15 +862,15 @@ class Handler(BaseHTTPRequestHandler):
 
 def main():
     initialize()
+    configure_api_logging()
     server = ThreadingHTTPServer((HOST, PORT), Handler)
-    print(f"Markellos Ecosystem AI Lab — http://{HOST}:{PORT}/")
-    print(f"Database: {DB_PATH}")
-    print("Local operation only. Press Ctrl+C to stop.")
+    API_LOGGER.info("Local API server started on %s:%s", HOST, PORT)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
         pass
     finally:
+        API_LOGGER.info("Local API server stopped")
         server.server_close()
 
 

@@ -1,5 +1,23 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-109
+
+```text
+Change ID: AI-LAB-CC-109
+Requested by: User
+Date: 2026-10-28
+Description: Run the Windows Lab API server silently in the background after the startup window closes, and add a discreet View API Logs control inside the Lab's Info dialog.
+Reason: Normal users do not need to keep a console open or monitor API traffic, but must have optional access to recent diagnostic activity.
+Affected objective IDs: AI-LAB-OBJ-007, AI-LAB-OBJ-012
+Architecture impact: Package a dedicated Windows background-process launcher, preserve existing Open and Stop protocol behavior, add bounded rotating local API request metadata and a same-origin loopback log viewer. No public landing change.
+Security and data impact: No request body, query string, token or OAuth callback route is logged; local log files remain under data/logs; fixed-loopback/Host validation remains required; Stop still identifies and confirms the exact local server PID. Existing SQLite data and Ollama remain untouched.
+Testing impact: Python loopback and log-rotation tests, Node package/UI checks, Windows PowerShell parser and live detached-server test, GitHub CI and published ZIP verification.
+Cost and schedule impact: New Windows ZIP v2.0.27 for locally installed launchers. Public STABLE download promotion is separately controlled.
+Decision: APPROVED (BACKGROUND SERVER + IN-APP LOG VIEW)
+Approved by: Owner's direct request on 2026-10-28.
+Target release: v2.0.27 Windows ZIP; public STABLE links remain pinned pending separate promotion.
+```
+
 ## Approved change record — AI-LAB-CC-108
 
 ```text

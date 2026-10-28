@@ -32,6 +32,36 @@ class CampusTests(unittest.TestCase):
     def assignments(self):
         return {"Tutor": "tutor:1", "Student": "student:1", "Evaluator": "evaluator:1", "Improver": "improver:1"}
 
+    def test_api_logs_are_local_bounded_and_do_not_record_query_tokens(self):
+        campus.configure_api_logging()
+        try:
+            request = object.__new__(campus.Handler)
+            request.command = "GET"
+            request.path = "/api/models/install/status?token=very-private"
+            request.log_message("ignored payload: %s", "secret-body")
+            request.path = "/api/training-sessions/123?authorization=sensitive"
+            request.log_message("ignored", "ignored")
+            request.path = "/auth/callback?code=private"
+            request.log_message("ignored")
+            log = campus.api_log_tail()
+            self.assertIn("GET /api/models/install/status", log)
+            self.assertIn("GET /api/training-sessions/{id}", log)
+            self.assertNotIn("very-private", log)
+            self.assertNotIn("sensitive", log)
+            self.assertNotIn("secret-body", log)
+            self.assertNotIn("private", log)
+            writer = campus.API_LOGGER.handlers[0]
+            self.assertEqual(writer.maxBytes, campus.API_LOG_MAX_BYTES)
+            self.assertEqual(writer.backupCount, 2)
+            self.assertTrue((campus.DB_PATH.parent / "logs" / "api.log").is_file())
+            for _ in range(400):
+                campus.API_LOGGER.info("synthetic-" + ("x" * 100))
+            self.assertLessEqual(len(campus.api_log_tail().encode("utf-8")), campus.API_LOG_TAIL_BYTES)
+        finally:
+            for writer in list(campus.API_LOGGER.handlers):
+                campus.API_LOGGER.removeHandler(writer)
+                writer.close()
+
     def test_training_flow_has_four_named_roles(self):
         self.assertEqual(campus.FLOW["training"], ["Tutor", "Student", "Evaluator", "Improver"])
         self.assertTrue(all(campus.agent_id("training", role) in campus.PROMPTS for role in campus.FLOW["training"]))
@@ -136,6 +166,25 @@ class CampusTests(unittest.TestCase):
 
 
 class HttpIntegrationTests(unittest.TestCase):
+    def test_api_log_view_is_bounded_and_uses_existing_loopback_host_validation(self):
+        from http.server import ThreadingHTTPServer
+        from urllib.request import Request, build_opener, ProxyHandler
+        original_port = campus.PORT
+        server = ThreadingHTTPServer(("127.0.0.1", 0), campus.Handler); campus.PORT = server.server_address[1]
+        thread = Thread(target=server.serve_forever, daemon=True); thread.start()
+        try:
+            url = f"http://127.0.0.1:{campus.PORT}/api/system/logs"
+            with patch.object(campus, "api_log_tail", return_value="GET /api/status"), build_opener(ProxyHandler({})).open(url) as response:
+                result = json.load(response)
+            self.assertEqual(result, {"logs":"GET /api/status", "limitBytes":campus.API_LOG_TAIL_BYTES})
+            bad = Request(url, headers={"Host":"external.example"})
+            with self.assertRaises(HTTPError) as raised:
+                build_opener(ProxyHandler({})).open(bad)
+            self.assertEqual(raised.exception.code, 403)
+            raised.exception.close()
+        finally:
+            server.shutdown(); server.server_close(); thread.join(timeout=4); campus.PORT = original_port
+
     def test_http_training_job_start_is_locked_before_service_execution(self):
         from http.server import ThreadingHTTPServer
         from urllib.request import Request, build_opener, ProxyHandler
