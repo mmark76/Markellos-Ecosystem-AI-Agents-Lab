@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-106
+
+```text
+Change ID: AI-LAB-CC-106
+Requested by: User
+Date: 2026-10-28
+Description: Replace the landing page's left Restart control with Stop Local Server, preserving the right Open AI Lab action; introduce a dedicated per-user Windows Stop protocol in a new versioned ZIP before changing the public control.
+Reason: Owner specifically requested stop-only behavior and approved publishing a new ZIP when informed that older installed handlers cannot perform it.
+Affected objective IDs: AI-LAB-OBJ-001, AI-LAB-OBJ-003, AI-LAB-OBJ-012
+Architecture impact: Extend the local protocol registration and handler with a separate Stop action; reuse the process-identity, listener and explicit confirmation safeguards already used for replacement. No browser-to-loopback fetch, REST shutdown endpoint, provider change, or automatic updater.
+Security and privacy impact: Refuse unrelated listeners and changed process ownership; require local user confirmation before stopping an active Lab; stop only the verified Lab server, never Ollama. No remote control path or local data deletion.
+Data impact: No migration. Stopping the server may interrupt active agent work; users should finish work and back up SQLite history before upgrades.
+Testing impact: Local package/static contract tests; Windows PowerShell handler execution and unrelated listener refusal; GitHub CI release builder and published ZIP checksum; subsequent landing build and Pages checks.
+Cost and schedule impact: One Windows ZIP release (v2.0.26) followed by a separately verified public landing change.
+Decision: APPROVED (STOP-ONLY ACTION + NEW ZIP)
+Approved by: Owner's direct requests and explicit approval to publish a new ZIP on 2026-10-28.
+Target release: v2.0.26 Windows ZIP; landing action is switched only after the compatible ZIP is published.
+```
+
 ## Approved change record — AI-LAB-CC-105
 
 ```text

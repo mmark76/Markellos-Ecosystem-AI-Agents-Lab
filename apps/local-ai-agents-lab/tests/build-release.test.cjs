@@ -235,7 +235,7 @@ test('a VERSION bump on main automatically creates the matching release ZIP',()=
 });
 
 
-test('Dashboard launcher uses fixed per-user protocols for opening and safely refreshing the existing Windows starter',()=>{
+test('Dashboard launcher registers separate Open, Refresh and Stop actions with a stop-only preflight',()=>{
   const root=path.resolve(__dirname,'..');
   const register=fs.readFileSync(path.join(root,'scripts','register-dashboard-protocols.ps1'),'utf8');
   const handler=fs.readFileSync(path.join(root,'scripts','launch-from-dashboard.ps1'),'utf8');
@@ -243,12 +243,17 @@ test('Dashboard launcher uses fixed per-user protocols for opening and safely re
   assert.match(register,/HKCU:\\Software\\Classes\\' \+ \$registration\.Name/);
   assert.match(register,/Name = 'markellos-ai-training-lab'/);
   assert.match(register,/markellos-ai-training-lab-refresh/);
+  assert.match(register,/Name = 'markellos-ai-training-lab-stop'/);
+  assert.match(register,/Action = 'Stop'/);
   assert.match(register,/URL Protocol/);
   assert.match(register,/launch-from-dashboard\.ps1/);
   assert.match(register,/-Action ' \+ \$registration\.Action/);
   assert.match(handler,/Start AI Training Lab\.bat/);
   assert.match(handler,/http:\/\/127\.0\.0\.1:8765\//);
-  assert.match(handler,/ValidateSet\('Open', 'Refresh'\)/);
+  assert.match(handler,/ValidateSet\('Open', 'Refresh', 'Stop'\)/);
+  assert.match(handler,/if \(\$Action -eq 'Stop'\)/);
+  assert.match(handler,/prepare-local-server\.ps1/);
+  assert.match(handler,/-StopOnly/);
   assert.match(handler,/\$Action -eq 'Refresh'/);
   assert.doesNotMatch(handler,/ProtocolUri|Request\.Url|\$args/);
   assert.match(packager,/'scripts\/launch-from-dashboard\.ps1'/);
@@ -316,6 +321,9 @@ test('Windows replacement preflight is bundled and never indiscriminately kills 
   assert.match(preflight,/Get-LabServerIdentity/);
   assert.match(preflight,/LEGACY_CANDIDATE/);
   assert.match(preflight,/Stop-Process -Id \$ownerPid -Force/);
+  assert.match(preflight,/\[switch\]\$StopOnly/);
+  assert.match(preflight,/if \(\$StopOnly\)/);
+  assert.match(preflight,/Stop it without restarting\?/);
   assert.match(preflight,/MessageBoxDefaultButton\]::Button2/);
   assert.doesNotMatch(preflight,/Stop-Process -Name|taskkill|netsh/);
 });

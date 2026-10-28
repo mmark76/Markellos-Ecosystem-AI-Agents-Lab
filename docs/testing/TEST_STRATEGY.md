@@ -21,6 +21,7 @@
 - Before an approved Pages deployment, inspect the preview for responsive layout, keyboard navigation, HTTPS, headers, and absence of local-Lab routes.
 - In a local or Pages preview, confirm that the informational notice appears on the first visit, close persists across reload, the Info control reopens it without changing the stored dismissal, cleared site data shows it again, and unavailable storage remains usable. Confirm that the central collector remains limited to one production-host script and that no Google, GA4, or download-event request is made.
 - Before releasing a Windows package, verify its generated build ID and preserve the existing local SQLite data during upgrade.
+- For the v2.0.26 Stop action, first run the new extracted launcher to register its per-user Stop protocol. Verify Stop prompts before terminating a recognized local Lab server, does not start a replacement, leaves an unrelated listener alone, and leaves Ollama running. Confirm Open AI Lab still opens a running server or starts it if absent. Older installed ZIPs cannot handle Stop.
 - After an owner-approved Ollama model pull in the Local Lab, verify the success message and independent agent model dropdowns refresh without a JavaScript error; do not change an existing agent assignment automatically.
 - Press **Check for updates** once with network access and confirm it reports the release or a non-destructive error; it must not download or alter files.
 - Run a controlled CUDA training job only on a supported local GPU; mocked checks do not prove actual CUDA training.

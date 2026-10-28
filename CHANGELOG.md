@@ -9,6 +9,12 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 - Display the existing Training Lab Student role as Student Alpha in the workflow, model guidance, session stages, and local history while preserving its canonical role identity and stored records.
 - Simplify the Windows entry points to a single normal launcher and a separate optional training setup. Add a first-run Desktop shortcut choice, version-labeled Windows setup and shortcut, and versioned future release ZIP filenames.
 
+## [2.0.26] - 2026-10-28
+
+### Added
+
+- Added a dedicated, user-registered Stop Local Server action. It confirms the target Lab process before stopping, leaves unrelated port owners untouched, and never automatically restarts or stops Ollama. Open AI Lab retains its existing start-if-needed behavior.
+
 ## [2.0.7] - 2026-10-17
 
 ### Fixed

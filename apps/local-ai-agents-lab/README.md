@@ -1,6 +1,6 @@
 # Markellos Ecosystem AI Lab
 
-Version: v2.0.25 · Private local starter
+Version: v2.0.26 · Private local starter
 
 Local Windows application with five active workspaces:
 
@@ -20,7 +20,7 @@ The **Training Lab** uses the internal API id `training`. Existing local history
 
 For a first-time setup, extract the ZIP and double-click **`Start AI Training Lab.bat`**. Easy Start checks the computer, then asks whether to create a Desktop shortcut before launching the Lab. The choice is saved for the extracted folder, so it is not asked at each start.
 
-After the initial setup, start the Lab from its optional Desktop shortcut, the BAT file, or the public dashboard's Launch Local Lab button. The dashboard also has **Refresh Local Server Before Launch**: it starts a clean local server without opening the app, so you can then choose Launch Local Lab. The browser may request confirmation before opening either installed local action.
+After the initial setup, start the Lab from its optional Desktop shortcut, the BAT file, or the public dashboard's **Open AI Lab** button. The dashboard's **Stop Local Server** action stops the verified local Lab server without restarting it, after asking for confirmation if a Lab is running. **Open AI Lab** opens an already responsive Lab, starts one if absent, and uses the existing confirmed replacement check only if needed. These buttons require the per-user URL protocols installed by the new ZIP's first launch; older extracted installations do not support the Stop action. The browser may ask before opening either installed local action.
 
 It asks for a separate, explicit approval before it can:
 
@@ -97,7 +97,7 @@ the PyTorch training wizard.
 
 ## Run the Lab on a laptop
 
-1. Extract the downloaded Windows ZIP (new releases use names such as `AI-Agents-Lab-Windows-v2.0.25.zip`) into a folder you control, for example `C:\Markellos-Ecosystem-AI-Agents-Lab`.
+1. Extract the downloaded Windows ZIP (new releases use names such as `AI-Agents-Lab-Windows-v2.0.26.zip`) into a folder you control, for example `C:\Markellos-Ecosystem-AI-Agents-Lab`.
 2. Double-click **`Start AI Training Lab.bat`**.
 3. If Easy Start finds missing components, review each approval dialog. You can decline any step; the Lab will not start until its required local components are ready.
 4. After setup, the Lab starts automatically at **http://127.0.0.1:8765/**.
@@ -119,12 +119,14 @@ Downloading a ZIP alone does not close a local server; the replacement check
 occurs when the new extracted ZIP's `Start AI Training Lab.bat` is executed.
 It does not change the existing fixed-loopback provider boundary.
 
-The dashboard's **Refresh Local Server Before Launch** action uses that same
-replacement check and starts the installed Lab copy without opening a browser
-tab. It has no URL-supplied arguments and is registered only for the current
-Windows user. If the existing listener is a verified Lab server, it still asks
-before interrupting active work; an unrelated or unverified listener is left
-untouched.
+The dashboard's **Stop Local Server** action reuses the same verified process
+identity checks but never starts another server. If the port is already free,
+it succeeds without taking action. If the listener belongs to a recognized
+Lab, a Windows confirmation is required before any termination; an unrelated
+listener is never stopped. The legacy Refresh protocol remains registered for
+compatibility but is not used by the updated dashboard. No URL-supplied
+arguments are accepted by these per-user protocol handlers. The Stop action
+terminates the local Lab web server only, not Ollama itself.
 
 ### Desktop shortcut
 
@@ -135,7 +137,7 @@ AI Lab icon and points to **`Start AI Training Lab.bat`**, so it repeats the sam
 readiness check. The setup dialogs and optional training setup wizard also show
 this version. The choice is saved in `data/setup-preferences.json` and reused
 for subsequent starts from this extracted folder. Choosing no does not delete
-a shortcut belonging to an older installation. The dashboard Launch/Refresh
+a shortcut belonging to an older installation. The dashboard Open/Stop
 handlers work independently of this choice. Shortcut creation is local only.
 
 The Lab folder is the folder where the user extracted

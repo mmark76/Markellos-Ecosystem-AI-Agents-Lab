@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('Open', 'Refresh')]
+    [ValidateSet('Open', 'Refresh', 'Stop')]
     [string]$Action = 'Open'
 )
 $ErrorActionPreference = 'Stop'
@@ -14,6 +14,12 @@ function Test-LocalLab {
     } catch { return $false }
 }
 if (-not (Test-Path -LiteralPath $launcher -PathType Leaf)) { exit 1 }
+if ($Action -eq 'Stop') {
+    $preflight = Join-Path $PSScriptRoot 'prepare-local-server.ps1'
+    if (-not (Test-Path -LiteralPath $preflight -PathType Leaf)) { exit 1 }
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -STA -File $preflight -LabRoot $root -StopOnly
+    exit $LASTEXITCODE
+}
 if ($Action -eq 'Refresh' -or -not (Test-LocalLab)) {
     Start-Process -FilePath $launcher -WorkingDirectory $root
     for ($attempt = 0; $attempt -lt 240; $attempt++) {

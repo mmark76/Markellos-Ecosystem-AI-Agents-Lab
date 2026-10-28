@@ -108,7 +108,7 @@ test('Windows PowerShell setup scripts parse and read the packaged release versi
   {skip:process.platform!=='win32'},()=>{
     const files=[
       'get-lab-version.ps1','easy-start.ps1','finish-setup.ps1',
-      'create-desktop-shortcut.ps1','register-dashboard-protocols.ps1',
+      'create-desktop-shortcut.ps1','register-dashboard-protocols.ps1','launch-from-dashboard.ps1',
       'prepare-local-server.ps1','setup-training.ps1'
     ].map(name=>path.join(sourceRoot,'scripts',name));
     const quote=value=>value.replaceAll("'","''");
@@ -119,6 +119,29 @@ test('Windows PowerShell setup scripts parse and read the packaged release versi
     ].join('; ');
     const output=execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-Command',expression],{encoding:'utf8'}).trim();
     assert.equal(output,fs.readFileSync(path.join(sourceRoot,'VERSION'),'utf8').trim());
+  });
+
+test('dashboard Stop calls only the bounded local stop preflight, without starting the Lab',
+  {skip:process.platform!=='win32'},()=>{
+    const root=fs.mkdtempSync(path.join(os.tmpdir(),'ai-lab-stop-action-'));
+    try{
+      const scripts=path.join(root,'scripts');
+      fs.mkdirSync(scripts,{recursive:true});
+      fs.copyFileSync(path.join(sourceRoot,'scripts','launch-from-dashboard.ps1'),path.join(scripts,'launch-from-dashboard.ps1'));
+      fs.writeFileSync(path.join(root,'Start AI Training Lab.bat'),'@echo off\r\necho STARTED> "%~dp0started.txt"\r\n',{encoding:'ascii'});
+      fs.writeFileSync(path.join(scripts,'prepare-local-server.ps1'),[
+        'param([string]$LabRoot,[switch]$StopOnly)',
+        'if (-not $StopOnly) { exit 2 }',
+        '[System.IO.File]::WriteAllText((Join-Path $LabRoot "stop-only.txt"), "STOP_ONLY")',
+        'exit 0'
+      ].join('\r\n')+'\r\n',{encoding:'ascii'});
+      execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',
+        path.join(scripts,'launch-from-dashboard.ps1'),'-Action','Stop'],{encoding:'utf8',timeout:30000});
+      assert.equal(fs.readFileSync(path.join(root,'stop-only.txt'),'utf8'),'STOP_ONLY');
+      assert.equal(fs.existsSync(path.join(root,'started.txt')),false,'Stop must never start the server');
+    }finally{
+      fs.rmSync(root,{recursive:true,force:true});
+    }
   });
 
 
@@ -168,17 +191,19 @@ test('preflight refuses to terminate a real unrelated TCP listener',
     });
     try{
       const script=path.join(sourceRoot,'scripts','prepare-local-server.ps1');
-      let failure;
-      try{
-        execFileSync('powershell.exe',[
-          '-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',
-          script,'-LabRoot',sourceRoot
-        ],{encoding:'utf8',timeout:30000});
-      }catch(error){ failure=error; }
-      assert.ok(failure,'Expected the preflight to reject an unrelated process');
-      assert.equal(failure.status,1);
-      assert.match(failure.stdout,/cannot be verified as an AI Lab server/i);
-      assert.equal(listener.listening,true,'Preflight must not stop the unrelated listener');
+      for(const stopOnly of [false,true]){
+        let failure;
+        try{
+          execFileSync('powershell.exe',[
+            '-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',
+            script,'-LabRoot',sourceRoot,...(stopOnly?['-StopOnly']:[])
+          ],{encoding:'utf8',timeout:30000});
+        }catch(error){ failure=error; }
+        assert.ok(failure,'Expected the preflight to reject an unrelated process');
+        assert.equal(failure.status,1);
+        assert.match(failure.stdout,/cannot be verified as an AI Lab server/i);
+        assert.equal(listener.listening,true,'Preflight must not stop the unrelated listener');
+      }
     }finally{
       await new Promise(resolve=>listener.close(resolve));
     }
