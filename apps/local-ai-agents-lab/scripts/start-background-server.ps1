@@ -31,10 +31,13 @@ try {
     $logs = Join-Path $root 'data\logs'
     New-Item -Path $logs -ItemType Directory -Force | Out-Null
     $errors = Join-Path $logs 'server-errors.log'
+    $output = Join-Path $logs 'server-output.log'
     $arguments = @('-u', ('"' + $serverScript + '"'))
     # This is a detached Windows process with no visible terminal window.
-    # Its API metadata is logged to data\logs\api.log by server.py.
-    $process = Start-Process -FilePath $python -ArgumentList $arguments -WorkingDirectory $root -WindowStyle Hidden -RedirectStandardError $errors -PassThru
+    # Redirect both streams so the Python child cannot inherit the launcher's
+    # console pipe and keep its CMD/PowerShell caller waiting after startup.
+    # API metadata is independently logged to data\logs\api.log by server.py.
+    $process = Start-Process -FilePath $python -ArgumentList $arguments -WorkingDirectory $root -WindowStyle Hidden -RedirectStandardOutput $output -RedirectStandardError $errors -PassThru
     for ($attempt = 0; $attempt -lt 120; $attempt++) {
         Start-Sleep -Milliseconds 250
         $listeners = @(Get-NetTCPConnection -LocalPort 8765 -State Listen -ErrorAction SilentlyContinue)

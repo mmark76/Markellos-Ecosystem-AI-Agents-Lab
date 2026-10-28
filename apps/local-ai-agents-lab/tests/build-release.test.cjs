@@ -273,6 +273,7 @@ test('Windows background server startup preserves process identity and bounded l
   assert.match(startup,/Start-Process -FilePath \$python/);
   assert.match(startup,/-WindowStyle Hidden/);
   assert.match(startup,/-RedirectStandardError \$errors/);
+  assert.match(startup,/-RedirectStandardOutput \$output/);
   assert.match(startup,/Get-NetTCPConnection -LocalPort 8765/);
   assert.match(startup,/\$listeners\[0\]\.OwningProcess -eq \$process\.Id/);
   assert.match(preflight,/pythonw\.exe/);
