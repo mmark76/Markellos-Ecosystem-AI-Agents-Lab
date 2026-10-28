@@ -1,5 +1,41 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-113
+
+```text
+Change ID: AI-LAB-CC-113
+Requested by: User
+Date: 2026-10-28
+Description: Rename the Windows setup/server launcher from Start AI Training Lab.bat to Start Local Server.bat for v2.0.28 BETA; retain Open AI Lab.bat as a separate browser-opening action, update every active launcher reference, and publish a verified ZIP while preserving v2.0.26 STABLE.
+Reason: The owner requires exact action labels and requested review of all dependent Open, Stop, Desktop shortcut, setup and packaging flows before renaming.
+Affected objective IDs: AI-LAB-OBJ-012, AI-LAB-OBJ-003
+Architecture impact: Filename and runtime pointer changes only; original startup, setup consent, same-origin loopback, server identity, Open/Stop protocols and browser-launch behavior remain unchanged. Public landing instructions and BETA version/channel pin will be updated only after release ZIP verification.
+Security and data impact: No new external endpoint, API action, automatic downloads, credential storage, data migration, or Ollama control. Previous ZIPs and version-labeled shortcuts remain available in their extracted folders.
+Testing impact: Windows first-setup/BAT path tests and Open/Stop handler checks, release packaging, Node/Python regressions, ZIP checksum, release channel and production landing verification.
+Cost and schedule impact: New owner-approved Windows ZIP v2.0.28 BETA and updated public landing. No change to v2.0.26 STABLE artifact.
+Decision: APPROVED (START LOCAL SERVER RENAME / V2.0.28 BETA)
+Approved by: Owner's direct approval on 2026-10-28.
+Target release: v2.0.28 Windows BETA ZIP followed by public landing BETA channel update.
+```
+
+## Approved change record — AI-LAB-CC-112
+
+```text
+Change ID: AI-LAB-CC-112
+Requested by: User
+Date: 2026-10-28
+Description: Add a small Open AI Lab.bat beside Start AI Training Lab.bat in the extracted Windows Lab folder, matching the public Quick Start/Open action: open the browser, starting the local server first if needed.
+Reason: Clarify that Start is the local server launcher while Open launches the browser-based Lab; users should have both actions directly in the folder.
+Affected objective IDs: AI-LAB-OBJ-012, AI-LAB-OBJ-003
+Architecture impact: New thin Windows BAT wrapper around the existing bounded, local launch-from-dashboard.ps1 Open action; explicit Windows release packaging and regression tests.
+Security and data impact: No new endpoint, protocol registration, automatic installation, exposed listener, model change, or SQLite modification. Existing local server-ownership confirmation is reused.
+Testing impact: Node source/package regression and Windows-specific BAT dispatch test; next published ZIP still requires independent release verification.
+Cost and schedule impact: No new binary published with this change; an owner-approved version bump and separate Windows ZIP publication are needed to distribute this entry point.
+Decision: APPROVED (SEPARATE OPEN BAT)
+Approved by: Owner's direct request on 2026-10-28.
+Target release: Next owner-approved Windows ZIP; current v2.0.27 BETA and v2.0.26 STABLE assets remain unchanged.
+```
+
 ## Approved change record — AI-LAB-CC-111
 
 ```text

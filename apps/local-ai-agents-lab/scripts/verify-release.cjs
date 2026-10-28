@@ -16,6 +16,15 @@ function verify(dir,expectedSha){
   const version=fs.readFileSync(path.join(dir,'VERSION'),'utf8').trim();
   if(version!==manifest.version)throw Error('Package VERSION mismatch');
   if(fs.existsSync(path.join(dir,'data')))throw Error('Runtime data bundled');
+  const openBat=path.join(dir,'Open AI Lab.bat');
+  if(!fs.existsSync(openBat)||
+      !/launch-from-dashboard\.ps1" -Action Open/.test(fs.readFileSync(openBat,'utf8')))
+    throw Error('Open AI Lab BAT missing or not wired to the local Open action');
+  const startBat=path.join(dir,'Start Local Server.bat');
+  if(!fs.existsSync(startBat)||!fs.readFileSync(startBat,'utf8').includes('start-background-server.ps1'))
+    throw Error('Start Local Server BAT missing or not wired to the background server');
+  if(fs.existsSync(path.join(dir,'Start AI Training Lab.bat')))
+    throw Error('Legacy Windows BAT name must not be packaged');
   for(const role of [
     "conference-strategist","conference-analyst","conference-engineer",
     "training-tutor","training-student","training-evaluator","training-improver",
