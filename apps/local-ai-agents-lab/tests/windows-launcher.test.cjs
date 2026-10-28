@@ -117,7 +117,8 @@ test('Windows PowerShell setup scripts parse and read the packaged release versi
     const files=[
       'get-lab-version.ps1','easy-start.ps1','finish-setup.ps1',
       'create-desktop-shortcut.ps1','register-dashboard-protocols.ps1','launch-from-dashboard.ps1',
-      'prepare-local-server.ps1','start-background-server.ps1','setup-training.ps1'
+      'prepare-local-server.ps1','start-background-server.ps1','setup-training.ps1',
+      'show-training-setup-result.ps1'
     ].map(name=>path.join(sourceRoot,'scripts',name));
     const quote=value=>value.replaceAll("'","''");
     const expression=[

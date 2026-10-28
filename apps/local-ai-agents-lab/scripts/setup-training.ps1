@@ -42,7 +42,7 @@ if (-not $python) {
 Write-Host "Using: $(& $python[0] $python[1] --version)"
 
 $mode = Read-Host 'Select training compute: [1] CPU, [2] NVIDIA CUDA, [Q] Quit'
-if ($mode -match '^[Qq]$') { exit 0 }
+if ($mode -match '^[Qq]$') { Write-Host 'Training setup cancelled.'; exit 10 }
 if ($mode -notin @('1','2')) { throw 'Choose 1, 2, or Q.' }
 
 if ($mode -eq '2') {
@@ -61,7 +61,7 @@ if ($mode -eq '2') {
 
 if (Test-Path (Join-Path $venv 'Scripts\python.exe')) {
   $reuse = Read-Host 'A training environment already exists. [R]euse it or [Q]uit'
-  if ($reuse -notmatch '^[Rr]$') { exit 0 }
+  if ($reuse -notmatch '^[Rr]$') { Write-Host 'Training setup cancelled.'; exit 10 }
 } else {
   Write-Host 'Creating isolated training environment...'
   & $python[0] $python[1] -m venv $venv
@@ -72,7 +72,7 @@ if ($mode -eq '1') {
   Write-Host 'The following pinned packages will be downloaded into training\.venv only:'
   Get-Content $requirements | Where-Object { $_ -and -not $_.StartsWith('#') } | ForEach-Object { Write-Host "  $_" }
   $confirm = Read-Host 'Install these CPU training libraries now? [Y/N]'
-  if ($confirm -notmatch '^[Yy]$') { Write-Host 'No packages were installed.'; exit 0 }
+  if ($confirm -notmatch '^[Yy]$') { Write-Host 'No packages were installed.'; exit 10 }
   Invoke-VenvPython @('-m','pip','install','--upgrade','pip')
   Invoke-VenvPython @('-m','pip','install','-r',$requirements)
 }

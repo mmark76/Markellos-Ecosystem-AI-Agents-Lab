@@ -13,6 +13,12 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 - Display the existing Training Lab Student role as Student Alpha in the workflow, model guidance, session stages, and local history while preserving its canonical role identity and stored records.
 - Keep the Windows setup/server launcher separate from optional training setup. Add a first-run Desktop shortcut choice, version-labeled Windows setup and shortcut, and versioned future release ZIP filenames.
 
+## [2.0.29] - 2026-10-28
+
+### Changed
+
+- Give the optional Windows training setup a clearly labeled, keyboard-dismissable result popup instead of an unexplained console pause; distinguish completed, cancelled and failed outcomes.
+
 ## [2.0.28] - 2026-10-28
 
 ### Changed
