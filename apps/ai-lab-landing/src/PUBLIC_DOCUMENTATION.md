@@ -15,7 +15,7 @@ AI Training Lab is a **Windows-based, local-first** experimental application wit
 ```text
 Public browser ── Cloudflare Pages landing page
                        │
-                       └── Windows ZIP download (previous STABLE R2 / current STABLE GitHub)
+                       └── Windows ZIP download (current STABLE / current BETA GitHub; older R2 in archive)
                                     │
 Local Windows PC                    ▼
   Browser ── http://127.0.0.1:8765 ── Python Lab server
@@ -192,7 +192,7 @@ Likewise, the optional **ChatGPT Advisor** is a separate, user-triggered externa
 
 The public site is built into `apps/ai-lab-landing/dist`. The **Technical README you are reading** is generated from `apps/ai-lab-landing/src/PUBLIC_DOCUMENTATION.md` during that build; update the **source document**, not the generated `dist/README.md`.
 
-**Manual update checking inside the Local App: not implemented.** Releases must be reviewed and installed manually, preserving local data. The public page displays the current owner-approved STABLE GitHub release alongside the previous STABLE R2 milestone; they are **independent distribution channels**, not a version-matched direct GitHub Release asset as a fallback for an R2 object. No BETA download is featured until a future test release is explicitly designated.
+**Manual update checking inside the Local App: not implemented.** Releases must be reviewed and installed manually, preserving local data. The public page displays the owner-approved STABLE v2.0.26 and BETA v2.0.27 GitHub releases; the previous STABLE v2.0.16 R2 milestone remains available in the archive. The GitHub and R2 ZIPs are independently verified, not interchangeable version-matched fallback assets. BETA is a testing designation, not a recommendation to replace STABLE automatically.
 
 ## 11. Verification status and current limitations
 

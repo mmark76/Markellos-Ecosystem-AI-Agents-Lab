@@ -1,0 +1,32 @@
+name: Sync AI Lab STABLE and BETA GitHub release labels
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/ai-lab-landing/release-channels.json'
+
+permissions:
+  contents: write
+
+jobs:
+  synchronize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Apply owner-approved release channel labels
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          stable="$(node -p "require('./apps/ai-lab-landing/release-channels.json').currentStableGithubVersion")"
+          beta="$(node -p "require('./apps/ai-lab-landing/release-channels.json').currentBetaGithubVersion")"
+          [[ "$stable" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          [[ "$beta" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          test "$stable" != "$beta"
+          test "$(gh release view "v$stable" --repo "$GITHUB_REPOSITORY" --json isPrerelease --jq .isPrerelease)" = false
+          gh release view "v$beta" --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName
+          gh release edit "v$stable" --repo "$GITHUB_REPOSITORY" --latest
+          gh release edit "v$beta" --repo "$GITHUB_REPOSITORY" --prerelease
+          test "$(gh release view "v$beta" --repo "$GITHUB_REPOSITORY" --json isPrerelease --jq .isPrerelease)" = true

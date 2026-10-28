@@ -14,6 +14,7 @@ const channels = JSON.parse(readFileSync(join(app, 'release-channels.json'), 'ut
 const escapedReleaseVersion = releaseVersion.replaceAll('.', '\\.');
 const [currentDistribution, ...previousDistributions] = distribution.releases;
 const currentStable = betaDistribution.releases.find(release => release.version === channels.currentStableGithubVersion);
+const currentBeta = betaDistribution.releases.find(release => release.version === channels.currentBetaGithubVersion);
 const previousStable = distribution.releases.find(release => release.version === channels.previousStableR2Version);
 const escapedStableVersion = currentStable.version.replaceAll('.', '\\.');
 
@@ -27,7 +28,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   const styles = readFileSync(join(output, 'styles.css'), 'utf8');
 
   assert.match(html, new RegExp(`v${escapedReleaseVersion}_\\d{8}_\\d{4}_[0-9a-f]{7}`));
-  assert.doesNotMatch(html, /\{\{BUILD_ID\}\}|\{\{RELEASE_VERSION\}\}|\{\{PUBLIC_MILESTONE_VERSION\}\}|\{\{PREVIOUS_STABLE_URL\}\}|\{\{PREVIOUS_STABLE_SHA256\}\}|\{\{GITHUB_RELEASE_URL\}\}|\{\{GITHUB_RELEASE_VERSION\}\}|\{\{GITHUB_RELEASE_SHA256\}\}/);
+  assert.doesNotMatch(html, /\{\{BUILD_ID\}\}|\{\{RELEASE_VERSION\}\}|\{\{PUBLIC_MILESTONE_VERSION\}\}|\{\{PREVIOUS_STABLE_URL\}\}|\{\{PREVIOUS_STABLE_SHA256\}\}|\{\{GITHUB_RELEASE_URL\}\}|\{\{GITHUB_RELEASE_VERSION\}\}|\{\{GITHUB_RELEASE_SHA256\}\}|\{\{BETA_RELEASE_URL\}\}|\{\{BETA_RELEASE_VERSION\}\}|\{\{BETA_RELEASE_SHA256\}\}/);
   assert.match(html, /styles\.css\?v=v\d+\.\d+\.\d+_\d{8}_\d{4}_[a-f0-9]{7}/);
   assert.match(html, new RegExp(`CURRENT STABLE · v${escapedStableVersion} · LOCAL \\+ OPTIONAL INTERNET CONNECTIONS`));
   assert.match(html, new RegExp(`<h1 id="page-title">AI Lab v${escapedStableVersion}<\\/h1>`));
@@ -60,15 +61,16 @@ test('build truthfully presents the current public state of the Local Lab', () =
   const expectedGitHubFallback = `https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v${currentStable.version}/${currentStable.assetName || 'AI-Agents-Lab-Windows.zip'}`;
   assert.ok(html.includes(`id="github-release-download" class="primary-button release-download github-release-download" data-zip-version="v${currentStable.version}" data-zip-sha256="${currentStable.sha256}" data-download-source="github-release" href="${expectedGitHubFallback}"`));
   assert.ok(html.includes(`<span>Download v${currentStable.version} STABLE <span aria-hidden="true">↓</span></span><small>GitHub · current stable release</small>`));
-  assert.ok(html.includes(`id="previous-stable-download" class="secondary-button release-download previous-stable-download" data-zip-version="v${previousStable.version}" data-zip-sha256="${previousStable.sha256}" data-download-source="cloudflare-r2" href="${previousStable.url}"`));
-  assert.ok(html.includes(`<span>Download v${previousStable.version} PREVIOUS STABLE <span aria-hidden="true">↓</span></span><small>Cloudflare R2 · older stable release</small>`));
+  const expectedBetaUrl = `https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v${currentBeta.version}/${currentBeta.assetName}`;
+  assert.ok(html.includes(`id="github-beta-download" class="secondary-button release-download github-beta-download" data-zip-version="v${currentBeta.version}" data-zip-sha256="${currentBeta.sha256}" data-download-source="github-beta-release" href="${expectedBetaUrl}"`));
+  assert.ok(html.includes(`<span>Download v${currentBeta.version} BETA <span aria-hidden="true">↓</span></span><small>GitHub · testing release</small>`));
   const downloadGroup = html.match(/<div class="hero-action-group download-actions">([\s\S]*?)<\/div>/)?.[1];
   assert.ok(downloadGroup, 'Download group must remain present');
   const buttonOrder = [...downloadGroup.matchAll(/id="([^"]+)" class="(?:primary|secondary)-button release-download/g)].map(match => match[1]);
-  assert.deepEqual(buttonOrder, ['github-release-download', 'previous-stable-download'], 'Both owner-approved STABLE downloads must remain visible');
-  assert.equal((downloadGroup.match(/data-download-source="cloudflare-r2"/g) || []).length, 1, 'The previous STABLE must link to R2');
+  assert.deepEqual(buttonOrder, ['github-release-download', 'github-beta-download'], 'Owner-approved STABLE and BETA downloads must remain visible');
+  assert.equal((downloadGroup.match(/data-download-source="github-beta-release"/g) || []).length, 1, 'BETA must link to the verified GitHub ZIP');
   assert.equal((downloadGroup.match(/data-download-source="github-release"/g) || []).length, 1);
-  assert.doesNotMatch(downloadGroup, /Download v[^<]* BETA/);
+  assert.doesNotMatch(downloadGroup, /PREVIOUS STABLE|v2\.0\.16/);
   assert.doesNotMatch(html, /id="zip-download(?:-|\")/);
   assert.match(html, /class="hero-actions" aria-label="Download, local launch, and documentation actions"/);
   assert.match(html, /class="hero-action-group download-actions"/);
@@ -166,9 +168,18 @@ test('build truthfully presents the current public state of the Local Lab', () =
     assert.ok(betaSection.includes('data-zip-sha256="' + release.sha256 + '"'));
   }
   assert.equal(channels.currentStableGithubVersion, '2.0.26', 'the approved STABLE channel must be pinned independently of GitHub release order');
+  assert.equal(channels.currentBetaGithubVersion, '2.0.27', 'the approved BETA channel must be pinned independently of GitHub release order');
   assert.equal(channels.previousStableR2Version, '2.0.16', 'preserve the owner-approved previous STABLE');
   assert.equal(currentStable.sha256, '32639b2c8da3df5ac0c3e0ffb078c5f3aafa5ba160187d9e6731393a42878584');
   assert.equal(currentStable.assetName, 'AI-Agents-Lab-Windows-v2.0.26.zip');
+  assert.equal(currentBeta.sha256, 'bb86e96de628a5c4e4b0bd8e10792281c846138e8edda12ee74f5790694827c4');
+  assert.equal(currentBeta.assetName, 'AI-Agents-Lab-Windows-v2.0.27.zip');
+  assert.notEqual(currentStable.version, currentBeta.version, 'STABLE and BETA cannot designate the same ZIP');
+  const channelSync = readFileSync(join(app, '..', '..', '.github', 'workflows', 'sync-ai-lab-release-channels.yml'), 'utf8');
+  assert.match(channelSync, /release-channels\.json/);
+  assert.match(channelSync, /gh release edit "v\$beta" .* --prerelease/);
+  assert.match(channelSync, /gh release edit "v\$stable" .* --latest/);
+  assert.doesNotMatch(channelSync, /gh release upload|gh release delete/);
   assert.equal(previousStable.sha256, 'da636fae45b7547f002a0ea72c55cf5041ef59a3bfc3feea9c0d3199f1a0af72');
   assert.ok(betaDistribution.releases.some(release => release.version === '2.0.24' && release.sha256 === 'a6f3b0ed736901ddb0516b93b75c9e5696ba96f4b4cfe86da80248a535d5e5e3'), 'retain the previously featured ZIP in the archive');
   assert.ok(betaDistribution.releases.some(release => release.version === '2.0.25' && release.sha256 === '85d601d697ecf2afa1b98db6c7b1a62cfb24aafa701612efca7da7d2bf2d8964'), 'retain the earlier stable ZIP in the archive');

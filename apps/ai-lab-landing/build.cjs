@@ -38,8 +38,8 @@ for (const release of releaseHistory) {
 const [currentRelease, ...previousReleases] = releaseHistory;
 // Explicit, owner-approved channel pins must not change when a new ZIP is archived.
 const channels = JSON.parse(readFileSync(join(__dirname, 'release-channels.json'), 'utf8'));
-if (!/^\d+\.\d+\.\d+$/.test(channels.currentStableGithubVersion) || !/^\d+\.\d+\.\d+$/.test(channels.previousStableR2Version))
-  throw new Error('Invalid STABLE channel versions');
+if (!/^\d+\.\d+\.\d+$/.test(channels.currentStableGithubVersion) || !/^\d+\.\d+\.\d+$/.test(channels.currentBetaGithubVersion) || !/^\d+\.\d+\.\d+$/.test(channels.previousStableR2Version) || channels.currentStableGithubVersion === channels.currentBetaGithubVersion)
+  throw new Error('Invalid or overlapping STABLE/BETA channel versions');
 const previousStable = releaseHistory.find(release => release.version === channels.previousStableR2Version);
 if (!previousStable) throw new Error('Previous STABLE is missing from verified R2 releases');
 // README.md is generated from the existing public Technical README source.
@@ -68,6 +68,8 @@ for (const release of betaHistory) {
 }
 const currentStable = betaHistory.find(release => release.version === channels.currentStableGithubVersion);
 if (!currentStable) throw new Error('Current STABLE is missing from verified GitHub releases');
+const currentBeta = betaHistory.find(release => release.version === channels.currentBetaGithubVersion);
+if (!currentBeta) throw new Error('Current BETA is missing from verified GitHub releases');
 const commit = git(['rev-parse', '--short=7', 'HEAD']);
 const buildId = `v${releaseVersion}_${cyprusTimestamp(new Date())}_${commit}`;
 const indexPath = join(output, 'index.html');
@@ -80,7 +82,7 @@ const milestoneLinks = featuredR2.map(releaseItem).join('');
 const releaseLinks = historicalR2.map(releaseItem).join('');
 const betaLinks = betaHistory.map(release => releaseItem({...release, url:githubReleaseAssetUrl(release)})).join('');
 const injectPageIdentity = html => html.replaceAll('{{BUILD_ID}}', buildId).replaceAll('{{RELEASE_VERSION}}', `v${currentStable.version}`);
-writeFileSync(indexPath, injectPageIdentity(readFileSync(indexPath, 'utf8')).replaceAll('{{PUBLIC_MILESTONE_VERSION}}', `v${previousStable.version}`).replaceAll('{{PREVIOUS_STABLE_URL}}', previousStable.url).replaceAll('{{PREVIOUS_STABLE_SHA256}}', previousStable.sha256).replaceAll('{{GITHUB_RELEASE_URL}}', githubReleaseAssetUrl(currentStable)).replaceAll('{{GITHUB_RELEASE_VERSION}}', 'v'+currentStable.version).replaceAll('{{GITHUB_RELEASE_SHA256}}', currentStable.sha256).replaceAll('{{R2_MILESTONE_HISTORY}}', milestoneLinks).replaceAll('{{R2_LEGACY_COUNT}}', String(historicalR2.length)).replaceAll('{{RELEASE_HISTORY}}', releaseLinks).replaceAll('{{GITHUB_BETA_HISTORY}}', betaLinks));
+writeFileSync(indexPath, injectPageIdentity(readFileSync(indexPath, 'utf8')).replaceAll('{{PUBLIC_MILESTONE_VERSION}}', `v${previousStable.version}`).replaceAll('{{PREVIOUS_STABLE_URL}}', previousStable.url).replaceAll('{{PREVIOUS_STABLE_SHA256}}', previousStable.sha256).replaceAll('{{GITHUB_RELEASE_URL}}', githubReleaseAssetUrl(currentStable)).replaceAll('{{GITHUB_RELEASE_VERSION}}', 'v'+currentStable.version).replaceAll('{{GITHUB_RELEASE_SHA256}}', currentStable.sha256).replaceAll('{{BETA_RELEASE_URL}}', githubReleaseAssetUrl(currentBeta)).replaceAll('{{BETA_RELEASE_VERSION}}', 'v'+currentBeta.version).replaceAll('{{BETA_RELEASE_SHA256}}', currentBeta.sha256).replaceAll('{{R2_MILESTONE_HISTORY}}', milestoneLinks).replaceAll('{{R2_LEGACY_COUNT}}', String(historicalR2.length)).replaceAll('{{RELEASE_HISTORY}}', releaseLinks).replaceAll('{{GITHUB_BETA_HISTORY}}', betaLinks));
 for (const page of ['simple-guide.html', 'app-description.html']) {
   const pagePath = join(output, page);
   writeFileSync(pagePath, injectPageIdentity(readFileSync(pagePath, 'utf8')));
