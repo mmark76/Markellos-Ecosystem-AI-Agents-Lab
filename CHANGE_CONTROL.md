@@ -1,5 +1,23 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-115
+
+```text
+Change ID: AI-LAB-CC-115
+Requested by: User
+Date: 2026-10-28
+Description: Replace the generic Press any key to continue console pause after optional Windows training setup with a small keyboard-dismissable popup. Display exactly "Setup completed. Press any key to close this window." only after a successful training environment health check; show appropriate cancellation and failure messages otherwise.
+Reason: The owner finds the existing console termination abrupt and ambiguous about what happens after a keypress.
+Affected objective IDs: AI-LAB-OBJ-006, AI-LAB-OBJ-012
+Architecture impact: Add one Windows PowerShell WinForms result dialog, invoke it from the existing optional training-setup BAT, and differentiate explicit wizard cancellation from completion by a dedicated exit code. No changes to normal Start Local Server or Open AI Lab paths.
+Security and data impact: No install action, network request, arbitrary command, server start, model action, data deletion or permission change added. The popup is informational and closes on keypress or Close click.
+Testing impact: Node packaging/source regression, Windows PowerShell parser, manual Windows popup/key-dismiss smoke test pending before release.
+Cost and schedule impact: Next owner-approved Windows ZIP only; current v2.0.28 BETA and v2.0.26 STABLE binary assets unchanged.
+Decision: APPROVED (OPTIONAL TRAINING SETUP RESULT POPUP)
+Approved by: Owner's direct request on 2026-10-28.
+Target release: Next owner-approved Windows BETA ZIP; no automatic version bump or publication.
+```
+
 ## Approved change record — AI-LAB-CC-114
 
 ```text

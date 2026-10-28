@@ -51,8 +51,27 @@ test('Windows training wizard is packaged and opt-in',()=>{
   const root=path.resolve(__dirname,'..');
   const launcher=fs.readFileSync(path.join(root,'setup-training-environment.bat'),'utf8');
   const wizard=fs.readFileSync(path.join(root,'scripts','setup-training.ps1'),'utf8');
+  const popup=fs.readFileSync(path.join(root,'scripts','show-training-setup-result.ps1'),'utf8');
   const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
+  const verifier=fs.readFileSync(path.join(root,'scripts','verify-release.cjs'),'utf8');
   assert.match(launcher,/setup-training\.ps1/);
+  for(const outcome of ['Completed','Cancelled','Failed']){
+    assert.match(launcher,new RegExp('-Result '+outcome));
+  }
+  assert.match(launcher,/show-training-setup-result\.ps1/);
+  assert.match(launcher,/set "training_result=%ERRORLEVEL%"/);
+  assert.match(launcher,/Press any key to close this window\./);
+  assert.doesNotMatch(launcher,/^pause\s*$/m);
+  assert.match(wizard,/if \(\$mode -match '\^\[Qq\]\$'\).*exit 10/);
+  assert.match(wizard,/if \(\$reuse -notmatch '\^\[Rr\]\$'\).*exit 10/);
+  assert.match(wizard,/if \(\$confirm -notmatch '\^\[Yy\]\$'\).*exit 10/);
+  assert.match(popup,/Setup completed\. Press any key to close this window\./);
+  assert.match(popup,/Setup cancelled\. Press any key to close this window\./);
+  assert.match(popup,/KeyPreview = \$true/);
+  assert.match(popup,/Add_KeyDown/);
+  assert.match(popup,/Add_Click/);
+  assert.match(packager,/'scripts\/show-training-setup-result\.ps1'/);
+  assert.match(verifier,/show-training-setup-result\.ps1/);
   assert.match(wizard,/\$null = & py "-\$version" --version/);
   assert.match(wizard,/CPU, \[2\] NVIDIA CUDA/);
   assert.match(wizard,/Install these CPU training libraries now/);

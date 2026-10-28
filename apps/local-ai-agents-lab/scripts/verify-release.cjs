@@ -25,6 +25,8 @@ function verify(dir,expectedSha){
     throw Error('Start Local Server BAT missing or not wired to the background server');
   if(fs.existsSync(path.join(dir,'Start AI Training Lab.bat')))
     throw Error('Legacy Windows BAT name must not be packaged');
+  if(!fs.existsSync(path.join(dir,'scripts','show-training-setup-result.ps1')))
+    throw Error('Training setup result popup was not packaged');
   for(const role of [
     "conference-strategist","conference-analyst","conference-engineer",
     "training-tutor","training-student","training-evaluator","training-improver",

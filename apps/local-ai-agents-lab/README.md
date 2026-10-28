@@ -106,6 +106,8 @@ the PyTorch training wizard.
 
 `Start Local Server.bat` is the first-time setup and server launcher. `Open AI Lab.bat` is a convenient browser-opening launcher with the same Open behavior as the public dashboard. The separate `setup-training-environment.bat` prepares optional training dependencies but does not start the Lab or unlock fine-tuning.
 
+The optional training setup shows a small result window when it ends: successful completion, cancellation, and failure have separate messages. On success, it says **"Setup completed. Press any key to close this window."** Press a key or click **Close** to dismiss it; no additional setup action starts when the window closes. If setup fails, review the console output before closing the result window.
+
 The server runs invisibly after startup: use **Stop Local Server** on the public dashboard to stop it. When starting
 a freshly extracted ZIP, the Windows launcher first checks port `8765`. If a
 running Python server is confirmed as AI Training Lab, it asks for permission
