@@ -157,7 +157,7 @@ test('background launcher leaves a reachable Python server running after PowerSh
     const root=fs.mkdtempSync(path.join(os.tmpdir(),'ai-lab-background-'));
     const scripts=path.join(root,'scripts');
     const serverPath=path.join(root,'server.py');
-    let childPid=0;
+    let failure;
     try{
       fs.mkdirSync(scripts,{recursive:true});
       fs.copyFileSync(path.join(sourceRoot,'scripts','start-background-server.ps1'),path.join(scripts,'start-background-server.ps1'));
@@ -185,26 +185,32 @@ test('background launcher leaves a reachable Python server running after PowerSh
       }
       const match=output.match(/background \(PID (\d+)\)/);
       assert.ok(match,'The launcher must report the detached Python server PID');
-      childPid=Number(match[1]);
       const response=await fetch('http://127.0.0.1:8765/',{signal:AbortSignal.timeout(3000)});
       assert.equal(response.status,200);
       assert.equal(await response.text(),'BACKGROUND_OK');
+    }catch(error){
+      failure=error;
     }finally{
-      const quoted=serverPath.replaceAll("'","''");
-      const ps=[
-        '$owners = @(Get-NetTCPConnection -LocalPort 8765 -State Listen -ErrorAction SilentlyContinue)',
-        'foreach ($owner in $owners) {',
-        '  $p=Get-CimInstance Win32_Process -Filter "ProcessId=$($owner.OwningProcess)"',
-        `  if($p -and $p.CommandLine -and $p.CommandLine.Contains('${quoted}')) { $p.ProcessId }`,
-        '}'
-      ].join('\n');
-      const id=Number(execFileSync('powershell.exe',['-NoProfile','-Command',ps],{encoding:'utf8',timeout:15000}).trim());
-      if(id){
-        try{process.kill(id);}catch(error){if(error.code!=='ESRCH')throw error;}
-        await new Promise(resolve=>setTimeout(resolve,1000));
+      try{
+        const quoted=serverPath.replaceAll("'","''");
+        const ps=[
+          '$owners = @(Get-NetTCPConnection -LocalPort 8765 -State Listen -ErrorAction SilentlyContinue)',
+          'foreach ($owner in $owners) {',
+          '  $p=Get-CimInstance Win32_Process -Filter "ProcessId=$($owner.OwningProcess)"',
+          `  if($p -and $p.CommandLine -and $p.CommandLine.Contains('${quoted}')) { $p.ProcessId }`,
+          '}'
+        ].join('\n');
+        const id=Number(execFileSync('powershell.exe',['-NoProfile','-Command',ps],{encoding:'utf8',timeout:15000}).trim());
+        if(id){
+          try{process.kill(id);}catch(error){if(error.code!=='ESRCH')throw error;}
+          await new Promise(resolve=>setTimeout(resolve,1000));
+        }
+        fs.rmSync(root,{recursive:true,force:true,maxRetries:10,retryDelay:300});
+      }catch(error){
+        if(!failure)failure=error;
       }
-      fs.rmSync(root,{recursive:true,force:true,maxRetries:10,retryDelay:300});
     }
+    if(failure)throw failure;
   });
 
 
