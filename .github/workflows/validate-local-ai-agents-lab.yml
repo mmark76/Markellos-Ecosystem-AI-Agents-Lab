@@ -38,13 +38,14 @@ jobs:
       - name: JavaScript syntax
         run: |
           node --check static/app.js
+          node --check static/model-install.js
           node --check static/settings.js
           node --check static/ecosystem-shell.js
-      - name: Test release builder
+      - name: Test release builder and model installation UI
         run: |
           node --check scripts/build-release.cjs
           node --check scripts/verify-release.cjs
-          node --test tests/build-release.test.cjs
+          node --test tests/build-release.test.cjs tests/model-install.test.cjs
       - name: Build release from tested Git commit
         run: node scripts/build-release.cjs HEAD "$RUNNER_TEMP/local-lab-release"
       - name: Verify stamped release

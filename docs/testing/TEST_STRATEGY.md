@@ -11,6 +11,7 @@
 | Local server tests | Loopback server, SQLite behavior, fixed-provider discovery/routing, and local data behavior. | `py -3 -m unittest discover -s apps/local-ai-agents-lab/tests` | Python test output. |
 | Local training tests | JSONL validation, local path restrictions, CPU selection, and unsupported CUDA handling. | `py -3 -m unittest discover -s apps/local-ai-agents-lab/tests` | Python test output. |
 | Local model downloader | Validate only local Ollama downloads and explicit model IDs; assert deterministic mocked progress, failure and concurrent-job handling. | `py -3 -m unittest discover -s apps/local-ai-agents-lab/tests` | `tests/test_model_install.py` output; real pull remains manual. |
+| Local model installer UI | Reproduce completed and running-to-completed Ollama pulls in a browser-script harness without the retired single-model selector; verify success status, per-agent discovery refresh, and bounded repeated polling. | `node --test apps/local-ai-agents-lab/tests/model-install.test.cjs` | Node regression output; included in Local Lab CI. |
 | Local update check | Validate the fixed official endpoint, bounded safe response, validated external links, and no automatic installation behavior. | `py -3 -m unittest discover -s apps/local-ai-agents-lab/tests` | `tests/test_updates.py` and shell/package test output. |
 | Foundation validation | Pinned adoption asset integrity and bounded secret scan. | `node scripts/validate-foundations.cjs` | Validator output. |
 
@@ -20,6 +21,7 @@
 - Before an approved Pages deployment, inspect the preview for responsive layout, keyboard navigation, HTTPS, headers, and absence of local-Lab routes.
 - In a local or Pages preview, confirm that the informational notice appears on the first visit, close persists across reload, the Info control reopens it without changing the stored dismissal, cleared site data shows it again, and unavailable storage remains usable. Confirm that the central collector remains limited to one production-host script and that no Google, GA4, or download-event request is made.
 - Before releasing a Windows package, verify its generated build ID and preserve the existing local SQLite data during upgrade.
+- After an owner-approved Ollama model pull in the Local Lab, verify the success message and independent agent model dropdowns refresh without a JavaScript error; do not change an existing agent assignment automatically.
 - Press **Check for updates** once with network access and confirm it reports the release or a non-destructive error; it must not download or alter files.
 - Run a controlled CUDA training job only on a supported local GPU; mocked checks do not prove actual CUDA training.
 
