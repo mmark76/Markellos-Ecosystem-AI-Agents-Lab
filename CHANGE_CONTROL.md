@@ -1,5 +1,23 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-117
+
+```text
+Change ID: AI-LAB-CC-117
+Requested by: User
+Date: 2026-10-28
+Description: Promote newly published, independently downloaded and checksum-verified Windows ZIP v2.0.29 to the public CURRENT BETA button; keep v2.0.26 as CURRENT STABLE, with v2.0.28 and prior GitHub ZIPs in release history. Explain the new optional training setup result popup in documentation.
+Reason: The owner authorized merge, ZIP publication and public availability of v2.0.29 BETA while preserving the stable channel.
+Affected objective IDs: AI-LAB-OBJ-001, AI-LAB-OBJ-003, AI-LAB-OBJ-006
+Architecture impact: Landing channel JSON pin and verified GitHub release snapshot, guide/readme references and regression tests; no change to ZIP, API or runtime behavior. Existing GitHub workflow synchronizes release prerelease/latest flags.
+Security and data impact: Verified v2.0.29 ZIP SHA-256 fdf47120dd73fdf8f3242723a7ae573be7b8cfbe0585c19837fd8f1975d6fe2f, matching GitHub asset digest; archive manifest refers to merge commit 5a83e2cb8f19fde22f1439d316c6adb80c35376e. Existing STABLE asset unchanged.
+Testing impact: Landing build/links/ZIP digest/Red BETA button source regression, GitHub CI, automated release metadata sync and public Pages check.
+Cost and schedule impact: Existing Pages and release-label workflow only; no additional new ZIP for this landing update.
+Decision: APPROVED (V2.0.29 CURRENT BETA / V2.0.26 CURRENT STABLE)
+Approved by: Owner's instruction to proceed and publish on 2026-10-28.
+Target release: Public landing update to verified v2.0.29 BETA.
+```
+
 ## Approved change record — AI-LAB-CC-116
 
 ```text

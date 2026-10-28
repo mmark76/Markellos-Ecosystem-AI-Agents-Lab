@@ -171,12 +171,13 @@ test('build truthfully presents the current public state of the Local Lab', () =
     assert.ok(betaSection.includes('data-zip-sha256="' + release.sha256 + '"'));
   }
   assert.equal(channels.currentStableGithubVersion, '2.0.26', 'the approved STABLE channel must be pinned independently of GitHub release order');
-  assert.equal(channels.currentBetaGithubVersion, '2.0.28', 'the approved BETA channel must be pinned independently of GitHub release order');
+  assert.equal(channels.currentBetaGithubVersion, '2.0.29', 'the approved BETA channel must be pinned independently of GitHub release order');
   assert.equal(channels.previousStableR2Version, '2.0.16', 'preserve the owner-approved previous STABLE');
   assert.equal(currentStable.sha256, '32639b2c8da3df5ac0c3e0ffb078c5f3aafa5ba160187d9e6731393a42878584');
   assert.equal(currentStable.assetName, 'AI-Agents-Lab-Windows-v2.0.26.zip');
-  assert.equal(currentBeta.sha256, '1fb0e033a9a49ae4439a4c5e8eccaebe58ec4c9c69a1037c8128efcc24f04b36');
-  assert.equal(currentBeta.assetName, 'AI-Agents-Lab-Windows-v2.0.28.zip');
+  assert.equal(currentBeta.sha256, 'fdf47120dd73fdf8f3242723a7ae573be7b8cfbe0585c19837fd8f1975d6fe2f');
+  assert.equal(currentBeta.assetName, 'AI-Agents-Lab-Windows-v2.0.29.zip');
+  assert.ok(betaDistribution.releases.some(release => release.version === '2.0.28' && release.sha256 === '1fb0e033a9a49ae4439a4c5e8eccaebe58ec4c9c69a1037c8128efcc24f04b36'), 'retain the previous BETA release in the archive');
   assert.ok(betaDistribution.releases.some(release => release.version === '2.0.27' && release.sha256 === 'bb86e96de628a5c4e4b0bd8e10792281c846138e8edda12ee74f5790694827c4'), 'retain the previous BETA release in the archive');
   assert.notEqual(currentStable.version, currentBeta.version, 'STABLE and BETA cannot designate the same ZIP');
   const channelSync = readFileSync(join(app, '..', '..', '.github', 'workflows', 'sync-ai-lab-release-channels.yml'), 'utf8');
