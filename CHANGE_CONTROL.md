@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-103
+
+```text
+Change ID: AI-LAB-CC-103
+Requested by: User
+Date: 2026-10-28
+Description: Keep two Windows ZIP downloads permanently visible on the public landing page: CURRENT STABLE v2.0.25 (GitHub) and PREVIOUS STABLE v2.0.16 (Cloudflare R2). Do not advertise a BETA until the owner designates a future test release.
+Reason: The existing hero exposed only one release. The owner explicitly designated both v2.0.25 and v2.0.16 as STABLE and requested that both remain visible.
+Affected objective IDs: AI-LAB-OBJ-001, AI-LAB-OBJ-003
+Architecture impact: Explicit version pins in the new release-channels.json, two static download actions, responsive styling, generated version/source/checksum binding, neutral GitHub archive copy, and focused regression evidence.
+Security and privacy impact: Both ZIPs are pre-existing, independently downloaded and SHA-256 verified; no new endpoints, tracking, executable content, provider access, or Local Lab exposure. STABLE is an approved release label, not a defect-free guarantee.
+Data impact: None. The previous stable release has an older feature set; manual upgrades must preserve local SQLite data.
+Testing impact: Landing build/version/channel/link/SHA checks, archive regression, responsive layout inspection where available, and production Pages verification following merge.
+Cost and schedule impact: Existing GitHub CI and Cloudflare Pages deployment; no dependencies or paid service changes.
+Decision: APPROVED (TWO VISIBLE STABLE CHANNELS)
+Approved by: Direct user clarification and approval on 2026-10-28.
+Target release: Public landing update only; no new Windows ZIP or application installation.
+```
+
 ## Approved change record — AI-LAB-CC-102
 
 ```text

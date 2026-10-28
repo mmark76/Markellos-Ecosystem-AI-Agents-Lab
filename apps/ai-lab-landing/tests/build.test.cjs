@@ -10,10 +10,12 @@ const distributionMonitor = resolve(app, '..', '..', '.github', 'workflows', 've
 const releaseVersion = readFileSync(join(app, '..', 'local-ai-agents-lab', 'VERSION'), 'utf8').trim();
 const distribution = JSON.parse(readFileSync(join(app, 'release-distribution.json'), 'utf8'));
 const betaDistribution = JSON.parse(readFileSync(join(app, 'github-beta-releases.json'), 'utf8'));
+const channels = JSON.parse(readFileSync(join(app, 'release-channels.json'), 'utf8'));
 const escapedReleaseVersion = releaseVersion.replaceAll('.', '\\.');
 const [currentDistribution, ...previousDistributions] = distribution.releases;
-const latestBeta = betaDistribution.releases[0];
-const escapedBetaVersion = latestBeta.version.replaceAll('.', '\\.');
+const currentStable = betaDistribution.releases.find(release => release.version === channels.currentStableGithubVersion);
+const previousStable = distribution.releases.find(release => release.version === channels.previousStableR2Version);
+const escapedStableVersion = currentStable.version.replaceAll('.', '\\.');
 
 test('build truthfully presents the current public state of the Local Lab', () => {
   rmSync(output, { recursive: true, force: true });
@@ -25,10 +27,10 @@ test('build truthfully presents the current public state of the Local Lab', () =
   const styles = readFileSync(join(output, 'styles.css'), 'utf8');
 
   assert.match(html, new RegExp(`v${escapedReleaseVersion}_\\d{8}_\\d{4}_[0-9a-f]{7}`));
-  assert.doesNotMatch(html, /\{\{BUILD_ID\}\}|\{\{RELEASE_VERSION\}\}|\{\{PUBLIC_MILESTONE_VERSION\}\}|\{\{GITHUB_RELEASE_URL\}\}|\{\{GITHUB_RELEASE_VERSION\}\}|\{\{GITHUB_RELEASE_SHA256\}\}/);
+  assert.doesNotMatch(html, /\{\{BUILD_ID\}\}|\{\{RELEASE_VERSION\}\}|\{\{PUBLIC_MILESTONE_VERSION\}\}|\{\{PREVIOUS_STABLE_URL\}\}|\{\{PREVIOUS_STABLE_SHA256\}\}|\{\{GITHUB_RELEASE_URL\}\}|\{\{GITHUB_RELEASE_VERSION\}\}|\{\{GITHUB_RELEASE_SHA256\}\}/);
   assert.match(html, /styles\.css\?v=v\d+\.\d+\.\d+_\d{8}_\d{4}_[a-f0-9]{7}/);
-  assert.match(html, new RegExp(`LATEST BETA · v${escapedBetaVersion} · LOCAL \\+ OPTIONAL INTERNET CONNECTIONS`));
-  assert.match(html, new RegExp(`<h1 id="page-title">AI Lab v${escapedBetaVersion}<\\/h1>`));
+  assert.match(html, new RegExp(`CURRENT STABLE · v${escapedStableVersion} · LOCAL \\+ OPTIONAL INTERNET CONNECTIONS`));
+  assert.match(html, new RegExp(`<h1 id="page-title">AI Lab v${escapedStableVersion}<\\/h1>`));
   assert.match(html, /<img class="brand-mark" src="\.\/ai-training-lab-mark\.png" alt="AI Lab">/);
   assert.match(html, /<span class="project-name">AI Lab<\/span>/);
   assert.doesNotMatch(html, /class="beta-badge"/);
@@ -48,18 +50,21 @@ test('build truthfully presents the current public state of the Local Lab', () =
     assert.match(release.url, new RegExp(`/releases/v${release.version.replaceAll('.', '\\.')}/AI-Agents-Lab-Windows\\.zip$`));
     assert.match(release.sha256, /^[a-f0-9]{64}$/);
   }
-  assert.ok(html.includes(`<p class="shell-notice"><strong>Latest BETA:</strong> Download the verified v${latestBeta.version} Windows ZIP from GitHub. The earlier v${currentDistribution.version} Cloudflare R2 milestone remains available in the Release archive.</p>`));
+  assert.ok(html.includes(`<p class="shell-notice"><strong>Choose a stable release:</strong> v${currentStable.version} is the current owner-approved STABLE version. v${previousStable.version} is the previous STABLE version with an older feature set. No BETA is currently designated.</p>`));
   assert.doesNotMatch(html, /available without GitHub sign-in/);
   assert.doesNotMatch(html, /Download access note|private GitHub repository.*authorized GitHub access/);
-  const expectedGitHubFallback = `https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v${latestBeta.version}/${latestBeta.assetName || 'AI-Agents-Lab-Windows.zip'}`;
-  assert.ok(html.includes(`id="github-release-download" class="primary-button release-download github-release-download" data-zip-version="v${latestBeta.version}" data-zip-sha256="${latestBeta.sha256}" data-download-source="github-release" href="${expectedGitHubFallback}"`));
-  assert.ok(html.includes(`<span>Download v${latestBeta.version} BETA <span aria-hidden="true">↓</span></span><small>GitHub · latest verified BETA ZIP</small>`));
+  const expectedGitHubFallback = `https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v${currentStable.version}/${currentStable.assetName || 'AI-Agents-Lab-Windows.zip'}`;
+  assert.ok(html.includes(`id="github-release-download" class="primary-button release-download github-release-download" data-zip-version="v${currentStable.version}" data-zip-sha256="${currentStable.sha256}" data-download-source="github-release" href="${expectedGitHubFallback}"`));
+  assert.ok(html.includes(`<span>Download v${currentStable.version} STABLE <span aria-hidden="true">↓</span></span><small>GitHub · current stable release</small>`));
+  assert.ok(html.includes(`id="previous-stable-download" class="secondary-button release-download previous-stable-download" data-zip-version="v${previousStable.version}" data-zip-sha256="${previousStable.sha256}" data-download-source="cloudflare-r2" href="${previousStable.url}"`));
+  assert.ok(html.includes(`<span>Download v${previousStable.version} PREVIOUS STABLE <span aria-hidden="true">↓</span></span><small>Cloudflare R2 · older stable release</small>`));
   const downloadGroup = html.match(/<div class="hero-action-group download-actions">([\s\S]*?)<\/div>/)?.[1];
   assert.ok(downloadGroup, 'Download group must remain present');
   const buttonOrder = [...downloadGroup.matchAll(/id="([^"]+)" class="(?:primary|secondary)-button release-download/g)].map(match => match[1]);
-  assert.deepEqual(buttonOrder, ['github-release-download'], 'The featured download must be only the latest GitHub BETA');
-  assert.equal((downloadGroup.match(/data-download-source="cloudflare-r2"/g) || []).length, 0, 'R2 milestones stay in Release archive');
+  assert.deepEqual(buttonOrder, ['github-release-download', 'previous-stable-download'], 'Both owner-approved STABLE downloads must remain visible');
+  assert.equal((downloadGroup.match(/data-download-source="cloudflare-r2"/g) || []).length, 1, 'The previous STABLE must link to R2');
   assert.equal((downloadGroup.match(/data-download-source="github-release"/g) || []).length, 1);
+  assert.doesNotMatch(downloadGroup, /Download v[^<]* BETA/);
   assert.doesNotMatch(html, /id="zip-download(?:-|\")/);
   assert.match(html, /class="hero-actions" aria-label="Download, local launch, and documentation actions"/);
   assert.match(html, /class="hero-action-group download-actions"/);
@@ -73,7 +78,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(styles, /\.hero > \.eyebrow, \.hero h1 \{ text-align: center; \}/);
   assert.match(styles, /\.hero-actions\{display:grid;width:min\(100%,64rem\);gap:var\(--space-4\);margin:var\(--space-5\) auto 0\}/);
   assert.match(styles, /\.hero-action-group\{display:grid;grid-auto-rows:3\.75rem;gap:var\(--space-4\);align-items:stretch;justify-content:center\}/);
-  assert.match(styles, /\.download-actions\{grid-template-columns:minmax\(0,1fr\);width:min\(100%,28rem\);justify-self:center\}/);
+  assert.match(styles, /\.download-actions\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\);width:100%;justify-self:center\}/);
   assert.match(styles, /\.local-actions,\.documentation-actions\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)\}/);
   assert.match(styles, /\.hero-action-group \.primary-button,\.hero-action-group \.secondary-button\{justify-content:center;text-align:center\}/);
   assert.match(styles, /\.hero-action-group \.release-download,\.hero-action-group #refresh-local-server\{align-items:center;justify-content:center;text-align:center\}/);
@@ -88,9 +93,9 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /<span>Refresh Local Server<\/span><small>Before launching the app<\/small><\/a>/);
   assert.match(html, new RegExp(currentDistribution.url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.match(html, /Release archive/);
-  assert.match(html, /Cloudflare R2 milestones · GitHub BETA/);
+  assert.match(html, /Cloudflare R2 milestones · GitHub releases/);
   assert.match(html, /Milestones · Cloudflare R2/);
-  assert.match(html, /BETA releases · GitHub/);
+  assert.match(html, /Releases · GitHub/);
   assert.match(html, /Earlier Cloudflare R2 releases/);
   assert.match(html, /id="r2-milestone-history"/);
   assert.match(html, /id="r2-legacy-history"/);
@@ -153,11 +158,12 @@ test('build truthfully presents the current public state of the Local Lab', () =
     assert.ok(betaSection.includes('releases/download/v' + release.version + '/' + (release.assetName || 'AI-Agents-Lab-Windows.zip')));
     assert.ok(betaSection.includes('data-zip-sha256="' + release.sha256 + '"'));
   }
-  assert.equal(betaDistribution.releases[0].version, '2.0.25');
-  assert.equal(betaDistribution.releases[0].sha256, '85d601d697ecf2afa1b98db6c7b1a62cfb24aafa701612efca7da7d2bf2d8964');
-  assert.equal(betaDistribution.releases[0].assetName, 'AI-Agents-Lab-Windows-v2.0.25.zip');
-  assert.equal(betaDistribution.releases[1].version, '2.0.24', 'retain the previously featured ZIP in the BETA archive');
-  assert.equal(betaDistribution.releases[1].sha256, 'a6f3b0ed736901ddb0516b93b75c9e5696ba96f4b4cfe86da80248a535d5e5e3');
+  assert.equal(channels.currentStableGithubVersion, '2.0.25', 'the approved STABLE channel must be pinned independently of GitHub release order');
+  assert.equal(channels.previousStableR2Version, '2.0.16', 'preserve the owner-approved previous STABLE');
+  assert.equal(currentStable.sha256, '85d601d697ecf2afa1b98db6c7b1a62cfb24aafa701612efca7da7d2bf2d8964');
+  assert.equal(currentStable.assetName, 'AI-Agents-Lab-Windows-v2.0.25.zip');
+  assert.equal(previousStable.sha256, 'da636fae45b7547f002a0ea72c55cf5041ef59a3bfc3feea9c0d3199f1a0af72');
+  assert.ok(betaDistribution.releases.some(release => release.version === '2.0.24' && release.sha256 === 'a6f3b0ed736901ddb0516b93b75c9e5696ba96f4b4cfe86da80248a535d5e5e3'), 'retain the previously featured ZIP in the archive');
   assert.doesNotMatch(html, /id="zip-update"/);
   assert.match(html, /Trainer → Student → Evaluator → Improver/);
   const overview = html.slice(html.indexOf('<section id="overview"'), html.indexOf('</section>', html.indexOf('<section id="overview"')));
@@ -224,7 +230,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(guide, /Evaluation Lab - available/);
   assert.match(guide, /Advisory Lab - available/);
   assert.match(guide, /Optimization Lab - available/);
-  assert.match(guide, new RegExp(`Rooms and their current status \\(v${escapedBetaVersion}\\)`));
+  assert.match(guide, new RegExp(`Rooms and their current status \\(v${escapedStableVersion}\\)`));
   assert.match(guide, /Tutor → Student → Evaluator → Improver/);
   assert.doesNotMatch(guide, /Under Construction|v2\.0\.2(?!\d)/);
   assert.match(guide, /What is Fine-Tuning\? A simple guide/);
@@ -252,7 +258,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(optionalServices, /Availability and usage limits are determined by OpenAI\./);
   assert.match(optionalServices, /AI Training Lab's local Ollama-powered features remain free to use without a ChatGPT subscription\./);
   for (const page of [guide, description]) {
-    assert.match(page, new RegExp(`v${escapedBetaVersion}`));
+    assert.match(page, new RegExp(`v${escapedStableVersion}`));
     assert.match(page, new RegExp(`v${escapedReleaseVersion}_\\d{8}_\\d{4}_[0-9a-f]{7}`));
     assert.doesNotMatch(page, /\{\{RELEASE_VERSION\}\}|\{\{BUILD_ID\}\}/);
   }
@@ -268,7 +274,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(technical, /^# AI Training Lab — Technical README/m);
   assert.match(technical, /Public current-state documentation/);
   assert.ok(technical.includes('**Local application source version:** v' + releaseVersion));
-  assert.ok(technical.includes('**Featured Cloudflare R2 milestone:** v' + currentDistribution.version));
+  assert.ok(technical.includes('**Previous STABLE Cloudflare R2 milestone:** v' + previousStable.version));
   assert.doesNotMatch(technical, /\{\{LOCAL_LAB_VERSION\}\}|\{\{PUBLIC_MILESTONE_VERSION\}\}/);
   assert.match(technical, /Quick Start \(Windows\)/);
   assert.match(technical, /Understanding the two Windows \.bat files/);
@@ -287,7 +293,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(technical, /PyJWT\[crypto\]==2\.10\.1/);
   assert.match(technical, /training-job endpoint remains \*\*locked\*\*/);
   assert.match(technical, /Manual update checking inside the Local App: not implemented/);
-  assert.match(technical, /GitHub BETA releases have their \*\*own independently verified versions/);
+  assert.match(technical, /GitHub releases have their \*\*own independently verified versions/);
   assert.doesNotMatch(technical, /v0\.1\.30|Trainer → Student → Evaluator → Improver/);
   assert.match(readFileSync(join(output, '_headers'), 'utf8'), /script-src 'self' https:\/\/analytics\.markellosecosystem\.com/);
   assert.match(readFileSync(join(output, '_headers'), 'utf8'), /connect-src 'self' https:\/\/analytics\.markellosecosystem\.com https:\/\/api\.github\.com/);
@@ -357,7 +363,7 @@ test('public distribution monitoring verifies the reviewed current R2 ZIP on a s
   assert.match(monitor, /Public ZIP length mismatch/);
 });
 
-test('GitHub BETA archive filters R2 versions and invalid assets without duplicates', () => {
+test('GitHub release archive filters R2 versions and invalid assets without duplicates', () => {
   const {githubOnlyReleases} = require(join(app, 'src', 'github-release-archive.js'));
   const digest = 'sha256:' + 'a'.repeat(64);
   const valid = version => ({tag_name:'v'+version, draft:false, assets:[{name:'AI-Agents-Lab-Windows.zip',state:'uploaded',digest}]});
@@ -381,6 +387,6 @@ test('GitHub BETA archive filters R2 versions and invalid assets without duplica
   const source = readFileSync(join(app, 'src', 'github-release-archive.js'), 'utf8');
   assert.match(source, /archive\.addEventListener\('toggle'/);
   assert.match(source, /if \(!archive\.open \|\| requested\) return/);
-  assert.match(source, /Showing verified BETA snapshot/);
+  assert.match(source, /Showing verified release snapshot/);
   assert.match(source, /list\.replaceChildren/);
 });
