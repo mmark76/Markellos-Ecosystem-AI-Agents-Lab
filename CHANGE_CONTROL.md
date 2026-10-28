@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-104
+
+```text
+Change ID: AI-LAB-CC-104
+Requested by: User
+Date: 2026-10-28
+Description: Clarify the two Windows launch controls without changing their order (left: Restart Local Server; right: Open AI Lab), and explain Easy Start in one short sentence using the real Start AI Training Lab.bat filename.
+Reason: Users may otherwise mistake Easy Start for a separate file and think server refresh is required before every normal launch.
+Affected objective IDs: AI-LAB-OBJ-001, AI-LAB-OBJ-003, AI-LAB-OBJ-012
+Architecture impact: Static public UI labels, short first-setup helper, supporting guide and contract tests only; custom URI handlers and Local Lab runtime unchanged.
+Security and privacy impact: No new endpoint, browser capability, automatic installation, or data collection.
+Data impact: None; no Local Lab data or ZIP changes.
+Testing impact: Landing build/UI text contract, left-to-right action ordering, URI handler preservation and existing validations; live Cloudflare Pages check after merge.
+Cost and schedule impact: Existing GitHub CI and Cloudflare Pages deployment.
+Decision: APPROVED (LANDING CLARITY)
+Approved by: Owner's direct agreement on 2026-10-28.
+Target release: Landing-only copy update; no new Windows ZIP or Local Lab update.
+```
+
 ## Approved change record — AI-LAB-CC-103
 
 ```text

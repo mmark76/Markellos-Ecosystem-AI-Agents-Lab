@@ -30,6 +30,8 @@ The build injects **independent version values** for the current Local Lab sourc
 
 ## Installation guidance
 
+The public page states: **First setup (Easy Start):** After extracting the ZIP, run `Start AI Training Lab.bat`. The existing left and right dashboard actions are labeled **Restart Local Server** (troubleshooting) and **Open AI Lab** (normal use), and both require that initial setup.
+
 The landing page links only to the official download pages for the required Windows prerequisites:
 
 - [Python 3.9+](https://www.python.org/downloads/windows/)

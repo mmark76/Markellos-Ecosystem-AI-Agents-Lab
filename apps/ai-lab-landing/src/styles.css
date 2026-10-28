@@ -108,6 +108,8 @@ html[data-color-mode="light"] .secondary-button { background:#ffffff; color:#172
 #launch-local-lab,html[data-color-mode="light"] #launch-local-lab{
   background:#2563eb;color:#ffffff;border-color:#2563eb;
 }
+#launch-local-lab{flex-direction:column;gap:1px;padding-block:var(--space-2)}
+#launch-local-lab small{font-size:var(--font-size-xs);font-weight:var(--font-weight-regular);line-height:1.25}
 #launch-local-lab:hover,html[data-color-mode="light"] #launch-local-lab:hover{
   background:#1d4ed8;border-color:#1d4ed8;filter:none;
 }
