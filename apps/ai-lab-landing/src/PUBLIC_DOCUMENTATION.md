@@ -1,9 +1,10 @@
 # AI Training Lab — Technical README
 
-**Public current-state documentation** · Checked against repository source on **21 October 2026**  
-**Local application source version:** {{LOCAL_LAB_VERSION}} · **Featured Cloudflare R2 milestone:** {{PUBLIC_MILESTONE_VERSION}}
+**Public current-state documentation** · Checked against repository source on **28 October 2026**
 
-This Technical README explains the software, runtimes, AI models, integrations, system requirements and current limits of **AI Training Lab**. It documents the implementation in the repository, rather than guaranteeing that an optional external account connection has been tested successfully on an individual computer. The source version and the featured R2 milestone may differ; GitHub BETA releases are presented separately on the [public landing page](https://ai-lab.markellosecosystem.com/).
+**Local application source version:** {{LOCAL_LAB_VERSION}} · **Previous STABLE Cloudflare R2 milestone:** {{PUBLIC_MILESTONE_VERSION}}
+
+This Technical README explains the software, runtimes, AI models, integrations, system requirements and current limits of **AI Training Lab**. It documents the implementation in the repository, rather than guaranteeing that an optional external account connection has been tested successfully on an individual computer. The source version and the previous STABLE R2 milestone may differ; the owner-approved current STABLE GitHub release is presented separately on the [public landing page](https://ai-lab.markellosecosystem.com/).
 
 For step-by-step installation, use the [README / Installation Guide](./simple-guide.html). For what the five workspaces actually do, see [Detailed App Description](./app-description.html).
 
@@ -14,7 +15,7 @@ AI Training Lab is a **Windows-based, local-first** experimental application wit
 ```text
 Public browser ── Cloudflare Pages landing page
                        │
-                       └── Windows ZIP download (R2 milestone / GitHub BETA)
+                       └── Windows ZIP download (previous STABLE R2 / current STABLE GitHub)
                                     │
 Local Windows PC                    ▼
   Browser ── http://127.0.0.1:8765 ── Python Lab server
@@ -48,7 +49,7 @@ The **public landing page** distributes information and release links; it never 
 | **RunPod** | Protected personal token and account/GPU catalogue query | **Optional, read-only**; no remote training |
 | **PyTorch / Transformers / PEFT / TRL / Accelerate / Datasets** | Isolated local LoRA/SFT training preparation | **Retained developer infrastructure; training locked** |
 | **Node.js** | Landing-page build, Windows packaging and automated tests | **Developer tooling only** |
-| **GitHub / GitHub Actions** | Source, CI, verified GitHub BETA releases | **Development and release infrastructure** |
+| **GitHub / GitHub Actions** | Source, CI, verified GitHub releases | **Development and release infrastructure** |
 | **Cloudflare Pages / R2** | Public static documentation and reviewed release archives | **Public delivery infrastructure** |
 | **LM Studio / Jan / vLLM / separate llama.cpp server** | Alternative AI inference providers | **Not supported as Lab inference backends** |
 
@@ -187,11 +188,11 @@ Likewise, the optional **ChatGPT Advisor** is a separate, user-triggered externa
 
 ## 10. Development, deployment and release boundaries
 
-**Node.js** supports landing-page builds, validation and ZIP packaging; it is **not** a runtime dependency of a person opening the official Windows ZIP. **GitHub and GitHub Actions** manage the source and release verification. **Cloudflare Pages** hosts the static public guide and **Cloudflare R2** stores reviewed milestone ZIPs. GitHub BETA releases have their **own independently verified versions and SHA-256 digests** and must not be conflated with the currently featured R2 milestone.
+**Node.js** supports landing-page builds, validation and ZIP packaging; it is **not** a runtime dependency of a person opening the official Windows ZIP. **GitHub and GitHub Actions** manage the source and release verification. **Cloudflare Pages** hosts the static public guide and **Cloudflare R2** stores reviewed milestone ZIPs. GitHub releases have their **own independently verified versions and SHA-256 digests** and must not be conflated with the previous STABLE R2 milestone. STABLE is an owner-approved release designation, not a guarantee that no defects remain.
 
 The public site is built into `apps/ai-lab-landing/dist`. The **Technical README you are reading** is generated from `apps/ai-lab-landing/src/PUBLIC_DOCUMENTATION.md` during that build; update the **source document**, not the generated `dist/README.md`.
 
-**Manual update checking inside the Local App: not implemented.** Releases must be reviewed and installed manually, preserving local data. The public page may advertise a newer verified GitHub BETA alongside an older R2 milestone; these are **separate release channels**, not a version-matched direct GitHub Release asset as a fallback for an R2 object.
+**Manual update checking inside the Local App: not implemented.** Releases must be reviewed and installed manually, preserving local data. The public page displays the current owner-approved STABLE GitHub release alongside the previous STABLE R2 milestone; they are **independent distribution channels**, not a version-matched direct GitHub Release asset as a fallback for an R2 object. No BETA download is featured until a future test release is explicitly designated.
 
 ## 11. Verification status and current limitations
 

@@ -31,11 +31,11 @@
   <main id="home" class="main-content">
     <section class="hero" aria-labelledby="page-title">
       <article class="dashboard-card content-card hero-card">
-      <p class="eyebrow">LATEST BETA · {{GITHUB_RELEASE_VERSION}} · LOCAL + OPTIONAL INTERNET CONNECTIONS</p>
+      <p class="eyebrow">CURRENT STABLE · {{GITHUB_RELEASE_VERSION}} · LOCAL + OPTIONAL INTERNET CONNECTIONS</p>
       <h1 id="page-title">AI Lab {{GITHUB_RELEASE_VERSION}}</h1>
-      <p class="shell-notice"><strong>Latest BETA:</strong> Download the verified {{GITHUB_RELEASE_VERSION}} Windows ZIP from GitHub. The earlier {{PUBLIC_MILESTONE_VERSION}} Cloudflare R2 milestone remains available in the Release archive.</p>
+      <p class="shell-notice"><strong>Choose a stable release:</strong> {{GITHUB_RELEASE_VERSION}} is the current owner-approved STABLE version. {{PUBLIC_MILESTONE_VERSION}} is the previous STABLE version with an older feature set. No BETA is currently designated.</p>
       <div class="hero-actions" aria-label="Download, local launch, and documentation actions">
-        <div class="hero-action-group download-actions"><a id="github-release-download" class="primary-button release-download github-release-download" data-zip-version="{{GITHUB_RELEASE_VERSION}}" data-zip-sha256="{{GITHUB_RELEASE_SHA256}}" data-download-source="github-release" href="{{GITHUB_RELEASE_URL}}"><span>Download {{GITHUB_RELEASE_VERSION}} BETA <span aria-hidden="true">↓</span></span><small>GitHub · latest verified BETA ZIP</small></a></div>
+        <div class="hero-action-group download-actions"><a id="github-release-download" class="primary-button release-download github-release-download" data-zip-version="{{GITHUB_RELEASE_VERSION}}" data-zip-sha256="{{GITHUB_RELEASE_SHA256}}" data-download-source="github-release" href="{{GITHUB_RELEASE_URL}}"><span>Download {{GITHUB_RELEASE_VERSION}} STABLE <span aria-hidden="true">↓</span></span><small>GitHub · current stable release</small></a><a id="previous-stable-download" class="secondary-button release-download previous-stable-download" data-zip-version="{{PUBLIC_MILESTONE_VERSION}}" data-zip-sha256="{{PREVIOUS_STABLE_SHA256}}" data-download-source="cloudflare-r2" href="{{PREVIOUS_STABLE_URL}}"><span>Download {{PUBLIC_MILESTONE_VERSION}} PREVIOUS STABLE <span aria-hidden="true">↓</span></span><small>Cloudflare R2 · older stable release</small></a></div>
         <div class="hero-action-group local-actions"><a id="refresh-local-server" class="secondary-button" href="markellos-ai-training-lab-refresh://open"><span>Refresh Local Server</span><small>Before launching the app</small></a><a id="launch-local-lab" class="secondary-button" href="markellos-ai-training-lab://open">Launch Local Lab after download and extract zip</a></div>
         <div class="hero-action-group documentation-actions"><a class="secondary-button" href="./simple-guide.html" target="_blank" rel="noopener noreferrer">README / Installation Guide <span aria-hidden="true">↗</span></a><a class="secondary-button" href="./app-description.html" target="_blank" rel="noopener noreferrer">Detailed App Description <span aria-hidden="true">↗</span></a></div>
       </div>
@@ -45,7 +45,7 @@
 
     <section class="simple-section release-history" aria-labelledby="release-history-title">
       <details class="dashboard-card content-card archive-card" id="release-archive">
-        <summary id="release-history-title">Release archive <span>Cloudflare R2 milestones · GitHub BETA</span></summary>
+        <summary id="release-history-title">Release archive <span>Cloudflare R2 milestones · GitHub releases</span></summary>
         <div class="release-archive-group" id="release-history-r2">
           <h3>Milestones · Cloudflare R2</h3>
           <p>Reviewed milestone ZIPs stay available from Cloudflare R2.</p>
@@ -57,10 +57,10 @@
           </details>
         </div>
         <div class="release-archive-group" id="release-history-github">
-          <h3>BETA releases · GitHub</h3>
+          <h3>Releases · GitHub</h3>
           <p>GitHub ZIPs are listed separately from R2. Opening the archive refreshes the public release list from GitHub.</p>
           <ul id="github-beta-history">{{GITHUB_BETA_HISTORY}}</ul>
-          <p id="github-beta-status" role="status" aria-live="polite">Showing verified GitHub BETA releases.</p>
+          <p id="github-beta-status" role="status" aria-live="polite">Showing verified GitHub release snapshots.</p>
           <p><a href="https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases" target="_blank" rel="noopener noreferrer">All GitHub Releases ↗</a></p>
         </div>
       </details>
@@ -84,7 +84,7 @@
       <article class="dashboard-card content-card">
       <p class="eyebrow">GET STARTED</p><h2 id="start-title">Start in three simple steps.</h2>
       <ol>
-        <li><strong>Download the ZIP.</strong> Use the public BETA download above.</li>
+        <li><strong>Download the ZIP.</strong> Choose a STABLE version using either download above.</li>
         <li><strong>Extract the ZIP.</strong> Extract it into a folder such as Documents.</li>
         <li><strong>Set up and start.</strong> Double-click <code>Start AI Training Lab.bat</code>. Easy Start checks your device and asks separately before installing Python, Ollama, or the initial local model. It asks whether you want a Desktop shortcut and remembers your choice for that extracted folder. When ready, it starts the Lab at <a class="inline-link" href="http://127.0.0.1:8765/">Open Local Lab</a>.</li>
       </ol>

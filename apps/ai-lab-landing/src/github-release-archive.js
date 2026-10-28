@@ -75,13 +75,13 @@
         item => item.dataset.zipVersion.slice(1)
       ));
       readPublishedReleases().then(releases => {
-        const beta = githubOnlyReleases(releases, r2Versions);
-        if (beta.length < 1) throw new Error('No verified GitHub-only assets found');
-        list.replaceChildren(...beta.map(releaseRow));
-        status.textContent = beta.length + ' GitHub-only Windows ZIPs · checked when the archive opened.';
+        const githubReleases = githubOnlyReleases(releases, r2Versions);
+        if (githubReleases.length < 1) throw new Error('No verified GitHub-only assets found');
+        list.replaceChildren(...githubReleases.map(releaseRow));
+        status.textContent = githubReleases.length + ' GitHub-only Windows ZIPs · checked when the archive opened.';
       }).catch(() => {
         // Leave the build-time verified snapshot untouched if GitHub is unavailable.
-        status.textContent = 'GitHub could not be refreshed. Showing verified BETA snapshot; see All GitHub Releases for full history.';
+        status.textContent = 'GitHub could not be refreshed. Showing verified release snapshot; see All GitHub Releases for full history.';
       });
     });
   }
