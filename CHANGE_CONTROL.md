@@ -1,5 +1,23 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-105
+
+```text
+Change ID: AI-LAB-CC-105
+Requested by: User
+Date: 2026-10-28
+Description: Clarify the Open AI Lab button subtitle as "Quick start after first-time setup" without changing the action, position, or initial-install instructions.
+Reason: The owner prefers a short subtitle that explicitly distinguishes quick subsequent launches from first-time setup.
+Affected objective IDs: AI-LAB-OBJ-001, AI-LAB-OBJ-012
+Architecture impact: Single public landing text change and its regression assertion.
+Security, privacy and data impact: None; protocol handlers, Windows setup and downloaded ZIPs unchanged.
+Testing impact: Landing build regression and public Pages text verification after merge.
+Cost and schedule impact: Existing GitHub CI and Pages deployment.
+Decision: APPROVED (COPY CLARITY)
+Approved by: Direct owner agreement on 2026-10-28.
+Target release: Public landing-only copy update.
+```
+
 ## Approved change record — AI-LAB-CC-104
 
 ```text

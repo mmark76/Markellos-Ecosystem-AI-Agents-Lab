@@ -180,7 +180,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(html, /<div class="content-card-grid">\s*<section id="start"/);
   assert.match(html, /Start AI Training Lab\.bat/);
   assert.match(html, /id="launch-local-lab" class="secondary-button" href="markellos-ai-training-lab:\/\/open"/);
-  assert.match(html, /<span>Open AI Lab<\/span><small>Starts the server if needed<\/small><\/a>/);
+  assert.match(html, /<span>Open AI Lab<\/span><small>Quick start after first-time setup<\/small><\/a>/);
   assert.doesNotMatch(html, /Launch Local Lab <span aria-hidden="true">\?<\/span>/);
   assert.match(html, /<strong>First setup \(Easy Start\):<\/strong> After extracting the ZIP, run <code>Start AI Training Lab\.bat<\/code>\./);
   assert.match(guide, /Restart Local Server/);
