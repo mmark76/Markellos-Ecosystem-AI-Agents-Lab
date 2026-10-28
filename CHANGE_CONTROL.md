@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-101
+
+```text
+Change ID: AI-LAB-CC-101
+Requested by: User
+Date: 2026-10-28
+Description: Publish the next versioned Windows ZIP as v2.0.25, including the merged PR #204 fix for the Ollama model-install completion UI.
+Reason: The fix is merged and its main-branch validation passed; users need a downloadable package containing it rather than only updated GitHub source.
+Affected objective IDs: AI-LAB-OBJ-003, AI-LAB-OBJ-008
+Architecture impact: VERSION and packaged Local Lab README identity only; the reviewed release workflow builds from the tagged Git commit, with no runtime or provider change.
+Security and privacy impact: Preserve fixed-loopback Ollama and the existing owner-approved download boundary. No automatic installation on user devices.
+Data impact: No migration; existing local SQLite history must be preserved during manual upgrades.
+Testing impact: Require Local Lab and release-packaging CI checks, published ZIP and release manifest verification, and independent release-asset checksum inspection.
+Cost and schedule impact: Normal GitHub Actions release build; no new dependencies or cloud inference.
+Decision: APPROVED (PATCH RELEASE)
+Approved by: Direct user request on 2026-10-28.
+Target release: v2.0.25, without overwriting v2.0.24 or modifying the public landing deployment automatically.
+```
+
 ## Approved change record — AI-LAB-CC-100
 
 ```text

@@ -1,6 +1,6 @@
 # Markellos Ecosystem AI Lab
 
-Version: v2.0.24 · Private local starter
+Version: v2.0.25 · Private local starter
 
 Local Windows application with five active workspaces:
 
@@ -97,7 +97,7 @@ the PyTorch training wizard.
 
 ## Run the Lab on a laptop
 
-1. Extract the downloaded Windows ZIP (new releases use names such as `AI-Agents-Lab-Windows-v2.0.24.zip`) into a folder you control, for example `C:\Markellos-Ecosystem-AI-Agents-Lab`.
+1. Extract the downloaded Windows ZIP (new releases use names such as `AI-Agents-Lab-Windows-v2.0.25.zip`) into a folder you control, for example `C:\Markellos-Ecosystem-AI-Agents-Lab`.
 2. Double-click **`Start AI Training Lab.bat`**.
 3. If Easy Start finds missing components, review each approval dialog. You can decline any step; the Lab will not start until its required local components are ready.
 4. After setup, the Lab starts automatically at **http://127.0.0.1:8765/**.
