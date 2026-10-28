@@ -9,7 +9,7 @@ $ErrorActionPreference = 'Stop'
 $root = [System.IO.Path]::GetFullPath($LabRoot)
 . (Join-Path $PSScriptRoot 'get-lab-version.ps1')
 $version = Get-LabVersion $root
-$launcher = Join-Path $root 'Start AI Training Lab.bat'
+$launcher = Join-Path $root 'Start Local Server.bat'
 $icon = Join-Path $root 'assets\ai-training-lab.ico'
 $preferencesFile = Join-Path $root 'data\setup-preferences.json'
 

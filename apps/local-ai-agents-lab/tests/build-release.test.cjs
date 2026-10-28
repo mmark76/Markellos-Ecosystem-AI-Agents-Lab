@@ -72,7 +72,7 @@ test('packaged README is English only',()=>{
 });
 test('Windows launcher packages the AI Lab desktop shortcut and valid icon',()=>{
   const root=path.resolve(__dirname,'..');
-  const launcher=fs.readFileSync(path.join(root,'Start AI Training Lab.bat'),'utf8');
+  const launcher=fs.readFileSync(path.join(root,'Start Local Server.bat'),'utf8');
   const shortcut=fs.readFileSync(path.join(root,'scripts','create-desktop-shortcut.ps1'),'utf8');
   const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
   assert.match(launcher,/create-desktop-shortcut\.ps1/);
@@ -92,7 +92,7 @@ test('Windows launcher packages the AI Lab desktop shortcut and valid icon',()=>
 });
 test('Easy Start is packaged, readiness-first, and requires explicit approval for each device change',()=>{
   const root=path.resolve(__dirname,'..');
-  const launcher=fs.readFileSync(path.join(root,'Start AI Training Lab.bat'),'utf8');
+  const launcher=fs.readFileSync(path.join(root,'Start Local Server.bat'),'utf8');
   const easyStart=fs.readFileSync(path.join(root,'scripts','easy-start.ps1'),'utf8');
   const shortcut=fs.readFileSync(path.join(root,'scripts','create-desktop-shortcut.ps1'),'utf8');
   const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
@@ -103,8 +103,9 @@ test('Easy Start is packaged, readiness-first, and requires explicit approval fo
   assert.doesNotMatch(packager,/'start-windows\.bat'/);
   assert.doesNotMatch(packager,/'setup-training-windows\.bat'/);
   assert.match(packager,/'setup-training-environment\.bat'/);
-  assert.match(shortcut,/Start AI Training Lab\.bat/);
-  assert.match(packager,/Start AI Training Lab\.bat/);
+  assert.match(shortcut,/Start Local Server\.bat/);
+  assert.match(packager,/Start Local Server\.bat/);
+  assert.doesNotMatch(packager,/'Start AI Training Lab\.bat'/);
   assert.match(packager,/easy-start\.ps1/);
   assert.match(easyStart,/Python\.Python\.3\.12/);
   assert.match(easyStart,/Ollama\.Ollama/);
@@ -132,7 +133,7 @@ test('Open AI Lab BAT is packaged and reuses the dashboard Open action without d
 });
 test('first-run setup remembers the optional shortcut choice and leaves dashboard protocols independent',()=>{
   const root=path.resolve(__dirname,'..');
-  const launcher=fs.readFileSync(path.join(root,'Start AI Training Lab.bat'),'utf8');
+  const launcher=fs.readFileSync(path.join(root,'Start Local Server.bat'),'utf8');
   const finish=fs.readFileSync(path.join(root,'scripts','finish-setup.ps1'),'utf8');
   const shortcut=fs.readFileSync(path.join(root,'scripts','create-desktop-shortcut.ps1'),'utf8');
   const protocols=fs.readFileSync(path.join(root,'scripts','register-dashboard-protocols.ps1'),'utf8');
@@ -162,7 +163,7 @@ test('Windows installer and shortcut display the version from the packaged VERSI
   const training=read('scripts/setup-training.ps1');
   const protocols=read('scripts/register-dashboard-protocols.ps1');
   const preflight=read('scripts/prepare-local-server.ps1');
-  const launcher=read('Start AI Training Lab.bat');
+  const launcher=read('Start Local Server.bat');
   assert.match(versionReader,/Join-Path \$Root 'VERSION'/);
   assert.match(versionReader,/\^\\d\+\\\.\\d\+\\\.\\d\+\$/);
   for(const script of [shortcut,finish,easyStart,training,protocols,preflight]){
@@ -262,7 +263,8 @@ test('Dashboard launcher registers separate Open, Refresh and Stop actions with 
   assert.match(register,/URL Protocol/);
   assert.match(register,/launch-from-dashboard\.ps1/);
   assert.match(register,/-Action ' \+ \$registration\.Action/);
-  assert.match(handler,/Start AI Training Lab\.bat/);
+  assert.match(handler,/Start Local Server\.bat/);
+  assert.doesNotMatch(handler,/Start AI Training Lab\.bat/);
   assert.match(handler,/http:\/\/127\.0\.0\.1:8765\//);
   assert.match(handler,/ValidateSet\('Open', 'Refresh', 'Stop'\)/);
   assert.match(handler,/if \(\$Action -eq 'Stop'\)/);
@@ -275,7 +277,7 @@ test('Dashboard launcher registers separate Open, Refresh and Stop actions with 
 
 test('Windows background server startup preserves process identity and bounded local API log access',()=>{
   const root=path.resolve(__dirname,'..');
-  const launcher=fs.readFileSync(path.join(root,'Start AI Training Lab.bat'),'utf8');
+  const launcher=fs.readFileSync(path.join(root,'Start Local Server.bat'),'utf8');
   const startup=fs.readFileSync(path.join(root,'scripts','start-background-server.ps1'),'utf8');
   const preflight=fs.readFileSync(path.join(root,'scripts','prepare-local-server.ps1'),'utf8');
   const server=fs.readFileSync(path.join(root,'server.py'),'utf8');
@@ -356,7 +358,7 @@ test('beginner fine-tuning guide and personal provider planner are bundled while
 
 test('Windows replacement preflight is bundled and never indiscriminately kills port owners',()=>{
   const root=path.resolve(__dirname,'..');
-  const launcher=fs.readFileSync(path.join(root,'Start AI Training Lab.bat'),'utf8');
+  const launcher=fs.readFileSync(path.join(root,'Start Local Server.bat'),'utf8');
   const preflight=fs.readFileSync(path.join(root,'scripts','prepare-local-server.ps1'),'utf8');
   const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
   assert.match(packager,/'scripts\/prepare-local-server\.ps1'/);

@@ -2,7 +2,7 @@
 
 ## Text encoding
 
-`Start AI Training Lab.bat` launches `easy-start.ps1` with Windows PowerShell
+`Start Local Server.bat` launches `easy-start.ps1` with Windows PowerShell
 (`powershell.exe`). Keep `easy-start.ps1` encoded as UTF-8 **with BOM** so that
 Windows PowerShell 5.1 reads punctuation in dialog titles and progress messages
 correctly. The release builder copies the original script bytes unchanged;
@@ -11,7 +11,7 @@ correctly. The release builder copies the original script bytes unchanged;
 ## Purpose
 
 Easy Start makes the Windows ZIP usable by a beginner without hiding device
-changes. `Start AI Training Lab.bat` runs a readiness-first PowerShell dialog
+changes. `Start Local Server.bat` runs a readiness-first PowerShell dialog
 before it starts the local server.
 
 ## Fixed boundary

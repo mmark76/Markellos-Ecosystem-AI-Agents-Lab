@@ -5,7 +5,7 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
-$launcher = Join-Path $root 'Start AI Training Lab.bat'
+$launcher = Join-Path $root 'Start Local Server.bat'
 $localUrl = 'http://127.0.0.1:8765/'
 function Test-LocalLab {
     try {

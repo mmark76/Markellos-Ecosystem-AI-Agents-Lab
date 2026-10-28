@@ -4,17 +4,23 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 
 ## [Unreleased]
 
-### Added
-
-- Include `Open AI Lab.bat` inside future Windows ZIPs. It reuses the public dashboard's local Open action: start the server if absent, then open the Lab in the browser. `Start AI Training Lab.bat` remains the setup/server launcher.
-
 ### Changed
 
 - Make all text in the featured v2.0.27 BETA download button red, with readable shades for dark and light modes; preserve channel assignments and download links.
 - Designate v2.0.26 as CURRENT STABLE and independently verified v2.0.27 as CURRENT BETA on the landing page. Keep v2.0.16 R2 in the archive and synchronize GitHub release labels without rebuilding either ZIP.
 - Feature the independently verified v2.0.26 Windows STABLE ZIP on the public landing page; retain v2.0.16 as PREVIOUS STABLE and v2.0.25 in the release archive. Change the left button to Stop Local Server (available after v2.0.26 setup) while preserving the right Open AI Lab action.
 - Display the existing Training Lab Student role as Student Alpha in the workflow, model guidance, session stages, and local history while preserving its canonical role identity and stored records.
-- Simplify the Windows entry points to a single normal launcher and a separate optional training setup. Add a first-run Desktop shortcut choice, version-labeled Windows setup and shortcut, and versioned future release ZIP filenames.
+- Keep the Windows setup/server launcher separate from optional training setup. Add a first-run Desktop shortcut choice, version-labeled Windows setup and shortcut, and versioned future release ZIP filenames.
+
+## [2.0.28] - 2026-10-28
+
+### Changed
+
+- Rename the Windows setup/server launcher to `Start Local Server.bat` and update its desktop shortcut, local Open/Stop handlers, packaging, tests, and documentation.
+
+### Added
+
+- Include `Open AI Lab.bat` beside it: the same safe local Open action as Quick Start, starting the server if needed and opening the Lab in the browser.
 
 ## [2.0.27] - 2026-10-28
 
