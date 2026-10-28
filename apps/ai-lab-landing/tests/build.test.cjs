@@ -153,9 +153,11 @@ test('build truthfully presents the current public state of the Local Lab', () =
     assert.ok(betaSection.includes('releases/download/v' + release.version + '/' + (release.assetName || 'AI-Agents-Lab-Windows.zip')));
     assert.ok(betaSection.includes('data-zip-sha256="' + release.sha256 + '"'));
   }
-  assert.equal(betaDistribution.releases[0].version, '2.0.24');
-  assert.equal(betaDistribution.releases[0].sha256, 'a6f3b0ed736901ddb0516b93b75c9e5696ba96f4b4cfe86da80248a535d5e5e3');
-  assert.equal(betaDistribution.releases[0].assetName, 'AI-Agents-Lab-Windows-v2.0.24.zip');
+  assert.equal(betaDistribution.releases[0].version, '2.0.25');
+  assert.equal(betaDistribution.releases[0].sha256, '85d601d697ecf2afa1b98db6c7b1a62cfb24aafa701612efca7da7d2bf2d8964');
+  assert.equal(betaDistribution.releases[0].assetName, 'AI-Agents-Lab-Windows-v2.0.25.zip');
+  assert.equal(betaDistribution.releases[1].version, '2.0.24', 'retain the previously featured ZIP in the BETA archive');
+  assert.equal(betaDistribution.releases[1].sha256, 'a6f3b0ed736901ddb0516b93b75c9e5696ba96f4b4cfe86da80248a535d5e5e3');
   assert.doesNotMatch(html, /id="zip-update"/);
   assert.match(html, /Trainer → Student → Evaluator → Improver/);
   const overview = html.slice(html.indexOf('<section id="overview"'), html.indexOf('</section>', html.indexOf('<section id="overview"')));
