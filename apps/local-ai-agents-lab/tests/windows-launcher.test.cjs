@@ -129,6 +129,27 @@ test('Windows PowerShell setup scripts parse and read the packaged release versi
     assert.equal(output,fs.readFileSync(path.join(sourceRoot,'VERSION'),'utf8').trim());
   });
 
+test('Open AI Lab BAT passes Open to the local dashboard handler even in spaced paths',
+  {skip:process.platform!=='win32'},()=>{
+    const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'ai-lab-open-bat-'));
+    try{
+      const root=path.join(workspace,'AI Lab Test');
+      const scripts=path.join(root,'scripts');
+      fs.mkdirSync(scripts,{recursive:true});
+      fs.copyFileSync(path.join(sourceRoot,'Open AI Lab.bat'),path.join(root,'Open AI Lab.bat'));
+      fs.writeFileSync(path.join(scripts,'launch-from-dashboard.ps1'),[
+        'param([string]$Action)',
+        'if ($Action -ne "Open") { exit 2 }',
+        '[IO.File]::WriteAllText((Join-Path $PSScriptRoot "..\\opened.txt"), $Action)',
+        'exit 0'
+      ].join('\r\n')+'\r\n',{encoding:'ascii'});
+      execFileSync('cmd.exe',['/d','/c','Open AI Lab.bat'],{cwd:root,encoding:'utf8',timeout:30000});
+      assert.equal(fs.readFileSync(path.join(root,'opened.txt'),'utf8'),'Open');
+    }finally{
+      fs.rmSync(workspace,{recursive:true,force:true});
+    }
+  });
+
 test('dashboard Stop calls only the bounded local stop preflight, without starting the Lab',
   {skip:process.platform!=='win32'},()=>{
     const root=fs.mkdtempSync(path.join(os.tmpdir(),'ai-lab-stop-action-'));

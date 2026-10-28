@@ -20,7 +20,7 @@ The **Training Lab** uses the internal API id `training`. Existing local history
 
 For a first-time setup, extract the ZIP and double-click **`Start AI Training Lab.bat`**. Easy Start checks the computer, then asks whether to create a Desktop shortcut before launching the Lab. The choice is saved for the extracted folder, so it is not asked at each start.
 
-After the initial setup, start the Lab from its optional Desktop shortcut, the BAT file, or the public dashboard's **Open AI Lab** button. The dashboard's **Stop Local Server** action stops the verified local Lab server without restarting it, after asking for confirmation if a Lab is running. **Open AI Lab** opens an already responsive Lab, starts one if absent, and uses the existing confirmed replacement check only if needed. These buttons require the per-user URL protocols installed by the new ZIP's first launch; older extracted installations do not support the Stop action. The browser may ask before opening either installed local action.
+After the initial setup, **`Start AI Training Lab.bat`** (also targeted by the optional Desktop shortcut) starts the background local server but does not automatically open a browser tab. The separate **`Open AI Lab.bat`** opens the Lab in the browser and starts the server if needed, reusing the same local Open action as the public dashboard's **Open AI Lab** button. The dashboard's **Stop Local Server** action stops the verified local Lab server without restarting it, after asking for confirmation if a Lab is running. The Open action opens an already responsive Lab, starts one if absent, and uses the existing confirmed replacement check only if needed. Dashboard buttons require the per-user URL protocols registered during local setup; the BAT launchers themselves do not need browser protocol registration.
 
 Starting with v2.0.27, the local API server runs **in the background**, so the startup CMD/PowerShell window may close while the Lab remains available. Open **Info → View API Logs** inside the Lab to see recent API activity and refresh it on demand. The local log is stored at `data/logs/api.log`, capped at approximately 512 KB per file plus two rotated backups; `data/logs/server-errors.log` records startup failures if any. Request bodies and URL query strings are excluded from the API log. These files stay on your computer. Use the public dashboard's **Stop Local Server** button to shut down the background server; closing the browser does not stop it.
 
@@ -102,9 +102,9 @@ the PyTorch training wizard.
 1. Extract the downloaded Windows ZIP (new releases use names such as `AI-Agents-Lab-Windows-v2.0.27.zip`) into a folder you control, for example `C:\Markellos-Ecosystem-AI-Agents-Lab`.
 2. Double-click **`Start AI Training Lab.bat`**.
 3. If Easy Start finds missing components, review each approval dialog. You can decline any step; the Lab will not start until its required local components are ready.
-4. After setup, the Lab starts automatically at **http://127.0.0.1:8765/**.
+4. After setup, the local server starts automatically at **http://127.0.0.1:8765/**. Open the address in your browser, or double-click **`Open AI Lab.bat`**.
 
-`Start AI Training Lab.bat` is the only Windows launcher. The separate `setup-training-environment.bat` prepares optional training dependencies but does not start the Lab or unlock fine-tuning.
+`Start AI Training Lab.bat` is the first-time setup and server launcher. `Open AI Lab.bat` is a convenient browser-opening launcher with the same Open behavior as the public dashboard. The separate `setup-training-environment.bat` prepares optional training dependencies but does not start the Lab or unlock fine-tuning.
 
 The server runs invisibly after startup: use **Stop Local Server** on the public dashboard to stop it. When starting
 a freshly extracted ZIP, the Windows launcher first checks port `8765`. If a

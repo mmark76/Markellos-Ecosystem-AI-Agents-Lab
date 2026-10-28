@@ -116,6 +116,20 @@ test('Easy Start is packaged, readiness-first, and requires explicit approval fo
     assert.doesNotMatch(easyStart,new RegExp(forbidden));
   }
 });
+test('Open AI Lab BAT is packaged and reuses the dashboard Open action without duplicating server startup',()=>{
+  const root=path.resolve(__dirname,'..');
+  const open=fs.readFileSync(path.join(root,'Open AI Lab.bat'),'utf8');
+  const handler=fs.readFileSync(path.join(root,'scripts','launch-from-dashboard.ps1'),'utf8');
+  const packager=fs.readFileSync(path.join(root,'scripts','build-release.cjs'),'utf8');
+  const verifier=fs.readFileSync(path.join(root,'scripts','verify-release.cjs'),'utf8');
+  assert.match(open,/cd \/d "%~dp0"/);
+  assert.match(open,/powershell\.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\\launch-from-dashboard\.ps1" -Action Open/);
+  assert.match(open,/if errorlevel 1 \(/);
+  assert.doesNotMatch(open,/server\.py|-Action (?:Stop|Refresh)|https?:\/\//);
+  assert.match(handler,/if \(\$Action -eq 'Open'\) \{ Start-Process \$localUrl \}/);
+  assert.match(packager,/'Open AI Lab\.bat'/);
+  assert.match(verifier,/Open AI Lab\.bat/);
+});
 test('first-run setup remembers the optional shortcut choice and leaves dashboard protocols independent',()=>{
   const root=path.resolve(__dirname,'..');
   const launcher=fs.readFileSync(path.join(root,'Start AI Training Lab.bat'),'utf8');

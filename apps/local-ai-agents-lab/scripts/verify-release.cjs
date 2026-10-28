@@ -16,6 +16,10 @@ function verify(dir,expectedSha){
   const version=fs.readFileSync(path.join(dir,'VERSION'),'utf8').trim();
   if(version!==manifest.version)throw Error('Package VERSION mismatch');
   if(fs.existsSync(path.join(dir,'data')))throw Error('Runtime data bundled');
+  const openBat=path.join(dir,'Open AI Lab.bat');
+  if(!fs.existsSync(openBat)||
+      !/launch-from-dashboard\.ps1" -Action Open/.test(fs.readFileSync(openBat,'utf8')))
+    throw Error('Open AI Lab BAT missing or not wired to the local Open action');
   for(const role of [
     "conference-strategist","conference-analyst","conference-engineer",
     "training-tutor","training-student","training-evaluator","training-improver",

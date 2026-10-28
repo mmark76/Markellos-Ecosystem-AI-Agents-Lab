@@ -4,6 +4,10 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 
 ## [Unreleased]
 
+### Added
+
+- Include `Open AI Lab.bat` inside future Windows ZIPs. It reuses the public dashboard's local Open action: start the server if absent, then open the Lab in the browser. `Start AI Training Lab.bat` remains the setup/server launcher.
+
 ### Changed
 
 - Make all text in the featured v2.0.27 BETA download button red, with readable shades for dark and light modes; preserve channel assignments and download links.

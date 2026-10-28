@@ -1,5 +1,23 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-112
+
+```text
+Change ID: AI-LAB-CC-112
+Requested by: User
+Date: 2026-10-28
+Description: Add a small Open AI Lab.bat beside Start AI Training Lab.bat in the extracted Windows Lab folder, matching the public Quick Start/Open action: open the browser, starting the local server first if needed.
+Reason: Clarify that Start is the local server launcher while Open launches the browser-based Lab; users should have both actions directly in the folder.
+Affected objective IDs: AI-LAB-OBJ-012, AI-LAB-OBJ-003
+Architecture impact: New thin Windows BAT wrapper around the existing bounded, local launch-from-dashboard.ps1 Open action; explicit Windows release packaging and regression tests.
+Security and data impact: No new endpoint, protocol registration, automatic installation, exposed listener, model change, or SQLite modification. Existing local server-ownership confirmation is reused.
+Testing impact: Node source/package regression and Windows-specific BAT dispatch test; next published ZIP still requires independent release verification.
+Cost and schedule impact: No new binary published with this change; an owner-approved version bump and separate Windows ZIP publication are needed to distribute this entry point.
+Decision: APPROVED (SEPARATE OPEN BAT)
+Approved by: Owner's direct request on 2026-10-28.
+Target release: Next owner-approved Windows ZIP; current v2.0.27 BETA and v2.0.26 STABLE assets remain unchanged.
+```
+
 ## Approved change record — AI-LAB-CC-111
 
 ```text
