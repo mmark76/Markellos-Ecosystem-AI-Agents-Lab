@@ -1,5 +1,23 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-108
+
+```text
+Change ID: AI-LAB-CC-108
+Requested by: User
+Date: 2026-10-28
+Description: Move the existing First setup (Easy Start) instruction into the highlighted hero notice above the download buttons, replacing the verbose Choose a stable release paragraph, and remove the repeated helper below the buttons.
+Reason: Prioritize the actionable first-installation instruction while stable designations remain explicit in the two download buttons.
+Affected objective IDs: AI-LAB-OBJ-001, AI-LAB-OBJ-003, AI-LAB-OBJ-012
+Architecture impact: Public static landing HTML layout and regression assertion only; remove now-unused helper CSS selector.
+Security and data impact: None. No changes to versions, ZIP downloads, local custom URI handlers, APIs, dependencies, or stored data.
+Testing impact: Assert one Easy Start notice above the actions, no old copy, stable download buttons unchanged, and normal landing build/CI.
+Cost and schedule impact: Existing GitHub CI and Cloudflare Pages deployment; no new Windows ZIP.
+Decision: APPROVED (FIRST-SETUP HERO PRIORITY)
+Approved by: Owner's direct request on 2026-10-28.
+Target release: Public landing-only layout/copy update.
+```
+
 ## Approved change record — AI-LAB-CC-107
 
 ```text
