@@ -33,15 +33,14 @@ if errorlevel 1 echo Warning: Desktop shortcut preference could not be applied.
 echo ==========================================
 echo AI Training Lab v%LAB_VERSION%
 echo Open: http://127.0.0.1:8765/
-echo Close this window or press Ctrl+C to stop.
+echo Starting local server in the background.
 echo ==========================================
-where py >nul 2>&1
-if exist "%~dp0.openai-connection-venv\Scripts\python.exe" (
-  "%~dp0.openai-connection-venv\Scripts\python.exe" "%~dp0server.py"
-) else if %errorlevel%==0 (
-  py -3 "%~dp0server.py"
-) else (
-  python "%~dp0server.py"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\start-background-server.ps1" -LabRoot "%~dp0."
+if errorlevel 1 (
+  echo The local server was not started. Review the message above.
+  pause
+  exit /b 1
 )
-pause
+echo The server is running without an open CMD window.
 endlocal
+exit /b 0
