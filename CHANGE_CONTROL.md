@@ -1,5 +1,23 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-116
+
+```text
+Change ID: AI-LAB-CC-116
+Requested by: User
+Date: 2026-10-28
+Description: Merge the already tested optional Windows training setup result popup, release a new Windows ZIP v2.0.29 as BETA, and update the public BETA download channel; keep v2.0.26 designated STABLE.
+Reason: The owner explicitly authorized publication after review of the success/cancel/failure popup, preserving the existing stable installer.
+Affected objective IDs: AI-LAB-OBJ-003, AI-LAB-OBJ-006, AI-LAB-OBJ-012
+Architecture impact: Advance Local Lab release version and Windows ZIP packaging; add the already reviewed optional setup result dialog to the new release only. The public channel pin will be updated separately after ZIP verification.
+Security and data impact: Existing releases remain immutable; no network endpoint or local server behavior changed by the popup.
+Testing impact: Release source/package tests, Windows CI PowerShell syntax/launcher tests, GitHub Actions release asset verification and public landing channel tests. A manual Windows interaction smoke test is still recommended.
+Cost and schedule impact: Existing GitHub Actions and Pages release workflows; additional BETA ZIP v2.0.29 only.
+Decision: APPROVED (MERGE / V2.0.29 BETA / V2.0.26 STABLE)
+Approved by: Owner's direct instruction to proceed on 2026-10-28.
+Target release: v2.0.29 Windows BETA ZIP, then public landing update.
+```
+
 ## Approved change record — AI-LAB-CC-115
 
 ```text
