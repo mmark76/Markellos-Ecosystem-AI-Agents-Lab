@@ -30,7 +30,7 @@ The build injects **independent version values** for the current Local Lab sourc
 
 ## Installation guidance
 
-The public page states: **First setup (Easy Start):** After extracting the ZIP, run `Start AI Training Lab.bat`. The left action **Stop Local Server** invokes the dedicated per-user stop-only handler available from v2.0.26, with confirmation before terminating a recognized Lab process; it never restarts the server or stops Ollama. The right **Open AI Lab** action is unchanged and opens or starts the Lab as needed. Both require that initial setup in the latest extracted folder.
+The highlighted notice immediately below the page title states: **First setup (Easy Start):** After extracting the ZIP, run `Start AI Training Lab.bat`. It replaces the former lengthy stable-version explanation, since both stable version labels remain clearly visible on their download buttons. The left action **Stop Local Server** invokes the dedicated per-user stop-only handler available from v2.0.26, with confirmation before terminating a recognized Lab process; it never restarts the server or stops Ollama. The right **Open AI Lab** action is unchanged and opens or starts the Lab as needed. Both require that initial setup in the latest extracted folder.
 
 The landing page links only to the official download pages for the required Windows prerequisites:
 

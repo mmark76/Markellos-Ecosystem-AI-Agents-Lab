@@ -50,7 +50,11 @@ test('build truthfully presents the current public state of the Local Lab', () =
     assert.match(release.url, new RegExp(`/releases/v${release.version.replaceAll('.', '\\.')}/AI-Agents-Lab-Windows\\.zip$`));
     assert.match(release.sha256, /^[a-f0-9]{64}$/);
   }
-  assert.ok(html.includes(`<p class="shell-notice"><strong>Choose a stable release:</strong> v${currentStable.version} is the current owner-approved STABLE version. v${previousStable.version} is the previous STABLE version with an older feature set. No BETA is currently designated.</p>`));
+  const easyStartNotice = '<p class="shell-notice"><strong>First setup (Easy Start):</strong> After extracting the ZIP, run <code>Start AI Training Lab.bat</code>.</p>';
+  assert.ok(html.includes(easyStartNotice), 'First setup must appear in the highlighted notice');
+  assert.ok(html.indexOf(easyStartNotice) < html.indexOf('class="hero-actions"'), 'First setup must appear above the download buttons');
+  assert.equal((html.match(/First setup \(Easy Start\):/g) || []).length, 1, 'Do not duplicate the Easy Start notice');
+  assert.doesNotMatch(html, /Choose a stable release:/);
   assert.doesNotMatch(html, /available without GitHub sign-in/);
   assert.doesNotMatch(html, /Download access note|private GitHub repository.*authorized GitHub access/);
   const expectedGitHubFallback = `https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v${currentStable.version}/${currentStable.assetName || 'AI-Agents-Lab-Windows.zip'}`;
