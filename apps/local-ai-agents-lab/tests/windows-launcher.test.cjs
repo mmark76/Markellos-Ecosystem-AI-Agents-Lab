@@ -158,6 +158,7 @@ test('background launcher leaves a reachable Python server running after PowerSh
     const scripts=path.join(root,'scripts');
     const serverPath=path.join(root,'server.py');
     let failure;
+    let childPid=0;
     try{
       fs.mkdirSync(scripts,{recursive:true});
       fs.copyFileSync(path.join(sourceRoot,'scripts','start-background-server.ps1'),path.join(scripts,'start-background-server.ps1'));
@@ -176,6 +177,8 @@ test('background launcher leaves a reachable Python server running after PowerSh
         output=execFileSync('powershell.exe',['-NoProfile','-ExecutionPolicy','Bypass','-File',
           path.join(scripts,'start-background-server.ps1'),'-LabRoot',root],{encoding:'utf8',timeout:15000});
       }catch(error){
+        const started=String(error.stdout||'').match(/background \(PID (\d+)\)/);
+        if(started)childPid=Number(started[1]);
         let service='unreachable';
         try{
           const response=await fetch('http://127.0.0.1:8765/',{signal:AbortSignal.timeout(2000)});
@@ -185,6 +188,7 @@ test('background launcher leaves a reachable Python server running after PowerSh
       }
       const match=output.match(/background \(PID (\d+)\)/);
       assert.ok(match,'The launcher must report the detached Python server PID');
+      childPid=Number(match[1]);
       const response=await fetch('http://127.0.0.1:8765/',{signal:AbortSignal.timeout(3000)});
       assert.equal(response.status,200);
       assert.equal(await response.text(),'BACKGROUND_OK');
@@ -192,17 +196,10 @@ test('background launcher leaves a reachable Python server running after PowerSh
       failure=error;
     }finally{
       try{
-        const quoted=serverPath.replaceAll("'","''");
-        const ps=[
-          '$owners = @(Get-NetTCPConnection -LocalPort 8765 -State Listen -ErrorAction SilentlyContinue)',
-          'foreach ($owner in $owners) {',
-          '  $p=Get-CimInstance Win32_Process -Filter "ProcessId=$($owner.OwningProcess)"',
-          `  if($p -and $p.CommandLine -and $p.CommandLine.Contains('${quoted}')) { $p.ProcessId }`,
-          '}'
-        ].join('\n');
-        const id=Number(execFileSync('powershell.exe',['-NoProfile','-Command',ps],{encoding:'utf8',timeout:15000}).trim());
-        if(id){
-          try{process.kill(id);}catch(error){if(error.code!=='ESRCH')throw error;}
+        // The launcher itself verified this returned PID owns the fixture's
+        // loopback listener, so it is the only process this test may stop.
+        if(childPid){
+          try{process.kill(childPid);}catch(error){if(error.code!=='ESRCH')throw error;}
           await new Promise(resolve=>setTimeout(resolve,1000));
         }
         fs.rmSync(root,{recursive:true,force:true,maxRetries:10,retryDelay:300});
