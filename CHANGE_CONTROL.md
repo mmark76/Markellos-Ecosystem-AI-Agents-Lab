@@ -1,5 +1,24 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-102
+
+```text
+Change ID: AI-LAB-CC-102
+Requested by: User
+Date: 2026-10-28
+Description: Feature the already published and independently checksum-verified v2.0.25 Windows GitHub release on the public AI Lab landing page, retaining v2.0.24 and all earlier ZIPs in the archive.
+Reason: PR #205 published the v2.0.25 Windows ZIP but the independent landing-page BETA manifest still featured v2.0.24.
+Affected objective IDs: AI-LAB-OBJ-001, AI-LAB-OBJ-003
+Architecture impact: Update the verified GitHub BETA manifest and descriptive landing documentation only; preserve the existing independent Cloudflare R2 history and static-site build process.
+Security and privacy impact: Official GitHub Release ZIP only, with asset SHA-256 independently verified; no new API, tracking, service, account, or Local Lab data exposure.
+Data impact: None; no Local Lab or SQLite changes.
+Testing impact: Landing-page build and regression tests, generated download URL/version/checksum inspection, and live Pages deployment verification where available.
+Cost and schedule impact: Existing GitHub PR validation and Cloudflare Pages workflow; no new dependencies.
+Decision: APPROVED (FEATURED BETA UPDATE)
+Approved by: Direct user request on 2026-10-28.
+Target release: Next reviewed public Cloudflare Pages deployment; no new Windows ZIP or Local Lab installation.
+```
+
 ## Approved change record — AI-LAB-CC-101
 
 ```text
