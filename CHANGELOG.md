@@ -6,6 +6,7 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 
 ### Changed
 
+- Pin the independently downloaded and checksum-verified v2.0.30 Windows ZIP as CURRENT BETA on the public landing page; preserve v2.0.26 CURRENT STABLE, archive v2.0.29, and explain the foreground server CMD keep-open behavior.
 - Pin the independently verified v2.0.29 Windows ZIP as CURRENT BETA while preserving v2.0.26 CURRENT STABLE and retaining v2.0.28 in the download archive; document the optional training-setup result popup.
 - Feature the independently checksum-verified v2.0.28 Windows BETA ZIP while preserving v2.0.26 STABLE; show the correct first-setup BAT filename for each release, with Open AI Lab.bat available only in v2.0.28 BETA.
 - Make all text in the featured BETA download button red, with readable shades for dark and light modes; preserve channel assignments and download links.
