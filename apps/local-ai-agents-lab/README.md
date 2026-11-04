@@ -1,6 +1,6 @@
 # Markellos Ecosystem AI Lab
 
-Version: v2.0.29 · Private local starter
+Version: v2.0.30 · Private local starter
 
 Local Windows application with five active workspaces:
 
@@ -22,7 +22,7 @@ For a first-time setup, extract the ZIP and double-click **`Start Local Server.b
 
 After the initial setup, **`Start Local Server.bat`** (also targeted by the optional Desktop shortcut) starts the local server in a visible CMD window but does not automatically open a browser tab. **Keep that window open while using the Lab; closing it stops the local server.** The separate **`Open AI Lab.bat`** opens the Lab in the browser and starts the server if needed, reusing the same local Open action as the public dashboard's **Open AI Lab** button. The dashboard's **Stop Local Server** action stops the verified local Lab server without restarting it, after asking for confirmation if a Lab is running. The Open action opens an already responsive Lab, starts one if absent, and uses the existing confirmed replacement check only if needed. Dashboard buttons require the per-user URL protocols registered during local setup; the BAT launchers themselves do not need browser protocol registration.
 
-The foreground server displays **SERVER RUNNING**, its local address, and an **IMPORTANT** message in the CMD window after it successfully binds to the loopback address. Keep this window running (you may minimize it), and close it when you have finished using the Lab. Closing the browser tab alone does not stop the server. You can also use the public dashboard's **Stop Local Server** action. Open **Info → View API Logs** inside the Lab to see recent API activity and refresh it on demand. The local log is stored at `data/logs/api.log`, capped at approximately 512 KB per file plus two rotated backups; `data/logs/server-errors.log` records startup failures if any. Request bodies and URL query strings are excluded from the API log. These files stay on your computer. Previously published v2.0.27–v2.0.29 ZIPs retain their background-server behavior; this console change takes effect only in a future Windows package.
+The foreground server displays **SERVER RUNNING**, its local address, and an **IMPORTANT** message in the CMD window after it successfully binds to the loopback address. Keep this window running (you may minimize it), and close it when you have finished using the Lab. Closing the browser tab alone does not stop the server. You can also use the public dashboard's **Stop Local Server** action. Open **Info → View API Logs** inside the Lab to see recent API activity and refresh it on demand. The local log is stored at `data/logs/api.log`, capped at approximately 512 KB per file plus two rotated backups; `data/logs/server-errors.log` records startup failures if any. Request bodies and URL query strings are excluded from the API log. These files stay on your computer. Published v2.0.27–v2.0.29 ZIPs retain their background-server behavior; the restored foreground console is included from v2.0.30 onward.
 
 It asks for a separate, explicit approval before it can:
 

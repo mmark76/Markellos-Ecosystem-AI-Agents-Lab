@@ -14,6 +14,12 @@ All notable AI Agents Lab changes are recorded here. `TEMPLATE_VERSION` records 
 - Display the existing Training Lab Student role as Student Alpha in the workflow, model guidance, session stages, and local history while preserving its canonical role identity and stored records.
 - Keep the Windows setup/server launcher separate from optional training setup. Add a first-run Desktop shortcut choice, version-labeled Windows setup and shortcut, and versioned future release ZIP filenames.
 
+## [2.0.30] - 2026-11-04
+
+### Changed
+
+- Restore a visible, foreground Windows local server with a StudyApp-style `SERVER RUNNING` address and keep-terminal-open notice. Closing the attached CMD window stops the Python server; the separate Ollama service and local SQLite data are unchanged.
+
 ## [2.0.29] - 2026-10-28
 
 ### Changed
