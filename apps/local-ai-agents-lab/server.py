@@ -866,6 +866,16 @@ def main():
     configure_api_logging()
     server = ThreadingHTTPServer((HOST, PORT), Handler)
     API_LOGGER.info("Local API server started on %s:%s", HOST, PORT)
+    print(
+        "AI TRAINING LAB LOCAL SERVER\n"
+        "SERVER RUNNING\n"
+        f"Local address: http://{HOST}:{PORT}/\n\n"
+        "IMPORTANT\n"
+        "This Terminal runs the AI Training Lab local server.\n"
+        "Closing this Terminal will stop the server and make the application unavailable.\n"
+        "Keep this Terminal running. You can minimize it, but do not close it.\n",
+        flush=True,
+    )
     try:
         server.serve_forever()
     except KeyboardInterrupt:

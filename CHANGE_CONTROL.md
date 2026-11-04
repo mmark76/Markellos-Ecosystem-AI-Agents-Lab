@@ -1,5 +1,23 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-118
+
+```text
+Change ID: AI-LAB-CC-118
+Requested by: User
+Date: 2026-11-04
+Description: Temporarily restore a visible, foreground Windows CMD server for AI Training Lab. Keep the terminal attached while the local Python server runs and show a StudyApp-style SERVER RUNNING address and IMPORTANT keep-terminal-open notice after the loopback port is bound.
+Reason: The owner wants users to see continuously that the local server is in use and to be able to close its window manually when finished. This supersedes the hidden-startup behavior of AI-LAB-CC-109 for the next package only; the bounded in-app API log viewer remains available.
+Affected objective IDs: AI-LAB-OBJ-003, AI-LAB-OBJ-012
+Architecture impact: Change only the Windows Start Local Server foreground launch path, add a narrow console Python runner, print a ready banner from the bound server, and package/test the new runner. Preserve Open/Stop protocol handling, consent-based Easy Start, fixed loopback, the API log viewer, and existing released ZIPs.
+Security and data impact: No new network endpoints, ports, secrets, setup permissions, model operations, data migration, or automatic server termination based on browser-tab events. Closing the attached terminal ends the Python process; it does not terminate the independent Ollama service.
+Testing impact: Static source and package regression; Windows PowerShell parser and foreground child-process lifetime tests; final clean Windows close-terminal/port-release smoke test still required before a ZIP release.
+Cost and schedule impact: No automatic ZIP publication, version bump, STABLE/BETA channel update, production deployment, or laptop installation.
+Decision: APPROVED (FOREGROUND SERVER CONSOLE + KEEP-OPEN NOTICE)
+Approved by: Owner's direct request on 2026-11-04.
+Target release: Next separately approved Windows package; existing v2.0.26 STABLE and v2.0.29 BETA downloads remain unchanged.
+```
+
 ## Approved change record — AI-LAB-CC-117
 
 ```text

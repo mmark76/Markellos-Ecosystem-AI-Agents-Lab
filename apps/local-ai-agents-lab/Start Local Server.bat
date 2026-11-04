@@ -32,16 +32,13 @@ if errorlevel 1 echo Warning: Dashboard launch actions could not be registered.
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\create-desktop-shortcut.ps1" -LabRoot "%~dp0."
 if errorlevel 1 echo Warning: Desktop shortcut preference could not be applied.
 echo ==========================================
-echo AI Training Lab v%LAB_VERSION%
-echo Open: http://127.0.0.1:8765/
-echo Starting local server in the background.
+echo Starting AI Training Lab v%LAB_VERSION% local server...
 echo ==========================================
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\start-background-server.ps1" -LabRoot "%~dp0."
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\start-console-server.ps1" -LabRoot "%~dp0."
 if errorlevel 1 (
-  echo The local server was not started. Review the message above.
+  echo The local server has stopped. Review any error above if this was unexpected.
   pause
   exit /b 1
 )
-echo The server is running without an open CMD window.
 endlocal
 exit /b 0
