@@ -1,5 +1,23 @@
 # Change Control
 
+## Approved change record — AI-LAB-CC-119
+
+```text
+Change ID: AI-LAB-CC-119
+Requested by: User
+Date: 2026-11-04
+Description: Merge the reviewed foreground-console change, release a new Windows ZIP v2.0.30 BETA, and subsequently deploy the independently verified ZIP link on the public landing page. Retain v2.0.26 as CURRENT STABLE and archive the previous v2.0.29 BETA.
+Reason: The owner explicitly authorized merge, deployment and a new ZIP after confirming that users should see an active server and close its attached CMD window manually.
+Affected objective IDs: AI-LAB-OBJ-001, AI-LAB-OBJ-003, AI-LAB-OBJ-012
+Architecture impact: Local version increment and release documentation only in this step. The existing version-bump GitHub Actions workflow creates the versioned ZIP from the merged commit; the public BETA pin and snapshot are updated only after independent SHA-256 and ZIP content verification.
+Security and data impact: Local-only loopback, user-controlled runtime, Ollama service and SQLite files are preserved. Published STABLE and historical releases are not overwritten. No automatic laptop installation or data migration.
+Testing impact: Passed PR #220 Ubuntu and Windows CI, versioned package regression, GitHub release-workflow verification, independent ZIP download/hash/content check, and public Pages validation after channel promotion. A hands-on Windows CMD-close/port-release smoke test remains recommended and must be reported explicitly if unavailable.
+Cost and schedule impact: One BETA GitHub release and automatic Cloudflare Pages deployment after the subsequent reviewed landing change; no STABLE promotion.
+Decision: APPROVED (MERGE / V2.0.30 BETA / PUBLIC BETA LINK AFTER ZIP VERIFICATION)
+Approved by: Owner's direct request on 2026-11-04 to proceed with merge, deploy, and release new ZIP.
+Target release: v2.0.30 Windows BETA followed by a separate public landing change.
+```
+
 ## Approved change record — AI-LAB-CC-118
 
 ```text
