@@ -67,6 +67,13 @@ function writeFixture(root){
     '[System.IO.File]::WriteAllLines((Join-Path $PSScriptRoot "..\\background-paths.txt"), @($LabRoot, $normalized), $encoding)',
     'exit 0'
   ].join('\r\n')+'\r\n',{encoding:'utf8'});
+  fs.writeFileSync(path.join(root,'scripts','start-console-server.ps1'),[
+    'param([string]$LabRoot)',
+    '$normalized = [System.IO.Path]::GetFullPath($LabRoot)',
+    '$encoding = [System.Text.UTF8Encoding]::new($false)',
+    '[System.IO.File]::WriteAllLines((Join-Path $PSScriptRoot "..\\console-paths.txt"), @($LabRoot, $normalized), $encoding)',
+    'exit 0'
+  ].join('\r\n')+'\r\n',{encoding:'utf8'});
 }
 
 function readPaths(root,file){
@@ -103,9 +110,9 @@ test('Windows launcher passes a non-trailing LabRoot to every setup and integrat
         assert.equal(shortcut[1],expected);
         assert.match(protocols[0],/\\\.$/);
         assert.equal(protocols[1],expected);
-        const background=readPaths(root,'background-paths.txt');
-        assert.match(background[0],/\\\.$/);
-        assert.equal(background[1],expected);
+        const consolePaths=readPaths(root,'console-paths.txt');
+        assert.match(consolePaths[0],/\\\.$/);
+        assert.equal(consolePaths[1],expected);
       }
     } finally {
       fs.rmSync(workspace,{recursive:true,force:true});
@@ -117,7 +124,7 @@ test('Windows PowerShell setup scripts parse and read the packaged release versi
     const files=[
       'get-lab-version.ps1','easy-start.ps1','finish-setup.ps1',
       'create-desktop-shortcut.ps1','register-dashboard-protocols.ps1','launch-from-dashboard.ps1',
-      'prepare-local-server.ps1','start-background-server.ps1','setup-training.ps1',
+      'prepare-local-server.ps1','start-background-server.ps1','start-console-server.ps1','setup-training.ps1',
       'show-training-setup-result.ps1'
     ].map(name=>path.join(sourceRoot,'scripts',name));
     const quote=value=>value.replaceAll("'","''");
@@ -148,6 +155,29 @@ test('Open AI Lab BAT passes Open to the local dashboard handler even in spaced 
       assert.equal(fs.readFileSync(path.join(root,'opened.txt'),'utf8'),'Open');
     }finally{
       fs.rmSync(workspace,{recursive:true,force:true});
+    }
+  });
+
+test('foreground console runner waits for the Python server to exit',
+  {skip:process.platform!=='win32'},()=>{
+    const root=fs.mkdtempSync(path.join(os.tmpdir(),'ai-lab-foreground-'));
+    try{
+      fs.mkdirSync(path.join(root,'scripts'),{recursive:true});
+      fs.copyFileSync(path.join(sourceRoot,'scripts','start-console-server.ps1'),path.join(root,'scripts','start-console-server.ps1'));
+      fs.writeFileSync(path.join(root,'server.py'),[
+        'import time',
+        'print("FOREGROUND_READY", flush=True)',
+        'time.sleep(1.2)',
+        'print("FOREGROUND_STOPPED", flush=True)'
+      ].join('\n')+'\n',{encoding:'utf8'});
+      const started=Date.now();
+      const output=execFileSync('powershell.exe',['-NoProfile','-ExecutionPolicy','Bypass','-File',
+        path.join(root,'scripts','start-console-server.ps1'),'-LabRoot',root],
+        {encoding:'utf8',timeout:10000});
+      assert.match(output,/FOREGROUND_READY[\s\S]*FOREGROUND_STOPPED/);
+      assert.ok(Date.now()-started>=900,'PowerShell must wait for Python instead of detaching it');
+    }finally{
+      fs.rmSync(root,{recursive:true,force:true});
     }
   });
 

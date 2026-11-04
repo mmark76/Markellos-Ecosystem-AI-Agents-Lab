@@ -7,6 +7,7 @@ The repository maintainer owns local installation guidance, public landing-page 
 ## Local Lab
 
 - Run only on an owner-controlled Windows device and loopback interface.
+- In the next foreground-console Windows package, keep the Start Local Server CMD window open while using the Lab. Closing it stops the attached Python server; closing a browser tab alone does not. The dashboard's verified Stop action remains available. Check that port 8765 is free before copying local data or upgrading. Existing published background-server ZIPs retain their original behavior.
 - Stop the server before copying, restoring, or deleting the SQLite database.
 - Preserve `data/` during a package upgrade; it is excluded from Git and release artifacts.
 - Roll back by restoring the previous verified local package and local data backup.
