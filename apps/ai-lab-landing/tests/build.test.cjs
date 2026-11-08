@@ -172,12 +172,12 @@ test('build truthfully presents the current public state of the Local Lab', () =
     assert.ok(betaSection.includes('data-zip-sha256="' + release.sha256 + '"'));
   }
   assert.equal(channels.currentStableGithubVersion, '2.0.26', 'the approved STABLE channel must be pinned independently of GitHub release order');
-  assert.equal(channels.currentBetaGithubVersion, '2.0.30', 'the approved BETA channel must be pinned independently of GitHub release order');
+  assert.equal(channels.currentBetaGithubVersion, '2.0.31', 'the approved BETA channel must be pinned independently of GitHub release order');
   assert.equal(channels.previousStableR2Version, '2.0.16', 'preserve the owner-approved previous STABLE');
   assert.equal(currentStable.sha256, '32639b2c8da3df5ac0c3e0ffb078c5f3aafa5ba160187d9e6731393a42878584');
   assert.equal(currentStable.assetName, 'AI-Agents-Lab-Windows-v2.0.26.zip');
-  assert.equal(currentBeta.sha256, '0c63146f80f8895c1906389356cca12e457fa6f8b0a028326c147acfd529a6f7');
-  assert.equal(currentBeta.assetName, 'AI-Agents-Lab-Windows-v2.0.30.zip');
+  assert.equal(currentBeta.sha256, '32f489df045512b696beb1594b48fe2da74dd7b7bf458544ec893abca47b81fb');
+  assert.equal(currentBeta.assetName, 'AI-Agents-Lab-Windows-v2.0.31.zip');
   assert.ok(betaDistribution.releases.some(release => release.version === '2.0.29' && release.sha256 === 'fdf47120dd73fdf8f3242723a7ae573be7b8cfbe0585c19837fd8f1975d6fe2f'), 'retain the previous BETA release in the archive');
   assert.ok(betaDistribution.releases.some(release => release.version === '2.0.27' && release.sha256 === 'bb86e96de628a5c4e4b0bd8e10792281c846138e8edda12ee74f5790694827c4'), 'retain the previous BETA release in the archive');
   assert.notEqual(currentStable.version, currentBeta.version, 'STABLE and BETA cannot designate the same ZIP');
@@ -252,9 +252,9 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(guide, /Start AI Training Lab\.bat/);
   assert.match(guide, /Start Local Server\.bat/);
   assert.match(guide, /Open AI Lab\.bat/);
-  assert.match(guide, /<strong>BETA v2\.0\.30 server window:<\/strong> Keep the visible CMD\/Terminal window running/);
+  assert.match(guide, /<strong>BETA v2\.0\.31 server window:<\/strong> Keep the visible CMD\/Terminal window running/);
   assert.match(guide, /Closing only the browser tab does not stop the server; Ollama runs separately/);
-  assert.doesNotMatch(guide, /BETA v2\.0\.30[^<]*background/);
+  assert.doesNotMatch(guide, /BETA v2\.0\.31[^<]*background/);
   assert.match(guide, /requests separate approval before installing missing components or the initial local model/);
   assert.doesNotMatch(guide, /You do not need a GitHub account/);
   assert.match(guide, /Conference Room - available/);
@@ -313,7 +313,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.match(technical, /Start AI Training Lab\.bat/);
   assert.match(technical, /Start Local Server\.bat/);
   assert.match(technical, /Open AI Lab\.bat/);
-  assert.match(technical, /BETA v2\.0\.30 the local Python server runs in a \*\*visible CMD window\*\*/);
+  assert.match(technical, /BETA v2\.0\.31 the local Python server runs in a \*\*visible CMD window\*\*/);
   assert.match(technical, /Closing only the browser tab does not stop the server/);
   assert.doesNotMatch(technical, /Start AI Agents Lab\.bat/);
   assert.match(technical, /Technical README/);
