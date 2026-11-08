@@ -206,7 +206,7 @@ test('dashboard Stop calls only the bounded local stop preflight, without starti
 
 test('background launcher leaves a reachable Python server running after PowerShell exits',
   {skip:process.platform!=='win32'},async()=>{
-    const root=fs.mkdtempSync(path.join(os.tmpdir(),'ai-lab-background-'));
+    const root=fs.realpathSync.native(fs.mkdtempSync(path.join(os.tmpdir(),'ai-lab-background-')));
     const scripts=path.join(root,'scripts');
     const serverPath=path.join(root,'server.py');
     let failure;
@@ -263,7 +263,7 @@ test('background launcher leaves a reachable Python server running after PowerSh
         // loopback listener, so it is the only process this test may stop.
         if(childPid){
           const quoted=serverPath.replaceAll("'","''");
-          const check=`$p=Get-CimInstance Win32_Process -Filter "ProcessId=${childPid}"; if ($p -and $p.Name -eq 'python.exe' -and $p.CommandLine.Contains('${quoted}')) { Stop-Process -Id ${childPid} -Force -ErrorAction Stop } elseif ($p) { throw 'Fixture process identity changed' }`;
+          const check=`$p=Get-CimInstance Win32_Process -Filter "ProcessId=${childPid}"; if ($p -and $p.Name -eq 'python.exe' -and $p.CommandLine.IndexOf('${quoted}', [StringComparison]::OrdinalIgnoreCase) -ge 0) { Stop-Process -Id ${childPid} -Force -ErrorAction Stop } elseif ($p) { throw 'Fixture process identity changed' }`;
           execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-Command',check],{encoding:'utf8',timeout:10000});
           await new Promise(resolve=>setTimeout(resolve,1000));
         }
