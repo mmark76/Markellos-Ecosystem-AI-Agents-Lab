@@ -23,6 +23,7 @@ class StartupSessionTests(unittest.TestCase):
         events = []
         fake.serve_forever.side_effect = lambda: events.append("serve")
         with patch.object(campus, "initialize"), patch.object(campus, "configure_api_logging"), \
+             patch.object(campus, "DB_PATH", Path("synthetic") / "data.sqlite3"), \
              patch.object(campus, "bind_server", return_value=fake), \
              patch.object(campus.OPENAI_CONNECTION, "reset_on_server_start", side_effect=lambda: events.append("reset")), \
              patch.object(campus, "publish_state", side_effect=lambda *args: events.append("publish")):
@@ -42,6 +43,7 @@ class StartupSessionTests(unittest.TestCase):
         fake = MagicMock()
         fake.server_address = ("127.0.0.1", 44555)
         with patch.object(campus, "initialize"), patch.object(campus, "configure_api_logging"), \
+             patch.object(campus, "DB_PATH", Path("synthetic") / "data.sqlite3"), \
              patch.object(campus, "bind_server", return_value=fake), \
              patch.object(campus.OPENAI_CONNECTION, "reset_on_server_start", side_effect=campus.OpenAIConnectionError("failed")), \
              patch.object(campus, "publish_state") as publish:
