@@ -11,8 +11,9 @@ function Test-LocalLab {
         $localUrl = Get-LocalLabUrl -LabRoot $root
         if (-not $localUrl) { return $false }
         $response = Invoke-WebRequest -UseBasicParsing -Uri $localUrl -TimeoutSec 2
-        return $response.StatusCode -eq 200 -and $response.Content -match 'AI Lab'
-    } catch { return $false }
+        if ($response.StatusCode -eq 200 -and $response.Content -match 'AI Lab') { return $localUrl }
+        return $null
+    } catch { return $null }
 }
 if (-not (Test-Path -LiteralPath $launcher -PathType Leaf)) { exit 1 }
 if ($Action -eq 'Stop') {
@@ -23,17 +24,17 @@ if ($Action -eq 'Stop') {
 }
 . (Join-Path $PSScriptRoot 'prepare-local-server.ps1') -PolicyOnly
 . (Join-Path $PSScriptRoot 'get-local-lab-url.ps1')
-if ($Action -eq 'Refresh' -or -not (Test-LocalLab)) {
+$localUrl = if ($Action -ne 'Refresh') { Test-LocalLab } else { $null }
+if ($Action -eq 'Refresh' -or -not $localUrl) {
     Start-Process -FilePath $launcher -WorkingDirectory $root
     for ($attempt = 0; $attempt -lt 240; $attempt++) {
         Start-Sleep -Seconds 1
-        if (Test-LocalLab) { break }
+        $localUrl = Test-LocalLab
+        if ($localUrl) { break }
     }
 }
-if (Test-LocalLab) {
+if ($localUrl) {
     if ($Action -eq 'Open') {
-        $localUrl = Get-LocalLabUrl -LabRoot $root
-        if (-not $localUrl) { exit 1 }
         Start-Process $localUrl
     }
     exit 0

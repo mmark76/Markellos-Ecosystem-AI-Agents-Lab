@@ -1,3 +1,5 @@
+. (Join-Path $PSScriptRoot 'get-local-listeners.ps1')
+
 function Get-LocalLabUrl {
     param([Parameter(Mandatory = $true)][string]$LabRoot)
     try {
@@ -10,7 +12,7 @@ function Get-LocalLabUrl {
         if (-not [int]::TryParse("$($state.port)", [ref]$port) -or $port -lt 1 -or $port -gt 65535) { return $null }
         if (-not [int]::TryParse("$($state.pid)", [ref]$serverPid) -or $serverPid -lt 1) { return $null }
         if ("$($state.nonce)" -notmatch '^[0-9a-f]{32}$') { return $null }
-        $listeners = @(Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction Stop)
+        $listeners = @(Get-LocalListeners -Port $port)
         if ($listeners.Count -ne 1 -or $listeners[0].LocalAddress -ne '127.0.0.1' -or [int]$listeners[0].OwningProcess -ne $serverPid) { return $null }
         $process = Get-CimInstance Win32_Process -Filter "ProcessId=$serverPid" -ErrorAction Stop
         if (-not $process) { return $null }

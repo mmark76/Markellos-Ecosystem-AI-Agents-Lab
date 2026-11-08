@@ -53,6 +53,11 @@ chosen, without deleting shortcuts belonging to older folders. Independently,
 handlers for the current Windows user. The launcher then starts the loopback
 Lab. Neither local action requires administrator privileges or a network call.
 
+The Windows launchers inspect the operating system's IPv4 and IPv6 TCP listener
+ownership table directly. They still verify the listener PID and Lab script
+identity, and recheck ownership and process identity before an approved stop.
+If ownership cannot be inspected, no process is stopped.
+
 Source and package tests inspect fixed IDs, loopback URLs, approvals,
 conditional shortcut creation, and packaged files. A clean Windows smoke test,
 including keyboard and display-scaling review, remains required before release.

@@ -16,7 +16,7 @@ function verify(dir,expectedSha){
   const version=fs.readFileSync(path.join(dir,'VERSION'),'utf8').trim();
   if(version!==manifest.version)throw Error('Package VERSION mismatch');
   if(fs.existsSync(path.join(dir,'data')))throw Error('Runtime data bundled');
-  for(const file of ['local_runtime.py','scripts/get-local-lab-url.ps1']){
+  for(const file of ['local_runtime.py','scripts/get-local-lab-url.ps1','scripts/get-local-listeners.ps1']){
     if(!fs.existsSync(path.join(dir,file)))throw Error('Missing local runtime file: '+file);
   }
   const openBat=path.join(dir,'Open AI Lab.bat');
