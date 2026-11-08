@@ -23,5 +23,13 @@ jobs:
         run: |
           node --check apps/ai-lab-landing/build.cjs
           node --test apps/ai-lab-landing/tests/build.test.cjs
+      - name: Verify published beta ZIP checksum
+        run: |
+          version="$(node -p "require('./apps/ai-lab-landing/release-channels.json').currentBetaGithubVersion")"
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          digest="$(BETA_VERSION="$version" node -p "require('./apps/ai-lab-landing/github-beta-releases.json').releases.find(x => x.version === process.env.BETA_VERSION).sha256")"
+          [[ "$digest" =~ ^[a-f0-9]{64}$ ]]
+          curl --fail --location --silent --show-error --output "$RUNNER_TEMP/ai-lab-beta.zip" "https://github.com/mmark76/Markellos-Ecosystem-AI-Agents-Lab/releases/download/v$version/AI-Agents-Lab-Windows-v$version.zip"
+          echo "$digest  $RUNNER_TEMP/ai-lab-beta.zip" | sha256sum -c -
       - name: Build commit artifact
         run: node scripts/build-site.cjs HEAD "$RUNNER_TEMP/framework-site"
