@@ -1,6 +1,6 @@
 # Markellos Ecosystem AI Lab
 
-Version: v2.0.33 · Private local starter
+Version: v2.0.34 · Private local starter
 
 Local Windows application with five active workspaces:
 
