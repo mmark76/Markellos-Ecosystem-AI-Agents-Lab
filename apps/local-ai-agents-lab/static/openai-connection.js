@@ -121,6 +121,8 @@ chatgptConnect.addEventListener('click', async () => {
 
 chatgptSetup.addEventListener('click', async () => {
   chatgptSetup.disabled = true;
+  chatgptSetup.textContent = 'Preparing…';
+  chatgptMessage('Preparing…');
   try {
     const result = await chatgptRequest('/api/openai/connection/setup', {
       method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({confirmSetup: true}),
@@ -130,6 +132,7 @@ chatgptSetup.addEventListener('click', async () => {
   } catch (error) {
     chatgptMessage(error.message, true);
   } finally {
+    chatgptSetup.textContent = 'Prepare connection';
     chatgptSetup.disabled = false;
   }
 });
