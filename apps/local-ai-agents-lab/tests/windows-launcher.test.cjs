@@ -124,7 +124,7 @@ test('Windows PowerShell setup scripts parse and read the packaged release versi
     const files=[
       'get-lab-version.ps1','easy-start.ps1','finish-setup.ps1',
       'create-desktop-shortcut.ps1','register-dashboard-protocols.ps1','launch-from-dashboard.ps1',
-      'prepare-local-server.ps1','get-local-lab-url.ps1','start-background-server.ps1','start-console-server.ps1','setup-training.ps1',
+      'prepare-local-server.ps1','get-local-lab-url.ps1','get-local-listeners.ps1','start-background-server.ps1','start-console-server.ps1','setup-training.ps1',
       'show-training-setup-result.ps1'
     ].map(name=>path.join(sourceRoot,'scripts',name));
     const quote=value=>value.replaceAll("'","''");
@@ -213,7 +213,8 @@ test('background launcher leaves a reachable Python server running after PowerSh
     let childPid=0;
     try{
       fs.mkdirSync(scripts,{recursive:true});
-      for (const file of ['start-background-server.ps1','prepare-local-server.ps1','get-local-lab-url.ps1']) fs.copyFileSync(path.join(sourceRoot,'scripts',file),path.join(scripts,file));
+      for (const file of ['start-background-server.ps1','prepare-local-server.ps1','get-local-lab-url.ps1','get-local-listeners.ps1','launch-from-dashboard.ps1']) fs.copyFileSync(path.join(sourceRoot,'scripts',file),path.join(scripts,file));
+      fs.writeFileSync(path.join(root,'Start Local Server.bat'),'@echo off\r\nexit /b 1\r\n');
       fs.copyFileSync(path.join(sourceRoot,'local_runtime.py'),path.join(root,'local_runtime.py'));
       fs.writeFileSync(serverPath,[
         'from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer',
@@ -224,8 +225,9 @@ test('background launcher leaves a reachable Python server running after PowerSh
         'class Handler(BaseHTTPRequestHandler):',
         '    def do_GET(self):',
         '        self.send_response(200)',
+        '        self.send_header("Content-Type", "text/html; charset=utf-8")',
         '        self.end_headers()',
-        '        self.wfile.write(b"BACKGROUND_OK")',
+        '        self.wfile.write(b"AI Lab BACKGROUND_OK")',
         '    def log_message(self, *args): pass',
         'server = bind_server(Handler, PORT)',
         'publish_state(Path(__file__).parent / "data", server.server_address[1])',
@@ -254,7 +256,12 @@ test('background launcher leaves a reachable Python server running after PowerSh
       assert.equal(state.pid,childPid);
       const response=await fetch(`http://127.0.0.1:${state.port}/`,{signal:AbortSignal.timeout(3000)});
       assert.equal(response.status,200);
-      assert.equal(await response.text(),'BACKGROUND_OK');
+      assert.equal(await response.text(),'AI Lab BACKGROUND_OK');
+      const opened=path.join(root,'opened.txt');
+      const quote=value=>value.replaceAll("'","''");
+      const ps=`function Start-Process { param($FilePath) [IO.File]::WriteAllText('${quote(opened)}',[string]$FilePath) }; & '${quote(path.join(scripts,'launch-from-dashboard.ps1'))}' -Action Open`;
+      execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-EncodedCommand',Buffer.from(ps,'utf16le').toString('base64')],{encoding:'utf8',timeout:15000});
+      assert.equal(fs.readFileSync(opened,'utf8'),`http://127.0.0.1:${state.port}/`);
     }catch(error){
       failure=error;
     }finally{
@@ -334,6 +341,38 @@ test('Stop preflight leaves a real unrelated TCP listener untouched',
   });
 
 
+test('native TCP table identifies a real IPv4 listener and its owning process',
+  {skip:process.platform!=='win32'},async()=>{
+    const listener=net.createServer();
+    await new Promise((resolve,reject)=>{ listener.once('error',reject); listener.listen(0,'127.0.0.1',resolve); });
+    try{
+      const script=path.join(sourceRoot,'scripts','get-local-listeners.ps1').replaceAll("'","''");
+      const port=listener.address().port;
+      const ps=`. '${script}'; $rows=@(Get-LocalListeners -Port ${port} | Where-Object { $_.LocalAddress -eq '127.0.0.1' -and $_.OwningProcess -eq ${process.pid} }); if ($rows.Count -ne 1) { throw 'Listener owner did not match' }; 'owner:ok'`;
+      const output=execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-EncodedCommand',Buffer.from(ps,'utf16le').toString('base64')],{encoding:'utf8',timeout:15000});
+      assert.match(output,/owner:ok/);
+      assert.equal(listener.listening,true);
+    }finally{ await new Promise(resolve=>listener.close(resolve)); }
+  });
+
+test('native TCP table preserves IPv6 listeners in port ownership checks',
+  {skip:process.platform!=='win32'},async(t)=>{
+    const listener=net.createServer();
+    try{
+      await new Promise((resolve,reject)=>{ listener.once('error',reject); listener.listen({port:0,host:'::1',ipv6Only:true},resolve); });
+    }catch(error){
+      if(['EADDRNOTAVAIL','EAFNOSUPPORT'].includes(error.code)){ t.skip('IPv6 loopback is unavailable'); return; }
+      throw error;
+    }
+    try{
+      const script=path.join(sourceRoot,'scripts','get-local-listeners.ps1').replaceAll("'","''");
+      const port=listener.address().port;
+      const ps=`. '${script}'; $rows=@(Get-LocalListeners -Port ${port} | Where-Object { $_.LocalAddress -eq '::1' -and $_.OwningProcess -eq ${process.pid} }); if ($rows.Count -ne 1) { throw 'IPv6 listener owner did not match' }; 'owner:ok'`;
+      const output=execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-EncodedCommand',Buffer.from(ps,'utf16le').toString('base64')],{encoding:'utf8',timeout:15000});
+      assert.match(output,/owner:ok/);
+    }finally{ await new Promise(resolve=>listener.close(resolve)); }
+  });
+
 test('Open uses only a verified current listener and ignores stale runtime state',
   {skip:process.platform!=='win32'},()=>{
     const root=fs.mkdtempSync(path.join(os.tmpdir(),'ai-lab-open-state-'));
@@ -342,6 +381,8 @@ test('Open uses only a verified current listener and ignores stale runtime state
       fs.mkdirSync(scripts); fs.mkdirSync(data);
       for(const file of ['launch-from-dashboard.ps1','prepare-local-server.ps1','get-local-lab-url.ps1'])
         fs.copyFileSync(path.join(sourceRoot,'scripts',file),path.join(scripts,file));
+      fs.writeFileSync(path.join(scripts,'get-local-listeners.ps1'),
+        'function Get-LocalListeners { param([int]$Port) Get-NetTCPConnection -LocalPort $Port -State Listen }\n');
       fs.writeFileSync(path.join(root,'Start Local Server.bat'),'@echo off\r\n');
       const server=path.join(root,'server.py');
       fs.writeFileSync(server,'# Markellos Ecosystem AI Lab\n# ThreadingHTTPServer\nPORT = 8765\n');
@@ -349,8 +390,9 @@ test('Open uses only a verified current listener and ignores stale runtime state
       fs.writeFileSync(path.join(data,'runtime.json'),JSON.stringify(state));
       const q=s=>s.replaceAll("'","''");
       const output=path.join(root,'opened.txt');
+      const checks=path.join(root,'checks.txt');
       const base=[
-        `function Get-NetTCPConnection { [CmdletBinding()] param($LocalPort,$State) [pscustomobject]@{LocalAddress='127.0.0.1';LocalPort=43123;OwningProcess=12345} }`,
+        `function Get-NetTCPConnection { [CmdletBinding()] param($LocalPort,$State) Add-Content -LiteralPath '${q(checks)}' -Value 'check'; [pscustomobject]@{LocalAddress='127.0.0.1';LocalPort=43123;OwningProcess=12345} }`,
         `function Get-CimInstance { [CmdletBinding()] param($ClassName,$Filter) [pscustomobject]@{Name='python.exe';CommandLine='"C:\\Python\\python.exe" -u "${q(server)}"'} }`,
         `function Invoke-WebRequest { [CmdletBinding()] param([switch]$UseBasicParsing,$Uri,$TimeoutSec) [pscustomobject]@{StatusCode=200;Content='AI Lab'} }`,
         `function Start-Process { param($FilePath,$WorkingDirectory) [IO.File]::WriteAllText('${q(output)}',[string]$FilePath) }`
@@ -358,6 +400,7 @@ test('Open uses only a verified current listener and ignores stale runtime state
       const open=[...base,`& '${q(path.join(scripts,'launch-from-dashboard.ps1'))}' -Action Open`].join('; ');
       execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-EncodedCommand',Buffer.from(open,'utf16le').toString('base64')],{timeout:15000});
       assert.equal(fs.readFileSync(output,'utf8'),'http://127.0.0.1:43123/');
+      assert.equal(fs.readFileSync(checks,'utf8').trim().split(/\r?\n/).length,1,'Open should verify the listener once');
       state.pid=22222; fs.writeFileSync(path.join(data,'runtime.json'),JSON.stringify(state));
       const stale=[...base,`. '${q(path.join(scripts,'prepare-local-server.ps1'))}' -PolicyOnly`,`. '${q(path.join(scripts,'get-local-lab-url.ps1'))}'`,`if (Get-LocalLabUrl -LabRoot '${q(root)}') { throw 'stale state accepted' }`].join('; ');
       execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-EncodedCommand',Buffer.from(stale,'utf16le').toString('base64')],{timeout:15000});

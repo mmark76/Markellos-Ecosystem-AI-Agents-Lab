@@ -44,16 +44,14 @@ if ($PolicyOnly) { return }
 
 try {
     if (-not $LabRoot) { throw 'A LabRoot is required.' }
-    if (-not (Get-Command Get-NetTCPConnection -ErrorAction SilentlyContinue)) {
-        throw 'Windows TCP ownership inspection is unavailable. The server was not changed.'
-    }
+    . (Join-Path $PSScriptRoot 'get-local-listeners.ps1')
     $root = [IO.Path]::GetFullPath($LabRoot)
     . (Join-Path $PSScriptRoot 'get-lab-version.ps1')
     $version = Get-LabVersion $root
     # Inspect loopback listeners and accept only absolute-path Lab identities.
     # An unrelated or unverified listener is never stopped, even with consent.
     $labListeners = @()
-    $listeners = @(Get-NetTCPConnection -State Listen -ErrorAction Stop | Where-Object { $_.LocalAddress -eq '127.0.0.1' })
+    $listeners = @(Get-LocalListeners | Where-Object { $_.LocalAddress -eq '127.0.0.1' })
     $pythonProcesses = @(Get-CimInstance Win32_Process -Filter "Name='python.exe' OR Name='pythonw.exe'" -ErrorAction Stop)
     foreach ($listener in $listeners) {
         $candidatePid = [int]$listener.OwningProcess
@@ -94,7 +92,7 @@ try {
     }
 
     # Check ownership again immediately before stopping, to avoid targeting a reused PID.
-    $fresh = @(Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue)
+    $fresh = @(Get-LocalListeners -Port $port)
     if ($fresh.Count -ne 1 -or [int]$fresh[0].OwningProcess -ne $ownerPid -or $fresh[0].LocalAddress -ne '127.0.0.1') {
         throw 'Port ownership changed during confirmation. No process was stopped.'
     }
@@ -106,7 +104,7 @@ try {
     Stop-Process -Id $ownerPid -Force -ErrorAction Stop
     for ($attempt = 0; $attempt -lt 30; $attempt++) {
         Start-Sleep -Milliseconds 200
-        $remaining = @(Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue)
+        $remaining = @(Get-LocalListeners -Port $port)
         if ($remaining.Count -eq 0) {
             Write-Host "AI Lab server PID $ownerPid stopped; port $port is free."
             exit 0

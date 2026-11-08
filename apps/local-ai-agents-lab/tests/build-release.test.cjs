@@ -146,7 +146,7 @@ test('Open AI Lab BAT is packaged and reuses the dashboard Open action without d
   assert.match(open,/powershell\.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\\launch-from-dashboard\.ps1" -Action Open/);
   assert.match(open,/if errorlevel 1 \(/);
   assert.doesNotMatch(open,/server\.py|-Action (?:Stop|Refresh)|https?:\/\//);
-  assert.match(handler,/if \(\$Action -eq 'Open'\)[\s\S]*Get-LocalLabUrl[\s\S]*Start-Process \$localUrl/);
+  assert.match(handler,/Get-LocalLabUrl[\s\S]*if \(\$Action -eq 'Open'\)[\s\S]*Start-Process \$localUrl/);
   assert.match(packager,/'Open AI Lab\.bat'/);
   assert.match(verifier,/Open AI Lab\.bat/);
 });
@@ -388,7 +388,7 @@ test('Windows replacement preflight is bundled and never indiscriminately kills 
   assert.match(launcher,/prepare-local-server\.ps1/);
   assert.match(launcher,/if errorlevel 1/);
   assert.match(launcher,/start-console-server\.ps1/);
-  assert.match(preflight,/Get-NetTCPConnection -LocalPort \$port/);
+  assert.match(preflight,/Get-LocalListeners -Port \$port/);
   assert.match(preflight,/Get-LabServerIdentity/);
   assert.match(preflight,/LEGACY_CANDIDATE/);
   assert.match(preflight,/Stop-Process -Id \$ownerPid -Force/);
