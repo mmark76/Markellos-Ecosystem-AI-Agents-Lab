@@ -195,9 +195,11 @@ test('dashboard Stop calls only the bounded local stop preflight, without starti
         '[System.IO.File]::WriteAllText((Join-Path $LabRoot "stop-only.txt"), "STOP_ONLY")',
         'exit 0'
       ].join('\r\n')+'\r\n',{encoding:'ascii'});
+      fs.writeFileSync(path.join(scripts,'offer-preferred-port-stop.ps1'), '[IO.File]::WriteAllText((Join-Path $PSScriptRoot "../offered.txt"), "OFFERED"); exit 0', {encoding:'ascii'});
       execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',
         path.join(scripts,'launch-from-dashboard.ps1'),'-Action','Stop'],{encoding:'utf8',timeout:30000});
       assert.equal(fs.readFileSync(path.join(root,'stop-only.txt'),'utf8'),'STOP_ONLY');
+      assert.equal(fs.readFileSync(path.join(root,'offered.txt'),'utf8'),'OFFERED');
       assert.equal(fs.existsSync(path.join(root,'started.txt')),false,'Stop must never start the server');
     }finally{
       fs.rmSync(root,{recursive:true,force:true});
@@ -406,3 +408,28 @@ test('Open uses only a verified current listener and ignores stale runtime state
       execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-EncodedCommand',Buffer.from(stale,'utf16le').toString('base64')],{timeout:15000});
     }finally{ fs.rmSync(root,{recursive:true,force:true}); }
   });
+
+test('preferred-port stop honors consent and rejects unsafe or changed owners', {skip:process.platform!=='win32'},()=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),'ai-lab-owner-policy-'));
+  try {
+    const script=path.join(root,'offer-preferred-port-stop.ps1');
+    fs.copyFileSync(path.join(sourceRoot,'scripts','offer-preferred-port-stop.ps1'),script);
+    fs.writeFileSync(path.join(root,'get-local-listeners.ps1'), `function Get-LocalListeners { param($Port) $global:checks++; if ($scenario -ne 'free' -and ($global:checks -lt 3 -or $scenario -ne 'confirmed')) { [pscustomobject]@{LocalAddress='127.0.0.1';LocalPort=8765;OwningProcess=12345} } }`);
+    const q=s=>s.replaceAll("'","''"), marker=path.join(root,'stopped.txt');
+    for (const scenario of ['free','declined','protected','other-user','changed','confirmed']) {
+      if(fs.existsSync(marker)) fs.unlinkSync(marker);
+      const code=[
+        `$scenario='${scenario}'; $global:checks=0; $global:owners=0; $created=[datetime]'2026-01-01'`,
+        `. '${q(script)}' -PolicyOnly`,
+        `function Show-PortMessage { param($Message,[switch]$Confirm,[switch]$Warning) if ($Confirm) { return ($scenario -ne 'declined') } }`,
+        `function Get-CimInstance { [CmdletBinding()] param($ClassName,$Filter) $global:owners++; $date=if ($scenario -eq 'changed' -and $global:owners -gt 1) { $created.AddSeconds(1) } else { $created }; $name=if ($scenario -eq 'protected') {'explorer.exe'} else {'app.exe'}; [pscustomobject]@{Name=$name;CreationDate=$date;CommandLine='C:\\Apps\\app.exe';ExecutablePath='C:\\Apps\\app.exe'} }`,
+        `function Invoke-CimMethod { [CmdletBinding()] param($InputObject,$MethodName) $parts=[Security.Principal.WindowsIdentity]::GetCurrent().Name.Split('\\',2); if ($scenario -eq 'other-user') { [pscustomobject]@{ReturnValue=0;Domain='other';User='other'} } else { [pscustomobject]@{ReturnValue=0;Domain=$parts[0];User=$parts[1]} } }`,
+        `function Stop-Process { [CmdletBinding()] param($Id) [IO.File]::WriteAllText('${q(marker)}',[string]$Id) }`,
+        `exit (Invoke-PreferredPortStop)`
+      ].join('; ');
+      const result=require('node:child_process').spawnSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-EncodedCommand',Buffer.from(code,'utf16le').toString('base64')],{encoding:'utf8',timeout:15000});
+      assert.equal(result.status,['protected','other-user','changed'].includes(scenario)?1:0, `${scenario}: ${result.stdout} ${result.stderr}`);
+      assert.equal(fs.existsSync(marker),scenario==='confirmed',scenario);
+    }
+  } finally { fs.rmSync(root,{recursive:true,force:true}); }
+});

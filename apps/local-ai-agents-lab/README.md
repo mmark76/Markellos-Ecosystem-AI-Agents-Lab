@@ -108,7 +108,7 @@ the PyTorch training wizard.
 
 The optional training setup shows a small result window when it ends: successful completion, cancellation, and failure have separate messages. On success, it says **"Setup completed. Press any key to close this window."** Press a key or click **Close** to dismiss it; no additional setup action starts when the window closes. If setup fails, review the console output before closing the result window.
 
-The server remains visible in its CMD window after startup; close that window when finished, or use **Stop Local Server** on the public dashboard to stop this installation. When another verified Lab installation is running, the launcher asks before replacing that exact process. An unrelated or unverified listener is left untouched, and the server can use an automatically selected port. A legacy process launched with a relative `server.py` path cannot be verified and is not stopped. Finish active agent work before approving replacement. Neither this step nor the new ZIP deletes local SQLite histories or credentials.
+The server remains visible in its CMD window after startup; close that window when finished, or use **Stop Local Server** on the public dashboard to stop this installation. When another verified Lab installation is running, the launcher asks before replacing that exact process. An unrelated or unverified listener is left untouched during startup, and the server can use an automatically selected port. A legacy process launched with a relative `server.py` path cannot be verified and is not stopped. Finish active agent work before approving replacement. Neither this step nor the new ZIP deletes local SQLite histories or credentials.
 
 The selected port and process ID are recorded in `data/runtime.json` inside the extracted folder. Windows actions independently verify the listener and process before using this local record. An outdated record is ignored; it is replaced on the next successful start. The `data` directory is excluded from release packages.
 
@@ -303,3 +303,7 @@ the package files, restart, and verify. Preserve `data/` and local Ollama
 models. Never type the Build ID manually during deployment. Laptop installation
 requires separate approval and is never performed automatically by GitHub
 Actions.
+
+### Preferred port on Stop
+
+After stopping this Lab, the Stop action checks preferred port 8765. If an eligible, identified application belonging to the current Windows user still holds it, a separate confirmation may offer to close the entire process, with a warning about unsaved work. AI Lab can also use an alternative port, so this is optional. Protected Windows processes, Ollama, ambiguous and unverifiable owners are left alone. This action requires the updated Windows package and its registered dashboard protocol.
