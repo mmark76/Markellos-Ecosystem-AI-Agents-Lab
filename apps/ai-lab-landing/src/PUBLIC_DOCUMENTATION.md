@@ -61,7 +61,7 @@ An **inference engine** serves model requests; a **model** produces the response
 
 ### Windows and Python
 
-Easy Start is launched using `Start AI Training Lab.bat` in STABLE v2.0.26 or `Start Local Server.bat` in BETA v2.0.30. Both reuse compatible existing components; otherwise they request **separate confirmation** before installing Python, installing Ollama, starting Ollama, or downloading the initial model. The preferred Python installation is **3.12**; the base launcher accepts compatible **Python 3.9+** versions. The training-only environment has narrower requirements, described in Section 7. In BETA v2.0.30 the local Python server runs in a **visible CMD window** after setup; leave that window open or minimized while using the app. Closing it or pressing `Ctrl+C` stops that Python server. Closing only the browser tab does not stop the server, and the independent Ollama service is not stopped by the CMD window.
+Easy Start is launched using `Start AI Training Lab.bat` in STABLE v2.0.26 or `Start Local Server.bat` in BETA v2.0.31. Both reuse compatible existing components; otherwise they request **separate confirmation** before installing Python, installing Ollama, starting Ollama, or downloading the initial model. The preferred Python installation is **3.12**; the base launcher accepts compatible **Python 3.9+** versions. The training-only environment has narrower requirements, described in Section 7. In BETA v2.0.31 the local Python server runs in a **visible CMD window** after setup; leave that window open or minimized while using the app. Closing it or pressing `Ctrl+C` stops that Python server. Closing only the browser tab does not stop the server, and the independent Ollama service is not stopped by the CMD window.
 
 The normal Lab server uses the Python **standard library**, including local HTTP and SQLite support. **PyTorch is not required** for the five regular agent workspaces. The supported packaged setup is **Windows**: portable Python modules do not constitute an officially verified macOS or Linux application release.
 
@@ -177,15 +177,15 @@ Likewise, the optional **ChatGPT Advisor** is a separate, user-triggered externa
 
 1. Download the verified Windows ZIP from the [landing page](https://ai-lab.markellosecosystem.com/). New packages include the version in the filename (for example, `AI-Agents-Lab-Windows-vX.Y.Z.zip`); older assets retain their existing names.
 2. Extract it into a new folder on the Windows computer (do not run a BAT file from within the ZIP).
-3. Run `Start AI Training Lab.bat` (STABLE v2.0.26) or `Start Local Server.bat` (BETA v2.0.30) and approve each missing prerequisite or initial model download separately. Keep the BETA server CMD window open while using the Lab.
+3. Run `Start AI Training Lab.bat` (STABLE v2.0.26) or `Start Local Server.bat` (BETA v2.0.31) and approve each missing prerequisite or initial model download separately. Keep the BETA server CMD window open while using the Lab.
 4. Once ready, use the dashboard Open AI Lab action and choose an installed Ollama model.
 5. For upgrades, stop the old server first and back up `data/campus.sqlite3` before transferring history to the new extracted folder.
 
 ### Understanding the Windows .bat files
 
 - **`Start AI Training Lab.bat` (STABLE v2.0.26):** Readiness-first setup and visible local server launcher, without automatic browser opening.
-- **`Start Local Server.bat` (BETA v2.0.30):** The renamed readiness-first setup/server launcher, with a visible foreground server CMD and an optional Desktop shortcut choice. Its `SERVER RUNNING` notice shows the local address and reminds users to keep the window open.
-- **`Open AI Lab.bat` (BETA v2.0.30):** Uses the existing local Open action to start the server in a visible console if absent and open the application in a browser.
+- **`Start Local Server.bat` (BETA v2.0.31):** The renamed readiness-first setup/server launcher, with a visible foreground server CMD and an optional Desktop shortcut choice. Its `SERVER RUNNING` notice shows the local address and reminds users to keep the window open.
+- **`Open AI Lab.bat` (BETA v2.0.31):** Uses the existing local Open action to start the server in a visible console if absent and open the application in a browser.
 - **`setup-training-environment.bat`:** Separate advanced training-dependency setup; **not** needed to start the Lab and **does not unlock fine-tuning**.
 
 ## 10. Development, deployment and release boundaries
@@ -194,7 +194,7 @@ Likewise, the optional **ChatGPT Advisor** is a separate, user-triggered externa
 
 The public site is built into `apps/ai-lab-landing/dist`. The **Technical README you are reading** is generated from `apps/ai-lab-landing/src/PUBLIC_DOCUMENTATION.md` during that build; update the **source document**, not the generated `dist/README.md`.
 
-**Manual update checking inside the Local App: not implemented.** Releases must be reviewed and installed manually, preserving local data. The public page displays the owner-approved STABLE v2.0.26 and BETA v2.0.30 GitHub releases; the earlier BETA v2.0.29 and previous STABLE v2.0.16 R2 milestone remain available in the archive. The GitHub and R2 ZIPs are independently verified, not interchangeable version-matched fallback assets. BETA is a testing designation, not a recommendation to replace STABLE automatically.
+**Manual update checking inside the Local App: not implemented.** Releases must be reviewed and installed manually, preserving local data. The public page displays the owner-approved STABLE v2.0.26 and BETA v2.0.31 GitHub releases; the earlier BETA v2.0.30 and previous STABLE v2.0.16 R2 milestone remain available in the archive. The GitHub and R2 ZIPs are independently verified, not interchangeable version-matched fallback assets. BETA is a testing designation, not a recommendation to replace STABLE automatically.
 
 ## 11. Verification status and current limitations
 
