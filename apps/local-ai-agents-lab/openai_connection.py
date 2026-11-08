@@ -58,6 +58,7 @@ class OpenAIConnectionService:
         self._identity_validator = identity_validator or self._validate_identity_token
         self._lock = Lock()
         self._attempt: dict[str, Any] | None = None
+        self._session_prepared = False
 
     @property
     def _registration_path(self) -> Path:
@@ -117,6 +118,8 @@ class OpenAIConnectionService:
     def start(self, callback_port: int) -> dict[str, Any]:
         if not 1024 <= callback_port <= 65535:
             raise OpenAIConnectionError("The local callback port is invalid.")
+        if not self._session_prepared:
+            raise OpenAIConnectionSetupRequired("Prepare the secure connection for this session before connecting.")
         self._require_crypto()
         with self._lock:
             if self._attempt and self._attempt["expiresAt"] > time.time():
@@ -191,6 +194,22 @@ class OpenAIConnectionService:
                 pass
             raise OpenAIConnectionError("The ChatGPT connection could not be protected for this Windows user.") from err
         return self.status()
+
+    def reset_on_server_start(self) -> None:
+        """Discard only the saved ChatGPT authorization for a fresh server session."""
+        self._session_prepared = False
+        try:
+            self._vault.remove("openai-chatgpt")
+        except CredentialVaultError as err:
+            raise OpenAIConnectionError("The previous ChatGPT connection could not be cleared. AI Lab did not start.") from err
+
+    @property
+    def session_prepared(self) -> bool:
+        return self._session_prepared
+
+    def prepare_session(self) -> None:
+        self._require_crypto()
+        self._session_prepared = True
 
     def remove(self) -> dict[str, Any]:
         with self._lock:

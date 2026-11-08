@@ -71,3 +71,5 @@ The directly requested local-runtime change prefers port 8765 and uses an OS-ass
 For slow Windows startup, `scripts/get-local-listeners.ps1` reads the OS TCP ownership table directly instead of using the slow NetTCPIP CIM provider. `Open` verifies a reachable Lab once per attempt; the Stop path retains its ownership and process identity rechecks. Windows launcher tests cover listener ownership, unrelated listeners, stale state, and the Open action.
 
 Direct user request: after Stop, offer a separate confirmed closure of an eligible identified current-user process holding preferred port 8765; preserve dynamic fallback, reject protected or ambiguous owners and recheck identity. Evidence: Windows launcher and release-builder tests; interactive native-dialog verification pending.
+
+Direct user request: each local server startup clears the saved ChatGPT authorization and requires an explicit preparation and fresh browser approval. Existing conversation data and unrelated provider credentials are retained; synthetic session-reset tests cover the boundary. Live OAuth and native Windows setup verification remain pending.

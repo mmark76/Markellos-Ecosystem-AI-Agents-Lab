@@ -23,12 +23,43 @@ class FakeVault:
 
 
 class OpenAIConnectionTests(unittest.TestCase):
+    def test_server_session_requires_prepare_and_fresh_approval(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            vault = FakeVault()
+            vault.store("openai-chatgpt", json.dumps({"subject": "old", "refreshToken": "synthetic"}))
+            vault.store("runpod", "synthetic-other-provider")
+            opened = []
+            service = module.OpenAIConnectionService(vault, Path(temporary), browser_open=lambda url: opened.append(url) or True)
+            service.reset_on_server_start()
+            self.assertFalse(service.status()["connected"])
+            self.assertEqual(vault.load("runpod"), "synthetic-other-provider")
+            service._require_crypto = lambda: None
+            with self.assertRaisesRegex(module.OpenAIConnectionSetupRequired, "Prepare"):
+                service.start(8765)
+            self.assertEqual(opened, [])
+            service.prepare_session()
+            service.start(8765)
+            self.assertEqual(len(opened), 1)
+
+    def test_failed_reset_blocks_server_session(self):
+        class RefusingVault(FakeVault):
+            def remove(self, provider):
+                raise module.CredentialVaultError("denied")
+        with tempfile.TemporaryDirectory() as temporary:
+            service = module.OpenAIConnectionService(RefusingVault(), Path(temporary))
+            with self.assertRaisesRegex(module.OpenAIConnectionError, "could not be cleared"):
+                service.reset_on_server_start()
+            with self.assertRaisesRegex(module.OpenAIConnectionSetupRequired, "Prepare"):
+                service.start(8765)
+
     def make_service(self, root, opened):
-        return module.OpenAIConnectionService(
+        service = module.OpenAIConnectionService(
             FakeVault(), root, browser_open=lambda url: opened.append(url) or True,
             token_exchange=lambda form: {"id_token": "identity", "refresh_token": "refresh", "access_token": "access", "scope": "openid chatgpt.tokens.use.direct"},
             identity_validator=lambda token, client_id, nonce: {"sub": "local-user", "nonce": nonce},
         )
+        service._session_prepared = True  # These tests exercise an already prepared session.
+        return service
 
     def test_starts_dynamic_registration_with_pkce_and_never_exposes_tokens(self):
         with tempfile.TemporaryDirectory() as temporary:

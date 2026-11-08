@@ -66,13 +66,14 @@ function rememberAdvisorSession(questionText, answerText) {
 
 function showDisconnected(status) {
   const unreadable = status.connectionState === 'unreadable';
+  if (typeof status.preparationRequired === 'boolean') chatgptSetup.hidden = !status.preparationRequired;
   chatgptConnect.hidden = false;
   chatgptConnect.textContent = unreadable ? 'Reconnect with ChatGPT' : 'Connect with ChatGPT';
   chatgptRemove.hidden = !unreadable;
   advisor.hidden = true;
   clearAdvisorSession();
   chatgptIntro.hidden = false;
-  chatgptIntro.textContent = 'Connect your ChatGPT account to ask a question. Connecting does not send a prompt or invoke a model.';
+  chatgptIntro.textContent = status.preparationRequired ? 'Prepare the connection, then connect your ChatGPT account. Connecting does not send a prompt.' : 'Connect your ChatGPT account to ask a question. Connecting does not send a prompt or invoke a model.';
   chatgptMessage(status.message || 'No ChatGPT connection is stored for this Windows user.', unreadable);
 }
 
@@ -120,14 +121,18 @@ chatgptConnect.addEventListener('click', async () => {
 
 chatgptSetup.addEventListener('click', async () => {
   chatgptSetup.disabled = true;
+  chatgptSetup.textContent = 'Preparing…';
+  chatgptMessage('Preparing…');
   try {
-    await chatgptRequest('/api/openai/connection/setup', {
+    const result = await chatgptRequest('/api/openai/connection/setup', {
       method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({confirmSetup: true}),
     });
-    chatgptMessage('The optional setup window is open. Review and approve it, then restart the Local Lab.');
+    chatgptSetup.hidden = result.state === 'READY';
+    chatgptMessage(result.state === 'READY' ? 'Connection prepared. Select Connect with ChatGPT.' : 'The optional setup window is open. Review and approve it, then restart the Local Lab.');
   } catch (error) {
     chatgptMessage(error.message, true);
   } finally {
+    chatgptSetup.textContent = 'Prepare connection';
     chatgptSetup.disabled = false;
   }
 });
