@@ -223,7 +223,7 @@ test('build truthfully presents the current public state of the Local Lab', () =
   assert.doesNotMatch(html, /NOT YET OPERATIONAL|Advanced model fine-tuning|NOT IMPLEMENTED|Manual update check in the Local App/);
   assert.match(html, /https:\/\/ollama\.com\/download/);
   assert.doesNotMatch(html, /https:\/\/lmstudio\.ai\/download|https:\/\/docs\.vllm\.ai/);
-  assert.match(html, /href="http:\/\/127\.0\.0\.1:8765\/"/);
+  assert.match(html, /href="markellos-ai-training-lab:\/\/open"/);
   assert.equal((html.match(/Open Local Lab/g) || []).length, 1);
   assert.match(html, /id="settings-dialog"/);
   assert.match(html, /id="info-dialog"/);
