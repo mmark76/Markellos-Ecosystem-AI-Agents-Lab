@@ -20,6 +20,10 @@ if ($Action -eq 'Stop') {
     $preflight = Join-Path $PSScriptRoot 'prepare-local-server.ps1'
     if (-not (Test-Path -LiteralPath $preflight -PathType Leaf)) { exit 1 }
     & powershell.exe -NoProfile -ExecutionPolicy Bypass -STA -File $preflight -LabRoot $root -StopOnly
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    $offer = Join-Path $PSScriptRoot 'offer-preferred-port-stop.ps1'
+    if (-not (Test-Path -LiteralPath $offer -PathType Leaf)) { exit 1 }
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -STA -File $offer
     exit $LASTEXITCODE
 }
 . (Join-Path $PSScriptRoot 'prepare-local-server.ps1') -PolicyOnly

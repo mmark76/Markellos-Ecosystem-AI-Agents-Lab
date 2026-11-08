@@ -398,3 +398,15 @@ test('Windows replacement preflight is bundled and never indiscriminately kills 
   assert.match(preflight,/MessageBoxDefaultButton\]::Button2/);
   assert.doesNotMatch(preflight,/Stop-Process -Name|taskkill|netsh/);
 });
+
+
+test('preferred port stop requires separate consent and identity recheck', () => {
+  const script=fs.readFileSync(path.join(__dirname,'..','scripts','offer-preferred-port-stop.ps1'),'utf8');
+  assert.match(script,/Get-LocalListeners -Port 8765/);
+  assert.match(script,/MessageBoxDefaultButton]::Button2/);
+  assert.match(script,/DialogResult]::Yes/);
+  assert.match(script,/CreationDate -ne \$owner.CreationDate/);
+  assert.match(script,/WindowsIdentity]::GetCurrent/);
+  assert.match(script,/ollama\.exe/);
+  assert.doesNotMatch(script,/Stop-Process\s+-Name|taskkill/i);
+});
