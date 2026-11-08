@@ -1,6 +1,6 @@
 # Markellos Ecosystem AI Lab
 
-Version: v2.0.30 · Private local starter
+Version: v2.0.31 · Private local starter
 
 Local Windows application with five active workspaces:
 
@@ -102,22 +102,15 @@ the PyTorch training wizard.
 1. Extract the downloaded Windows ZIP (new releases use names such as `AI-Agents-Lab-Windows-v2.0.29.zip`) into a folder you control, for example `C:\Markellos-Ecosystem-AI-Agents-Lab`.
 2. Double-click **`Start Local Server.bat`**.
 3. If Easy Start finds missing components, review each approval dialog. You can decline any step; the Lab will not start until its required local components are ready.
-4. After setup, the local server starts automatically at **http://127.0.0.1:8765/**. Open the address in your browser, or double-click **`Open AI Lab.bat`**.
+4. After setup, the server displays its local address in the terminal. Double-click **`Open AI Lab.bat`** or use the dashboard Open action to open the verified running installation. The server prefers `127.0.0.1:8765` and automatically chooses another loopback port when needed.
 
 `Start Local Server.bat` is the first-time setup and server launcher. `Open AI Lab.bat` is a convenient browser-opening launcher with the same Open behavior as the public dashboard. The separate `setup-training-environment.bat` prepares optional training dependencies but does not start the Lab or unlock fine-tuning.
 
 The optional training setup shows a small result window when it ends: successful completion, cancellation, and failure have separate messages. On success, it says **"Setup completed. Press any key to close this window."** Press a key or click **Close** to dismiss it; no additional setup action starts when the window closes. If setup fails, review the console output before closing the result window.
 
-The server remains visible in its CMD window after startup; close that window when finished, or use **Stop Local Server** on the public dashboard to stop it. When starting
-a freshly extracted ZIP, the Windows launcher first checks port `8765`. If a
-running Python server is confirmed as AI Training Lab, it asks for permission
-before stopping that exact process and starting the new copy. Older ZIPs used
-a relative `server.py` command that cannot establish ownership conclusively;
-the prompt discloses this uncertainty, the PID, and the command line. Declining
-leaves the existing process untouched. An unrelated or unidentifiable listener
-is never stopped automatically. Stopping a running Lab can interrupt active
-agent work, so finish or save work before approving. Neither this step nor
-the new ZIP deletes local SQLite histories or credentials.
+The server remains visible in its CMD window after startup; close that window when finished, or use **Stop Local Server** on the public dashboard to stop this installation. When another verified Lab installation is running, the launcher asks before replacing that exact process. An unrelated or unverified listener is left untouched, and the server can use an automatically selected port. A legacy process launched with a relative `server.py` path cannot be verified and is not stopped. Finish active agent work before approving replacement. Neither this step nor the new ZIP deletes local SQLite histories or credentials.
+
+The selected port and process ID are recorded in `data/runtime.json` inside the extracted folder. Windows actions independently verify the listener and process before using this local record. An outdated record is ignored; it is replaced on the next successful start. The `data` directory is excluded from release packages.
 
 Downloading a ZIP alone does not close a local server; the replacement check
 occurs when the new extracted ZIP's `Start Local Server.bat` is executed.
@@ -239,7 +232,7 @@ environment.
 
 ## Privacy and boundaries
 
-- The web server binds **only** to `127.0.0.1:8765`.
+- The web server binds **only** to `127.0.0.1`; it prefers port `8765` and otherwise selects an available port automatically.
 - The application connects only to Ollama at its fixed loopback address for
   local-agent inference. If the user connects and explicitly uses the External
   ChatGPT advisor, selected material is sent to OpenAI's fixed authorization,

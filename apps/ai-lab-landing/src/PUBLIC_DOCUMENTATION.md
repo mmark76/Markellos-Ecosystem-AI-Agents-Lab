@@ -18,7 +18,7 @@ Public browser ── Cloudflare Pages landing page
                        └── Windows ZIP download (current STABLE / current BETA GitHub; older R2 in archive)
                                     │
 Local Windows PC                    ▼
-  Browser ── http://127.0.0.1:8765 ── Python Lab server
+  Browser ── 127.0.0.1 (local port) ── Python Lab server
                                          ├── Local Ollama inference
                                          │     http://127.0.0.1:11434
                                          ├── SQLite session history
@@ -43,7 +43,7 @@ The **public landing page** distributes information and release links; it never 
 | **Windows Package Manager (winget)** | Installs missing Python/Ollama with user approval | **Required for first-time automatic installation** |
 | **Ollama** | Local inference and local model discovery/downloads | **Only supported agent inference engine** |
 | **SQLite** | Local workspace history, assessments and Advisor Q&A | **Built in** through Python |
-| **Web browser** | Local UI at `127.0.0.1:8765` | **Required** |
+| **Web browser** | Local UI on `127.0.0.1` | **Required** |
 | **ChatGPT** | Separate, user-initiated external Advisor | **Optional integration**; account eligibility applies |
 | **PyJWT[crypto]** | Identity-token verification for optional ChatGPT sign-in | **Optional isolated dependency** |
 | **RunPod** | Protected personal token and account/GPU catalogue query | **Optional, read-only**; no remote training |
@@ -67,7 +67,7 @@ The normal Lab server uses the Python **standard library**, including local HTTP
 
 ### Ollama: one fixed local provider
 
-The Lab connects only to Ollama at `http://127.0.0.1:11434`. The Python server itself binds only to `http://127.0.0.1:8765`. It does not accept a user-supplied provider URL, redirect failed inference to a cloud model, or call an alternative OpenAI-compatible inference server.
+The Lab connects only to Ollama at `http://127.0.0.1:11434`. The Python server binds only to `127.0.0.1`; see the server window for its local address. It does not accept a user-supplied provider URL, redirect failed inference to a cloud model, or call an alternative OpenAI-compatible inference server.
 
 The local integration supports:
 
@@ -169,7 +169,7 @@ Likewise, the optional **ChatGPT Advisor** is a separate, user-triggered externa
 | Starter model | `qwen2.5:0.5b` offered after explicit user approval |
 | Disk space | At least **3 GiB free** for initial Easy Start; larger models may require many more GiB |
 | Internet | Required for missing prerequisite/model downloads and optional external connections; not required for offline local inference after setup |
-| Browser | Modern browser on the same PC, reaching `http://127.0.0.1:8765/` |
+| Browser | Modern browser on the same PC, reaching the local server |
 | GPU | **Not required** for basic operation; CPU inference may be slow; capacity depends on chosen model |
 | Optional fine-tuning setup | Python **3.11/3.12**, dedicated dependencies and additional disk/GPU checks; **training remains locked** |
 
@@ -178,7 +178,7 @@ Likewise, the optional **ChatGPT Advisor** is a separate, user-triggered externa
 1. Download the verified Windows ZIP from the [landing page](https://ai-lab.markellosecosystem.com/). New packages include the version in the filename (for example, `AI-Agents-Lab-Windows-vX.Y.Z.zip`); older assets retain their existing names.
 2. Extract it into a new folder on the Windows computer (do not run a BAT file from within the ZIP).
 3. Run `Start AI Training Lab.bat` (STABLE v2.0.26) or `Start Local Server.bat` (BETA v2.0.30) and approve each missing prerequisite or initial model download separately. Keep the BETA server CMD window open while using the Lab.
-4. Once ready, open `http://127.0.0.1:8765/` and choose an installed Ollama model.
+4. Once ready, use the dashboard Open AI Lab action and choose an installed Ollama model.
 5. For upgrades, stop the old server first and back up `data/campus.sqlite3` before transferring history to the new extracted folder.
 
 ### Understanding the Windows .bat files

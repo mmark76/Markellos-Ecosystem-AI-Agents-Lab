@@ -124,7 +124,7 @@ test('Windows PowerShell setup scripts parse and read the packaged release versi
     const files=[
       'get-lab-version.ps1','easy-start.ps1','finish-setup.ps1',
       'create-desktop-shortcut.ps1','register-dashboard-protocols.ps1','launch-from-dashboard.ps1',
-      'prepare-local-server.ps1','start-background-server.ps1','start-console-server.ps1','setup-training.ps1',
+      'prepare-local-server.ps1','get-local-lab-url.ps1','start-background-server.ps1','start-console-server.ps1','setup-training.ps1',
       'show-training-setup-result.ps1'
     ].map(name=>path.join(sourceRoot,'scripts',name));
     const quote=value=>value.replaceAll("'","''");
@@ -206,31 +206,40 @@ test('dashboard Stop calls only the bounded local stop preflight, without starti
 
 test('background launcher leaves a reachable Python server running after PowerShell exits',
   {skip:process.platform!=='win32'},async()=>{
-    const root=fs.mkdtempSync(path.join(os.tmpdir(),'ai-lab-background-'));
+    const root=fs.realpathSync.native(fs.mkdtempSync(path.join(os.tmpdir(),'ai-lab-background-')));
     const scripts=path.join(root,'scripts');
     const serverPath=path.join(root,'server.py');
     let failure;
     let childPid=0;
     try{
       fs.mkdirSync(scripts,{recursive:true});
-      fs.copyFileSync(path.join(sourceRoot,'scripts','start-background-server.ps1'),path.join(scripts,'start-background-server.ps1'));
+      for (const file of ['start-background-server.ps1','prepare-local-server.ps1','get-local-lab-url.ps1']) fs.copyFileSync(path.join(sourceRoot,'scripts',file),path.join(scripts,file));
+      fs.copyFileSync(path.join(sourceRoot,'local_runtime.py'),path.join(root,'local_runtime.py'));
       fs.writeFileSync(serverPath,[
         'from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer',
+        'from local_runtime import bind_server, publish_state',
+        '# Markellos Ecosystem AI Lab',
+        'PORT = 8765',
+        'from pathlib import Path',
         'class Handler(BaseHTTPRequestHandler):',
         '    def do_GET(self):',
         '        self.send_response(200)',
         '        self.end_headers()',
         '        self.wfile.write(b"BACKGROUND_OK")',
         '    def log_message(self, *args): pass',
-        'ThreadingHTTPServer(("127.0.0.1", 8765), Handler).serve_forever()'
+        'server = bind_server(Handler, PORT)',
+        'publish_state(Path(__file__).parent / "data", server.server_address[1])',
+        'server.serve_forever()'
       ].join('\n')+'\n',{encoding:'utf8'});
       let output;
       try{
         output=execFileSync('powershell.exe',['-NoProfile','-ExecutionPolicy','Bypass','-File',
-          path.join(scripts,'start-background-server.ps1'),'-LabRoot',root],{encoding:'utf8',timeout:15000});
+          path.join(scripts,'start-background-server.ps1'),'-LabRoot',root],{encoding:'utf8',timeout:60000});
       }catch(error){
         const started=String(error.stdout||'').match(/background \(PID (\d+)\)/);
         if(started)childPid=Number(started[1]);
+        const statePath=path.join(root,'data','runtime.json');
+        if(!childPid && fs.existsSync(statePath)) childPid=Number(JSON.parse(fs.readFileSync(statePath,'utf8')).pid);
         let service='unreachable';
         try{
           const response=await fetch('http://127.0.0.1:8765/',{signal:AbortSignal.timeout(2000)});
@@ -241,7 +250,9 @@ test('background launcher leaves a reachable Python server running after PowerSh
       const match=output.match(/background \(PID (\d+)\)/);
       assert.ok(match,'The launcher must report the detached Python server PID');
       childPid=Number(match[1]);
-      const response=await fetch('http://127.0.0.1:8765/',{signal:AbortSignal.timeout(3000)});
+      const state=JSON.parse(fs.readFileSync(path.join(root,'data','runtime.json'),'utf8'));
+      assert.equal(state.pid,childPid);
+      const response=await fetch(`http://127.0.0.1:${state.port}/`,{signal:AbortSignal.timeout(3000)});
       assert.equal(response.status,200);
       assert.equal(await response.text(),'BACKGROUND_OK');
     }catch(error){
@@ -251,7 +262,9 @@ test('background launcher leaves a reachable Python server running after PowerSh
         // The launcher itself verified this returned PID owns the fixture's
         // loopback listener, so it is the only process this test may stop.
         if(childPid){
-          try{process.kill(childPid);}catch(error){if(error.code!=='ESRCH')throw error;}
+          const quoted=serverPath.replaceAll("'","''");
+          const check=`$p=Get-CimInstance Win32_Process -Filter "ProcessId=${childPid}"; if ($p -and $p.Name -eq 'python.exe' -and $p.CommandLine.IndexOf('${quoted}', [StringComparison]::OrdinalIgnoreCase) -ge 0) { Stop-Process -Id ${childPid} -Force -ErrorAction Stop } elseif ($p) { throw 'Fixture process identity changed' }`;
+          execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-Command',check],{encoding:'utf8',timeout:10000});
           await new Promise(resolve=>setTimeout(resolve,1000));
         }
         fs.rmSync(root,{recursive:true,force:true,maxRetries:10,retryDelay:300});
@@ -300,29 +313,53 @@ test('server identity policy recognizes Labs and rejects unrelated Python proces
   });
 
 
-test('preflight refuses to terminate a real unrelated TCP listener',
+test('Stop preflight leaves a real unrelated TCP listener untouched',
   {skip:process.platform!=='win32'},async()=>{
     const listener=net.createServer();
-    await new Promise((resolve,reject)=>{
-      listener.once('error',reject);
-      listener.listen(8765,'127.0.0.1',resolve);
-    });
+    await new Promise((resolve,reject)=>{ listener.once('error',reject); listener.listen(0,'127.0.0.1',resolve); });
+    const root=fs.mkdtempSync(path.join(os.tmpdir(),'ai-lab-unrelated-'));
     try{
+      fs.copyFileSync(path.join(sourceRoot,'VERSION'),path.join(root,'VERSION'));
       const script=path.join(sourceRoot,'scripts','prepare-local-server.ps1');
-      for(const stopOnly of [false,true]){
-        let failure;
-        try{
-          execFileSync('powershell.exe',[
-            '-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',
-            script,'-LabRoot',sourceRoot,...(stopOnly?['-StopOnly']:[])
-          ],{encoding:'utf8',timeout:30000});
-        }catch(error){ failure=error; }
-        assert.ok(failure,'Expected the preflight to reject an unrelated process');
-        assert.equal(failure.status,1);
-        assert.match(failure.stdout,/cannot be verified as an AI Lab server/i);
-        assert.equal(listener.listening,true,'Preflight must not stop the unrelated listener');
-      }
+      const result=execFileSync('powershell.exe',[
+        '-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',
+        script,'-LabRoot',root,'-StopOnly'
+      ],{encoding:'utf8',timeout:60000});
+      assert.match(result,/already stopped/i);
+      assert.equal(listener.listening,true);
     }finally{
       await new Promise(resolve=>listener.close(resolve));
+      fs.rmSync(root,{recursive:true,force:true});
     }
+  });
+
+
+test('Open uses only a verified current listener and ignores stale runtime state',
+  {skip:process.platform!=='win32'},()=>{
+    const root=fs.mkdtempSync(path.join(os.tmpdir(),'ai-lab-open-state-'));
+    try{
+      const scripts=path.join(root,'scripts'), data=path.join(root,'data');
+      fs.mkdirSync(scripts); fs.mkdirSync(data);
+      for(const file of ['launch-from-dashboard.ps1','prepare-local-server.ps1','get-local-lab-url.ps1'])
+        fs.copyFileSync(path.join(sourceRoot,'scripts',file),path.join(scripts,file));
+      fs.writeFileSync(path.join(root,'Start Local Server.bat'),'@echo off\r\n');
+      const server=path.join(root,'server.py');
+      fs.writeFileSync(server,'# Markellos Ecosystem AI Lab\n# ThreadingHTTPServer\nPORT = 8765\n');
+      const state={pid:12345,port:43123,nonce:'ab'.repeat(16)};
+      fs.writeFileSync(path.join(data,'runtime.json'),JSON.stringify(state));
+      const q=s=>s.replaceAll("'","''");
+      const output=path.join(root,'opened.txt');
+      const base=[
+        `function Get-NetTCPConnection { [CmdletBinding()] param($LocalPort,$State) [pscustomobject]@{LocalAddress='127.0.0.1';LocalPort=43123;OwningProcess=12345} }`,
+        `function Get-CimInstance { [CmdletBinding()] param($ClassName,$Filter) [pscustomobject]@{Name='python.exe';CommandLine='"C:\\Python\\python.exe" -u "${q(server)}"'} }`,
+        `function Invoke-WebRequest { [CmdletBinding()] param([switch]$UseBasicParsing,$Uri,$TimeoutSec) [pscustomobject]@{StatusCode=200;Content='AI Lab'} }`,
+        `function Start-Process { param($FilePath,$WorkingDirectory) [IO.File]::WriteAllText('${q(output)}',[string]$FilePath) }`
+      ];
+      const open=[...base,`& '${q(path.join(scripts,'launch-from-dashboard.ps1'))}' -Action Open`].join('; ');
+      execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-EncodedCommand',Buffer.from(open,'utf16le').toString('base64')],{timeout:15000});
+      assert.equal(fs.readFileSync(output,'utf8'),'http://127.0.0.1:43123/');
+      state.pid=22222; fs.writeFileSync(path.join(data,'runtime.json'),JSON.stringify(state));
+      const stale=[...base,`. '${q(path.join(scripts,'prepare-local-server.ps1'))}' -PolicyOnly`,`. '${q(path.join(scripts,'get-local-lab-url.ps1'))}'`,`if (Get-LocalLabUrl -LabRoot '${q(root)}') { throw 'stale state accepted' }`].join('; ');
+      execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-EncodedCommand',Buffer.from(stale,'utf16le').toString('base64')],{timeout:15000});
+    }finally{ fs.rmSync(root,{recursive:true,force:true}); }
   });

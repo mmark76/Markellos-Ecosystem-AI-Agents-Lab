@@ -146,7 +146,7 @@ test('Open AI Lab BAT is packaged and reuses the dashboard Open action without d
   assert.match(open,/powershell\.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\\launch-from-dashboard\.ps1" -Action Open/);
   assert.match(open,/if errorlevel 1 \(/);
   assert.doesNotMatch(open,/server\.py|-Action (?:Stop|Refresh)|https?:\/\//);
-  assert.match(handler,/if \(\$Action -eq 'Open'\) \{ Start-Process \$localUrl \}/);
+  assert.match(handler,/if \(\$Action -eq 'Open'\)[\s\S]*Get-LocalLabUrl[\s\S]*Start-Process \$localUrl/);
   assert.match(packager,/'Open AI Lab\.bat'/);
   assert.match(verifier,/Open AI Lab\.bat/);
 });
@@ -263,6 +263,8 @@ test('a VERSION bump on main automatically creates the matching release ZIP',()=
   assert.match(workflow,/'apps\/local-ai-agents-lab\/VERSION'/);
   assert.match(workflow,/gh release create/);
   assert.match(workflow,/--target "\$GITHUB_SHA"/);
+  assert.match(workflow,/RELEASE_CHANNEL/);
+  assert.match(workflow,/flags\+=\(--prerelease --latest=false\)/);
   assert.match(workflow,/AI-Agents-Lab-Windows-v\$\{version\}\.zip/);
   assert.match(workflow,/AI-Agents-Lab-Windows-\$\{\{ steps\.version\.outputs\.tag \}\}\.zip/);
   assert.doesNotMatch(workflow,/AI-Agents-Lab-Windows\.zip/);
@@ -284,7 +286,7 @@ test('Dashboard launcher registers separate Open, Refresh and Stop actions with 
   assert.match(register,/-Action ' \+ \$registration\.Action/);
   assert.match(handler,/Start Local Server\.bat/);
   assert.doesNotMatch(handler,/Start AI Training Lab\.bat/);
-  assert.match(handler,/http:\/\/127\.0\.0\.1:8765\//);
+  assert.match(handler,/Get-LocalLabUrl -LabRoot \$root/);
   assert.match(handler,/ValidateSet\('Open', 'Refresh', 'Stop'\)/);
   assert.match(handler,/if \(\$Action -eq 'Stop'\)/);
   assert.match(handler,/prepare-local-server\.ps1/);
@@ -386,7 +388,7 @@ test('Windows replacement preflight is bundled and never indiscriminately kills 
   assert.match(launcher,/prepare-local-server\.ps1/);
   assert.match(launcher,/if errorlevel 1/);
   assert.match(launcher,/start-console-server\.ps1/);
-  assert.match(preflight,/Get-NetTCPConnection -LocalPort 8765/);
+  assert.match(preflight,/Get-NetTCPConnection -LocalPort \$port/);
   assert.match(preflight,/Get-LabServerIdentity/);
   assert.match(preflight,/LEGACY_CANDIDATE/);
   assert.match(preflight,/Stop-Process -Id \$ownerPid -Force/);

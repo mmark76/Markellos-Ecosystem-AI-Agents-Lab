@@ -43,11 +43,14 @@ try {
         throw "Cannot start the detached server (Windows code $($launch.ReturnValue))."
     }
     $serverPid = [int]$launch.ProcessId
+    . (Join-Path $PSScriptRoot 'prepare-local-server.ps1') -PolicyOnly
+    . (Join-Path $PSScriptRoot 'get-local-lab-url.ps1')
     for ($attempt = 0; $attempt -lt 120; $attempt++) {
         Start-Sleep -Milliseconds 250
-        $listeners = @(Get-NetTCPConnection -LocalPort 8765 -State Listen -ErrorAction SilentlyContinue)
-        if ($listeners.Count -eq 1 -and $listeners[0].LocalAddress -eq '127.0.0.1' -and [int]$listeners[0].OwningProcess -eq $serverPid) {
-            Write-Host "AI Lab server started in background (PID $serverPid)."
+        $url = Get-LocalLabUrl -LabRoot $root
+        $state = if ($url) { Get-Content -LiteralPath (Join-Path $root 'data\runtime.json') -Raw | ConvertFrom-Json } else { $null }
+        if ($state -and [int]$state.pid -eq $serverPid) {
+            Write-Host "AI Lab server started in background (PID $serverPid). $url"
             exit 0
         }
         if (-not (Get-Process -Id $serverPid -ErrorAction SilentlyContinue)) { throw 'AI Lab server exited during startup. Check data\logs\server-errors.log.' }

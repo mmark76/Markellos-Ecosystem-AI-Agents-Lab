@@ -63,3 +63,7 @@ The selected profile and integration details belong in `../infrastructure/INFRAS
 ## Completion rule
 
 No mandatory requirement may be `VERIFIED` without applicable implementation, verification, evidence, current documentation, and a responsible owner. Unknown evidence is not a pass.
+
+## Automatic Local Port Selection — AI-LAB-OBJ-003
+
+The directly requested local-runtime change prefers port 8765 and uses an OS-assigned loopback port when occupied. `apps/local-ai-agents-lab/local_runtime.py` owns binding and local runtime metadata; the Python handler uses the bound port for Host, Origin and OAuth. Windows actions verify listener ownership and the installation path before use or an explicitly confirmed stop. Regression evidence: `tests/test_local_runtime.py`, `tests/test_server.py`, and `tests/windows-launcher.test.cjs`. A Windows end-to-end check and release artifact verification remain necessary before acceptance.

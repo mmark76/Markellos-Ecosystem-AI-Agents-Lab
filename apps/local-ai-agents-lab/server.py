@@ -46,6 +46,7 @@ LEGACY_TRAINING_ROOM = "uni" "versity"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from providers import InferenceProviders, ProviderError
+from local_runtime import bind_server, publish_state
 from training import TrainingError, TrainingLockedError, TrainingService
 from credential_vault import CredentialVault, CredentialVaultError
 from personal_provider import PersonalProviderConnectionError, PersonalProviderCredentialError, PersonalProviderPlanError, build_provider_plan, connection_check_request, credential_removal_request, credential_store_request, provider_options
@@ -577,11 +578,13 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(content)
 
     def _host_valid(self):
-        return self.headers.get("Host", "") in {f"127.0.0.1:{PORT}", f"localhost:{PORT}"}
+        port = self.server.server_address[1]
+        return self.headers.get("Host", "") in {f"127.0.0.1:{port}", f"localhost:{port}"}
 
     def _origin_valid(self):
         origin = self.headers.get("Origin", "")
-        return origin in {f"http://127.0.0.1:{PORT}", f"http://localhost:{PORT}"}
+        port = self.server.server_address[1]
+        return origin in {f"http://127.0.0.1:{port}", f"http://localhost:{port}"}
 
     def do_POST(self):
         if not self._host_valid() or not self._origin_valid():
@@ -592,7 +595,7 @@ class Handler(BaseHTTPRequestHandler):
                 size = int(self.headers.get("Content-Length", "0"))
                 if not 2 <= size <= 96 or json.loads(self.rfile.read(size)) != {"confirmConnection": True}:
                     raise OpenAIConnectionError("Confirm the ChatGPT connection request.")
-                self._json(OPENAI_CONNECTION.start(PORT), 202)
+                self._json(OPENAI_CONNECTION.start(self.server.server_address[1]), 202)
             except OpenAIConnectionSetupRequired as err:
                 self._json({"error": str(err), "setupRequired": True}, 409)
             except (OpenAIConnectionError, ValueError, TypeError, json.JSONDecodeError) as err:
@@ -864,12 +867,18 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     initialize()
     configure_api_logging()
-    server = ThreadingHTTPServer((HOST, PORT), Handler)
-    API_LOGGER.info("Local API server started on %s:%s", HOST, PORT)
+    server = bind_server(Handler, PORT)
+    port = server.server_address[1]
+    try:
+        publish_state(DB_PATH.parent, port)
+    except Exception:
+        server.server_close()
+        raise
+    API_LOGGER.info("Local API server started on %s:%s", HOST, port)
     print(
         "AI TRAINING LAB LOCAL SERVER\n"
         "SERVER RUNNING\n"
-        f"Local address: http://{HOST}:{PORT}/\n\n"
+        f"Local address: http://{HOST}:{port}/\n\n"
         "IMPORTANT\n"
         "This Terminal runs the AI Training Lab local server.\n"
         "Closing this Terminal will stop the server and make the application unavailable.\n"

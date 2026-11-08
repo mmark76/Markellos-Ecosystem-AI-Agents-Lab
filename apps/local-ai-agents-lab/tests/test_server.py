@@ -253,6 +253,8 @@ class HttpIntegrationTests(unittest.TestCase):
             thread = Thread(target=server.serve_forever, daemon=True); thread.start()
             try:
                 origin = f"http://127.0.0.1:{campus.PORT}"
+                actual_port = campus.PORT
+                campus.PORT = 1  # Host, Origin and OAuth must use the bound listener.
                 campus.OPENAI_CONNECTION = fake
                 opener = build_opener(ProxyHandler({}))
                 with opener.open(origin + "/api/openai/connection") as response:
@@ -261,7 +263,7 @@ class HttpIntegrationTests(unittest.TestCase):
                 with opener.open(connect) as response:
                     result = json.load(response)
                 self.assertEqual(result["state"], "AUTHORIZATION_STARTED")
-                self.assertEqual(fake.calls, [("start", campus.PORT)])
+                self.assertEqual(fake.calls, [("start", actual_port)])
                 review_body = {"confirmExternalReview":True,"question":"Review this"}
                 review = Request(origin + "/api/openai/review", data=json.dumps(review_body).encode(), headers={"Origin":origin,"Content-Type":"application/json"}, method="POST")
                 with opener.open(review) as response:

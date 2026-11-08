@@ -61,6 +61,9 @@ jobs:
           fi
           echo "value=$version" >> "$GITHUB_OUTPUT"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          channel="$(tr -d '\r\n' < apps/local-ai-agents-lab/RELEASE_CHANNEL)"
+          [[ "$channel" == "beta" || "$channel" == "stable" ]] || { echo "Invalid RELEASE_CHANNEL" >&2; exit 1; }
+          echo "channel=$channel" >> "$GITHUB_OUTPUT"
       - name: Build and verify release package
         working-directory: apps/local-ai-agents-lab
         run: |
@@ -74,8 +77,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          flags=()
+          if [[ "${{ steps.version.outputs.channel }}" == "beta" ]]; then
+            flags+=(--prerelease --latest=false)
+          fi
           gh release create "${{ steps.version.outputs.tag }}" "$RUNNER_TEMP/AI-Agents-Lab-Windows-${{ steps.version.outputs.tag }}.zip" \
             --repo "${{ github.repository }}" \
             --target "$GITHUB_SHA" \
             --title "AI Lab ${{ steps.version.outputs.tag }}" \
-            --generate-notes
+            --generate-notes "${flags[@]}"
