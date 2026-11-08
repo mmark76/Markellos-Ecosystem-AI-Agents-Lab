@@ -8,12 +8,47 @@ import time
 import unittest
 from pathlib import Path
 from threading import Event, Thread
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 from urllib.error import HTTPError, URLError
 
 SPEC = importlib.util.spec_from_file_location("campus_server", Path(__file__).resolve().parents[1] / "server.py")
 campus = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(campus)
+
+
+class StartupSessionTests(unittest.TestCase):
+    def test_start_resets_chatgpt_only_after_binding_and_before_publication(self):
+        fake = MagicMock()
+        fake.server_address = ("127.0.0.1", 44555)
+        events = []
+        fake.serve_forever.side_effect = lambda: events.append("serve")
+        with patch.object(campus, "initialize"), patch.object(campus, "configure_api_logging"), \
+             patch.object(campus, "bind_server", return_value=fake), \
+             patch.object(campus.OPENAI_CONNECTION, "reset_on_server_start", side_effect=lambda: events.append("reset")), \
+             patch.object(campus, "publish_state", side_effect=lambda *args: events.append("publish")):
+            campus.main()
+        self.assertEqual(events, ["reset", "publish", "serve"])
+        fake.server_close.assert_called_once()
+
+    def test_bind_failure_does_not_clear_chatgpt(self):
+        with patch.object(campus, "initialize"), patch.object(campus, "configure_api_logging"), \
+             patch.object(campus, "bind_server", side_effect=OSError("bind failed")), \
+             patch.object(campus.OPENAI_CONNECTION, "reset_on_server_start") as reset:
+            with self.assertRaises(OSError):
+                campus.main()
+        reset.assert_not_called()
+
+    def test_reset_failure_closes_server_without_publishing(self):
+        fake = MagicMock()
+        fake.server_address = ("127.0.0.1", 44555)
+        with patch.object(campus, "initialize"), patch.object(campus, "configure_api_logging"), \
+             patch.object(campus, "bind_server", return_value=fake), \
+             patch.object(campus.OPENAI_CONNECTION, "reset_on_server_start", side_effect=campus.OpenAIConnectionError("failed")), \
+             patch.object(campus, "publish_state") as publish:
+            with self.assertRaises(campus.OpenAIConnectionError):
+                campus.main()
+        fake.server_close.assert_called_once()
+        publish.assert_not_called()
 
 
 class CampusTests(unittest.TestCase):
@@ -240,6 +275,7 @@ class HttpIntegrationTests(unittest.TestCase):
 
         class FakeConnection:
             def __init__(self): self.calls = []
+            session_prepared = True
             def status(self): return {"provider":"openai-chatgpt","connected":False,"scope":"current-windows-user"}
             def start(self, port): self.calls.append(("start", port)); return {"state":"AUTHORIZATION_STARTED","expiresInSeconds":600}
             def remove(self): self.calls.append(("remove",)); return {"state":"REMOVED_LOCALLY","removed":True}

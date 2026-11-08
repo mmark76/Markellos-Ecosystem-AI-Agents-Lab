@@ -500,7 +500,7 @@ class Handler(BaseHTTPRequestHandler):
             return
         if self.path == "/api/openai/connection":
             try:
-                self._json(OPENAI_CONNECTION.status())
+                self._json({**OPENAI_CONNECTION.status(), "preparationRequired": not OPENAI_CONNECTION.session_prepared})
             except OpenAIConnectionError as err:
                 self._json({"error": str(err)}, 503)
             return
@@ -606,6 +606,13 @@ class Handler(BaseHTTPRequestHandler):
                 size = int(self.headers.get("Content-Length", "0"))
                 if not 2 <= size <= 96 or json.loads(self.rfile.read(size)) != {"confirmSetup": True}:
                     raise OpenAIConnectionError("Confirm the optional connection setup request.")
+                try:
+                    OPENAI_CONNECTION.prepare_session()
+                except OpenAIConnectionSetupRequired:
+                    pass  # The existing setup installs the missing component.
+                else:
+                    self._json({"state": "READY"})
+                    return
                 script = ROOT / "scripts" / "setup-openai-connection.ps1"
                 if not script.is_file():
                     raise OpenAIConnectionError("The optional connection setup script is unavailable.")
@@ -870,6 +877,7 @@ def main():
     server = bind_server(Handler, PORT)
     port = server.server_address[1]
     try:
+        OPENAI_CONNECTION.reset_on_server_start()
         publish_state(DB_PATH.parent, port)
     except Exception:
         server.server_close()

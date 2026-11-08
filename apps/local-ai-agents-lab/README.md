@@ -181,6 +181,8 @@ identity-verification component in a virtual environment inside the extracted
 Lab folder. It validates the OpenAI identity response and stores the resulting
 connection record with Windows DPAPI for the current Windows user.
 
+Each local server startup clears the saved ChatGPT authorization. Select Prepare connection and then Connect for a fresh browser approval. Preparation checks the existing security component without reinstalling it; if missing, install it and restart the server first. Closing and reopening a browser tab does not restart the server. Local conversations and other provider credentials are retained.
+
 Connecting opens the user's browser for approval. It does not by itself send a
 prompt or call a model. Once connected, the Advisor accepts one explicit
 question and shows its completed answer below it. The Ask action is the
