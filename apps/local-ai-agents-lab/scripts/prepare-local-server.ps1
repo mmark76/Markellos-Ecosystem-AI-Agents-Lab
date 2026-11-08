@@ -20,9 +20,9 @@ function Get-LabServerIdentity {
     $command = [string]$Process.CommandLine
     if (-not $command) { return $unknown }
 
-    $absolute = [regex]::Match($command, '(?i)(?:^|\s)"(?<script>[a-z]:\\[^"]+\\server\.py)"\s*$')
+    $absolute = [regex]::Match($command, '(?i)(?:^|\s)(?:"(?<quoted>[a-z]:\\[^"]+\\server\.py)"|(?<plain>[a-z]:\\[^\s"]+\\server\.py))\s*$')
     if ($absolute.Success) {
-        $script = $absolute.Groups['script'].Value
+        $script = if ($absolute.Groups['quoted'].Success) { $absolute.Groups['quoted'].Value } else { $absolute.Groups['plain'].Value }
         if (-not (Test-Path -LiteralPath $script -PathType Leaf)) { return $unknown }
         $body = [IO.File]::ReadAllText($script)
         if (-not ($body.Contains('Markellos Ecosystem AI Lab') -and
@@ -50,34 +50,38 @@ try {
     $root = [IO.Path]::GetFullPath($LabRoot)
     . (Join-Path $PSScriptRoot 'get-lab-version.ps1')
     $version = Get-LabVersion $root
-    $listeners = @(Get-NetTCPConnection -LocalPort 8765 -State Listen -ErrorAction SilentlyContinue)
-    if ($listeners.Count -eq 0) {
+    # Inspect loopback listeners and accept only absolute-path Lab identities.
+    # An unrelated or unverified listener is never stopped, even with consent.
+    $labListeners = @()
+    $listeners = @(Get-NetTCPConnection -State Listen -ErrorAction Stop | Where-Object { $_.LocalAddress -eq '127.0.0.1' })
+    $pythonProcesses = @(Get-CimInstance Win32_Process -Filter "Name='python.exe' OR Name='pythonw.exe'" -ErrorAction Stop)
+    foreach ($listener in $listeners) {
+        $candidatePid = [int]$listener.OwningProcess
+        try {
+            $candidate = $pythonProcesses | Where-Object { [int]$_.ProcessId -eq $candidatePid } | Select-Object -First 1
+            if (-not $candidate) { continue }
+            $candidateIdentity = Get-LabServerIdentity -Process $candidate -CurrentRoot $root
+            if ($candidateIdentity.Kind -in @('CURRENT_LAB', 'OLDER_LAB')) {
+                if ($StopOnly -and $candidateIdentity.Kind -ne 'CURRENT_LAB') { continue }
+                $labListeners += [PSCustomObject]@{ Listener=$listener; Owner=$candidate; Identity=$candidateIdentity }
+            }
+        } catch { continue }
+    }
+    if ($labListeners.Count -eq 0) {
         if ($StopOnly) { Write-Host 'AI Lab server is already stopped.' }
         exit 0
     }
-
-    if ($listeners.Count -ne 1 -or $listeners[0].LocalAddress -ne '127.0.0.1') {
-        throw 'Port 8765 is already occupied by an unexpected listener. No process was stopped.'
-    }
-
-    $ownerPid = [int]$listeners[0].OwningProcess
-    $owner = Get-CimInstance Win32_Process -Filter "ProcessId=$ownerPid" -ErrorAction Stop
-    if (-not $owner) { throw "Could not identify PID $ownerPid. No process was stopped." }
-
-    $identity = Get-LabServerIdentity -Process $owner -CurrentRoot $root
-    if ($identity.Kind -eq 'UNRELATED') {
-        throw "PID $ownerPid owns port 8765 but cannot be verified as an AI Lab server. No process was stopped."
-    }
+    if ($labListeners.Count -ne 1) { throw 'Multiple verified Lab listeners were found. No process was stopped.' }
+    $listener = $labListeners[0].Listener
+    $owner = $labListeners[0].Owner
+    $identity = $labListeners[0].Identity
+    $ownerPid = [int]$listener.OwningProcess
+    $port = [int]$listener.LocalPort
 
     Add-Type -AssemblyName System.Windows.Forms
-    if ($identity.Kind -eq 'LEGACY_CANDIDATE') {
-        $finalQuestion = if ($StopOnly) { 'Stop this server without starting another?' } else { 'Force-stop it and start this copy?' }
-        $message = "PID $ownerPid is a Python server.py process using AI Lab's port 8765. An older launcher did not record its full script path, so ownership cannot be proven.`r`n`r`nCommand: $($owner.CommandLine)`r`n`r`nOnly approve if this is your earlier AI Training Lab. Any current agent run may be interrupted. $finalQuestion"
-    } else {
-        $description = if ($identity.Kind -eq 'CURRENT_LAB') { 'this AI Training Lab installation' } else { 'an older AI Training Lab installation' }
-        $finalQuestion = if ($StopOnly) { 'Stop it without restarting?' } else { 'Close it and start this copy?' }
-        $message = "PID $ownerPid belongs to $description.`r`n`r`nScript: $($identity.ScriptPath)`r`n`r`nStopping the server interrupts any active agent run. $finalQuestion"
-    }
+    $description = if ($identity.Kind -eq 'CURRENT_LAB') { 'this AI Training Lab installation' } else { 'an older AI Training Lab installation' }
+    $finalQuestion = if ($StopOnly) { 'Stop it without restarting?' } else { 'Close it and start this copy?' }
+    $message = "PID $ownerPid belongs to $description.`r`n`r`nScript: $($identity.ScriptPath)`r`n`r`nStopping the server interrupts any active agent run. $finalQuestion"
     $choice = [System.Windows.Forms.MessageBox]::Show(
         $message, "AI Training Lab v$version - Local server $(if ($StopOnly) { 'stop' } else { 'replacement' })",
         [System.Windows.Forms.MessageBoxButtons]::YesNo,
@@ -90,7 +94,7 @@ try {
     }
 
     # Check ownership again immediately before stopping, to avoid targeting a reused PID.
-    $fresh = @(Get-NetTCPConnection -LocalPort 8765 -State Listen -ErrorAction SilentlyContinue)
+    $fresh = @(Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue)
     if ($fresh.Count -ne 1 -or [int]$fresh[0].OwningProcess -ne $ownerPid -or $fresh[0].LocalAddress -ne '127.0.0.1') {
         throw 'Port ownership changed during confirmation. No process was stopped.'
     }
@@ -102,14 +106,14 @@ try {
     Stop-Process -Id $ownerPid -Force -ErrorAction Stop
     for ($attempt = 0; $attempt -lt 30; $attempt++) {
         Start-Sleep -Milliseconds 200
-        $remaining = @(Get-NetTCPConnection -LocalPort 8765 -State Listen -ErrorAction SilentlyContinue)
+        $remaining = @(Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue)
         if ($remaining.Count -eq 0) {
-            Write-Host "AI Lab server PID $ownerPid stopped; port 8765 is free."
+            Write-Host "AI Lab server PID $ownerPid stopped; port $port is free."
             exit 0
         }
     }
-    if ($StopOnly) { throw 'The Lab process stopped, but port 8765 is still occupied by another listener.' }
-    throw 'The old process was stopped, but port 8765 is still occupied. New server startup was blocked.'
+    if ($StopOnly) { throw "The Lab process stopped, but port $port is still occupied by another listener." }
+    throw "The old process was stopped, but port $port is still occupied. New server startup was blocked."
 } catch {
     Write-Host ("Local server preflight: " + $_.Exception.Message) -ForegroundColor Red
     exit 1

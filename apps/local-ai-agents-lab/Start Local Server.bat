@@ -19,7 +19,7 @@ if /I not "%~1"=="--launch-server" (
   exit /b %errorlevel%
 )
 rem Start only the local server; Open AI Lab.bat opens the browser separately.
-rem Confirm ownership before replacing a local server on port 8765.
+rem Confirm ownership before replacing a verified local Lab server.
 powershell.exe -NoProfile -ExecutionPolicy Bypass -STA -File "%~dp0scripts\prepare-local-server.ps1" -LabRoot "%~dp0."
 if errorlevel 1 (
   echo The local server was not started. Review the message above.
