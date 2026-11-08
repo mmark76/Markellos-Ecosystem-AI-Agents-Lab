@@ -263,6 +263,8 @@ test('a VERSION bump on main automatically creates the matching release ZIP',()=
   assert.match(workflow,/'apps\/local-ai-agents-lab\/VERSION'/);
   assert.match(workflow,/gh release create/);
   assert.match(workflow,/--target "\$GITHUB_SHA"/);
+  assert.match(workflow,/RELEASE_CHANNEL/);
+  assert.match(workflow,/flags\+=\(--prerelease --latest=false\)/);
   assert.match(workflow,/AI-Agents-Lab-Windows-v\$\{version\}\.zip/);
   assert.match(workflow,/AI-Agents-Lab-Windows-\$\{\{ steps\.version\.outputs\.tag \}\}\.zip/);
   assert.doesNotMatch(workflow,/AI-Agents-Lab-Windows\.zip/);
