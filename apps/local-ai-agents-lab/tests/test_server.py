@@ -17,6 +17,61 @@ SPEC.loader.exec_module(campus)
 
 
 class StartupSessionTests(unittest.TestCase):
+    def test_tab_close_releases_listener_and_rejects_cross_origin(self):
+        from urllib.request import Request, build_opener, ProxyHandler
+        server = campus.bind_server(campus.Handler, 0)
+        port = server.server_address[1]
+        closed = Event()
+        def last_tab():
+            closed.set()
+            server.shutdown()
+        server.tab_lifecycle = campus.TabLifecycle(last_tab, grace_seconds=.1)
+        thread = Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        origin = f"http://127.0.0.1:{port}"
+        opener = build_opener(ProxyHandler({}))
+        def send(event, request_origin=origin):
+            request = Request(origin + '/api/tab-lifecycle', data=json.dumps({'id': 'a' * 32, 'event': event}).encode(),
+                              headers={'Origin': request_origin, 'Content-Type': 'application/json'})
+            return opener.open(request)
+        try:
+            with self.assertRaises(HTTPError) as denied:
+                send('enter', 'http://example.com')
+            self.assertEqual(denied.exception.code, 403)
+            denied.exception.close()
+            with send('enter') as response:
+                self.assertTrue(json.load(response)['accepted'])
+            with send('leave') as response:
+                self.assertTrue(json.load(response)['accepted'])
+            self.assertTrue(closed.wait(2))
+            thread.join(3)
+            self.assertFalse(thread.is_alive())
+        finally:
+            if thread.is_alive():
+                server.shutdown()
+                thread.join(3)
+            server.server_close()
+        replacement = campus.bind_server(campus.Handler, port)
+        replacement.server_close()
+
+    def test_shutdown_removes_chatgpt_connection_before_stopping(self):
+        fake = MagicMock()
+        fake.server_address = ('127.0.0.1', 44555)
+        events = []
+        fake.serve_forever.side_effect = lambda: fake.tab_lifecycle.leave('tab')
+        fake.shutdown.side_effect = lambda: events.append('shutdown')
+        def lifecycle(callback):
+            instance = MagicMock()
+            instance.leave.side_effect = lambda _id: callback()
+            return instance
+        with patch.object(campus, 'initialize'), patch.object(campus, 'configure_api_logging'), \
+             patch.object(campus, 'bind_server', return_value=fake), patch.object(campus, 'TabLifecycle', side_effect=lifecycle), \
+             patch.object(campus, 'DB_PATH', Path('synthetic') / 'data.sqlite3'), \
+             patch.object(campus, 'publish_state'), patch.object(campus.OPENAI_CONNECTION, 'reset_on_server_start'), \
+             patch.object(campus.OPENAI_CONNECTION, 'remove', side_effect=lambda **kwargs: events.append(('remove', kwargs))):
+            campus.main()
+        self.assertEqual(events, [('remove', {'closing': True}), 'shutdown'])
+
     def test_start_resets_chatgpt_only_after_binding_and_before_publication(self):
         fake = MagicMock()
         fake.server_address = ("127.0.0.1", 44555)

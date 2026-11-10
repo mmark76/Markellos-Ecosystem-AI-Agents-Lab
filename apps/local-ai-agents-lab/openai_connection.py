@@ -58,6 +58,8 @@ class OpenAIConnectionService:
         self._identity_validator = identity_validator or self._validate_identity_token
         self._lock = Lock()
         self._attempt: dict[str, Any] | None = None
+        self._generation = 0
+        self._closed = False
         self._session_prepared = False
 
     @property
@@ -122,6 +124,8 @@ class OpenAIConnectionService:
             raise OpenAIConnectionSetupRequired("Prepare the secure connection for this session before connecting.")
         self._require_crypto()
         with self._lock:
+            if self._closed:
+                raise OpenAIConnectionError("The Local Lab is closing.")
             if self._attempt and self._attempt["expiresAt"] > time.time():
                 raise OpenAIConnectionError("A ChatGPT connection approval is already open in your browser.")
             client_id = self._client_id()
@@ -152,6 +156,7 @@ class OpenAIConnectionService:
         with self._lock:
             attempt = self._attempt
             self._attempt = None
+            generation = self._generation
         if not attempt or attempt["expiresAt"] <= time.time():
             raise OpenAIConnectionError("This ChatGPT approval has expired. Start the connection again.")
         if query.get("error"):
@@ -184,15 +189,18 @@ class OpenAIConnectionService:
             "accessTokenExpiresAt": self._access_expiry(tokens),
             "planUsageAuthorized": "chatgpt.tokens.use.direct" in scopes,
         }
-        try:
-            self._vault.store("openai-chatgpt", json.dumps(record, separators=(",", ":")))
-            self._save_client_id(issued_client_id)
-        except (CredentialVaultError, OSError) as err:
+        with self._lock:
+            if generation != self._generation:
+                raise OpenAIConnectionError("This ChatGPT approval was cancelled by disconnection.")
             try:
-                self._vault.remove("openai-chatgpt")
-            except CredentialVaultError:
-                pass
-            raise OpenAIConnectionError("The ChatGPT connection could not be protected for this Windows user.") from err
+                self._vault.store("openai-chatgpt", json.dumps(record, separators=(",", ":")))
+                self._save_client_id(issued_client_id)
+            except (CredentialVaultError, OSError) as err:
+                try:
+                    self._vault.remove("openai-chatgpt")
+                except CredentialVaultError:
+                    pass
+                raise OpenAIConnectionError("The ChatGPT connection could not be protected for this Windows user.") from err
         return self.status()
 
     def reset_on_server_start(self) -> None:
@@ -211,15 +219,17 @@ class OpenAIConnectionService:
         self._require_crypto()
         self._session_prepared = True
 
-    def remove(self) -> dict[str, Any]:
+    def remove(self, *, closing: bool = False) -> dict[str, Any]:
         with self._lock:
             self._attempt = None
-        try:
-            removed = self._vault.remove("openai-chatgpt")
-            self._registration_path.unlink(missing_ok=True)
-            self._host_path.unlink(missing_ok=True)
-        except (CredentialVaultError, OSError) as err:
-            raise OpenAIConnectionError("The ChatGPT connection could not be removed locally.") from err
+            self._generation += 1
+            self._closed = self._closed or closing
+            try:
+                removed = self._vault.remove("openai-chatgpt")
+                self._registration_path.unlink(missing_ok=True)
+                self._host_path.unlink(missing_ok=True)
+            except (CredentialVaultError, OSError) as err:
+                raise OpenAIConnectionError("The ChatGPT connection could not be removed locally.") from err
         return {"provider": "openai-chatgpt", "state": "REMOVED_LOCALLY", "removed": removed}
 
     def ask_advisor(self, *, question: str) -> dict[str, Any]:
@@ -363,6 +373,8 @@ class OpenAIConnectionService:
         if not isinstance(client_id, str) or not client_id.startswith("oaiapp_") or not isinstance(refresh_token, str) or not refresh_token:
             raise OpenAIConnectionError("ChatGPT authorization has expired. Reconnect and approve plan usage again.")
         with self._lock:
+            if self._connection_record() != record:
+                raise OpenAIConnectionError("The ChatGPT connection changed. Reconnect before continuing.")
             refreshed = self._token_exchange({
                 "grant_type": "refresh_token", "client_id": client_id,
                 "refresh_token": refresh_token, "resource": RESOURCE,

@@ -46,7 +46,7 @@ LEGACY_TRAINING_ROOM = "uni" "versity"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from providers import InferenceProviders, ProviderError
-from local_runtime import bind_server, publish_state
+from local_runtime import TabLifecycle, bind_server, publish_state
 from training import TrainingError, TrainingLockedError, TrainingService
 from credential_vault import CredentialVault, CredentialVaultError
 from personal_provider import PersonalProviderConnectionError, PersonalProviderCredentialError, PersonalProviderPlanError, build_provider_plan, connection_check_request, credential_removal_request, credential_store_request, provider_options
@@ -590,6 +590,25 @@ class Handler(BaseHTTPRequestHandler):
         if not self._host_valid() or not self._origin_valid():
             self._json({"error": "Cross-origin writes blocked"}, 403)
             return
+        if self.path == "/api/tab-lifecycle":
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if not 2 <= size <= 128:
+                    raise ValueError("Invalid lifecycle request")
+                body = json.loads(self.rfile.read(size))
+                if not isinstance(body, dict) or set(body) != {"id", "event"} or not isinstance(body["id"], str) or not re.fullmatch(r"[0-9a-f]{32}", body["id"]) or body["event"] not in ("enter", "leave"):
+                    raise ValueError("Invalid lifecycle request")
+                lifecycle = getattr(self.server, "tab_lifecycle", None)
+                if lifecycle is None:
+                    self._json({"error": "Lifecycle unavailable"}, 503)
+                elif body["event"] == "enter":
+                    self._json({"accepted": lifecycle.enter(body["id"])})
+                else:
+                    lifecycle.leave(body["id"])
+                    self._json({"accepted": True})
+            except (ValueError, TypeError, json.JSONDecodeError):
+                self._json({"error": "Invalid lifecycle request"}, 400)
+            return
         if self.path == "/api/openai/connection":
             try:
                 size = int(self.headers.get("Content-Length", "0"))
@@ -875,6 +894,14 @@ def main():
     initialize()
     configure_api_logging()
     server = bind_server(Handler, PORT)
+    def last_tab_closed():
+        try:
+            OPENAI_CONNECTION.remove(closing=True)
+        except OpenAIConnectionError:
+            API_LOGGER.exception("Could not remove the local ChatGPT connection on tab close")
+        finally:
+            server.shutdown()
+    server.tab_lifecycle = TabLifecycle(last_tab_closed)
     port = server.server_address[1]
     try:
         OPENAI_CONNECTION.reset_on_server_start()
