@@ -1,5 +1,31 @@
 'use strict';
 
+// Each document gets its own ID, including a document restored from bfcache.
+// A short server-side grace period lets a reload register its replacement.
+let labDocumentId = null;
+function lifecycleRequest(id, event) {
+  const body = JSON.stringify({id, event});
+  if (event === 'leave' && navigator.sendBeacon &&
+      navigator.sendBeacon('/api/tab-lifecycle', new Blob([body], {type: 'application/json'}))) return;
+  return fetch('/api/tab-lifecycle', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body, keepalive: true,
+  }).catch(() => {});
+}
+function enterLabDocument() {
+  if (labDocumentId) return;
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  labDocumentId = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+  lifecycleRequest(labDocumentId, 'enter');
+}
+window.addEventListener('pageshow', enterLabDocument);
+window.addEventListener('pagehide', () => {
+  if (!labDocumentId) return;
+  lifecycleRequest(labDocumentId, 'leave');
+  labDocumentId = null;
+});
+enterLabDocument();
+
 const chatgptConnect = document.getElementById('openai-chatgpt-connect');
 const chatgptSetup = document.getElementById('openai-chatgpt-setup');
 const chatgptRemove = document.getElementById('openai-chatgpt-remove');

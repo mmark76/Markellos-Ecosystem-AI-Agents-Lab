@@ -6,9 +6,54 @@ import secrets
 import socket
 import tempfile
 from http.server import ThreadingHTTPServer
+from threading import Lock, Timer
 
 HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
+
+
+class TabLifecycle:
+    """Track Lab documents; allow a short interval for reload/navigation."""
+
+    def __init__(self, on_last_tab, grace_seconds=10):
+        self._on_last_tab = on_last_tab
+        self._grace_seconds = grace_seconds
+        self._lock = Lock()
+        self._active = set()
+        self._closed = set()
+        self._timer = None
+        self._stopping = False
+
+    def enter(self, tab_id):
+        with self._lock:
+            if self._stopping or tab_id in self._closed:
+                return False
+            self._active.add(tab_id)
+            if self._timer:
+                self._timer.cancel()
+                self._timer = None
+            return True
+
+    def leave(self, tab_id):
+        with self._lock:
+            if self._stopping:
+                return
+            self._closed.add(tab_id)  # A late enter must not resurrect this document.
+            self._active.discard(tab_id)
+            if not self._active and not self._timer:
+                marker = object()
+                self._timer_marker = marker
+                self._timer = Timer(self._grace_seconds, self._finish, args=(marker,))
+                self._timer.daemon = True
+                self._timer.start()
+
+    def _finish(self, marker):
+        with self._lock:
+            if self._active or self._stopping or not self._timer or self._timer_marker is not marker:
+                return
+            self._timer = None
+            self._stopping = True
+        self._on_last_tab()
 
 
 class LocalServer(ThreadingHTTPServer):

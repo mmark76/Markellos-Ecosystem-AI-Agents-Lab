@@ -6,6 +6,7 @@ from pathlib import Path
 from urllib.error import HTTPError
 from io import BytesIO
 from urllib.parse import parse_qs, urlsplit
+from threading import Event, Thread
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -23,6 +24,45 @@ class FakeVault:
 
 
 class OpenAIConnectionTests(unittest.TestCase):
+    def test_disconnected_record_cannot_be_refreshed_back_into_vault(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            service = self.make_service(Path(temporary), [])
+            stale = {"subject": "synthetic", "clientId": "oaiapp_example", "refreshToken": "synthetic"}
+            service._vault.store("openai-chatgpt", json.dumps(stale))
+            service.remove()
+            with self.assertRaises(module.OpenAIConnectionError):
+                service._access_token(stale)
+            self.assertFalse(service.status()["connected"])
+
+    def test_disconnect_during_oauth_cannot_restore_credential(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            opened, started, resume, errors = [], Event(), Event(), []
+            service = self.make_service(Path(temporary), opened)
+            service._require_crypto = lambda: None
+            def exchange(_form):
+                started.set()
+                self.assertTrue(resume.wait(2))
+                return {"id_token": "identity", "refresh_token": "refresh"}
+            service._token_exchange = exchange
+            service.start(8765)
+            attempt = service._attempt.copy()
+            def complete():
+                try:
+                    service.complete({"state": attempt["state"], "code": "synthetic", "client_id": "oaiapp_example"})
+                except module.OpenAIConnectionError as error:
+                    errors.append(str(error))
+            worker = Thread(target=complete)
+            worker.start()
+            self.assertTrue(started.wait(2))
+            service.remove(closing=True)
+            resume.set()
+            worker.join(2)
+            self.assertFalse(worker.is_alive())
+            self.assertTrue(errors)
+            self.assertFalse(service.status()["connected"])
+            with self.assertRaisesRegex(module.OpenAIConnectionError, "closing"):
+                service.start(8765)
+
     def test_server_session_requires_prepare_and_fresh_approval(self):
         with tempfile.TemporaryDirectory() as temporary:
             vault = FakeVault()

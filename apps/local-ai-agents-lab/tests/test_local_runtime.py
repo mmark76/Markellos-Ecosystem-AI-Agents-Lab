@@ -6,11 +6,34 @@ import unittest
 from http.server import BaseHTTPRequestHandler
 from pathlib import Path
 from unittest.mock import patch
+from threading import Event
 
 import local_runtime
 
 
 class RuntimeTests(unittest.TestCase):
+    def test_last_tab_and_reload_grace(self):
+        stopped = Event()
+        lifecycle = local_runtime.TabLifecycle(stopped.set, grace_seconds=.1)
+        self.assertTrue(lifecycle.enter('first'))
+        self.assertTrue(lifecycle.enter('second'))
+        lifecycle.leave('first')
+        self.assertFalse(stopped.wait(.15))
+        lifecycle.leave('second')
+        self.assertTrue(lifecycle.enter('reloaded'))
+        self.assertFalse(stopped.wait(.15))
+        self.assertFalse(lifecycle.enter('second'))
+        lifecycle.leave('reloaded')
+        self.assertTrue(stopped.wait(2))
+        self.assertFalse(lifecycle.enter('another'))
+
+    def test_late_enter_does_not_resurrect_closed_document(self):
+        stopped = Event()
+        lifecycle = local_runtime.TabLifecycle(stopped.set, grace_seconds=.05)
+        lifecycle.leave('closed-before-enter')
+        self.assertFalse(lifecycle.enter('closed-before-enter'))
+        self.assertTrue(stopped.wait(2))
+
     def test_default_port_is_attempted_before_os_selection(self):
         with patch.object(local_runtime, 'LocalServer', side_effect=[OSError(errno.EADDRINUSE, 'occupied'), object()]) as factory:
             local_runtime.bind_server(BaseHTTPRequestHandler)

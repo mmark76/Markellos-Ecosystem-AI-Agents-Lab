@@ -1,6 +1,6 @@
 # Markellos Ecosystem AI Lab
 
-Version: v2.0.34 · Private local starter
+Version: v2.0.35 · Private local starter
 
 Local Windows application with five active workspaces:
 
@@ -22,7 +22,7 @@ For a first-time setup, extract the ZIP and double-click **`Start Local Server.b
 
 After the initial setup, **`Start Local Server.bat`** (also targeted by the optional Desktop shortcut) starts the local server in a visible CMD window but does not automatically open a browser tab. **Keep that window open while using the Lab; closing it stops the local server.** The separate **`Open AI Lab.bat`** opens the Lab in the browser and starts the server if needed, reusing the same local Open action as the public dashboard's **Open AI Lab** button. The dashboard's **Stop Local Server** action stops the verified local Lab server without restarting it, after asking for confirmation if a Lab is running. The Open action opens an already responsive Lab, starts one if absent, and uses the existing confirmed replacement check only if needed. Dashboard buttons require the per-user URL protocols registered during local setup; the BAT launchers themselves do not need browser protocol registration.
 
-The foreground server displays **SERVER RUNNING**, its local address, and an **IMPORTANT** message in the CMD window after it successfully binds to the loopback address. Keep this window running (you may minimize it), and close it when you have finished using the Lab. Closing the browser tab alone does not stop the server. You can also use the public dashboard's **Stop Local Server** action. Open **Info → View API Logs** inside the Lab to see recent API activity and refresh it on demand. The local log is stored at `data/logs/api.log`, capped at approximately 512 KB per file plus two rotated backups; `data/logs/server-errors.log` records startup failures if any. Request bodies and URL query strings are excluded from the API log. These files stay on your computer. Published v2.0.27–v2.0.29 ZIPs retain their background-server behavior; the restored foreground console is included from v2.0.30 onward.
+The foreground server displays **SERVER RUNNING**, its local address, and an **IMPORTANT** message in the CMD window after it successfully binds to the loopback address. Keep this window running (you may minimize it), and close it when you have finished using the Lab. After the last Local Lab tab closes, the server removes the local ChatGPT connection and stops after a 10-second grace period, releasing its port. A reload that registers within that interval or another registered Lab tab keeps the server running. Closing the last tab interrupts work still running in the Lab server. Browsers can fail to deliver a close notification, including after a crash; use Stop Local Server if needed. You can also use the public dashboard's **Stop Local Server** action. Open **Info → View API Logs** inside the Lab to see recent API activity and refresh it on demand. The local log is stored at `data/logs/api.log`, capped at approximately 512 KB per file plus two rotated backups; `data/logs/server-errors.log` records startup failures if any. Request bodies and URL query strings are excluded from the API log. These files stay on your computer. Published v2.0.27–v2.0.29 ZIPs retain their background-server behavior; the restored foreground console is included from v2.0.30 onward.
 
 It asks for a separate, explicit approval before it can:
 
@@ -79,7 +79,7 @@ Enter an exact model name from the [Ollama model library](https://ollama.com/lib
 for example `gemma3:4b`, then choose **Install model** and confirm the download.
 Progress and errors appear in the Lab. After successful installation, the local
 model selector refreshes and selects the downloaded model. Only one download can
-run at a time; it may continue when the tab closes as long as the Lab stays running.
+run at a time. Closing the last Lab tab stops the Lab server after the grace period; the separate Ollama service manages its own download.
 
 This is an explicit internet download by the local Ollama daemon to its own
 model storage. **The Lab itself remains bound to loopback** and never accepts
@@ -203,7 +203,7 @@ The local agents continue to use loopback Ollama independently. Their work
 remains local unless the user deliberately asks the external advisor a
 question. Disconnect deletes the encrypted connection, dynamic client
 registration, and local host profile; after disconnection the Lab has no
-ChatGPT connection and returns to local-only operation.
+locally stored ChatGPT connection and returns to local-only operation. Closing the last Lab tab performs the same local removal before stopping the server; the next session requires a fresh connection. This does not claim to revoke the authorization on ChatGPT servers. If local removal fails, the server logs the error; startup refuses to proceed if it cannot clear a previously saved authorization.
 
 ## Advanced model training — locked
 
